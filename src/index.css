@@ -1,0 +1,182 @@
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: 0 0% 100%;
+    --foreground: 222.2 84% 4.9%;
+
+    --card: 0 0% 100%;
+    --card-foreground: 222.2 84% 4.9%;
+
+    --popover: 0 0% 100%;
+    --popover-foreground: 222.2 84% 4.9%;
+
+    --primary: 210 64% 39%;
+    --primary-foreground: 210 40% 98%;
+
+    --secondary: 160 42% 49%;
+    --secondary-foreground: 222.2 47.4% 11.2%;
+
+    --muted: 210 40% 96.1%;
+    --muted-foreground: 215.4 16.3% 46.9%;
+
+    --accent: 41 57% 76%;
+    --accent-foreground: 222.2 47.4% 11.2%;
+
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 210 40% 98%;
+
+    --border: 214.3 31.8% 91.4%;
+    --input: 214.3 31.8% 91.4%;
+    --ring: 222.2 84% 4.9%;
+
+    --radius: 0.75rem;
+  }
+  
+  * {
+    @apply border-border;
+  }
+  
+  body {
+    @apply bg-background text-foreground antialiased overflow-x-hidden font-sans;
+  }
+  
+  /* Custom scrollbar */
+  ::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+  }
+  
+  ::-webkit-scrollbar-track {
+    @apply bg-transparent;
+  }
+  
+  ::-webkit-scrollbar-thumb {
+    @apply bg-vendle-blue/30 rounded-full transition-colors duration-200;
+  }
+  
+  ::-webkit-scrollbar-thumb:hover {
+    @apply bg-vendle-blue/50;
+  }
+  
+  /* Typography scale */
+  h1, .h1 {
+    @apply text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight leading-tight;
+  }
+  
+  h2, .h2 {
+    @apply text-3xl md:text-4xl font-bold tracking-tight leading-tight;
+  }
+  
+  h3, .h3 {
+    @apply text-2xl md:text-3xl font-semibold tracking-tight leading-tight;
+  }
+  
+  h4, .h4 {
+    @apply text-xl md:text-2xl font-semibold tracking-tight leading-tight;
+  }
+  
+  h5, .h5 {
+    @apply text-lg md:text-xl font-semibold leading-snug;
+  }
+  
+  h6, .h6 {
+    @apply text-base md:text-lg font-semibold leading-snug;
+  }
+  
+  p, .body {
+    @apply text-base leading-relaxed;
+  }
+  
+  .small {
+    @apply text-sm leading-relaxed;
+  }
+  
+  .tiny {
+    @apply text-xs leading-relaxed;
+  }
+}
+
+@layer components {
+  /* Glass UI elements */
+  .glass {
+    @apply bg-white/80 backdrop-blur-md border border-white/20 shadow-subtle;
+  }
+  
+  .glass-dark {
+    @apply bg-vendle-navy/80 backdrop-blur-md border border-white/10 shadow-subtle;
+  }
+  
+  /* Button variants */
+  .btn-primary {
+    @apply bg-vendle-blue text-white hover:bg-vendle-blue/90 transition-all duration-300 rounded-lg px-6 py-3 font-medium shadow-subtle hover:shadow-medium active:shadow-inner-subtle;
+  }
+  
+  .btn-secondary {
+    @apply bg-vendle-teal text-white hover:bg-vendle-teal/90 transition-all duration-300 rounded-lg px-6 py-3 font-medium shadow-subtle hover:shadow-medium active:shadow-inner-subtle;
+  }
+  
+  .btn-outline {
+    @apply border border-vendle-blue text-vendle-blue hover:bg-vendle-blue/10 transition-all duration-300 rounded-lg px-6 py-3 font-medium;
+  }
+  
+  .btn-ghost {
+    @apply text-vendle-blue hover:bg-vendle-blue/10 transition-all duration-300 rounded-lg px-6 py-3 font-medium;
+  }
+  
+  /* Card styles */
+  .card {
+    @apply bg-white rounded-2xl shadow-medium overflow-hidden transition-all duration-300 hover:shadow-strong;
+  }
+  
+  /* Input styles */
+  .input-field {
+    @apply w-full px-4 py-3 rounded-lg border border-vendle-gray/30 focus:border-vendle-blue focus:ring-2 focus:ring-vendle-blue/20 outline-none transition-all duration-200;
+  }
+  
+  /* Page transitions */
+  .page-enter {
+    @apply opacity-0;
+  }
+  
+  .page-enter-active {
+    @apply opacity-100 transition-opacity duration-300;
+  }
+  
+  .page-exit {
+    @apply opacity-100;
+  }
+  
+  .page-exit-active {
+    @apply opacity-0 transition-opacity duration-300;
+  }
+  
+  /* Loading states */
+  .loading-skeleton {
+    @apply animate-pulse bg-vendle-gray/20 rounded;
+  }
+}
+
+@layer utilities {
+  .text-balance {
+    text-wrap: balance;
+  }
+  
+  /* Custom scrollbar for elements */
+  .custom-scrollbar {
+    @apply scrollbar-thin scrollbar-thumb-vendle-blue/30 scrollbar-track-transparent hover:scrollbar-thumb-vendle-blue/50;
+  }
+  
+  /* Clipped background styles */
+  .clip-path-slant {
+    clip-path: polygon(0 0, 100% 0, 100% 85%, 0 100%);
+  }
+  
+  /* Smooth transitions */
+  .transition-smooth {
+    @apply transition-all duration-300 ease-in-out;
+  }
+}
