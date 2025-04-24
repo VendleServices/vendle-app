@@ -1,143 +1,250 @@
 "use client";
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { useAuth } from '@/contexts/AuthContext';
+import { useToast } from "@/components/ui/use-toast";
+import { Loader2, DollarSign, Clock, Users, MapPin } from 'lucide-react';
 
-interface Project {
-  id: string;
-  title: string;
-  address: string;
-  description: string;
-  currentBid: number;
-  deadline: string;
-  status: 'active' | 'closed';
-  type: 'insurance' | 'fema';
+interface Auction {
+    auction_id: string;
+    claim_id: string;
+    status: string;
+    starting_bid: number;
+    current_bid: number;
+    bid_count: number;
+    end_date: string;
+    property_address: string;
+    project_type: string;
+    design_plan: string;
+    description: string;
 }
 
 export default function ReverseAuction() {
-  const { user } = useAuth();
-  const [projects] = useState<Project[]>([
-    {
-      id: "1",
-      title: "Water Damage Restoration",
-      address: "123 Main St, Anytown, USA",
-      description: "Complete water damage restoration including drywall replacement, flooring, and mold remediation",
-      currentBid: 15000,
-      deadline: "2024-04-15",
-      status: 'active',
-      type: 'insurance'
-    },
-    {
-      id: "2",
-      title: "Fire Damage Repair",
-      address: "456 Oak Ave, Somewhere, USA",
-      description: "Structural repairs and smoke damage cleanup after kitchen fire",
-      currentBid: 25000,
-      deadline: "2024-04-20",
-      status: 'active',
-      type: 'insurance'
-    },
-    {
-      id: "3",
-      title: "Storm Damage Assessment",
-      address: "789 Pine Rd, Anywhere, USA",
-      description: "Roof damage assessment and repair after severe storm",
-      currentBid: 8000,
-      deadline: "2024-04-10",
-      status: 'closed',
-      type: 'fema'
+    const { user } = useAuth();
+    const { toast } = useToast();
+    const [auctions, setAuctions] = useState<Auction[]>([]);
+    const [loading, setLoading] = useState(true);
+    const [bidAmounts, setBidAmounts] = useState<Record<string, number>>({});
+    const [bidding, setBidding] = useState<Record<string, boolean>>({});
+
+    useEffect(() => {
+        fetchAuctions();
+    }, []);
+
+    const fetchAuctions = async () => {
+        try {
+            const response = await fetch('/api/auctions');
+            if (!response.ok) {
+                throw new Error('Failed to fetch auctions');
+            }
+            const data = await response.json();
+            
+            // Filter for active auctions (status is 'open' and end date is in the future)
+            const activeAuctions = data.filter((auction: Auction) => {
+                const endDate = new Date(auction.end_date);
+                return auction.status === 'open' && endDate > new Date();
+            });
+            
+            setAuctions(activeAuctions);
+        } catch (error) {
+            console.error('Error fetching auctions:', error);
+            toast({
+                title: "Error",
+                description: "Failed to load auctions. Please try again later.",
+                variant: "destructive",
+            });
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    const handleBidChange = (auctionId: string, value: string) => {
+        setBidAmounts(prev => ({
+            ...prev,
+            [auctionId]: parseFloat(value) || 0
+        }));
+    };
+
+    const handleSubmitBid = async (auction: Auction) => {
+        if (!bidAmounts[auction.auction_id]) {
+            toast({
+                title: "Invalid Bid",
+                description: "Please enter a valid bid amount",
+                variant: "destructive",
+            });
+            return;
+        }
+
+        if (bidAmounts[auction.auction_id] >= auction.current_bid) {
+            toast({
+                title: "Invalid Bid",
+                description: "Your bid must be lower than the current bid",
+                variant: "destructive",
+            });
+            return;
+        }
+
+        setBidding(prev => ({ ...prev, [auction.auction_id]: true }));
+
+        try {
+            const response = await fetch('/api/bids', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    auction_id: auction.auction_id,
+                    contractor_id: user?.user_id,
+                    amount: bidAmounts[auction.auction_id],
+                }),
+            });
+
+            if (!response.ok) {
+                throw new Error('Failed to submit bid');
+            }
+
+            toast({
+                title: "Success",
+                description: "Your bid has been submitted successfully",
+            });
+
+            // Refresh auctions to get updated bid information
+            fetchAuctions();
+        } catch (error) {
+            console.error('Error submitting bid:', error);
+            toast({
+                title: "Error",
+                description: "Failed to submit bid. Please try again later.",
+                variant: "destructive",
+            });
+        } finally {
+            setBidding(prev => ({ ...prev, [auction.auction_id]: false }));
+        }
+    };
+
+    const getTimeRemaining = (endDate: string) => {
+        const end = new Date(endDate);
+        const now = new Date();
+        const diff = end.getTime() - now.getTime();
+        
+        if (diff <= 0) return 'Ended';
+        
+        const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+        const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+        
+        if (days > 0) return `${days}d ${hours}h left`;
+        return `${hours}h left`;
+    };
+
+    if (loading) {
+        return (
+            <div className="flex items-center justify-center min-h-screen">
+                <Loader2 className="h-8 w-8 animate-spin text-vendle-blue" />
+            </div>
+        );
     }
-  ]);
 
-  const [bidAmounts, setBidAmounts] = useState<Record<string, number>>({});
+    return (
+        <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -20 }}
+            transition={{ duration: 0.3 }}
+            className="container mx-auto px-4 py-8"
+        >
+            <div className="mb-8">
+                <h1 className="text-3xl font-bold text-vendle-navy mb-2">
+                    Welcome, {user?.name || 'Contractor'}
+                </h1>
+                <p className="text-vendle-navy/70">
+                    Browse available projects and submit your bids
+                </p>
+            </div>
 
-  const handleBidChange = (projectId: string, value: string) => {
-    setBidAmounts(prev => ({
-      ...prev,
-      [projectId]: parseFloat(value) || 0
-    }));
-  };
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {auctions.length === 0 ? (
+                    <div className="col-span-full text-center py-8">
+                        <p className="text-gray-500">No active auctions available at the moment</p>
+                    </div>
+                ) : (
+                    auctions.map((auction) => (
+                        <Card key={auction.auction_id} className="hover:shadow-md transition-shadow">
+                            <CardHeader>
+                                <div className="flex justify-between items-start">
+                                    <CardTitle className="text-xl text-vendle-navy">
+                                        {auction.project_type}
+                                    </CardTitle>
+                                    <Badge className="bg-green-100 text-green-800">
+                                        Active
+                                    </Badge>
+                                </div>
+                                <div className="flex gap-2 mt-2">
+                                    <Badge className="bg-blue-100 text-blue-800">
+                                        {auction.bid_count} Bids
+                                    </Badge>
+                                    <Badge className="bg-vendle-navy text-white">
+                                        ${auction.current_bid.toLocaleString()}
+                                    </Badge>
+                                </div>
+                            </CardHeader>
+                            <CardContent>
+                                <div className="space-y-4">
+                                    <div className="flex items-center text-sm text-vendle-navy/70">
+                                        <MapPin className="w-4 h-4 mr-2" />
+                                        <span>{auction.property_address}</span>
+                                    </div>
+                                    <p className="text-sm text-vendle-navy/70">{auction.description}</p>
+                                    
+                                    <div className="space-y-2">
+                                        <div className="flex items-center text-sm">
+                                            <DollarSign className="w-4 h-4 mr-2" />
+                                            <span>Starting Bid: ${auction.starting_bid.toLocaleString()}</span>
+                                        </div>
+                                        <div className="flex items-center text-sm">
+                                            <Clock className="w-4 h-4 mr-2" />
+                                            <span>{getTimeRemaining(auction.end_date)}</span>
+                                        </div>
+                                    </div>
 
-  const handleSubmitBid = (projectId: string) => {
-    // In a real app, this would submit the bid to the server
-    console.log(`Submitting bid of $${bidAmounts[projectId]} for project ${projectId}`);
-  };
-
-  return (
-    <motion.div
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      exit={{ opacity: 0, y: -20 }}
-      transition={{ duration: 0.3 }}
-      className="container mx-auto px-4 py-8"
-    >
-      <div className="mb-8">
-        <h1 className="text-3xl font-bold text-vendle-navy mb-2">
-          Welcome, {user?.name || 'Contractor'}
-        </h1>
-        <p className="text-vendle-navy/70">
-          Browse available projects and submit your bids
-        </p>
-      </div>
-
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {projects.map((project) => (
-          <Card key={project.id} className="hover:shadow-md transition-shadow">
-            <CardHeader>
-              <div className="flex justify-between items-start">
-                <CardTitle className="text-xl text-vendle-navy">
-                  {project.title}
-                </CardTitle>
-                <Badge className={project.status === 'active' ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800'}>
-                  {project.status}
-                </Badge>
-              </div>
-              <div className="flex gap-2 mt-2">
-                <Badge className="bg-blue-100 text-blue-800">
-                  {project.type.toUpperCase()}
-                </Badge>
-                <Badge className="bg-vendle-navy text-white">
-                  ${project.currentBid.toLocaleString()}
-                </Badge>
-              </div>
-            </CardHeader>
-            <CardContent>
-              <p className="text-vendle-navy/70 mb-4">{project.address}</p>
-              <p className="text-sm text-vendle-navy/70 mb-4">{project.description}</p>
-              <p className="text-sm text-vendle-navy/70 mb-4">
-                Deadline: {new Date(project.deadline).toLocaleDateString()}
-              </p>
-              
-              {project.status === 'active' && (
-                <div className="space-y-4">
-                  <div className="flex items-center gap-2">
-                    <span className="text-sm font-medium text-vendle-navy">Your Bid:</span>
-                    <Input
-                      type="number"
-                      value={bidAmounts[project.id] || ''}
-                      onChange={(e) => handleBidChange(project.id, e.target.value)}
-                      className="w-32"
-                      placeholder="Amount"
-                    />
-                  </div>
-                  <Button
-                    onClick={() => handleSubmitBid(project.id)}
-                    className="w-full bg-vendle-navy text-white hover:bg-vendle-navy/90"
-                    disabled={!bidAmounts[project.id] || bidAmounts[project.id] >= project.currentBid}
-                  >
-                    Submit Bid
-                  </Button>
-                </div>
-              )}
-            </CardContent>
-          </Card>
-        ))}
-      </div>
-    </motion.div>
-  );
+                                    <div className="space-y-4 pt-4">
+                                        <div className="flex items-center gap-2">
+                                            <span className="text-sm font-medium text-vendle-navy">Your Bid:</span>
+                                            <Input
+                                                type="number"
+                                                value={bidAmounts[auction.auction_id] || ''}
+                                                onChange={(e) => handleBidChange(auction.auction_id, e.target.value)}
+                                                className="w-32"
+                                                placeholder="Amount"
+                                            />
+                                        </div>
+                                        <Button
+                                            onClick={() => handleSubmitBid(auction)}
+                                            className="w-full bg-vendle-navy text-white hover:bg-vendle-navy/90"
+                                            disabled={!bidAmounts[auction.auction_id] || 
+                                                     bidAmounts[auction.auction_id] >= auction.current_bid ||
+                                                     bidding[auction.auction_id]}
+                                        >
+                                            {bidding[auction.auction_id] ? (
+                                                <>
+                                                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                                                    Submitting...
+                                                </>
+                                            ) : (
+                                                'Submit Bid'
+                                            )}
+                                        </Button>
+                                    </div>
+                                </div>
+                            </CardContent>
+                        </Card>
+                    ))
+                )}
+            </div>
+        </motion.div>
+    );
 } 

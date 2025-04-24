@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Button from '@/components/Button';
@@ -68,14 +67,59 @@ const Onboarding = () => {
     }
   };
   
-  const completeOnboarding = () => {
-    toast({
-      title: "Onboarding Complete",
-      description: "Your project has been set up successfully!",
-    });
-    
-    // Redirect to dashboard
-    navigate('/dashboard');
+  const completeOnboarding = async () => {
+    try {
+      // Prepare claim data
+      const claimData = {
+        user_id: 1, // Using sample user ID 1
+        property_address_street: address.street,
+        property_address_city: address.city,
+        property_address_state: address.state,
+        property_address_zip: address.zip,
+        project_type: projectType,
+        design_plan: designPlan,
+        insurance_estimate_file_path: hasUploaded ? localStorage.getItem("uploadedFileName") : null,
+        needs_adjuster: needsAdjuster,
+        insurance_provider: insuranceProvider
+      };
+
+      console.log('Sending claim data:', JSON.stringify(claimData, null, 2));
+
+      // Save to database
+      const response = await fetch('/api/claims', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(claimData),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        console.error('Server error response:', errorData);
+        throw new Error(errorData.message || 'Failed to save claim');
+      }
+
+      const result = await response.json();
+      console.log('Claim saved successfully:', result);
+      
+      // Show success message
+      toast({
+        title: "Claim Created Successfully",
+        description: "Your claim has been saved and is ready for processing.",
+        duration: 5000,
+      });
+
+      // Redirect to the insurance provider page
+      navigate('/start-claim/insurance');
+    } catch (error) {
+      console.error('Error completing onboarding:', error);
+      toast({
+        title: "Error",
+        description: error instanceof Error ? error.message : "Failed to save your claim. Please try again.",
+        variant: "destructive"
+      });
+    }
   };
   
   // Handle file upload

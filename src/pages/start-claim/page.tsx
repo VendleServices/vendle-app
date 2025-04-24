@@ -3,13 +3,26 @@
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { useAuth } from "@/contexts/AuthContext";
+import { useToast } from "@/hooks/use-toast";
 
 export default function StartClaimPage() {
     const navigate = useNavigate();
+    const { user } = useAuth();
+    const { toast } = useToast();
 
     const handleSelection = (hasInsurance: boolean) => {
+        if (user?.user_type === 'contractor') {
+            toast({
+                title: "Access Denied",
+                description: "Contractors cannot start claims. Please use your regular user account.",
+                variant: "destructive"
+            });
+            return;
+        }
+
         if (hasInsurance) {
-            navigate("/start-claim/insurance");
+            navigate("/start-claim/insurance/onboarding");
         } else {
             navigate("/start-claim/fema");
         }

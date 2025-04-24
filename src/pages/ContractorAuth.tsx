@@ -111,7 +111,7 @@ const ContractorAuth = () => {
         email: 'example@contractor.com',
         name: 'Example Contractor Co.',
         picture: 'https://ui-avatars.com/api/?name=Example+Contractor&background=0D8ABC&color=fff&size=128',
-        isContractor: true
+        user_type: 'contractor'
       });
       navigate('/reverse-auction');
     }, 1500);

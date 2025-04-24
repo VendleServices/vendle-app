@@ -5,7 +5,8 @@ interface UserProfile {
   name?: string;
   email?: string;
   picture?: string;
-  isContractor?: boolean;
+  user_type?: 'reguser' | 'contractor';
+  user_id?: number;
 }
 
 interface AuthContextType {
@@ -35,8 +36,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const login = (profile?: UserProfile) => {
     setIsAuthenticated(true);
     if (profile) {
-      setUser(profile);
-      localStorage.setItem('user', JSON.stringify(profile));
+      // Set user_id based on user_type
+      const userWithId = {
+        ...profile,
+        user_id: profile.user_type === 'contractor' ? 2 : 1,
+        user_type: profile.user_type || 'reguser' // Ensure user_type is always set
+      };
+      setUser(userWithId);
+      localStorage.setItem('user', JSON.stringify(userWithId));
     }
     localStorage.setItem('isAuthenticated', 'true');
   };

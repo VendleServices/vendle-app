@@ -8,7 +8,7 @@ import { AuthProvider } from "@/contexts/AuthContext";
 import Layout from "@/components/layout";
 import Index from "./pages/Index";
 import Auth from "./pages/Auth";
-import Onboarding from "./pages/Onboarding";
+import OnboardingPage from "./pages/start-claim/insurance/Onboarding";
 import AboutUs from "./pages/AboutUs";
 import Dashboard from "./pages/Dashboard";
 import HowItWorks from "./pages/HowItWorks";
@@ -24,6 +24,7 @@ import ContractorAuth from "./pages/ContractorAuth";
 import ReverseAuction from "./pages/ReverseAuction";
 import CreateRestorPage from "./pages/start-claim/create-restor/page";
 import ScheduleCleanupPage from "./pages/start-claim/schedule-cleanup/page";
+import ContractorProjects from "./pages/ContractorProjects";
 
 const queryClient = new QueryClient();
 
@@ -39,15 +40,19 @@ const App = () => (
               <Routes>
                 <Route path="/" element={<Index />} />
                 <Route path="/auth" element={<Auth />} />
-                <Route path="/onboarding" element={<Onboarding />} />
+                <Route path="/onboarding" element={<OnboardingPage />} />
                 <Route path="/about" element={<AboutUs />} />
                 <Route path="/how-it-works" element={<HowItWorks />} />
                 <Route path="/contractors" element={<Contractors />} />
                 <Route path="/dashboard" element={<Dashboard />} />
                 <Route path="/my-projects" element={<MyProjectsPage />} />
+                <Route path="/contractor-projects" element={<ContractorProjects />} />
                 <Route path="/start-claim">
                   <Route index element={<StartClaim />} />
-                  <Route path="insurance" element={<InsuranceProviderPage />} />
+                  <Route path="insurance">
+                    <Route index element={<InsuranceProviderPage />} />
+                    <Route path="onboarding" element={<OnboardingPage />} />
+                  </Route>
                   <Route path="fema" element={<FemaAssistancePage />} />
                   <Route path="inspection" element={<InspectionPreparationPage />} />
                   <Route path="inform-site" element={<InformSitePage />} />
