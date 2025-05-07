@@ -2,6 +2,7 @@
 CREATE TABLE IF NOT EXISTS auctions (
     auction_id SERIAL PRIMARY KEY,
     claim_id INTEGER NOT NULL REFERENCES claims(claim_id),
+    title VARCHAR(255) NOT NULL,
     description TEXT NOT NULL,
     starting_bid DECIMAL(10,2) NOT NULL,
     current_bid DECIMAL(10,2) DEFAULT 0,

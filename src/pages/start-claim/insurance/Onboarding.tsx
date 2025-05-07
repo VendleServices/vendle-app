@@ -104,12 +104,12 @@ const Onboarding = () => {
       console.log('Claim saved successfully:', result);
       
       // Show success message
-      toast({
+    toast({
         title: "Claim Created Successfully",
         description: "Your claim has been saved and is ready for processing.",
         duration: 5000,
-      });
-
+    });
+    
       // Redirect to the insurance provider page
       navigate('/start-claim/insurance');
     } catch (error) {

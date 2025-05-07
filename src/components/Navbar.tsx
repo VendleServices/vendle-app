@@ -58,7 +58,7 @@ const Navbar = () => {
     });
     navigate('/');
   };
-
+  
   const getProjectsPath = () => {
     if (!user) return "/my-projects";
     return user.user_type === 'contractor' ? "/contractor-projects" : "/my-projects";
@@ -116,32 +116,40 @@ const Navbar = () => {
               >
                 My Projects
               </Link>
+              {user?.user_type === "contractor" && (
+                <Link 
+                  to="/reviews"
+                  className="px-4 py-2 text-vendle-navy/90 hover:text-vendle-blue transition-colors font-medium rounded-md hover:bg-vendle-blue/5"
+                >
+                  My Reviews
+                </Link>
+              )}
             </>
           ) : (
             <>
               {!user && (
-                <Link 
-                  to="/contractors" 
-                  className="px-4 py-2 text-vendle-navy/90 hover:text-vendle-blue transition-colors font-medium rounded-md hover:bg-vendle-blue/5"
-                >
-                  Contractors
-                </Link>
+          <Link 
+            to="/contractors" 
+            className="px-4 py-2 text-vendle-navy/90 hover:text-vendle-blue transition-colors font-medium rounded-md hover:bg-vendle-blue/5"
+          >
+            Contractors
+          </Link>
               )}
-              {user && (
-                <Link 
+          {user && (
+            <Link 
                   to={getProjectsPath()}
-                  className="px-4 py-2 text-vendle-navy/90 hover:text-vendle-blue transition-colors font-medium rounded-md hover:bg-vendle-blue/5"
-                >
-                  My Projects
-                </Link>
-              )}
-              <Link 
-                to="/start-claim" 
-                onClick={handleStartClaimClick}
-                className="px-4 py-2 text-vendle-navy/90 hover:text-vendle-blue transition-colors font-medium rounded-md hover:bg-vendle-blue/5"
-              >
-                Start Claim
-              </Link>
+              className="px-4 py-2 text-vendle-navy/90 hover:text-vendle-blue transition-colors font-medium rounded-md hover:bg-vendle-blue/5"
+            >
+              My Projects
+            </Link>
+          )}
+          <Link 
+            to="/start-claim" 
+            onClick={handleStartClaimClick}
+            className="px-4 py-2 text-vendle-navy/90 hover:text-vendle-blue transition-colors font-medium rounded-md hover:bg-vendle-blue/5"
+          >
+            Start Claim
+          </Link>
             </>
           )}
         </nav>
@@ -252,19 +260,28 @@ const Navbar = () => {
                 >
                   My Projects
                 </Link>
+                {user?.user_type === "contractor" && (
+                  <Link 
+                    to="/reviews"
+                    className="text-xl font-medium text-vendle-navy hover:text-vendle-blue transition-colors"
+                    onClick={() => setIsMobileMenuOpen(false)}
+                  >
+                    My Reviews
+                  </Link>
+                )}
               </>
             ) : (
               <>
                 {!user && (
-                  <Link 
-                    to="/contractors" 
-                    className="text-xl font-medium text-vendle-navy hover:text-vendle-blue transition-colors"
-                    onClick={() => setIsMobileMenuOpen(false)}
-                  >
-                    Contractors
-                  </Link>
+            <Link 
+              to="/contractors" 
+              className="text-xl font-medium text-vendle-navy hover:text-vendle-blue transition-colors"
+              onClick={() => setIsMobileMenuOpen(false)}
+            >
+              Contractors
+            </Link>
                 )}
-                {user && (
+            {user && (
                   <Link 
                     to={getProjectsPath()}
                     className="text-xl font-medium text-vendle-navy hover:text-vendle-blue transition-colors"

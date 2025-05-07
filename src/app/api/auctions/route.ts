@@ -10,6 +10,7 @@ export async function GET() {
       SELECT 
         a.auction_id,
         a.claim_id,
+        a.title,
         a.description,
         a.status,
         CAST(a.starting_bid AS FLOAT) as starting_bid,
@@ -21,7 +22,7 @@ export async function GET() {
       FROM auctions a
       LEFT JOIN claims c ON a.claim_id = c.claim_id
       LEFT JOIN bids b ON a.auction_id = b.auction_id
-      GROUP BY a.auction_id, a.claim_id, a.description, a.status, a.starting_bid, a.auction_end_date, c.project_type, c.design_plan
+      GROUP BY a.auction_id, a.claim_id, a.title, a.description, a.status, a.starting_bid, a.auction_end_date, c.project_type, c.design_plan
       ORDER BY a.created_at DESC
     `);
     
@@ -49,6 +50,7 @@ export async function POST(request: Request) {
     // Required fields validation
     const requiredFields = [
       'claim_id',
+      'title',
       'description',
       'starting_bid',
       'auction_end_date',
@@ -68,6 +70,7 @@ export async function POST(request: Request) {
     const result = await client.query(
       `INSERT INTO auctions (
         claim_id,
+        title,
         description,
         starting_bid,
         current_bid,
@@ -75,10 +78,11 @@ export async function POST(request: Request) {
         scope_of_work,
         photos,
         status
-      ) VALUES ($1, $2, $3, $3, $4, $5, $6, 'open')
+      ) VALUES ($1, $2, $3, $4, $4, $5, $6, $7, 'open')
       RETURNING *`,
       [
         auctionData.claim_id,
+        auctionData.title,
         auctionData.description,
         auctionData.starting_bid,
         auctionData.auction_end_date,
@@ -95,6 +99,57 @@ export async function POST(request: Request) {
     console.error('Error creating auction:', error);
     return NextResponse.json(
       { status: 'error', message: 'Failed to create auction' },
+      { status: 500 }
+    );
+  } finally {
+    if (client) {
+      client.release();
+    }
+  }
+}
+
+export async function PATCH(request: Request) {
+  let client;
+  try {
+    const { searchParams } = new URL(request.url);
+    const auctionId = searchParams.get('id');
+    
+    if (!auctionId) {
+      return NextResponse.json(
+        { status: 'error', message: 'Auction ID is required' },
+        { status: 400 }
+      );
+    }
+
+    const updateData = await request.json();
+    console.log('Received update data:', updateData);
+
+    client = await pool.connect();
+    
+    const result = await client.query(
+      `UPDATE auctions 
+       SET status = $1,
+           updated_at = CURRENT_TIMESTAMP
+       WHERE auction_id = $2
+       RETURNING *`,
+      [updateData.status, auctionId]
+    );
+    
+    if (result.rows.length === 0) {
+      return NextResponse.json(
+        { status: 'error', message: 'Auction not found' },
+        { status: 404 }
+      );
+    }
+    
+    return NextResponse.json({ 
+      status: 'success', 
+      auction: result.rows[0] 
+    });
+  } catch (error) {
+    console.error('Error updating auction:', error);
+    return NextResponse.json(
+      { status: 'error', message: 'Failed to update auction' },
       { status: 500 }
     );
   } finally {

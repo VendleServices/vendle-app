@@ -13,6 +13,7 @@ import { Loader2, DollarSign, Clock, Users, MapPin } from 'lucide-react';
 interface Auction {
     auction_id: string;
     claim_id: string;
+  title: string;
     status: string;
     starting_bid: number;
     current_bid: number;
@@ -21,11 +22,11 @@ interface Auction {
     property_address: string;
     project_type: string;
     design_plan: string;
-    description: string;
+  description: string;
 }
 
 export default function ReverseAuction() {
-    const { user } = useAuth();
+  const { user } = useAuth();
     const { toast } = useToast();
     const [auctions, setAuctions] = useState<Auction[]>([]);
     const [loading, setLoading] = useState(true);
@@ -64,11 +65,11 @@ export default function ReverseAuction() {
     };
 
     const handleBidChange = (auctionId: string, value: string) => {
-        setBidAmounts(prev => ({
-            ...prev,
+    setBidAmounts(prev => ({
+      ...prev,
             [auctionId]: parseFloat(value) || 0
-        }));
-    };
+    }));
+  };
 
     const handleSubmitBid = async (auction: Auction) => {
         if (!bidAmounts[auction.auction_id]) {
@@ -149,24 +150,24 @@ export default function ReverseAuction() {
         );
     }
 
-    return (
-        <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -20 }}
-            transition={{ duration: 0.3 }}
-            className="container mx-auto px-4 py-8"
-        >
-            <div className="mb-8">
-                <h1 className="text-3xl font-bold text-vendle-navy mb-2">
-                    Welcome, {user?.name || 'Contractor'}
-                </h1>
-                <p className="text-vendle-navy/70">
-                    Browse available projects and submit your bids
-                </p>
-            </div>
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      exit={{ opacity: 0, y: -20 }}
+      transition={{ duration: 0.3 }}
+      className="container mx-auto px-4 py-8"
+    >
+      <div className="mb-8">
+        <h1 className="text-3xl font-bold text-vendle-navy mb-2">
+          Welcome, {user?.name || 'Contractor'}
+        </h1>
+        <p className="text-vendle-navy/70">
+          Browse available projects and submit your bids
+        </p>
+      </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 {auctions.length === 0 ? (
                     <div className="col-span-full text-center py-8">
                         <p className="text-gray-500">No active auctions available at the moment</p>
@@ -174,25 +175,25 @@ export default function ReverseAuction() {
                 ) : (
                     auctions.map((auction) => (
                         <Card key={auction.auction_id} className="hover:shadow-md transition-shadow">
-                            <CardHeader>
-                                <div className="flex justify-between items-start">
-                                    <CardTitle className="text-xl text-vendle-navy">
-                                        {auction.project_type}
-                                    </CardTitle>
+            <CardHeader>
+              <div className="flex justify-between items-start">
+                <CardTitle className="text-xl text-vendle-navy">
+                                        {auction.title}
+                </CardTitle>
                                     <Badge className="bg-green-100 text-green-800">
                                         Active
-                                    </Badge>
-                                </div>
-                                <div className="flex gap-2 mt-2">
-                                    <Badge className="bg-blue-100 text-blue-800">
+                </Badge>
+              </div>
+              <div className="flex gap-2 mt-2">
+                <Badge className="bg-blue-100 text-blue-800">
                                         {auction.bid_count} Bids
-                                    </Badge>
-                                    <Badge className="bg-vendle-navy text-white">
+                </Badge>
+                <Badge className="bg-vendle-navy text-white">
                                         ${auction.current_bid.toLocaleString()}
-                                    </Badge>
-                                </div>
-                            </CardHeader>
-                            <CardContent>
+                </Badge>
+              </div>
+            </CardHeader>
+            <CardContent>
                                 <div className="space-y-4">
                                     <div className="flex items-center text-sm text-vendle-navy/70">
                                         <MapPin className="w-4 h-4 mr-2" />
@@ -212,23 +213,23 @@ export default function ReverseAuction() {
                                     </div>
 
                                     <div className="space-y-4 pt-4">
-                                        <div className="flex items-center gap-2">
-                                            <span className="text-sm font-medium text-vendle-navy">Your Bid:</span>
-                                            <Input
-                                                type="number"
+                  <div className="flex items-center gap-2">
+                    <span className="text-sm font-medium text-vendle-navy">Your Bid:</span>
+                    <Input
+                      type="number"
                                                 value={bidAmounts[auction.auction_id] || ''}
                                                 onChange={(e) => handleBidChange(auction.auction_id, e.target.value)}
-                                                className="w-32"
-                                                placeholder="Amount"
-                                            />
-                                        </div>
-                                        <Button
+                      className="w-32"
+                      placeholder="Amount"
+                    />
+                  </div>
+                  <Button
                                             onClick={() => handleSubmitBid(auction)}
-                                            className="w-full bg-vendle-navy text-white hover:bg-vendle-navy/90"
+                    className="w-full bg-vendle-navy text-white hover:bg-vendle-navy/90"
                                             disabled={!bidAmounts[auction.auction_id] || 
                                                      bidAmounts[auction.auction_id] >= auction.current_bid ||
                                                      bidding[auction.auction_id]}
-                                        >
+                  >
                                             {bidding[auction.auction_id] ? (
                                                 <>
                                                     <Loader2 className="mr-2 h-4 w-4 animate-spin" />
@@ -237,14 +238,14 @@ export default function ReverseAuction() {
                                             ) : (
                                                 'Submit Bid'
                                             )}
-                                        </Button>
-                                    </div>
+                  </Button>
+                </div>
                                 </div>
-                            </CardContent>
-                        </Card>
+            </CardContent>
+          </Card>
                     ))
                 )}
-            </div>
-        </motion.div>
-    );
+      </div>
+    </motion.div>
+  );
 } 

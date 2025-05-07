@@ -36,6 +36,7 @@ export default function CreateRestorPage() {
   }, [searchParams, navigate, toast]);
 
   const [formData, setFormData] = useState({
+    title: '',
     description: '',
     startingBid: '',
     auctionEndDate: '',
@@ -69,12 +70,12 @@ export default function CreateRestorPage() {
     e.preventDefault();
     
     if (!claimId) {
-      toast({
+    toast({
         title: "Error",
         description: "No claim ID available",
         variant: "destructive",
-        duration: 5000,
-      });
+      duration: 5000,
+    });
       return;
     }
 
@@ -86,6 +87,7 @@ export default function CreateRestorPage() {
         },
         body: JSON.stringify({
           claim_id: claimId,
+          title: formData.title,
           description: formData.description,
           starting_bid: parseFloat(formData.startingBid),
           auction_end_date: formData.auctionEndDate,
@@ -126,25 +128,38 @@ export default function CreateRestorPage() {
       className="flex items-center justify-center p-4 pt-24"
     >
       <Card className="w-[70vw] min-w-[40rem] max-w-[60rem] bg-white">
-        <CardHeader className="pb-8">
-          <CardTitle className="text-4xl font-bold text-vendle-navy">
-            Create Restoration Job
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <form onSubmit={handleSubmit} className="space-y-8">
-            <div className="space-y-4">
-              <Label htmlFor="description" className="text-lg">Job Description</Label>
-              <Textarea
-                id="description"
-                name="description"
-                value={formData.description}
-                onChange={handleInputChange}
-                placeholder="Describe the damage and restoration needs"
-                required
-                className="min-h-[150px]"
-              />
-            </div>
+          <CardHeader className="pb-8">
+            <CardTitle className="text-4xl font-bold text-vendle-navy">
+              Create Restoration Job
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <form onSubmit={handleSubmit} className="space-y-8">
+              <div className="space-y-4">
+              <Label htmlFor="title" className="text-lg">Job Title</Label>
+                <Input
+                id="title"
+                name="title"
+                value={formData.title}
+                  onChange={handleInputChange}
+                placeholder="Enter a descriptive title for the restoration job"
+                  required
+                className="text-lg"
+                />
+              </div>
+
+              <div className="space-y-4">
+                <Label htmlFor="description" className="text-lg">Job Description</Label>
+                <Textarea
+                  id="description"
+                  name="description"
+                  value={formData.description}
+                  onChange={handleInputChange}
+                  placeholder="Describe the damage and restoration needs"
+                  required
+                  className="min-h-[150px]"
+                />
+              </div>
 
             <div className="space-y-4">
               <Label htmlFor="startingBid" className="text-lg">Starting Bid Amount</Label>
@@ -189,12 +204,12 @@ export default function CreateRestorPage() {
               </p>
             </div>
 
-            <div className="space-y-4">
-              <Label className="text-lg">Scope of Work</Label>
+              <div className="space-y-4">
+                <Label className="text-lg">Scope of Work</Label>
               <div className="space-y-2">
-                <div className="flex items-center space-x-2">
-                  <Checkbox
-                    id="debrisRemoval"
+                  <div className="flex items-center space-x-2">
+                    <Checkbox
+                      id="debrisRemoval"
                     checked={formData.scopeOfWork.includes('Debris Removal')}
                     onCheckedChange={(checked) => {
                       if (checked) {
@@ -209,11 +224,11 @@ export default function CreateRestorPage() {
                         }));
                       }
                     }}
-                  />
+                    />
                   <Label htmlFor="debrisRemoval">Debris Removal</Label>
-                </div>
-                <div className="flex items-center space-x-2">
-                  <Checkbox
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <Checkbox
                     id="toxicMaterial"
                     checked={formData.scopeOfWork.includes('Toxic Material Cleanup')}
                     onCheckedChange={(checked) => {
@@ -229,12 +244,12 @@ export default function CreateRestorPage() {
                         }));
                       }
                     }}
-                  />
+                    />
                   <Label htmlFor="toxicMaterial">Toxic Material Cleanup</Label>
-                </div>
-                <div className="flex items-center space-x-2">
-                  <Checkbox
-                    id="hazardMitigation"
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <Checkbox
+                      id="hazardMitigation"
                     checked={formData.scopeOfWork.includes('Hazard Mitigation')}
                     onCheckedChange={(checked) => {
                       if (checked) {
@@ -249,54 +264,54 @@ export default function CreateRestorPage() {
                         }));
                       }
                     }}
-                  />
+                    />
                   <Label htmlFor="hazardMitigation">Hazard Mitigation</Label>
-                </div>
-              </div>
-            </div>
-
-            <div className="space-y-4">
-              <Label htmlFor="photos" className="text-lg">Pre-Inspection Photos</Label>
-              <div className="relative">
-                <Input
-                  id="photos"
-                  type="file"
-                  accept="image/*"
-                  multiple
-                  onChange={handlePhotoChange}
-                  className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
-                />
-                <div className="flex items-center justify-center w-full h-32 border-2 border-dashed border-vendle-navy/20 rounded-lg hover:border-vendle-navy/40 transition-colors">
-                  <div className="text-center">
-                    <p className="text-vendle-navy/70">Click to upload photos</p>
-                    <p className="text-sm text-vendle-navy/50">or drag and drop</p>
                   </div>
                 </div>
               </div>
-              {formData.photos.length > 0 && (
-                <p className="text-sm text-vendle-navy/70">
-                  {formData.photos.length} photo(s) selected
-                </p>
-              )}
-            </div>
 
-            <div className="flex justify-end space-x-4 pt-4">
-              <Button
-                type="button"
-                variant="outline"
+              <div className="space-y-4">
+                <Label htmlFor="photos" className="text-lg">Pre-Inspection Photos</Label>
+                <div className="relative">
+                  <Input
+                    id="photos"
+                    type="file"
+                    accept="image/*"
+                    multiple
+                    onChange={handlePhotoChange}
+                    className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+                  />
+                  <div className="flex items-center justify-center w-full h-32 border-2 border-dashed border-vendle-navy/20 rounded-lg hover:border-vendle-navy/40 transition-colors">
+                    <div className="text-center">
+                      <p className="text-vendle-navy/70">Click to upload photos</p>
+                      <p className="text-sm text-vendle-navy/50">or drag and drop</p>
+                    </div>
+                  </div>
+                </div>
+                {formData.photos.length > 0 && (
+                  <p className="text-sm text-vendle-navy/70">
+                    {formData.photos.length} photo(s) selected
+                  </p>
+                )}
+              </div>
+
+              <div className="flex justify-end space-x-4 pt-4">
+                <Button
+                  type="button"
+                  variant="outline"
                 onClick={() => navigate(getProjectsPath())}
-              >
-                Back
-              </Button>
-              <Button
-                type="submit"
-                className="bg-vendle-navy text-white hover:bg-vendle-navy/90"
-              >
-                Create Job
-              </Button>
-            </div>
-          </form>
-        </CardContent>
+                >
+                  Back
+                </Button>
+                <Button
+                  type="submit"
+                  className="bg-vendle-navy text-white hover:bg-vendle-navy/90"
+                >
+                  Create Job
+                </Button>
+              </div>
+            </form>
+          </CardContent>
       </Card>
     </motion.div>
   );
