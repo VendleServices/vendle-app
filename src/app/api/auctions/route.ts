@@ -157,4 +157,55 @@ export async function PATCH(request: Request) {
       client.release();
     }
   }
+}
+
+export async function DELETE(request: Request) {
+  let client;
+  try {
+    const { searchParams } = new URL(request.url);
+    const auctionId = searchParams.get('id');
+    
+    if (!auctionId) {
+      return NextResponse.json(
+        { status: 'error', message: 'Auction ID is required' },
+        { status: 400 }
+      );
+    }
+
+    client = await pool.connect();
+    
+    // First delete any associated bids
+    await client.query(
+      'DELETE FROM bids WHERE auction_id = $1',
+      [auctionId]
+    );
+    
+    // Then delete the auction
+    const result = await client.query(
+      'DELETE FROM auctions WHERE auction_id = $1 RETURNING *',
+      [auctionId]
+    );
+    
+    if (result.rows.length === 0) {
+      return NextResponse.json(
+        { status: 'error', message: 'Auction not found' },
+        { status: 404 }
+      );
+    }
+    
+    return NextResponse.json({ 
+      status: 'success', 
+      message: 'Auction deleted successfully'
+    });
+  } catch (error) {
+    console.error('Error deleting auction:', error);
+    return NextResponse.json(
+      { status: 'error', message: 'Failed to delete auction' },
+      { status: 500 }
+    );
+  } finally {
+    if (client) {
+      client.release();
+    }
+  }
 } 

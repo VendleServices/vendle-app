@@ -81,7 +81,11 @@ export default function ReverseAuction() {
             return;
         }
 
-        if (bidAmounts[auction.auction_id] >= auction.current_bid) {
+        // Convert both numbers to strings to avoid floating point precision issues
+        const currentBid = auction.current_bid.toString();
+        const newBid = bidAmounts[auction.auction_id].toString();
+
+        if (parseFloat(newBid) >= parseFloat(currentBid)) {
             toast({
                 title: "Invalid Bid",
                 description: "Your bid must be lower than the current bid",
@@ -101,7 +105,7 @@ export default function ReverseAuction() {
                 body: JSON.stringify({
                     auction_id: auction.auction_id,
                     contractor_id: user?.user_id,
-                    amount: bidAmounts[auction.auction_id],
+                    amount: parseFloat(newBid),
                 }),
             });
 
@@ -224,20 +228,20 @@ export default function ReverseAuction() {
                     />
                   </div>
                   <Button
-                                            onClick={() => handleSubmitBid(auction)}
+                    onClick={() => handleSubmitBid(auction)}
                     className="w-full bg-vendle-navy text-white hover:bg-vendle-navy/90"
-                                            disabled={!bidAmounts[auction.auction_id] || 
-                                                     bidAmounts[auction.auction_id] >= auction.current_bid ||
-                                                     bidding[auction.auction_id]}
+                    disabled={!bidAmounts[auction.auction_id] || 
+                             parseFloat(bidAmounts[auction.auction_id].toString()) >= parseFloat(auction.current_bid.toString()) ||
+                             bidding[auction.auction_id]}
                   >
-                                            {bidding[auction.auction_id] ? (
-                                                <>
-                                                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                                                    Submitting...
-                                                </>
-                                            ) : (
-                                                'Submit Bid'
-                                            )}
+                    {bidding[auction.auction_id] ? (
+                        <>
+                            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                            Submitting...
+                        </>
+                    ) : (
+                        'Submit Bid'
+                    )}
                   </Button>
                 </div>
                                 </div>

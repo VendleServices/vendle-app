@@ -1,9 +1,11 @@
 import type { Metadata } from "next";
+import { AuthProvider } from "@/contexts/AuthContext";
+import { Toaster } from "@/components/ui/toaster";
 
 export const metadata: Metadata = {
-  title: "home-recovery-hub",
-  description: "Lovable Generated Project",
-  authors: [{ name: "Lovable" }],
+  title: "Vendle - Home Recovery Hub",
+  description: "Manage your home recovery projects with ease",
+  authors: [{ name: "Vendle" }],
   openGraph: {
     images: ["/og-image.png"]
   }
@@ -17,8 +19,11 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body>
-        <div id ="root">{children}</div>
-        </body>
+        <AuthProvider>
+          {children}
+          <Toaster />
+        </AuthProvider>
+      </body>
     </html>
   );
 }
