@@ -85,7 +85,7 @@ const Navbar = async () => {
           ) : (
             <>
         {!user && (
-          <Link 
+          <Link
             href="/contractors"
             className="px-4 py-2 text-vendle-navy/90 hover:text-vendle-blue transition-colors font-medium rounded-md hover:bg-vendle-blue/5"
           >
@@ -93,14 +93,14 @@ const Navbar = async () => {
           </Link>
         )}
           {user && (
-            <Link 
+            <Link
               href={getProjectsPath()}
               className="px-4 py-2 text-vendle-navy/90 hover:text-vendle-blue transition-colors font-medium rounded-md hover:bg-vendle-blue/5"
             >
               My Projects
             </Link>
           )}
-          <Link 
+          <Link
             href="/start-claim"
             // onClick={handleStartClaimClick}
             className="px-4 py-2 text-vendle-navy/90 hover:text-vendle-blue transition-colors font-medium rounded-md hover:bg-vendle-blue/5"
