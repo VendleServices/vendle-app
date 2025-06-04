@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Navbar from "@/components/Navbar";
 import "../styles/index.css";
+import { AuthProvider } from "@/contexts/AuthContext";
 
 export const metadata: Metadata = {
   title: "Vendle - Home Recovery Hub",
@@ -19,10 +20,12 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body>
-        <Navbar />
-        <main id ="root" className="">
-          {children}
-        </main>
+        <AuthProvider>
+          <Navbar />
+          <main id ="root" className="">
+            {children}
+          </main>
+        </AuthProvider>
       </body>
     </html>
   );

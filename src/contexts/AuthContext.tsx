@@ -1,74 +1,96 @@
-"use client";
+"use client"
+import { createContext, ReactNode, useState, useEffect, useContext } from 'react';
+import { signUpAction, logOutAction, loginAction } from "@/actions/users";
+import { createClient } from "@/auth/client";
 
-import { createContext, useContext, useState, ReactNode, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
-
-interface UserProfile {
-  name?: string;
-  email?: string;
-  picture?: string;
-  user_type?: 'reguser' | 'contractor';
-  user_id?: number;
+type User = {
+    email: string,
+    user_type: string,
+    user_id?: number,
+    name: string,
+    picture?: string,
 }
 
-interface AuthContextType {
-  isAuthenticated: boolean;
-  user: UserProfile | null;
-  login: (profile?: UserProfile) => void;
-  logout: () => void;
+type UserAuth = {
+    isLoggedIn: boolean,
+    user: User | null,
+    login: (email: string, password: string) => Promise<string | null>,
+    signup: (email: string, password: string) => Promise<string | null>,
+    logout: () => Promise<void>
 }
 
-const AuthContext = createContext<AuthContextType | undefined>(undefined);
+const AuthContext = createContext<UserAuth | null>(null)
 
-export function AuthProvider({ children }: { children: ReactNode }) {
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [user, setUser] = useState<UserProfile | null>(null);
-  const router = useRouter();
+export const AuthProvider = ({ children }: { children: ReactNode }) => {
+    const [user, setUser] = useState<User | null>(null);
+    const [isLoggedIn, setIsLoggedIn] = useState<boolean>(false);
+    const supabase = createClient();
 
-  // Check for existing auth state on mount
-  useEffect(() => {
-    const storedAuth = localStorage.getItem('isAuthenticated');
-    const storedUser = localStorage.getItem('user');
-    if (storedAuth === 'true' && storedUser) {
-      setIsAuthenticated(true);
-      setUser(JSON.parse(storedUser));
+    useEffect(() => {
+        const getUser = async () => {
+            const { data: { user } } = await supabase.auth.getUser()
+            setUser(user ? { email: user.email!, name: "User", user_type: "homeowner" } : null)
+            setIsLoggedIn(!!user)
+        }
+
+        getUser()
+
+        // Listen for auth changes
+        const { data: { subscription } } = supabase.auth.onAuthStateChange(
+            (event, session) => {
+                setUser(session?.user ? { email: session.user.email!, name: "User", user_type: "homeowner" } : null)
+                setIsLoggedIn(!!session?.user)
+            }
+        )
+
+        return () => subscription.unsubscribe()
+    }, []);
+
+    const login = async (email: string, password: string) => {
+        const errorMessage = (await loginAction(email, password)).errorMessage;
+        if (!errorMessage) {
+            setUser({ email, name: "User", user_type: "homeowner" });
+            setIsLoggedIn(true);
+        }
+        return errorMessage;
+    };
+
+    const signup = async (email: string, password: string) => {
+        const errorMessage = (await signUpAction(email, password)).errorMessage;
+        if (!errorMessage) {
+            setUser({ email, name: "User", user_type: "homeowner" });
+            setIsLoggedIn(true);
+        }
+        return errorMessage;
+    };
+
+    const logout = async () => {
+        await logOutAction();
+        setUser(null);
+        setIsLoggedIn(false);
+        window.location.reload();
+    };
+
+    const value = {
+        user,
+        isLoggedIn,
+        login,
+        signup,
+        logout
+    };
+
+    return (
+        <AuthContext.Provider value={value}>
+            {children}
+        </AuthContext.Provider>
+    );
+}
+
+// create context that should be used by the children, above is just the provider
+export const useAuth = () => {
+    const context = useContext(AuthContext);
+    if (!context) {
+        throw new Error('useAuth must be used within an AuthProvider');
     }
-  }, []);
-
-  const login = (profile?: UserProfile) => {
-    setIsAuthenticated(true);
-    if (profile) {
-      // Set user_id based on user_type
-      const userWithId = {
-        ...profile,
-        user_id: profile.user_type === 'contractor' ? 2 : 1,
-        user_type: profile.user_type || 'reguser' // Ensure user_type is always set
-      };
-      setUser(userWithId);
-      localStorage.setItem('user', JSON.stringify(userWithId));
-    }
-    localStorage.setItem('isAuthenticated', 'true');
-  };
-
-  const logout = () => {
-    setIsAuthenticated(false);
-    setUser(null);
-    localStorage.removeItem('isAuthenticated');
-    localStorage.removeItem('user');
-    router.push('/auth?mode=login');
-  };
-
-  return (
-    <AuthContext.Provider value={{ isAuthenticated, user, login, logout }}>
-      {children}
-    </AuthContext.Provider>
-  );
-}
-
-export function useAuth() {
-  const context = useContext(AuthContext);
-  if (context === undefined) {
-    throw new Error('useAuth must be used within an AuthProvider');
-  }
-  return context;
-} 
+    return context;
+};

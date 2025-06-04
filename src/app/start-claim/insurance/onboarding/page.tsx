@@ -1,7 +1,6 @@
 "use client"
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import Button from '@/components/Button';
 import OnboardingCard from '@/components/OnboardingCard';
 import ProgressBar from '@/components/ProgressBar';
 import { useToast } from '@/hooks/use-toast';

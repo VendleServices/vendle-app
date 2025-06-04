@@ -2,11 +2,11 @@
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { useNavigate } from "react-router-dom";
+import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
 
 export default function InspectionPreparationPage() {
-    const navigate = useNavigate();
+    const router = useRouter();
 
     return (
         <motion.div
@@ -55,7 +55,7 @@ export default function InspectionPreparationPage() {
 
                         <div className="flex justify-center pt-8">
                             <Button
-                                onClick={() => navigate("/dashboard")}
+                                onClick={() => router.push("/dashboard")}
                                 className="px-12 py-6 bg-vendle-navy text-white rounded-2xl text-xl font-semibold hover:bg-vendle-navy/90 transition-colors duration-300 shadow-xl hover:shadow-2xl"
                             >
                                 Go to Dashboard

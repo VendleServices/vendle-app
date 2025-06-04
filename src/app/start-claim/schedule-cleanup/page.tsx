@@ -1,12 +1,11 @@
+"use client"
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useRouter } from "next/navigation";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Calendar } from "@/components/ui/calendar";
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { CalendarIcon, Clock } from "lucide-react";
 import { format } from "date-fns";
 import { cn } from "@/lib/utils";
 
@@ -74,7 +73,7 @@ const mockContractors: Contractor[] = [
 ];
 
 export default function ScheduleCleanupPage() {
-    const navigate = useNavigate();
+    const router = useRouter();
     const [selectedContractor, setSelectedContractor] = useState<Contractor | null>(null);
     const [selectedDate, setSelectedDate] = useState<Date | undefined>(undefined);
     const [selectedTime, setSelectedTime] = useState<string | null>(null);
@@ -87,7 +86,7 @@ export default function ScheduleCleanupPage() {
                 date: selectedDate,
                 time: selectedTime
             });
-            navigate("/my-projects");
+            router.push("/my-projects");
         }
     };
 
@@ -218,7 +217,7 @@ export default function ScheduleCleanupPage() {
                     <div className="flex justify-end space-x-4">
                         <Button
                             variant="outline"
-                            onClick={() => navigate("/my-projects")}
+                            onClick={() => router.push("/my-projects")}
                         >
                             Cancel
                         </Button>
