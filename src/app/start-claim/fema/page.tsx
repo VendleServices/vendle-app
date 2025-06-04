@@ -45,6 +45,9 @@ export default function FemaAssistancePage() {
         }
     };
 
+    const disableSubmit = !formData.firstName || !formData.lastName || !formData.email || !formData.phone
+    || !formData.address || !formData.city || !formData.state || !formData.zipCode;
+
     return (
         <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -228,6 +231,7 @@ export default function FemaAssistancePage() {
                                 <Button
                                     type="submit"
                                     className="px-12 py-6 bg-vendle-navy text-white hover:bg-vendle-navy/90 text-xl"
+                                    disabled={disableSubmit}
                                 >
                                     Submit Application
                                 </Button>
