@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from 'react';
-import { useLocation, useNavigate } from 'react-router-dom';
+import { useRouter } from 'next/navigation';
 import Button from '@/components/Button';
 import { FadeTransition } from '@/lib/transitions';
 import { useToast } from '@/hooks/use-toast';
@@ -9,8 +9,7 @@ import { Mail, Lock, ArrowLeft, Eye, EyeOff, Building2, Phone } from 'lucide-rea
 import { useAuth } from '@/contexts/AuthContext';
 
 const ContractorAuth = () => {
-  const location = useLocation();
-  const navigate = useNavigate();
+  const router = useRouter();
   const { toast } = useToast();
   const { login } = useAuth();
   
@@ -25,17 +24,6 @@ const ContractorAuth = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [companyName, setCompanyName] = useState('');
   const [phoneNumber, setPhoneNumber] = useState('');
-  
-  useEffect(() => {
-    const newMode = queryParams.get('mode') === 'login' ? 'login' : 'signup';
-    setMode(newMode);
-  }, [location.search]);
-  
-  useEffect(() => {
-    const newParams = new URLSearchParams();
-    newParams.set('mode', mode);
-    navigate({ search: newParams.toString() }, { replace: true });
-  }, [mode, navigate]);
   
   const toggleMode = () => {
     setMode(mode === 'login' ? 'signup' : 'login');
@@ -107,13 +95,8 @@ const ContractorAuth = () => {
       });
       
       setIsLoading(false);
-      login({
-        email: 'example@contractor.com',
-        name: 'Example Contractor Co.',
-        picture: 'https://ui-avatars.com/api/?name=Example+Contractor&background=0D8ABC&color=fff&size=128',
-        user_type: 'contractor'
-      });
-      navigate('/reverse-auction');
+      login(email, password);
+      router.push('/reverse-auction');
     }, 1500);
   };
   
@@ -123,7 +106,7 @@ const ContractorAuth = () => {
         <div className="w-full max-w-md bg-white rounded-2xl shadow-medium p-8">
           <div className="mb-8 text-center">
             <button 
-              onClick={() => navigate('/')}
+              onClick={() => router.push('/')}
               className="inline-flex items-center text-vendle-blue hover:text-vendle-blue/80 mb-6"
             >
               <ArrowLeft className="h-4 w-4 mr-1" />

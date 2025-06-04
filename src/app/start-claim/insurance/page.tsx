@@ -1,13 +1,13 @@
 "use client";
 
-import { useNavigate } from "react-router-dom";
+import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 
 export default function InsuranceProviderPage() {
-    const navigate = useNavigate();
+    const router = useRouter();
 
     return (
         <div className="flex items-center justify-center p-4">
@@ -64,13 +64,13 @@ export default function InsuranceProviderPage() {
 
                         <div className="flex justify-center space-x-6 pt-8">
                             <Button
-                                onClick={() => navigate(-1)}
+                                onClick={() => router.back()}
                                 className="px-12 py-6 bg-gray-200 text-gray-800 hover:bg-gray-300 text-xl"
                             >
                                 Back
                             </Button>
                             <Button
-                                onClick={() => navigate("/start-claim/inspection")}
+                                onClick={() => router.push("/start-claim/inspection")}
                                 className="px-12 py-6 bg-vendle-navy text-white hover:bg-vendle-navy/90 text-xl"
                             >
                                 Continue

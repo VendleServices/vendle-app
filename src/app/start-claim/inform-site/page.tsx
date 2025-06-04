@@ -1,11 +1,11 @@
 "use client";
 
-import { useNavigate } from "react-router-dom";
+import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { motion } from "framer-motion";
 
 export default function InformSitePage() {
-    const navigate = useNavigate();
+    const router = useRouter();
 
     return (
         <motion.div
@@ -20,7 +20,7 @@ export default function InformSitePage() {
                     The site must be cleared before inspection can begin
                 </h1>
                 <Button
-                    onClick={() => navigate("/start-claim/create-restor")}
+                    onClick={() => router.push("/start-claim/create-restor")}
                     className="bg-vendle-navy text-white hover:bg-vendle-navy/90 px-12 py-8 text-xl"
                 >
                     I understand
