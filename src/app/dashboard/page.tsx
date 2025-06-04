@@ -1,4 +1,4 @@
-
+"use client"
 import { useState, useRef, useEffect } from "react";
 import { PageTransition } from "@/lib/transitions";
 import { ScrollArea } from "@/components/ui/scroll-area";

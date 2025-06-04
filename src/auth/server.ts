@@ -39,5 +39,5 @@ export async function getUser() {
         return null
     }
 
-    return userObject.data.user;
+    return { ...userObject.data.user, user_type: "homeowner" };
 }

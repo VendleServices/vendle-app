@@ -1,4 +1,4 @@
-
+"use client"
 import React from 'react';
 import { PageTransition, SlideUpTransition } from '@/lib/transitions';
 import { 
@@ -20,7 +20,7 @@ import {
 } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import Button from '@/components/Button';
-import { Link } from 'react-router-dom';
+import Link from "next/link"
 
 const HowItWorks = () => {
   const steps = [
@@ -208,12 +208,12 @@ const HowItWorks = () => {
             Vendle makes navigating disaster recovery smooth, transparent, and stress-free, from the first report to final completion.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Link to="/onboarding">
+            <Link href="/start-claim/insurance/onboarding">
               <Button size="lg" className="min-w-44">
                 Start Your Project
               </Button>
             </Link>
-            <Link to="/about">
+            <Link href="/about">
               <Button variant="outline" size="lg" className="min-w-44">
                 Learn More
               </Button>
