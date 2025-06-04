@@ -3,9 +3,9 @@ import Navbar from "@/components/Navbar";
 import "../styles/index.css";
 
 export const metadata: Metadata = {
-  title: "home-recovery-hub",
-  description: "Lovable Generated Project",
-  authors: [{ name: "Lovable" }],
+  title: "Vendle - Home Recovery Hub",
+  description: "Manage your home recovery projects with ease",
+  authors: [{ name: "Vendle" }],
   openGraph: {
     images: ["/og-image.png"]
   }

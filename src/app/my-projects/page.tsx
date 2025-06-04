@@ -21,6 +21,16 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import {
+    AlertDialog,
+    AlertDialogAction,
+    AlertDialogCancel,
+    AlertDialogContent,
+    AlertDialogDescription,
+    AlertDialogFooter,
+    AlertDialogHeader,
+    AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 
 interface Claim {
     id: string;
@@ -59,6 +69,17 @@ interface UserProfile {
     username?: string;
 }
 
+interface Review {
+    id: string;
+    rating: number;
+    comment: string;
+    reviewer_name: string;
+    reviewer_role: string;
+    date: string;
+    project_type: string;
+    project_address: string;
+}
+
 export default function MyProjectsPage() {
     const router = useRouter();
     const user = { user_type: "user", user_id: 1, name: "sav", email: "sav@sav.com", picture: "" };
@@ -84,6 +105,52 @@ export default function MyProjectsPage() {
     const [showAuctionDeleteConfirmation, setShowAuctionDeleteConfirmation] = useState(false);
     const [closedAuctions, setClosedAuctions] = useState<Auction[]>([]);
     const [closedAuctionLoading, setClosedAuctionLoading] = useState(true);
+    const [showClosedAuctionDeleteConfirmation, setShowClosedAuctionDeleteConfirmation] = useState(false);
+    const [closedAuctionToDelete, setClosedAuctionToDelete] = useState<Auction | null>(null);
+
+    // Hardcoded reviews data
+    const reviews: Review[] = [
+        {
+            id: "1",
+            rating: 5,
+            comment: "Excellent work on the water damage restoration. The team was professional, thorough, and completed the job ahead of schedule. Would highly recommend!",
+            reviewer_name: "Sarah Johnson",
+            reviewer_role: "Homeowner",
+            date: "2024-03-15",
+            project_type: "Water Damage Restoration",
+            project_address: "123 Oak Street, Portland, OR"
+        },
+        {
+            id: "2",
+            rating: 4,
+            comment: "Good work on the fire damage cleanup. The team was responsive and professional. The only reason for 4 stars instead of 5 is that the timeline was slightly longer than initially estimated.",
+            reviewer_name: "Michael Chen",
+            reviewer_role: "Property Manager",
+            date: "2024-03-10",
+            project_type: "Fire Damage Restoration",
+            project_address: "456 Pine Avenue, Seattle, WA"
+        },
+        {
+            id: "3",
+            rating: 5,
+            comment: "Outstanding service! The team handled our mold remediation project with expertise and care. They were very thorough in explaining the process and kept us updated throughout.",
+            reviewer_name: "Emily Rodriguez",
+            reviewer_role: "Homeowner",
+            date: "2024-03-05",
+            project_type: "Mold Remediation",
+            project_address: "789 Maple Drive, San Francisco, CA"
+        },
+        {
+            id: "4",
+            rating: 5,
+            comment: "The team did an amazing job with our storm damage repairs. They were quick to respond, professional, and completed the work to the highest standard. Very impressed!",
+            reviewer_name: "David Thompson",
+            reviewer_role: "Business Owner",
+            date: "2024-02-28",
+            project_type: "Storm Damage Repair",
+            project_address: "321 Cedar Lane, Denver, CO"
+        }
+    ];
 
     useEffect(() => {
         console.log('Current user:', user);
@@ -344,6 +411,43 @@ export default function MyProjectsPage() {
             setShowAuctionDeleteConfirmation(false);
             setAuctionToDelete(null);
             setDeleteConfirmed(false);
+        }
+    };
+
+    const handleClosedAuctionDelete = (auction: Auction) => {
+        setClosedAuctionToDelete(auction);
+        setShowClosedAuctionDeleteConfirmation(true);
+    };
+
+    const handleClosedAuctionDeleteConfirm = async () => {
+        if (!closedAuctionToDelete) return;
+
+        try {
+            const response = await fetch(`/api/auctions?id=${closedAuctionToDelete.auction_id}`, {
+                method: 'DELETE',
+            });
+
+            if (!response.ok) {
+                throw new Error('Failed to delete auction');
+            }
+
+            // Remove the deleted auction from the list
+            setClosedAuctions(closedAuctions.filter(auction => auction.auction_id !== closedAuctionToDelete.auction_id));
+            
+            toast({
+                title: "Auction Deleted",
+                description: "The closed auction has been successfully deleted.",
+            });
+        } catch (error) {
+            console.error('Error deleting closed auction:', error);
+            toast({
+                title: "Error",
+                description: "Failed to delete the closed auction. Please try again.",
+                variant: "destructive"
+            });
+        } finally {
+            setShowClosedAuctionDeleteConfirmation(false);
+            setClosedAuctionToDelete(null);
         }
     };
 
@@ -714,18 +818,16 @@ export default function MyProjectsPage() {
                                             <p className="text-gray-500 mb-4">There are no closed auctions to display.</p>
                                         </div>
                                     ) : (
-                                        <div className="grid gap-6">
+                                        <div className="space-y-4">
                                             {closedAuctions.map((auction) => (
                                                 <Card key={auction.auction_id} className="hover:shadow-md transition-shadow border-gray-200">
                                                     <CardContent className="p-6">
                                                         <div className="flex justify-between items-start mb-4">
                                                             <div>
                                                                 <h3 className="text-lg font-semibold text-gray-900">{auction.title}</h3>
-                                                                <p className="text-sm text-gray-500 mt-1">{auction.property_address}</p>
+                                                                <p className="text-sm text-gray-500">{auction.project_type}</p>
                                                             </div>
-                                                            <Badge variant="secondary" className="bg-red-100 text-red-800">
-                                                                Closed
-                                                            </Badge>
+                                                            <Badge variant="secondary">Closed</Badge>
                                                         </div>
 
                                                         <div className="grid grid-cols-2 gap-4 mb-4">
@@ -759,19 +861,18 @@ export default function MyProjectsPage() {
                                                         </div>
 
                                                         <div className="flex justify-end space-x-3">
-                                                            {auction.bid_count === 0 && (
-                                                                <Button
-                                                                    variant="destructive"
-                                                                    onClick={() => handleAuctionDeleteClick(auction)}
-                                                                >
-                                                                    Delete Auction
-                                                                </Button>
-                                                            )}
                                                             <Button
                                                                 variant="outline"
                                                                 onClick={() => router.push(`/auction/${auction.auction_id}`)}
                                                             >
                                                                 View Details
+                                                            </Button>
+                                                            <Button
+                                                                variant="destructive"
+                                                                size="icon"
+                                                                onClick={() => handleClosedAuctionDelete(auction)}
+                                                            >
+                                                                <Trash2 className="h-4 w-4" />
                                                             </Button>
                                                         </div>
                                                     </CardContent>
@@ -877,15 +978,77 @@ export default function MyProjectsPage() {
                                 </CardContent>
                             </Card>
                         ) : (
-                            <div className="text-center py-12">
-                                <Star className="w-12 h-12 mx-auto text-gray-400 mb-4" />
-                                <h3 className="text-lg font-medium text-gray-900 mb-2">No Reviews Yet</h3>
-                                <p className="text-gray-500 mb-4">You haven't received any reviews yet.</p>
-                            </div>
+                            <Card className="shadow-sm border-gray-200">
+                                <CardContent className="p-6">
+                                    <div className="grid gap-6">
+                                        {reviews.map((review) => (
+                                            <Card key={review.id} className="hover:shadow-md transition-shadow border-gray-200">
+                                                <CardContent className="p-6">
+                                                    <div className="flex justify-between items-start mb-4">
+                                                        <div>
+                                                            <h3 className="text-lg font-semibold text-gray-900">{review.project_type}</h3>
+                                                            <p className="text-sm text-gray-500 mt-1">{review.project_address}</p>
+                                                        </div>
+                                                        <div className="flex items-center">
+                                                            {[...Array(5)].map((_, i) => (
+                                                                <Star
+                                                                    key={i}
+                                                                    className={`w-5 h-5 ${
+                                                                        i < review.rating
+                                                                            ? "text-yellow-400 fill-yellow-400"
+                                                                            : "text-gray-300"
+                                                                    }`}
+                                                                />
+                                                            ))}
+                                                        </div>
+                                                    </div>
+
+                                                    <div className="mb-4">
+                                                        <p className="text-gray-700">{review.comment}</p>
+                                                    </div>
+
+                                                    <div className="flex justify-between items-center text-sm text-gray-500">
+                                                        <div className="flex items-center">
+                                                            <Avatar className="w-8 h-8 mr-2">
+                                                                <AvatarFallback>
+                                                                    {review.reviewer_name.charAt(0)}
+                                                                </AvatarFallback>
+                                                            </Avatar>
+                                                            <div>
+                                                                <p className="font-medium text-gray-900">{review.reviewer_name}</p>
+                                                                <p className="text-xs">{review.reviewer_role}</p>
+                                                            </div>
+                                                        </div>
+                                                        <p>{new Date(review.date).toLocaleDateString()}</p>
+                                                    </div>
+                                                </CardContent>
+                                            </Card>
+                                        ))}
+                                    </div>
+                                </CardContent>
+                            </Card>
                         )}
                     </div>
                 </div>
             </div>
+
+            {/* Add the delete confirmation dialog */}
+            <AlertDialog open={showClosedAuctionDeleteConfirmation} onOpenChange={setShowClosedAuctionDeleteConfirmation}>
+                <AlertDialogContent>
+                    <AlertDialogHeader>
+                        <AlertDialogTitle>Delete Closed Auction</AlertDialogTitle>
+                        <AlertDialogDescription>
+                            Are you sure you want to delete this closed auction? This action cannot be undone.
+                        </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                        <AlertDialogCancel>Cancel</AlertDialogCancel>
+                        <AlertDialogAction onClick={handleClosedAuctionDeleteConfirm}>
+                            Delete
+                        </AlertDialogAction>
+                    </AlertDialogFooter>
+                </AlertDialogContent>
+            </AlertDialog>
         </motion.div>
     );
 }

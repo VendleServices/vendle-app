@@ -1,5 +1,7 @@
+"use client";
+
 import { createContext, useContext, useState, ReactNode, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useRouter } from 'next/navigation';
 
 interface UserProfile {
   name?: string;
@@ -21,7 +23,7 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [user, setUser] = useState<UserProfile | null>(null);
-  const navigate = useNavigate();
+  const router = useRouter();
 
   // Check for existing auth state on mount
   useEffect(() => {
@@ -53,7 +55,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setUser(null);
     localStorage.removeItem('isAuthenticated');
     localStorage.removeItem('user');
-    navigate('/auth?mode=login');
+    router.push('/auth?mode=login');
   };
 
   return (
