@@ -1,11 +1,10 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useRouter } from "next/navigation";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { useAuth } from "@/contexts/AuthContext";
 import { motion } from "framer-motion";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Building2, MapPin, Calendar, FileText, Clock, LayoutIcon, Trash2, Filter, ArrowUpDown, DollarSign, Users, Folder, CheckCircle, Archive, Plus, Upload, Download, BarChart, HelpCircle, MessageCircle, Bell, Settings, Flag, LogOut, Star, Trophy, AlertCircle } from "lucide-react";
@@ -61,8 +60,8 @@ interface UserProfile {
 }
 
 export default function MyProjectsPage() {
-    const navigate = useNavigate();
-    const { user } = useAuth();
+    const router = useRouter();
+    const user = { user_type: "user", user_id: 1, name: "sav", email: "sav@sav.com", picture: "" };
     const { toast } = useToast();
     const [claims, setClaims] = useState<Claim[]>([]);
     const [loading, setLoading] = useState(true);
@@ -363,7 +362,7 @@ export default function MyProjectsPage() {
                         <Button
                             variant="ghost"
                             className="w-full justify-start text-3xl font-semibold text-white mb-6 hover:bg-transparent hover:text-white"
-                            onClick={() => navigate("/")}
+                            onClick={() => router.push("/")}
                         >
                             Vendle
                         </Button>
@@ -482,7 +481,7 @@ export default function MyProjectsPage() {
                                 <Button
                                     variant="ghost"
                                     className="w-full justify-start h-10 text-sm text-gray-200 hover:bg-[#2c5282] hover:text-white"
-                                    onClick={() => navigate("/start-claim")}
+                                    onClick={() => router.push("/start-claim")}
                                 >
                                     <Plus className="w-4 h-4 mr-3" />
                                     Create New Claim
@@ -605,7 +604,7 @@ export default function MyProjectsPage() {
                                         // Clear user data and navigate to home
                                         localStorage.removeItem('user');
                                         localStorage.removeItem('isAuthenticated');
-                                        navigate("/");
+                                        router.push("/");
                                     }}
                                 >
                                     <LogOut className="w-4 h-4" />
@@ -628,7 +627,7 @@ export default function MyProjectsPage() {
                                 </p>
                             </div>
                             <Button
-                                onClick={() => navigate("/start-claim")}
+                                onClick={() => router.push("/start-claim")}
                                 className="bg-[#1a365d] hover:bg-[#2c5282] text-white h-10 px-6"
                             >
                                 Start New Claim
@@ -689,7 +688,7 @@ export default function MyProjectsPage() {
                                                         <div className="flex justify-end space-x-3">
                                                             <Button
                                                                 variant="outline"
-                                                                onClick={() => navigate(`/auction/${auction.auction_id}`)}
+                                                                onClick={() => router.push(`/auction/${auction.auction_id}`)}
                                                             >
                                                                 View Details
                                                             </Button>
@@ -770,7 +769,7 @@ export default function MyProjectsPage() {
                                                             )}
                                                             <Button
                                                                 variant="outline"
-                                                                onClick={() => navigate(`/auction/${auction.auction_id}`)}
+                                                                onClick={() => router.push(`/auction/${auction.auction_id}`)}
                                                             >
                                                                 View Details
                                                             </Button>
@@ -795,7 +794,7 @@ export default function MyProjectsPage() {
                                             <h3 className="text-lg font-medium text-gray-900 mb-2">No Claims Found</h3>
                                             <p className="text-gray-500 mb-4">You haven't filed any claims yet.</p>
                                             <Button
-                                                onClick={() => navigate("/start-claim")}
+                                                onClick={() => router.push("/start-claim")}
                                                 className="bg-[#1a365d] hover:bg-[#2c5282] text-white"
                                             >
                                                 Start New Claim
@@ -851,7 +850,7 @@ export default function MyProjectsPage() {
                                                             {claim.status === 'pending' && (
                                                                 <Button
                                                                     variant="default"
-                                                                    onClick={() => navigate(`/start-claim/create-restor?claimId=${parseInt(claim.id)}`)}
+                                                                    onClick={() => router.push(`/start-claim/create-restor?claimId=${parseInt(claim.id)}`)}
                                                                     className="bg-[#1a365d] hover:bg-[#2c5282] text-white"
                                                                 >
                                                                     Create Restoration
@@ -859,7 +858,7 @@ export default function MyProjectsPage() {
                                                             )}
                                                             <Button
                                                                 variant="outline"
-                                                                onClick={() => navigate(`/claim/${claim.id}`)}
+                                                                onClick={() => router.push(`/claim/${claim.id}`)}
                                                             >
                                                                 View Details
                                                             </Button>

@@ -1,11 +1,10 @@
-
+"use client"
 import { useEffect, useRef } from 'react';
-import { Link } from 'react-router-dom';
+import Link from "next/link";
 import Button from '@/components/Button';
-import Navbar from '@/components/Navbar';
 import { ArrowRight, CheckCircle, ShieldCheck, UserCheck } from 'lucide-react';
 
-const Index = () => {
+const HomePage = () => {
   const heroRef = useRef<HTMLDivElement>(null);
   const featuresRef = useRef<HTMLDivElement>(null);
   
@@ -36,8 +35,6 @@ const Index = () => {
   
   return (
     <div className="min-h-screen bg-white">
-      <Navbar />
-      
       {/* Hero Section */}
       <section 
         ref={heroRef}
@@ -63,7 +60,7 @@ const Index = () => {
             </p>
             
             <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-12">
-              <Link to="/auth?mode=signup">
+              <Link href="/auth?mode=signup">
                 <Button 
                   size="lg" 
                   variant="primary"
@@ -73,7 +70,7 @@ const Index = () => {
                   Start Recovery
                 </Button>
               </Link>
-              <Link to="/how-it-works">
+              <Link href="/how-it-works">
                 <Button size="lg" variant="outline">
                   How It Works
                 </Button>
@@ -160,7 +157,7 @@ const Index = () => {
           </div>
           
           <div className="mt-16 text-center animate-on-scroll">
-            <Link to="/auth?mode=signup">
+            <Link href="/signup">
               <Button 
                 variant="primary" 
                 size="lg"
@@ -230,7 +227,7 @@ const Index = () => {
             <p className="text-xl opacity-90 mb-8">
               Join thousands of homeowners who have rebuilt with confidence using Vendle.
             </p>
-            <Link to="/auth?mode=signup">
+            <Link href="/signup">
               <Button 
                 variant="secondary" 
                 size="lg"
@@ -295,4 +292,4 @@ const Index = () => {
   );
 };
 
-export default Index;
+export default HomePage;

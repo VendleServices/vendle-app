@@ -1,5 +1,5 @@
 import React from 'react';
-import { Link } from 'react-router-dom';
+import Link from "next/link";
 import { PageTransition, SlideUpTransition } from '@/lib/transitions';
 import { motion } from 'framer-motion';
 import { 
@@ -87,12 +87,12 @@ const Contractors = () => {
               Contractors are the backbone of America's infrastructure and resilience, ensuring communities recover swiftly and safely after unforeseen disasters. At Vendle, we deeply value your expertise, dedication, and commitment to excellence.
             </p>
             <div className="flex flex-col sm:flex-row gap-4">
-              <Link to="/contractor-auth?mode=login">
+              <Link href="/contractor-auth?mode=login">
                 <Button size="lg" className="min-w-44">
                   Login to Get Started
                 </Button>
               </Link>
-              <Link to="/contractor-auth?mode=signup">
+              <Link href="/contractor-auth?mode=signup">
                 <Button variant="outline" size="lg" className="min-w-44">
                   Sign Up Now
                 </Button>
@@ -163,12 +163,12 @@ const Contractors = () => {
                 Login to your existing account or create a new one to get started with Vendle.
               </p>
               <div className="flex flex-col sm:flex-row gap-4">
-                <Link to="/contractor-auth?mode=login">
+                <Link href="/contractor-auth?mode=login">
                   <Button className="min-w-36">
                     Login
                   </Button>
                 </Link>
-                <Link to="/contractor-auth?mode=signup">
+                <Link href="/contractor-auth?mode=signup">
                   <Button variant="outline" className="min-w-36">
                     Sign Up Here
                   </Button>
@@ -222,7 +222,7 @@ const Contractors = () => {
                   Our intelligent verification system provides real-time feedback and helps you
                   complete your application quickly and accurately.
                 </p>
-                <Link to="/contractor-auth">
+                <Link href="/contractor-auth">
                   <Button>
                     Start Document Upload
                   </Button>
@@ -244,7 +244,7 @@ const Contractors = () => {
             <p className="text-lg text-vendle-navy/80 mb-8">
               Together, we will continue to strengthen and protect American communities, one restoration at a time. We're excited to welcome you aboard and look forward to achieving great things together.
             </p>
-            <Link to="/contractor-auth">
+            <Link href="/contractor-auth">
               <Button size="lg" className="min-w-48">
                 Login to Get Started
               </Button>

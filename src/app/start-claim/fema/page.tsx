@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -10,7 +10,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { motion } from "framer-motion";
 
 export default function FemaAssistancePage() {
-    const navigate = useNavigate();
+    const router = useRouter();
     const [formData, setFormData] = useState({
         firstName: "",
         lastName: "",
@@ -39,7 +39,7 @@ export default function FemaAssistancePage() {
         try {
             // TODO: Implement FEMA API submission
             // For now, just navigate to the next step
-            navigate("/start-claim/inspection");
+            router.push("/start-claim/inspection");
         } catch (error) {
             console.error("Error submitting form:", error);
         }
@@ -220,7 +220,7 @@ export default function FemaAssistancePage() {
                             <div className="flex justify-center space-x-6 pt-8">
                                 <Button
                                     type="button"
-                                    onClick={() => navigate(-1)}
+                                    onClick={() => router.back()}
                                     className="px-12 py-6 bg-gray-200 text-gray-800 hover:bg-gray-300 text-xl"
                                 >
                                     Back

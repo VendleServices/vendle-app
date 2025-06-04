@@ -1,4 +1,6 @@
 import type { Metadata } from "next";
+import Navbar from "@/components/Navbar";
+import "../styles/index.css";
 
 export const metadata: Metadata = {
   title: "home-recovery-hub",
@@ -17,8 +19,11 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body>
-        <div id ="root">{children}</div>
-        </body>
+        <Navbar />
+        <main id ="root" className="">
+          {children}
+        </main>
+      </body>
     </html>
   );
 }
