@@ -1,14 +1,13 @@
 "use client";
 
-import { useNavigate } from "react-router-dom";
+import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { useAuth } from "@/contexts/AuthContext";
 import { useToast } from "@/hooks/use-toast";
 
 export default function StartClaimPage() {
-    const navigate = useNavigate();
-    const { user } = useAuth();
+    const router = useRouter();
+    const user = { user_type: "user", user_id: 1, name: "sav", email: "sav@sav.com", picture: "" };
     const { toast } = useToast();
 
     const handleSelection = (hasInsurance: boolean) => {
@@ -22,9 +21,9 @@ export default function StartClaimPage() {
         }
 
         if (hasInsurance) {
-            navigate("/start-claim/insurance/onboarding");
+            router.push("/start-claim/insurance/onboarding");
         } else {
-            navigate("/start-claim/fema");
+            router.push("/start-claim/fema");
         }
     };
 

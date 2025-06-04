@@ -1,5 +1,6 @@
+"use client"
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useRouter } from 'next/navigation';
 import Button from '@/components/Button';
 import OnboardingCard from '@/components/OnboardingCard';
 import ProgressBar from '@/components/ProgressBar';
@@ -8,7 +9,7 @@ import { FadeTransition, SlideUpTransition } from '@/lib/transitions';
 import { CheckCircle, Upload, Home, LayoutIcon, Users, FileText, AlertCircle, ArrowRight } from 'lucide-react';
 
 const Onboarding = () => {
-  const navigate = useNavigate();
+  const router = useRouter();
   const { toast } = useToast();
   
   // Onboarding state
@@ -111,7 +112,7 @@ const Onboarding = () => {
     });
     
       // Redirect to the insurance provider page
-      navigate('/start-claim/insurance');
+      router.push('/start-claim/insurance');
     } catch (error) {
       console.error('Error completing onboarding:', error);
       toast({
@@ -200,7 +201,7 @@ const Onboarding = () => {
         <div className="container mx-auto flex items-center justify-between">
           <h1 className="text-2xl font-bold text-vendle-navy">Vendle</h1>
           <button 
-            onClick={() => navigate('/')}
+            onClick={() => router.push('/')}
             className="text-sm text-vendle-blue font-medium hover:text-vendle-blue/80 transition-colors"
           >
             Exit Setup
@@ -221,7 +222,7 @@ const Onboarding = () => {
           subtitle="Enter the address of the property you're rebuilding"
           isActive={currentStep === 1}
           onNext={nextStep}
-          onBack={() => navigate('/auth')}
+          onBack={() => router.push('/auth')}
           isNextDisabled={!isCurrentStepValid()}
           backButtonLabel="Back to Login"
         >

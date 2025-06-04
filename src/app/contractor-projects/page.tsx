@@ -1,11 +1,10 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useRouter } from "next/navigation";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { useAuth } from "@/contexts/AuthContext";
 import { motion } from "framer-motion";
 import { Building2, MapPin, Calendar, FileText, Clock, DollarSign, Users, Loader2, Hammer } from "lucide-react";
 import { useToast } from "@/components/ui/use-toast";
@@ -25,8 +24,8 @@ interface Project {
 const ContractorProjectsPage = () => {
     const [projects, setProjects] = useState<Project[]>([]);
     const [loading, setLoading] = useState(true);
-    const navigate = useNavigate();
-    const { user } = useAuth();
+    const router = useRouter();
+    const user = "";
     const { toast } = useToast();
 
     useEffect(() => {
@@ -100,7 +99,7 @@ const ContractorProjectsPage = () => {
                 <h1 className="text-3xl font-bold text-vendle-navy">Available Projects</h1>
                 <Button 
                     variant="outline" 
-                    onClick={() => navigate('/reverse-auction')}
+                    onClick={() => router.push('/reverse-auction')}
                 >
                     View Auctions
                 </Button>
@@ -149,7 +148,7 @@ const ContractorProjectsPage = () => {
                                     </div>
                                     <Button 
                                         variant="default"
-                                        onClick={() => navigate(`/project/${project.id}`)}
+                                        onClick={() => router.push(`/project/${project.id}`)}
                                     >
                                         View Details
                                     </Button>
