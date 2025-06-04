@@ -8,10 +8,15 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint .",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "migrate": "npx prisma generate && env $(cat .env.local | xargs) npx prisma migrate dev"
+  },
+  "prisma": {
+    "schema": "src/db/schema.prisma"
   },
   "dependencies": {
     "@hookform/resolvers": "^3.9.0",
+    "@prisma/client": "^6.9.0",
     "@radix-ui/react-accordion": "^1.2.0",
     "@radix-ui/react-alert-dialog": "^1.1.1",
     "@radix-ui/react-aspect-ratio": "^1.1.0",
@@ -39,6 +44,8 @@
     "@radix-ui/react-toggle": "^1.1.0",
     "@radix-ui/react-toggle-group": "^1.1.0",
     "@radix-ui/react-tooltip": "^1.1.4",
+    "@supabase/ssr": "^0.6.1",
+    "@supabase/supabase-js": "^2.49.9",
     "@tanstack/react-query": "^5.56.2",
     "@types/pg": "^8.11.13",
     "class-variance-authority": "^0.7.1",

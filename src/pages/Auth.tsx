@@ -1,31 +1,32 @@
-import { useState, useEffect } from 'react';
-import { useLocation, useNavigate } from 'react-router-dom';
+import { useState, useEffect, useTransition } from 'react';
+import { useLocation } from 'react-router-dom';
 import Button from '@/components/Button';
 import { FadeTransition } from '@/lib/transitions';
 import { useToast } from '@/hooks/use-toast';
 import { Mail, Lock, ArrowLeft, Eye, EyeOff } from 'lucide-react';
-import { useAuth } from '@/contexts/AuthContext';
+import { useRouter, useSearchParams } from 'next/navigation';
+import { loginAction, signUpAction } from "@/actions/users";
 
 const Auth = () => {
   const location = useLocation();
-  const navigate = useNavigate();
   const { toast } = useToast();
-  const { login } = useAuth();
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const [isPending, startTransition] = useTransition()
   
   // Get the auth mode from URL query parameter
-  const queryParams = new URLSearchParams(location.search);
-  const initialMode = queryParams.get('mode') === 'login' ? 'login' : 'signup';
+  const initialMode = searchParams?.get('mode') === 'login' ? 'login' : 'signup';
   
   const [mode, setMode] = useState(initialMode);
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [confirmPassword, setConfirmPassword] = useState('');
+  // const [email, setEmail] = useState('');
+  // const [password, setPassword] = useState('');
+  // const [confirmPassword, setConfirmPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   
   // Update mode when URL query changes
   useEffect(() => {
-    const newMode = queryParams.get('mode') === 'login' ? 'login' : 'signup';
+    const newMode = searchParams?.get('mode') === 'login' ? 'login' : 'signup';
     setMode(newMode);
   }, [location.search]);
   
@@ -33,67 +34,82 @@ const Auth = () => {
   useEffect(() => {
     const newParams = new URLSearchParams();
     newParams.set('mode', mode);
-    navigate({ search: newParams.toString() }, { replace: true });
-  }, [mode, navigate]);
+    const url = `?${newParams.toString()}`
+    router.replace(url);
+  }, [mode]);
   
   const toggleMode = () => {
     setMode(mode === 'login' ? 'signup' : 'login');
     // Reset form state
-    setPassword('');
-    setConfirmPassword('');
+    // setPassword('');
+    // setConfirmPassword('');
   };
   
   const toggleShowPassword = () => {
     setShowPassword(!showPassword);
   };
   
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    
-    // Basic form validation
-    if (!email) {
-      toast({
-        title: "Email Required",
-        description: "Please enter your email address",
-        variant: "destructive"
-      });
-      return;
-    }
-    
-    if (!password) {
-      toast({
-        title: "Password Required",
-        description: "Please enter your password",
-        variant: "destructive"
-      });
-      return;
-    }
-    
-    if (mode === 'signup' && password !== confirmPassword) {
-      toast({
-        title: "Passwords Don't Match",
-        description: "Please make sure your passwords match",
-        variant: "destructive"
-      });
-      return;
-    }
-    
-    // Simulate authentication
-    setIsLoading(true);
-    setTimeout(() => {
-      toast({
-        title: mode === 'login' ? "Logged In Successfully" : "Signed Up Successfully",
-        description: "Redirecting to dashboard...",
-      });
-      
-      setIsLoading(false);
-      login({
-        email,
-        name: email.split('@')[0], // Simple name from email
-        picture: `https://ui-avatars.com/api/?name=${encodeURIComponent(email.split('@')[0].charAt(0).toUpperCase() + email.split('@')[0].slice(1))}&background=0D8ABC&color=fff&size=128`
-      });
-      navigate('/dashboard');
-    }, 1500);
+  const handleSubmit = (formData: FormData) => {
+    startTransition(async () => {
+      const email = formData.get('email') as string;
+      const password = formData.get('password') as string;
+      console.log(password);
+      const confirmPassword = formData.get('confirmPassword');
+
+      // Basic form validation
+      if (!email) {
+        toast({
+          title: "Email Required",
+          description: "Please enter your email address",
+          variant: "destructive"
+        });
+        return;
+      }
+
+      if (!password) {
+        toast({
+          title: "Password Required",
+          description: "Please enter your password",
+          variant: "destructive"
+        });
+        return;
+      }
+
+      if (mode === 'signup' && password !== confirmPassword) {
+        toast({
+          title: "Passwords Don't Match",
+          description: "Please make sure your passwords match",
+          variant: "destructive"
+        });
+        return;
+      }
+
+      let errorMessage;
+      let description;
+
+      if (mode === 'login') {
+        errorMessage = (await loginAction(email, password)).errorMessage;
+        description = !errorMessage ? 'Successfully logged in!' : "Failed to log in";
+      } else {
+        errorMessage = (await signUpAction(email, password)).errorMessage;
+        description = !errorMessage ? "Account Created" : "Error creating account";
+      }
+
+      if (!errorMessage) {
+        toast({
+          title: "Success",
+          description,
+          variant: "default"
+        });
+        router.replace('/dashboard');
+      } else {
+        toast({
+          title: "Error",
+          description,
+          variant: "destructive"
+        })
+      }
+    })
   };
   
   // Handle social authentication
@@ -108,12 +124,7 @@ const Auth = () => {
       });
       
       setIsLoading(false);
-      login({
-        email: 'user@example.com',
-        name: 'User Name',
-        picture: 'https://ui-avatars.com/api/?name=User+Name&background=0D8ABC&color=fff&size=128'
-      });
-      navigate('/dashboard');
+      router.replace('/dashboard');
     }, 1500);
   };
   
@@ -123,7 +134,7 @@ const Auth = () => {
         <div className="w-full max-w-md bg-white rounded-2xl shadow-medium p-8">
           <div className="mb-8 text-center">
             <button 
-              onClick={() => navigate('/')}
+              onClick={() => router.push('/')}
               className="inline-flex items-center text-vendle-blue hover:text-vendle-blue/80 mb-6"
             >
               <ArrowLeft className="h-4 w-4 mr-1" />
@@ -204,7 +215,7 @@ const Auth = () => {
             <div className="flex-grow border-t border-gray-300"></div>
           </div>
           
-          <form onSubmit={handleSubmit} className="space-y-5">
+          <form action={handleSubmit} className="space-y-5">
             <div>
               <label htmlFor="email" className="block text-sm font-medium text-vendle-navy mb-1">
                 Email
@@ -216,11 +227,9 @@ const Auth = () => {
                 <input
                   id="email"
                   type="email"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
                   className="w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-vendle-blue/20 focus:border-vendle-blue transition-colors"
                   placeholder="Enter your email"
-                  disabled={isLoading}
+                  disabled={isPending}
                 />
               </div>
             </div>
@@ -236,11 +245,10 @@ const Auth = () => {
                 <input
                   id="password"
                   type={showPassword ? "text" : "password"}
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
+                  name="password"
                   className="w-full pl-10 pr-10 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-vendle-blue/20 focus:border-vendle-blue transition-colors"
                   placeholder="Enter your password"
-                  disabled={isLoading}
+                  disabled={isPending}
                 />
                 <button
                   type="button"
@@ -264,11 +272,10 @@ const Auth = () => {
                   <input
                     id="confirmPassword"
                     type={showPassword ? "text" : "password"}
-                    value={confirmPassword}
-                    onChange={(e) => setConfirmPassword(e.target.value)}
+                    name="confirmPassword"
                     className="w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-vendle-blue/20 focus:border-vendle-blue transition-colors"
                     placeholder="Confirm your password"
-                    disabled={isLoading}
+                    disabled={isPending}
                   />
                 </div>
               </div>
@@ -289,7 +296,7 @@ const Auth = () => {
               type="submit"
               variant="primary"
               className="w-full py-3"
-              loading={isLoading}
+              loading={isPending}
             >
               {mode === 'login' ? 'Sign In' : 'Create Account'}
             </Button>
