@@ -20,12 +20,12 @@ model Fema {
   firstName String
   lastName String
   email String
-  phoneNumber String
-  streetAddress String
+  phone String
+  address String
   city String
   state String
   zipCode String
-  propertyDescription String
+  propertyDamage String
   isPrimaryResidence Boolean
   hasInsurance Boolean
   isUsCitizen Boolean
