@@ -3,10 +3,12 @@ import { useEffect, useRef } from 'react';
 import Link from "next/link";
 import Button from '@/components/Button';
 import { ArrowRight, CheckCircle, ShieldCheck, UserCheck } from 'lucide-react';
+import { useAuth } from "@/contexts/AuthContext";
 
 const HomePage = () => {
   const heroRef = useRef<HTMLDivElement>(null);
   const featuresRef = useRef<HTMLDivElement>(null);
+  const { user } = useAuth();
   
   useEffect(() => {
     const observerOptions = {
@@ -60,7 +62,7 @@ const HomePage = () => {
             </p>
             
             <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-12">
-              <Link href="/auth?mode=signup">
+              <Link href={user ? "/start-claim" : "/signup"}>
                 <Button 
                   size="lg" 
                   variant="primary"
