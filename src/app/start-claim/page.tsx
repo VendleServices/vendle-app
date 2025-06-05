@@ -4,10 +4,11 @@ import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
+import { useAuth } from "@/contexts/AuthContext";
 
 export default function StartClaimPage() {
     const router = useRouter();
-    const user = { user_type: "user", user_id: 1, name: "sav", email: "sav@sav.com", picture: "" };
+    const { user } = useAuth();
     const { toast } = useToast();
 
     const handleSelection = (hasInsurance: boolean) => {
@@ -28,8 +29,8 @@ export default function StartClaimPage() {
     };
 
     return (
-        <div className="flex items-center justify-center p-4">
-            <Card className="w-[70vw] min-w-[80rem] bg-gradient-to-r from-vendle-blue to-vendle-navy text-white">
+        <div className="flex items-center justify-center p-4 min-h-screen">
+            <Card className="w-full min-w-[80rem] bg-gradient-to-r from-vendle-blue to-vendle-navy text-white h-1/2">
                 <div className="flex">
                     <div className="relative w-2/5">
                         <img
@@ -40,7 +41,7 @@ export default function StartClaimPage() {
                     </div>
                     <div className="w-3/5 p-12">
                         <CardHeader className="pb-4">
-                            <CardTitle className="text-6xl font-bold text-center whitespace-nowrap">
+                            <CardTitle className="text-6xl font-bold text-center">
                                 Start Your Insurance or FEMA Claim
                             </CardTitle>
                         </CardHeader>

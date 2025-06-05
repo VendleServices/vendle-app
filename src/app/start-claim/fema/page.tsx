@@ -79,7 +79,7 @@ export default function FemaAssistancePage() {
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -20 }}
             transition={{ duration: 0.3 }}
-            className="flex items-center justify-center p-4"
+            className="flex items-center justify-center p-4 min-h-screen"
         >
             <Card className="w-[70vw] min-w-[40rem] max-w-[60rem] bg-white">
                 <div className="p-12">
