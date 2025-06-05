@@ -5,7 +5,11 @@ import OnboardingCard from '@/components/OnboardingCard';
 import ProgressBar from '@/components/ProgressBar';
 import { useToast } from '@/hooks/use-toast';
 import { FadeTransition, SlideUpTransition } from '@/lib/transitions';
-import { CheckCircle, Upload, Home, LayoutIcon, Users, FileText, AlertCircle, ArrowRight } from 'lucide-react';
+import { CheckCircle, Upload, AlertCircle, ArrowRight } from 'lucide-react';
+import { createClient } from "@/auth/client";
+import { useMutation } from "@tanstack/react-query";
+
+const supabase = createClient();
 
 const Onboarding = () => {
   const router = useRouter();
@@ -30,6 +34,7 @@ const Onboarding = () => {
   const [needsAdjuster, setNeedsAdjuster] = useState<boolean | null>(null);
   const [insuranceProvider, setInsuranceProvider] = useState('');
   const [paymentMethod, setPaymentMethod] = useState('');
+  const [uploadedFileName, setUploadedFileName] = useState('');
   
   // Validate current step
   const isCurrentStepValid = () => {
@@ -66,52 +71,53 @@ const Onboarding = () => {
       window.scrollTo(0, 0);
     }
   };
-  
-  const completeOnboarding = async () => {
+
+  const submitClaimData = async (claimData: any) => {
     try {
-      // Prepare claim data
-      const claimData = {
-        user_id: 1, // Using sample user ID 1
-        property_address_street: address.street,
-        property_address_city: address.city,
-        property_address_state: address.state,
-        property_address_zip: address.zip,
-        project_type: projectType,
-        design_plan: designPlan,
-        insurance_estimate_file_path: hasUploaded ? localStorage.getItem("uploadedFileName") : null,
-        needs_adjuster: needsAdjuster,
-        insurance_provider: insuranceProvider
-      };
-
-      console.log('Sending claim data:', JSON.stringify(claimData, null, 2));
-
-      // Save to database
-      const response = await fetch('/api/claims', {
+      await fetch('/api/onboarding', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify(claimData),
       });
+    } catch (error) {
+      console.log(error);
+    }
+  }
 
-      if (!response.ok) {
-        const errorData = await response.json();
-        console.error('Server error response:', errorData);
-        throw new Error(errorData.message || 'Failed to save claim');
-      }
-
-      const result = await response.json();
-      console.log('Claim saved successfully:', result);
-      
-      // Show success message
-    toast({
+  const submitClaimMutation = useMutation({
+    mutationFn: submitClaimData,
+    onSuccess: () => {
+      toast({
         title: "Claim Created Successfully",
         description: "Your claim has been saved and is ready for processing.",
         duration: 5000,
-    });
-    
-      // Redirect to the insurance provider page
+      });
+
       router.push('/start-claim/insurance');
+    },
+    onError: (error) => {
+      console.log(error);
+    }
+  })
+
+  const completeOnboarding = () => {
+    try {
+      // Prepare claim data
+      const claimData = {
+        street: address.street,
+        city: address.city,
+        state: address.state,
+        zipCode: address.zip,
+        projectType,
+        designPlan,
+        insuranceEstimateFilePath: uploadedFileName,
+        needsAdjuster,
+        insuranceProvider
+      };
+
+      submitClaimMutation.mutate(claimData);
     } catch (error) {
       console.error('Error completing onboarding:', error);
       toast({
@@ -123,7 +129,7 @@ const Onboarding = () => {
   };
   
   // Handle file upload
-  const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
     
     if (files && files.length > 0) {
@@ -147,49 +153,26 @@ const Onboarding = () => {
         });
         return;
       }
-      
-      // For demonstration purposes, we'll create a simulated PDF content
-      // In a real implementation, you would use a PDF parsing library like pdf.js
-      const simulatedPdfContent = `
-        Insurance Estimate
-        Property Address: 123 Main St, Anytown, USA
-        Claim Number: CLM-2023-78945
-        Date of Loss: 10/15/2023
-        
-        Coverage Summary:
-        Dwelling: $450,000
-        Other Structures: $45,000
-        Personal Property: $225,000
-        Loss of Use: $90,000
-        
-        Estimated Damages:
-        Roof Replacement: $28,500
-        Structural Repairs: $65,000
-        Interior Repairs: $42,000
-        Electrical System: $12,500
-        Plumbing System: $8,750
-        HVAC System: $9,200
-        
-        Total Estimated Cost: $165,950
-        Depreciation: $22,450
-        Deductible: $2,500
-        
-        Net Claim Payment: $141,000
-      `;
-      
-      // Store the extracted text in localStorage for our chatbot to use
-      localStorage.setItem("uploadedPdfContent", simulatedPdfContent);
-      localStorage.setItem("uploadedFileName", file.name);
-      
-      // Show success toast
-      setTimeout(() => {
-        toast({
-          title: "File Uploaded",
-          description: "Your insurance estimate has been uploaded and processed.",
-        });
+      try {
+        const timestamp = Date.now();
+        const { data, error } = await supabase.storage.from("vendle-estimates").upload(`public/${timestamp}-${file.name}`, file);
+
+        if (error) {
+          console.error('Upload error:', error);
+          toast({
+            title: "Upload Failed",
+            description: error.message || "There was an error uploading your file.",
+            variant: "destructive"
+          });
+          return;
+        }
+
+        setUploadedFileName(data?.path)
         setHasUploaded(true);
         setSkipUpload(false);
-      }, 1500);
+      } catch (error) {
+        console.log(error);
+      }
     }
   };
   
@@ -502,7 +485,7 @@ const Onboarding = () => {
                     <CheckCircle className="h-12 w-12 mb-3" />
                     <p className="font-medium">File uploaded successfully</p>
                     <p className="text-sm text-vendle-navy/70 mt-1">
-                      {localStorage.getItem("uploadedFileName") || "Insurance_Estimate.pdf"}
+                      {uploadedFileName || "Insurance_Estimate.pdf"}
                     </p>
                     <button 
                       className="mt-4 text-sm text-vendle-blue"

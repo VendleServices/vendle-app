@@ -16,11 +16,11 @@ interface Claim {
     address: string;
     provider?: string;
     policyNumber?: string;
-    project_type?: string;
-    design_plan?: string;
-    needs_adjuster?: boolean;
-    date_of_loss?: string;
-    insurance_estimate_file_path?: string;
+    projectType?: string;
+    designPlan?: string;
+    needsAdjuster?: boolean;
+    dateOfLoss?: string;
+    insuranceEstimateFilePath?: string;
 }
 
 export default function ClaimPage() {
@@ -152,10 +152,10 @@ export default function ClaimPage() {
                                         <span>Policy Number: {claim.policyNumber}</span>
                                     </div>
                                 )}
-                                {claim.date_of_loss && (
+                                {claim.dateOfLoss && (
                                     <div className="flex items-center">
                                         <Calendar className="h-4 w-4 mr-2 text-gray-500" />
-                                        <span>Date of Loss: {new Date(claim.date_of_loss).toLocaleDateString()}</span>
+                                        <span>Date of Loss: {new Date(claim.dateOfLoss).toLocaleDateString()}</span>
                                     </div>
                                 )}
                             </div>
@@ -168,16 +168,16 @@ export default function ClaimPage() {
                         </CardHeader>
                         <CardContent>
                             <div className="space-y-4">
-                                {claim.project_type && (
+                                {claim.projectType && (
                                     <div className="flex items-center">
                                         <LayoutIcon className="h-4 w-4 mr-2 text-gray-500" />
-                                        <span>Project Type: {claim.project_type}</span>
+                                        <span>Project Type: {claim.projectType}</span>
                                     </div>
                                 )}
-                                {claim.design_plan && (
+                                {claim.designPlan && (
                                     <div className="flex items-center">
                                         <FileText className="h-4 w-4 mr-2 text-gray-500" />
-                                        <span>Design Plan: {claim.design_plan}</span>
+                                        <span>Design Plan: {claim.designPlan}</span>
                                     </div>
                                 )}
                                 <div className="flex items-center">
