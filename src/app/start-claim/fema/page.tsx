@@ -7,6 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Checkbox } from "@/components/ui/checkbox";
+import { useMutation } from "@tanstack/react-query";
 import { motion } from "framer-motion";
 
 export default function FemaAssistancePage() {
@@ -34,12 +35,34 @@ export default function FemaAssistancePage() {
         }));
     };
 
+    const submitFemaForm = async () => {
+        try {
+            await fetch("/api/start-claim/fema", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify(formData),
+            })
+        } catch (error) {
+            console.log(error);
+        }
+    }
+
+    const femaMutation = useMutation({
+        mutationFn: submitFemaForm,
+        onSuccess: () => {
+            router.push("/start-claim/inspection");
+        },
+        onError: (error) => {
+            console.log(error);
+        }
+    });
+
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         try {
-            // TODO: Implement FEMA API submission
-            // For now, just navigate to the next step
-            router.push("/start-claim/inspection");
+            femaMutation.mutate();
         } catch (error) {
             console.error("Error submitting form:", error);
         }
@@ -47,6 +70,8 @@ export default function FemaAssistancePage() {
 
     const disableSubmit = !formData.firstName || !formData.lastName || !formData.email || !formData.phone
     || !formData.address || !formData.city || !formData.state || !formData.zipCode;
+
+    const buttonText = femaMutation.isPending ? "Submitting Application..." : "Submit Application";
 
     return (
         <motion.div
@@ -233,7 +258,7 @@ export default function FemaAssistancePage() {
                                     className="px-12 py-6 bg-vendle-navy text-white hover:bg-vendle-navy/90 text-xl"
                                     disabled={disableSubmit}
                                 >
-                                    Submit Application
+                                    {buttonText}
                                 </Button>
                             </div>
                         </form>
