@@ -211,175 +211,175 @@ const Dashboard = () => {
 
   return (
     <PageTransition>
-      <div className="container mx-auto px-4 py-10 max-w-6xl">
-        <h1 className="text-3xl font-bold mb-8">Project Dashboard</h1>
-        
-        <div className="flex justify-between items-center mb-6">
-          <h2 className="text-xl font-semibold">Project Resources</h2>
-          <ContractorBrowser onSelect={handleContractorSelect} />
-        </div>
-        
-        <div className="grid grid-cols-1 md:grid-cols-12 gap-6">
-          {/* Project Summary Card */}
-          <Card className="p-6 md:col-span-4 bg-white shadow-md">
-            <h2 className="text-xl font-semibold mb-4">Project Summary</h2>
-            <div className="space-y-4">
-              <div>
-                <p className="text-sm text-gray-500">Property Address</p>
-                <p className="font-medium">123 Main St, Anytown, USA</p>
-              </div>
-              <div>
-                <p className="text-sm text-gray-500">Project Type</p>
-                <p className="font-medium">Full Reconstruction</p>
-              </div>
-              <div>
-                <p className="text-sm text-gray-500">Insurance Estimate</p>
-                <p className="font-medium">$165,950</p>
-              </div>
-              <div>
-                <p className="text-sm text-gray-500">Design Plan</p>
-                <p className="font-medium">Use Existing Plan</p>
-              </div>
-            </div>
-          </Card>
-          
-          {/* AI Chatbot Card */}
-          <Card className="p-6 md:col-span-8 bg-white shadow-md flex flex-col h-[600px]">
-            <h2 className="text-xl font-semibold mb-4">Insurance Estimate Assistant</h2>
-            
-            <ScrollArea className="flex-1 pr-4" ref={scrollAreaRef}>
-              <div className="space-y-4">
-                {messages.map((message, index) => (
-                  <div 
-                    key={index} 
-                    className={`flex ${message.role === "user" ? "justify-end" : "justify-start"}`}
-                  >
-                    <div 
-                      className={`
-                        max-w-[80%] p-3 rounded-lg flex items-start gap-3
-                        ${message.role === "user" 
-                          ? "bg-vendle-blue text-white" 
-                          : "bg-gray-100 text-vendle-navy"}
-                      `}
-                    >
-                      <div className="mt-1 flex-shrink-0">
-                        {message.role === "user" ? (
-                          <User className="h-5 w-5" />
-                        ) : (
-                          <Bot className="h-5 w-5" />
-                        )}
-                      </div>
-                      <div>
-                        <p>{message.content}</p>
-                        <p className="text-xs opacity-70 mt-1">
-                          {message.timestamp.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}
-                        </p>
-                      </div>
-                    </div>
-                  </div>
-                ))}
-                
-                {isLoading && (
-                  <div className="flex justify-start">
-                    <div className="bg-gray-100 p-3 rounded-lg text-vendle-navy flex items-center gap-2">
-                      <Loader2 className="h-5 w-5 animate-spin" />
-                      <p>Thinking...</p>
-                    </div>
-                  </div>
-                )}
-              </div>
-            </ScrollArea>
-            
-            <div className="mt-4 flex gap-2">
-              <input
-                type="text"
-                value={input}
-                onChange={(e) => setInput(e.target.value)}
-                onKeyDown={(e) => {
-                  if (e.key === "Enter" && !isLoading) {
-                    handleSendMessage();
-                  }
-                }}
-                placeholder="Ask a question about your insurance estimate..."
-                className="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-vendle-blue focus:border-transparent"
-                disabled={isLoading}
-              />
-              <Button 
-                onClick={handleSendMessage}
-                disabled={isLoading || !input.trim()}
-                className="bg-vendle-blue hover:bg-vendle-blue/90"
-              >
-                {isLoading ? <Loader2 className="h-5 w-5 animate-spin" /> : <Send className="h-5 w-5" />}
-              </Button>
-            </div>
-          </Card>
+      <div className="container mx-auto px-4 py-10 max-w-6xl min-h-screen flex items-center">
+        <div className="h-1/2">
+          <div className="flex justify-between items-center mb-6">
+            <h2 className="text-xl font-semibold">Project Resources</h2>
+            <ContractorBrowser onSelect={handleContractorSelect} />
+          </div>
 
-          {/* Selected Contractors Section */}
-          {selectedContractors.length > 0 && (
-            <Card className="md:col-span-12 bg-white shadow-md">
-              <CardHeader>
-                <div className="flex justify-between items-center">
-                  <CardTitle>Selected Contractors</CardTitle>
-                  {selectedContractors.length > 1 && (
-                    <Button 
-                      onClick={handleRequestAllQuotes}
-                      disabled={requestingQuote}
-                      className="bg-vendle-teal hover:bg-vendle-teal/90"
-                    >
-                      {requestingQuote ? (
-                        <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                      ) : (
-                        <FileText className="h-4 w-4 mr-2" />
-                      )}
-                      Request All Quotes
-                    </Button>
-                  )}
+          <div className="grid grid-cols-1 md:grid-cols-12 gap-6">
+            {/* Project Summary Card */}
+            <Card className="p-6 md:col-span-4 bg-white shadow-md">
+              <h2 className="text-xl font-semibold mb-4">Project Summary</h2>
+              <div className="space-y-4">
+                <div>
+                  <p className="text-sm text-gray-500">Property Address</p>
+                  <p className="font-medium">123 Main St, Anytown, USA</p>
                 </div>
-              </CardHeader>
-              <CardContent>
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                  {selectedContractors.map((contractor) => (
-                    <Card key={contractor.id} className="overflow-hidden border border-gray-200">
-                      <div className="p-4">
-                        <div className="flex items-start gap-3 mb-3">
-                          <div className="flex h-12 w-12 items-center justify-center rounded-full bg-vendle-sand text-vendle-navy text-2xl">
-                            {contractor.avatar}
+                <div>
+                  <p className="text-sm text-gray-500">Project Type</p>
+                  <p className="font-medium">Full Reconstruction</p>
+                </div>
+                <div>
+                  <p className="text-sm text-gray-500">Insurance Estimate</p>
+                  <p className="font-medium">$165,950</p>
+                </div>
+                <div>
+                  <p className="text-sm text-gray-500">Design Plan</p>
+                  <p className="font-medium">Use Existing Plan</p>
+                </div>
+              </div>
+            </Card>
+
+            {/* AI Chatbot Card */}
+            <Card className="p-6 md:col-span-8 bg-white shadow-md flex flex-col h-[600px]">
+              <h2 className="text-xl font-semibold mb-4">Insurance Estimate Assistant</h2>
+
+              <ScrollArea className="flex-1 pr-4" ref={scrollAreaRef}>
+                <div className="space-y-4">
+                  {messages.map((message, index) => (
+                      <div
+                          key={index}
+                          className={`flex ${message.role === "user" ? "justify-end" : "justify-start"}`}
+                      >
+                        <div
+                            className={`
+                        max-w-[80%] p-3 rounded-lg flex items-start gap-3
+                        ${message.role === "user"
+                                ? "bg-vendle-blue text-white"
+                                : "bg-gray-100 text-vendle-navy"}
+                      `}
+                        >
+                          <div className="mt-1 flex-shrink-0">
+                            {message.role === "user" ? (
+                                <User className="h-5 w-5" />
+                            ) : (
+                                <Bot className="h-5 w-5" />
+                            )}
                           </div>
                           <div>
-                            <h3 className="font-semibold text-lg">{contractor.name}</h3>
-                            <p className="text-sm text-gray-500">{contractor.location}</p>
-                            <p className="text-xs mt-1 text-vendle-navy bg-vendle-blue/10 inline-block px-2 py-0.5 rounded-full">
-                              {contractor.specialty}
+                            <p>{message.content}</p>
+                            <p className="text-xs opacity-70 mt-1">
+                              {message.timestamp.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}
                             </p>
                           </div>
                         </div>
-                        <div className="flex items-center justify-between mt-4">
-                          <div className="flex items-center text-sm text-gray-500">
-                            <Clock className="h-4 w-4 mr-1" />
-                            <span>Quote pending</span>
-                          </div>
-                          <Button
-                            size="sm"
-                            onClick={() => handleRequestQuote(contractor)}
-                            disabled={requestingQuote}
-                            className="bg-vendle-blue hover:bg-vendle-blue/90"
-                          >
-                            {requestingQuote ? (
-                              <Loader2 className="h-4 w-4 mr-1 animate-spin" />
-                            ) : (
-                              <FileText className="h-4 w-4 mr-1" />
-                            )}
-                            Request Quote
-                            <ChevronRight className="h-4 w-4 ml-1" />
-                          </Button>
+                      </div>
+                  ))}
+
+                  {isLoading && (
+                      <div className="flex justify-start">
+                        <div className="bg-gray-100 p-3 rounded-lg text-vendle-navy flex items-center gap-2">
+                          <Loader2 className="h-5 w-5 animate-spin" />
+                          <p>Thinking...</p>
                         </div>
                       </div>
-                    </Card>
-                  ))}
+                  )}
                 </div>
-              </CardContent>
+              </ScrollArea>
+
+              <div className="mt-4 flex gap-2">
+                <input
+                    type="text"
+                    value={input}
+                    onChange={(e) => setInput(e.target.value)}
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter" && !isLoading) {
+                        handleSendMessage();
+                      }
+                    }}
+                    placeholder="Ask a question about your insurance estimate..."
+                    className="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-vendle-blue focus:border-transparent"
+                    disabled={isLoading}
+                />
+                <Button
+                    onClick={handleSendMessage}
+                    disabled={isLoading || !input.trim()}
+                    className="bg-vendle-blue hover:bg-vendle-blue/90"
+                >
+                  {isLoading ? <Loader2 className="h-5 w-5 animate-spin" /> : <Send className="h-5 w-5" />}
+                </Button>
+              </div>
             </Card>
-          )}
+
+            {/* Selected Contractors Section */}
+            {selectedContractors.length > 0 && (
+                <Card className="md:col-span-12 bg-white shadow-md">
+                  <CardHeader>
+                    <div className="flex justify-between items-center">
+                      <CardTitle>Selected Contractors</CardTitle>
+                      {selectedContractors.length > 1 && (
+                          <Button
+                              onClick={handleRequestAllQuotes}
+                              disabled={requestingQuote}
+                              className="bg-vendle-teal hover:bg-vendle-teal/90"
+                          >
+                            {requestingQuote ? (
+                                <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                            ) : (
+                                <FileText className="h-4 w-4 mr-2" />
+                            )}
+                            Request All Quotes
+                          </Button>
+                      )}
+                    </div>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                      {selectedContractors.map((contractor) => (
+                          <Card key={contractor.id} className="overflow-hidden border border-gray-200">
+                            <div className="p-4">
+                              <div className="flex items-start gap-3 mb-3">
+                                <div className="flex h-12 w-12 items-center justify-center rounded-full bg-vendle-sand text-vendle-navy text-2xl">
+                                  {contractor.avatar}
+                                </div>
+                                <div>
+                                  <h3 className="font-semibold text-lg">{contractor.name}</h3>
+                                  <p className="text-sm text-gray-500">{contractor.location}</p>
+                                  <p className="text-xs mt-1 text-vendle-navy bg-vendle-blue/10 inline-block px-2 py-0.5 rounded-full">
+                                    {contractor.specialty}
+                                  </p>
+                                </div>
+                              </div>
+                              <div className="flex items-center justify-between mt-4">
+                                <div className="flex items-center text-sm text-gray-500">
+                                  <Clock className="h-4 w-4 mr-1" />
+                                  <span>Quote pending</span>
+                                </div>
+                                <Button
+                                    size="sm"
+                                    onClick={() => handleRequestQuote(contractor)}
+                                    disabled={requestingQuote}
+                                    className="bg-vendle-blue hover:bg-vendle-blue/90"
+                                >
+                                  {requestingQuote ? (
+                                      <Loader2 className="h-4 w-4 mr-1 animate-spin" />
+                                  ) : (
+                                      <FileText className="h-4 w-4 mr-1" />
+                                  )}
+                                  Request Quote
+                                  <ChevronRight className="h-4 w-4 ml-1" />
+                                </Button>
+                              </div>
+                            </div>
+                          </Card>
+                      ))}
+                    </div>
+                  </CardContent>
+                </Card>
+            )}
+          </div>
         </div>
       </div>
     </PageTransition>
