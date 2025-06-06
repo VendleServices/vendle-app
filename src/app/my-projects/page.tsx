@@ -9,18 +9,7 @@ import { motion } from "framer-motion";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Building2, MapPin, Calendar, FileText, Clock, LayoutIcon, Trash2, Filter, ArrowUpDown, DollarSign, Users, Folder, CheckCircle, Archive, Plus, Upload, Download, BarChart, HelpCircle, MessageCircle, Bell, Settings, Flag, LogOut, Star, Trophy, AlertCircle } from "lucide-react";
 import { useToast } from "@/components/ui/use-toast";
-import {
-    Dialog,
-    DialogContent,
-    DialogDescription,
-    DialogFooter,
-    DialogHeader,
-    DialogTitle,
-} from "@/components/ui/dialog";
-import { Checkbox } from "@/components/ui/checkbox";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { useQuery } from "@tanstack/react-query";
 import {
     AlertDialog,
     AlertDialogAction,
@@ -34,14 +23,17 @@ import {
 
 interface Claim {
     id: string;
-    status: string;
-    date: string;
-    address: string;
-    provider?: string;
-    policyNumber?: string;
-    project_type?: string;
-    design_plan?: string;
-    needs_adjuster?: boolean;
+    street: string;
+    city: string;
+    state: string;
+    zipCode: string;
+    projectType: string;
+    designPlan: string;
+    insuranceEstimateFilePath: string;
+    needsAdjuster: boolean;
+    insuranceProvider: string;
+    createdAt: Date;
+    updatedAt: Date;
 }
 
 interface Auction {
@@ -84,8 +76,7 @@ export default function MyProjectsPage() {
     const router = useRouter();
     const user = { user_type: "user", user_id: 1, name: "sav", email: "sav@sav.com", picture: "" };
     const { toast } = useToast();
-    const [claims, setClaims] = useState<Claim[]>([]);
-    const [loading, setLoading] = useState(true);
+    const [loading, setLoading] = useState(false);
     const [showConfirmation, setShowConfirmation] = useState(false);
     const [selectedClaim, setSelectedClaim] = useState<Claim | null>(null);
     const [showDeleteConfirmation, setShowDeleteConfirmation] = useState(false);
@@ -152,36 +143,17 @@ export default function MyProjectsPage() {
         }
     ];
 
-    useEffect(() => {
-        console.log('Current user:', user);
-        console.log('User type:', user?.user_type);
-    }, [user]);
+    const fetchClaims = async () => {
+        const response = await fetch("/api/claim");
+        const { claims } = await response.json();
+        console.log(claims);
+        return claims ? claims : []
+    }
 
-    useEffect(() => {
-        const fetchClaims = async () => {
-            try {
-                const response = await fetch(`/api/claims?userId=${user?.user_id || 1}`);
-                const data = await response.json();
-                
-                if (!response.ok) {
-                    throw new Error(data.message || 'Failed to fetch claims');
-                }
-                
-                setClaims(data.claims);
-            } catch (error) {
-                console.error('Error fetching claims:', error);
-                toast({
-                    title: "Error",
-                    description: "Failed to load your claims. Please try again later.",
-                    variant: "destructive"
-                });
-            } finally {
-                setLoading(false);
-            }
-        };
-
-        fetchClaims();
-    }, [user?.user_id]);
+    const {  data: claims = [], isLoading, isError, error } = useQuery({
+        queryKey: ["getClaims"],
+        queryFn: fetchClaims,
+    });
 
     useEffect(() => {
         const fetchAuctions = async () => {
@@ -306,7 +278,7 @@ export default function MyProjectsPage() {
         return 'Less than an hour remaining';
     };
 
-    const getStatusColor = (status: Claim["status"]) => {
+    const getStatusColor = (status: Claim["id"]) => {
         switch (status) {
             case "pending":
                 return "bg-yellow-500";
@@ -321,7 +293,7 @@ export default function MyProjectsPage() {
         }
     };
 
-    const getNextStep = (status: Claim["status"]) => {
+    const getNextStep = (status: Claim["id"]) => {
         switch (status) {
             case "pending":
                 return "Create Restoration Job";
@@ -355,7 +327,7 @@ export default function MyProjectsPage() {
             }
 
             // Remove the deleted claim from the list
-            setClaims(claims.filter(claim => claim.id !== claimToDelete.id));
+            // setClaims(claims.filter(claim => claim.id !== claimToDelete.id));
             
             toast({
                 title: "Claim Deleted",
@@ -477,7 +449,7 @@ export default function MyProjectsPage() {
                             <div className="space-y-2">
                                 <div className="flex justify-between text-white text-sm">
                                     <span>Active Claims</span>
-                                    <span>{claims.filter(c => c.status === 'in-progress').length}</span>
+                                    <span>{claims.filter((c: Claim) => c.id === 'in-progress').length}</span>
                                 </div>
                                 <div className="flex justify-between text-white text-sm">
                                     <span>Active Auctions</span>
@@ -485,7 +457,7 @@ export default function MyProjectsPage() {
                                 </div>
                                 <div className="flex justify-between text-white text-sm">
                                     <span>Completed</span>
-                                    <span>{claims.filter(c => c.status === 'completed').length}</span>
+                                    <span>{claims.filter((c: Claim)=> c.id === 'completed').length}</span>
                                 </div>
                             </div>
                         </div>
@@ -885,7 +857,7 @@ export default function MyProjectsPage() {
                         ) : activeSection === 'claims' ? (
                             <Card className="shadow-sm border-gray-200">
                                 <CardContent className="p-6">
-                                    {loading ? (
+                                    {isLoading ? (
                                         <div className="flex justify-center items-center h-64">
                                             <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-[#1a365d]"></div>
                                         </div>
@@ -903,18 +875,18 @@ export default function MyProjectsPage() {
                                         </div>
                                     ) : (
                                         <div className="grid gap-6">
-                                            {claims.map((claim) => (
+                                            {claims.map((claim: Claim) => (
                                                 <Card key={claim.id} className="hover:shadow-md transition-shadow border-gray-200">
                                                     <CardContent className="p-6">
                                                         <div className="flex justify-between items-start mb-4">
                                                             <div>
-                                                                <h3 className="text-lg font-semibold text-gray-900">{claim.address}</h3>
+                                                                <h3 className="text-lg font-semibold text-gray-900">{claim.street}</h3>
                                                                 <p className="text-sm text-gray-500 mt-1">
-                                                                    {claim.provider === 'statefarm' ? 'State Farm' : claim.provider || 'No provider specified'}
+                                                                    {claim.insuranceProvider === 'statefarm' ? 'State Farm' : claim.insuranceProvider || 'No provider specified'}
                                                                 </p>
                                                             </div>
-                                                            <Badge variant="secondary" className={getStatusColor(claim.status)}>
-                                                                {claim.status}
+                                                            <Badge variant="secondary" className={getStatusColor(claim.projectType)}>
+                                                                {claim.projectType}
                                                             </Badge>
                                                         </div>
 
@@ -922,33 +894,33 @@ export default function MyProjectsPage() {
                                                             <div className="space-y-2">
                                                                 <div className="flex items-center text-sm">
                                                                     <Calendar className="w-4 h-4 mr-2 text-gray-500" />
-                                                                    <span className="text-gray-600">Filed: {new Date(claim.date).toLocaleDateString()}</span>
+                                                                    <span className="text-gray-600">Filed: {new Date(claim.createdAt).toLocaleDateString()}</span>
                                                                 </div>
-                                                                {claim.policyNumber && (
+                                                                {claim.updatedAt && (
                                                                     <div className="flex items-center text-sm">
                                                                         <FileText className="w-4 h-4 mr-2 text-gray-500" />
-                                                                        <span className="text-gray-600">Policy: {claim.policyNumber}</span>
+                                                                        <span className="text-gray-600">Last Updated: {new Date(claim.updatedAt).toLocaleDateString()}</span>
                                                                     </div>
                                                                 )}
                                                             </div>
                                                             <div className="space-y-2">
-                                                                {claim.project_type && (
+                                                                {claim.needsAdjuster && (
                                                                     <div className="flex items-center text-sm">
                                                                         <LayoutIcon className="w-4 h-4 mr-2 text-gray-500" />
-                                                                        <span className="text-gray-600">Type: {claim.project_type}</span>
+                                                                        <span className="text-gray-600">Needs Adjuster: {claim.needsAdjuster}</span>
                                                                     </div>
                                                                 )}
-                                                                {claim.design_plan && (
+                                                                {claim.designPlan && (
                                                                     <div className="flex items-center text-sm">
                                                                         <FileText className="w-4 h-4 mr-2 text-gray-500" />
-                                                                        <span className="text-gray-600">Design Plan: {claim.design_plan}</span>
+                                                                        <span className="text-gray-600">Design Plan: {claim.designPlan}</span>
                                                                     </div>
                                                                 )}
                                                             </div>
                                                         </div>
 
                                                         <div className="flex justify-end space-x-3">
-                                                            {claim.status === 'pending' && (
+                                                            {claim.id && (
                                                                 <Button
                                                                     variant="default"
                                                                     onClick={() => router.push(`/start-claim/create-restor?claimId=${parseInt(claim.id)}`)}

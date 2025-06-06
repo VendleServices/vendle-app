@@ -1,8 +1,8 @@
 "use client";
 
 import { useState, useEffect } from 'react';
-import { useNavigate, useSearchParams } from 'react-router-dom';
 import { motion } from 'framer-motion';
+import { useRouter } from 'next/navigation';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -14,26 +14,25 @@ import { DollarSign, Calendar } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 
 export default function CreateRestorPage() {
-  const navigate = useNavigate();
+  const router = useRouter();
   const { toast } = useToast();
   const { user } = useAuth();
-  const [searchParams] = useSearchParams();
   const [claimId, setClaimId] = useState<number | null>(null);
 
-  useEffect(() => {
-    const id = searchParams.get('claimId');
-    if (!id) {
-      toast({
-        title: "Error",
-        description: "No claim ID provided",
-        variant: "destructive",
-        duration: 5000,
-      });
-      navigate('/my-projects');
-      return;
-    }
-    setClaimId(parseInt(id));
-  }, [searchParams, navigate, toast]);
+  // useEffect(() => {
+  //   const id = searchParams.get('claimId');
+  //   if (!id) {
+  //     toast({
+  //       title: "Error",
+  //       description: "No claim ID provided",
+  //       variant: "destructive",
+  //       duration: 5000,
+  //     });
+  //     router.push('/my-projects');
+  //     return;
+  //   }
+  //   setClaimId(parseInt(id));
+  // }, [searchParams, navigate, toast]);
 
   const [formData, setFormData] = useState({
     title: '',
@@ -104,7 +103,7 @@ export default function CreateRestorPage() {
         title: "Success",
         description: "Auction created successfully",
       });
-      navigate(getProjectsPath());
+      router.push(getProjectsPath());
     } catch (error) {
       console.error('Error creating auction:', error);
       toast({
@@ -299,7 +298,7 @@ export default function CreateRestorPage() {
                 <Button
                   type="button"
                   variant="outline"
-                onClick={() => navigate(getProjectsPath())}
+                onClick={() => router.push(getProjectsPath())}
                 >
                   Back
                 </Button>
