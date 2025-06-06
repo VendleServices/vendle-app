@@ -97,7 +97,7 @@ const HowItWorks = () => {
   };
 
   return (
-    <PageTransition className="min-h-screen bg-gradient-to-b from-white to-gray-50 pb-20">
+    <PageTransition className="min-h-screen bg-gradient-to-b from-white to-gray-50 pb-20 pt-24">
       <div className="container mx-auto px-4 py-12 max-w-6xl">
         <SlideUpTransition className="text-center mb-16">
           <h1 className="text-4xl md:text-5xl font-bold text-vendle-navy mb-4">How Vendle Works</h1>
