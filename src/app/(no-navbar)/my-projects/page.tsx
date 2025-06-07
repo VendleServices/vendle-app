@@ -9,7 +9,7 @@ import { motion } from "framer-motion";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Building2, MapPin, Calendar, FileText, Clock, LayoutIcon, Trash2, Filter, ArrowUpDown, DollarSign, Users, Folder, CheckCircle, Archive, Plus, Upload, Download, BarChart, HelpCircle, MessageCircle, Bell, Settings, Flag, LogOut, Star, Trophy, AlertCircle } from "lucide-react";
 import { useToast } from "@/components/ui/use-toast";
-import { useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
     AlertDialog,
     AlertDialogAction,
@@ -74,6 +74,7 @@ interface Review {
 
 export default function MyProjectsPage() {
     const router = useRouter();
+    const queryClient = useQueryClient();
     const user = { user_type: "user", user_id: 1, name: "sav", email: "sav@sav.com", picture: "" };
     const { toast } = useToast();
     const [loading, setLoading] = useState(false);
@@ -90,12 +91,12 @@ export default function MyProjectsPage() {
     });
     const [sortBy, setSortBy] = useState('date-desc');
     const [auctions, setAuctions] = useState<Auction[]>([]);
-    const [auctionLoading, setAuctionLoading] = useState(true);
+    const [auctionLoading, setAuctionLoading] = useState(false);
     const [activeSection, setActiveSection] = useState<'auctions' | 'claims' | 'reviews' | 'closed-auctions'>('auctions');
     const [auctionToDelete, setAuctionToDelete] = useState<Auction | null>(null);
     const [showAuctionDeleteConfirmation, setShowAuctionDeleteConfirmation] = useState(false);
     const [closedAuctions, setClosedAuctions] = useState<Auction[]>([]);
-    const [closedAuctionLoading, setClosedAuctionLoading] = useState(true);
+    const [closedAuctionLoading, setClosedAuctionLoading] = useState(false);
     const [showClosedAuctionDeleteConfirmation, setShowClosedAuctionDeleteConfirmation] = useState(false);
     const [closedAuctionToDelete, setClosedAuctionToDelete] = useState<Auction | null>(null);
 
@@ -155,114 +156,6 @@ export default function MyProjectsPage() {
         queryFn: fetchClaims,
     });
 
-    useEffect(() => {
-        const fetchAuctions = async () => {
-            try {
-                const response = await fetch('/api/auctions');
-                if (!response.ok) {
-                    throw new Error(`HTTP error! status: ${response.status}`);
-                }
-                const data = await response.json();
-                console.log('Raw auction data:', data);
-                
-                if (!Array.isArray(data)) {
-                    throw new Error('Invalid data format received from server');
-                }
-                
-                // Process auctions based on end date and status
-                const now = new Date();
-                console.log('Current time:', now);
-                
-                const processedAuctions = await Promise.all(data.map(async (auction: Auction) => {
-                    try {
-                        // Parse the end date from ISO format
-                        const endDate = new Date(auction.end_date);
-                        console.log('Processing auction:', {
-                            auctionId: auction.auction_id,
-                            currentStatus: auction.status,
-                            endDate: endDate,
-                            isPast: endDate < now
-                        });
-                        
-                        // If the end date is in the past, mark it as closed
-                        if (endDate < now) {
-                            console.log('Attempting to close auction:', auction.auction_id);
-                            
-                            try {
-                                const updateData = {
-                                    status: 'closed',
-                                    auction_id: auction.auction_id,
-                                    claim_id: auction.claim_id
-                                };
-                                
-                                console.log('Sending update request:', {
-                                    url: `/api/auctions?id=${auction.auction_id}`,
-                                    method: 'PATCH',
-                                    data: updateData
-                                });
-
-                                const updateResponse = await fetch(`/api/auctions?id=${auction.auction_id}`, {
-                                    method: 'PATCH',
-                                    headers: {
-                                        'Content-Type': 'application/json',
-                                    },
-                                    body: JSON.stringify(updateData),
-                                });
-
-                                const responseText = await updateResponse.text();
-                                console.log('Update response:', {
-                                    status: updateResponse.status,
-                                    statusText: updateResponse.statusText,
-                                    response: responseText
-                                });
-
-                                if (!updateResponse.ok) {
-                                    throw new Error(`Failed to update auction status: ${responseText}`);
-                                }
-
-                                // Return the auction with closed status
-                                return { ...auction, status: 'closed' };
-                            } catch (error) {
-                                console.error('Error updating auction status:', error);
-                                // Even if the update fails, we'll mark it as closed in the UI
-                                return { ...auction, status: 'closed' };
-                            }
-                        }
-                        
-                        return auction;
-                    } catch (error) {
-                        console.error('Error processing auction:', error);
-                        return auction;
-                    }
-                }));
-
-                // Separate active and closed auctions
-                const activeAuctions = processedAuctions.filter((auction: Auction) => auction.status === 'open');
-                const closedAuctions = processedAuctions.filter((auction: Auction) => auction.status === 'closed');
-                
-                console.log('Final auction states:', {
-                    active: activeAuctions,
-                    closed: closedAuctions
-                });
-                
-                setAuctions(activeAuctions);
-                setClosedAuctions(closedAuctions);
-            } catch (error) {
-                console.error('Error fetching auctions:', error);
-                toast({
-                    title: "Error",
-                    description: "Failed to load auctions. Please try again later.",
-                    variant: "destructive",
-                });
-            } finally {
-                setAuctionLoading(false);
-                setClosedAuctionLoading(false);
-            }
-        };
-
-        fetchAuctions();
-    }, []);
-
     const getTimeRemaining = (endDate: string) => {
         const end = new Date(endDate);
         const now = new Date();
@@ -308,43 +201,28 @@ export default function MyProjectsPage() {
         }
     };
 
-    const handleDeleteClick = (claim: Claim) => {
-        setClaimToDelete(claim);
-        setShowDeleteConfirmation(true);
-        setDeleteConfirmed(false);
-    };
-
-    const handleDeleteConfirm = async () => {
-        if (!claimToDelete || !deleteConfirmed) return;
-
+    const deleteClaim = async (claim: Claim) => {
         try {
-            const response = await fetch(`/api/claims?claimId=${claimToDelete.id}`, {
-                method: 'DELETE',
-            });
-
-            if (!response.ok) {
-                throw new Error('Failed to delete claim');
-            }
-
-            // Remove the deleted claim from the list
-            // setClaims(claims.filter(claim => claim.id !== claimToDelete.id));
-            
-            toast({
-                title: "Claim Deleted",
-                description: "The claim has been successfully deleted.",
+            const response = await fetch(`/api/claim/${claim.id}`, {
+                method: "DELETE",
             });
         } catch (error) {
-            console.error('Error deleting claim:', error);
-            toast({
-                title: "Error",
-                description: "Failed to delete the claim. Please try again.",
-                variant: "destructive"
-            });
-        } finally {
-            setShowDeleteConfirmation(false);
-            setClaimToDelete(null);
-            setDeleteConfirmed(false);
+            console.log(error);
         }
+    }
+
+    const deleteClaimMutation = useMutation({
+        mutationFn: deleteClaim,
+        onSuccess: () => {
+            queryClient.invalidateQueries({
+                queryKey: ["getClaims"]
+            });
+        },
+        onError: error => { console.log(error); }
+    })
+
+    const handleDeleteClick = (claim: Claim) => {
+        deleteClaimMutation.mutate(claim);
     };
 
     const handleAuctionDeleteClick = (auction: Auction) => {
@@ -433,7 +311,7 @@ export default function MyProjectsPage() {
         >
             <div className="flex">
                 {/* Sidebar */}
-                <div className="w-72 flex-shrink-0 bg-[#1a365d] min-h-screen">
+                <div className="w-72 bg-[#1a365d] min-h-screen">
                     <div className="sticky top-0 p-6">
                         <Button
                             variant="ghost"
@@ -442,7 +320,6 @@ export default function MyProjectsPage() {
                         >
                             Vendle
                         </Button>
-                        
                         {/* Quick Stats */}
                         <div className="mb-6 p-4 bg-[#2c5282] rounded-lg">
                             <h3 className="text-white text-sm font-medium mb-2">Quick Stats</h3>
@@ -692,8 +569,8 @@ export default function MyProjectsPage() {
 
                 {/* Main Content */}
                 <div className="flex-1 p-8">
-                    <div className="max-w-7xl mx-auto">
-                        <div className="flex justify-between items-center mb-6">
+                    <div className="max-w-7xl mx-auto min-h-screen flex flex-col justify-start">
+                        <div className="flex justify-between items-center mb-6 h-3/4">
                             <div>
                                 <h1 className="text-3xl font-bold text-gray-900">
                                     {activeSection === 'auctions' ? 'Active Auctions' : activeSection === 'claims' ? 'My Claims' : activeSection === 'closed-auctions' ? 'Closed Auctions' : 'My Reviews'}

@@ -208,7 +208,7 @@ const HowItWorks = () => {
             Vendle makes navigating disaster recovery smooth, transparent, and stress-free, from the first report to final completion.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Link href="/start-claim/insurance/onboarding">
+            <Link href="/src/app/(with-navbar)/start-claim/insurance/onboarding">
               <Button size="lg" className="min-w-44">
                 Start Your Project
               </Button>
