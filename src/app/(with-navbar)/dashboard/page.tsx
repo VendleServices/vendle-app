@@ -211,7 +211,7 @@ const Dashboard = () => {
 
   return (
     <PageTransition>
-      <div className="container mx-auto px-4 py-10 max-w-6xl min-h-screen flex items-center">
+      <div className="container mx-auto px-4 py-10 max-w-6xl min-h-screen flex items-center mt-10">
         <div className="h-1/2">
           <div className="flex justify-between items-center mb-6">
             <h2 className="text-xl font-semibold">Project Resources</h2>

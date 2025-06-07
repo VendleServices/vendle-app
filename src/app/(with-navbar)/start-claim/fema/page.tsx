@@ -69,19 +69,13 @@ export default function FemaAssistancePage() {
     };
 
     const disableSubmit = !formData.firstName || !formData.lastName || !formData.email || !formData.phone
-    || !formData.address || !formData.city || !formData.state || !formData.zipCode;
+        || !formData.address || !formData.city || !formData.state || !formData.zipCode;
 
     const buttonText = femaMutation.isPending ? "Submitting Application..." : "Submit Application";
 
     return (
-        <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -20 }}
-            transition={{ duration: 0.3 }}
-            className="flex items-center justify-center p-4 min-h-screen"
-        >
-            <Card className="w-[70vw] min-w-[40rem] max-w-[60rem] bg-white">
+        <div className="min-h-screen flex items-center justify-center p-4 mt-20">
+            <Card className="bg-white w-full">
                 <div className="p-12">
                     <CardHeader className="pb-8">
                         <CardTitle className="text-4xl font-bold text-center text-vendle-navy">
@@ -207,7 +201,7 @@ export default function FemaAssistancePage() {
                                         id="isPrimaryResidence"
                                         name="isPrimaryResidence"
                                         checked={formData.isPrimaryResidence}
-                                        onCheckedChange={(checked) => 
+                                        onCheckedChange={(checked) =>
                                             setFormData(prev => ({ ...prev, isPrimaryResidence: checked as boolean }))
                                         }
                                     />
@@ -221,7 +215,7 @@ export default function FemaAssistancePage() {
                                         id="hasInsurance"
                                         name="hasInsurance"
                                         checked={formData.hasInsurance}
-                                        onCheckedChange={(checked) => 
+                                        onCheckedChange={(checked) =>
                                             setFormData(prev => ({ ...prev, hasInsurance: checked as boolean }))
                                         }
                                     />
@@ -235,7 +229,7 @@ export default function FemaAssistancePage() {
                                         id="isUsCitizen"
                                         name="isUsCitizen"
                                         checked={formData.isUsCitizen}
-                                        onCheckedChange={(checked) => 
+                                        onCheckedChange={(checked) =>
                                             setFormData(prev => ({ ...prev, isUsCitizen: checked as boolean }))
                                         }
                                     />
@@ -265,6 +259,6 @@ export default function FemaAssistancePage() {
                     </CardContent>
                 </div>
             </Card>
-        </motion.div>
+        </div>
     );
-} 
+}
