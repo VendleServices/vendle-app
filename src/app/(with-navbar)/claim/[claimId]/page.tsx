@@ -1,61 +1,51 @@
 "use client";
 
-import { useState, useEffect } from "react";
-import { useParams, useNavigate } from "react-router-dom";
+import { useRouter } from "next/navigation";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { useAuth } from "@/contexts/AuthContext";
-import { useToast } from "@/components/ui/use-toast";
 import { Building2, MapPin, Calendar, FileText, Clock, LayoutIcon, Trash2, ArrowLeft } from "lucide-react";
+import { useQuery } from "@tanstack/react-query";
+import { use } from "react";
+
+interface PageProps {
+    params: Promise<{
+        claimId: string;
+    }>;
+}
 
 interface Claim {
     id: string;
-    status: string;
-    date: string;
-    address: string;
-    provider?: string;
-    policyNumber?: string;
-    projectType?: string;
-    designPlan?: string;
-    needsAdjuster?: boolean;
-    dateOfLoss?: string;
-    insuranceEstimateFilePath?: string;
+    street: string;
+    city: string;
+    state: string;
+    zipCode: string;
+    projectType: string;
+    designPlan: string;
+    insuranceEstimateFilePath: string;
+    needsAdjuster: boolean;
+    insuranceProvider: string;
+    createdAt: Date;
+    updatedAt: Date;
 }
 
-export default function ClaimPage() {
-    const { id } = useParams();
-    const navigate = useNavigate();
+export default function ClaimPage({ params }: PageProps) {
+    const { claimId } = use(params);
+    const router = useRouter();
     const { user } = useAuth();
-    const { toast } = useToast();
-    const [claim, setClaim] = useState<Claim | null>(null);
-    const [loading, setLoading] = useState(true);
 
-    useEffect(() => {
-        const fetchClaim = async () => {
-            try {
-                const response = await fetch(`/api/claims/${id}`);
-                const data = await response.json();
-                
-                if (!response.ok) {
-                    throw new Error(data.message || 'Failed to fetch claim');
-                }
-                
-                setClaim(data.claim);
-            } catch (error) {
-                console.error('Error fetching claim:', error);
-                toast({
-                    title: "Error",
-                    description: "Failed to load claim. Please try again later.",
-                    variant: "destructive"
-                });
-            } finally {
-                setLoading(false);
-            }
-        };
+    const fetchClaim = async () => {
+        const response = await fetch(`/api/claim/${claimId}`);
+        const { claim } = await response.json();
+        console.log(claim);
+        return claim ? claim : null
+    }
 
-        fetchClaim();
-    }, [id]);
+    const {  data: claim, isLoading, isError, error } = useQuery({
+        queryKey: ["getIndividualClaim"],
+        queryFn: fetchClaim,
+    });
 
     const getStatusColor = (status: string) => {
         switch (status) {
@@ -72,7 +62,7 @@ export default function ClaimPage() {
         }
     };
 
-    if (loading) {
+    if (isLoading) {
         return (
             <div className="flex-1 p-8">
                 <div className="max-w-7xl mx-auto">
@@ -96,7 +86,7 @@ export default function ClaimPage() {
                     <h1 className="text-3xl font-bold text-gray-900">Claim Not Found</h1>
                     <p className="mt-2 text-gray-600">The claim you're looking for doesn't exist or you don't have permission to view it.</p>
                     <Button
-                        onClick={() => navigate("/my-projects")}
+                        onClick={() => router.push("/my-projects")}
                         className="mt-4"
                     >
                         Back to My Projects
@@ -107,15 +97,15 @@ export default function ClaimPage() {
     }
 
     return (
-        <div className="flex-1 p-8">
+        <div className="flex-1 p-8 mt-20">
             <div className="max-w-7xl mx-auto">
-                <div className="flex items-center mb-6">
+                <div className="flex flex-col justify-center mb-6">
                     <Button
                         variant="ghost"
-                        onClick={() => navigate("/my-projects")}
-                        className="mr-4"
+                        onClick={() => router.push("/my-projects")}
+                        className="mr-4 w-fit mb-6"
                     >
-                        <ArrowLeft className="h-4 w-4 mr-2" />
+                        <ArrowLeft className="h-4 w-4" />
                         Back to My Projects
                     </Button>
                     <h1 className="text-3xl font-bold text-gray-900">Claim Details</h1>
@@ -129,33 +119,33 @@ export default function ClaimPage() {
                         <CardContent>
                             <div className="space-y-4">
                                 <div className="flex items-center">
-                                    <Badge className={`${getStatusColor(claim.status)} text-white mr-2`}>
-                                        {claim.status}
+                                    <Badge className={`${getStatusColor(claim.id)} text-white mr-2`}>
+                                        {claim.id}
                                     </Badge>
                                     <span className="text-sm text-gray-500">
-                                        Created on {new Date(claim.date).toLocaleDateString()}
+                                        Created on {new Date(claim.createdAt).toLocaleDateString()}
                                     </span>
                                 </div>
                                 <div className="flex items-center">
                                     <MapPin className="h-4 w-4 mr-2 text-gray-500" />
-                                    <span>{claim.address}</span>
+                                    <span>{claim.street}</span>
                                 </div>
-                                {claim.provider && (
+                                {claim.city && (
                                     <div className="flex items-center">
                                         <Building2 className="h-4 w-4 mr-2 text-gray-500" />
-                                        <span>{claim.provider}</span>
+                                        <span>{claim.city}</span>
                                     </div>
                                 )}
-                                {claim.policyNumber && (
+                                {claim.state && (
                                     <div className="flex items-center">
                                         <FileText className="h-4 w-4 mr-2 text-gray-500" />
-                                        <span>Policy Number: {claim.policyNumber}</span>
+                                        <span>State: {claim.state}</span>
                                     </div>
                                 )}
-                                {claim.dateOfLoss && (
+                                {claim.zipCode && (
                                     <div className="flex items-center">
                                         <Calendar className="h-4 w-4 mr-2 text-gray-500" />
-                                        <span>Date of Loss: {new Date(claim.dateOfLoss).toLocaleDateString()}</span>
+                                        <span>ZipCode: {claim.zipCode}</span>
                                     </div>
                                 )}
                             </div>
@@ -182,7 +172,7 @@ export default function ClaimPage() {
                                 )}
                                 <div className="flex items-center">
                                     <Clock className="h-4 w-4 mr-2 text-gray-500" />
-                                    <span>Last Updated: {new Date(claim.date).toLocaleDateString()}</span>
+                                    <span>Last Updated: {new Date(claim.updatedAt).toLocaleDateString()}</span>
                                 </div>
                             </div>
                         </CardContent>
