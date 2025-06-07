@@ -177,7 +177,7 @@ const Onboarding = () => {
   };
   
   return (
-    <div className="min-h-screen pb-20 flex items-center">
+    <div className="min-h-screen pb-20 flex items-center mt-20">
       <div className="h-1/2 bg-gray-50 pb-4">
         {/* Header */}
         <header className="bg-white border-b border-gray-200 py-4 px-4 md:px-6 shadow-sm">

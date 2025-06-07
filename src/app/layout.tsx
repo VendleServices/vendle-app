@@ -1,5 +1,4 @@
 import type { Metadata } from "next";
-import Navbar from "@/components/Navbar";
 import "../styles/index.css";
 import { AuthProvider } from "@/contexts/AuthContext";
 import QueryProvider from "@/app/QueryProvider";
@@ -23,7 +22,6 @@ export default function RootLayout({
       <body>
         <QueryProvider>
           <AuthProvider>
-            <Navbar />
             <main id ="root">
               {children}
             </main>
