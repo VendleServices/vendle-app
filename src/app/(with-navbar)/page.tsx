@@ -61,7 +61,7 @@ export default function HomePage() {
         {/* Parallax Section - Left Half */}
         <div
           className="w-1/2 relative overflow-hidden"
-          style={{ background: "linear-gradient(180deg, #ede9fe 0%, #f3f4f6 100%)" }}
+          style={{ background: "linear-gradient(180deg, #ede9fe 0%, #f3f4f6 50%, #ede9fe 100%)" }}
         >
           <DotsBackground color="#a78bfa" opacity={0.18} />
           <div className="absolute inset-0">
@@ -92,7 +92,7 @@ export default function HomePage() {
         {/* Content Section - Right Half */}
         <div
           className="w-1/2 flex items-center relative"
-          style={{ background: "linear-gradient(180deg, #ede9fe 0%, #f3f4f6 100%)" }}
+          style={{ background: "linear-gradient(180deg, #ede9fe 0%, #f3f4f6 50%, #ede9fe 100%)" }}
         >
           <DotsBackground color="#a78bfa" opacity={0.13} />
           <div className="container mx-auto px-8 relative z-10">
@@ -133,19 +133,13 @@ export default function HomePage() {
               </div>
             </motion.div>
           </div>
-          {/* Curved SVG transition at the bottom */}
-          <div className="absolute left-0 bottom-0 w-full" style={{ pointerEvents: "none", zIndex: 20 }}>
-            <svg viewBox="0 0 800 80" fill="none" xmlns="http://www.w3.org/2000/svg" className="w-full h-20">
-              <path d="M0 0C150 80 650 0 800 80V80H0V0Z" fill="#ede9fe" />
-            </svg>
-          </div>
         </div>
       </div>
 
       {/* How It Works Section */}
       <section
         className="py-20 w-full relative"
-        style={{ background: "linear-gradient(180deg, #ede9fe 0%, #f3f4f6 100%)" }}
+        style={{ background: "linear-gradient(180deg, #ede9fe 0%, #f3f4f6 50%, #ede9fe 100%)" }}
       >
         <DotsBackground color="#a78bfa" opacity={0.13} />
         <div className="container mx-auto px-4 relative z-10">
@@ -161,48 +155,14 @@ export default function HomePage() {
             className="text-3xl md:text-4xl font-bold tracking-tight text-gray-900 mb-3 leading-tight uppercase text-center"
             style={{ letterSpacing: "0.01em" }}
           >
-            How it Works ?
+            What Does Vendle Do?
           </h2>
           <p className="text-base text-gray-600 mb-8 text-center max-w-lg mx-auto">
             Automate your entire reconstruction workflow so you recover more, with less effort.
           </p>
 
           {/* Steps Cards */}
-          <div className="max-w-5xl mx-auto mb-8">
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              {[
-                {
-                  num: 1,
-                  title: "Share Project Details",
-                  desc: "Your dashboard shows every project across your account, with smart filters and recommendations prioritized by urgency and value.",
-                },
-                {
-                  num: 2,
-                  title: "Connect with Contractors",
-                  desc: "We pull your data and requirements to generate precise, policy-specific project matches automatically.",
-                },
-                {
-                  num: 3,
-                  title: "Compare Blind Bids",
-                  desc: "Review and monitor every bid's progress. See what's working, and what's still pending—no more spreadsheets.",
-                },
-              ].map((step, index) => (
-                <motion.div
-                  key={step.num}
-                  className="bg-white rounded-xl border border-gray-200 shadow-sm p-5 flex flex-col items-center h-full"
-                  initial={{ opacity: 0, y: 20 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.5, delay: index * 0.2 }}
-                >
-                  <div className="w-8 h-8 flex items-center justify-center rounded-full bg-gray-900 text-white text-base font-bold mb-4">
-                    {step.num}
-                  </div>
-                  <h3 className="text-base font-bold text-gray-900 mb-1 text-center">{step.title}</h3>
-                  <p className="text-gray-600 text-sm text-center">{step.desc}</p>
-                </motion.div>
-              ))}
-            </div>
-          </div>
+          <VendleSteps />
 
           {/* Animated Buzzwords */}
           <div className="max-w-5xl mx-auto">
@@ -230,12 +190,6 @@ export default function HomePage() {
               ))}
             </div>
           </div>
-        </div>
-        {/* Curved SVG transition at the bottom, curving into the left and stretching full width */}
-        <div className="absolute right-0 bottom-0 w-full" style={{ pointerEvents: "none", zIndex: 20 }}>
-          <svg viewBox="0 0 1920 120" fill="none" xmlns="http://www.w3.org/2000/svg" className="w-full h-32">
-            <path d="M1920 0C1560 120 360 0 0 120V120H1920V0Z" fill="#ede9fe" />
-          </svg>
         </div>
       </section>
 
@@ -266,7 +220,7 @@ export default function HomePage() {
       {/* Steps to Rebuild Section */}
       <section
         className="py-12 w-full relative"
-        style={{ background: "linear-gradient(180deg, #ede9fe 0%, #f3f4f6 100%)" }}
+        style={{ background: "linear-gradient(180deg, #ede9fe 0%, #f3f4f6 50%, #ede9fe 100%)" }}
       >
         <DotsBackground color="#a78bfa" opacity={0.13} />
         <div className="container mx-auto px-4 relative z-10">
@@ -729,5 +683,98 @@ function StepsToRebuildFeatureItem({ item, num }: { item: any; num: number }) {
         </motion.div>
       </div>
     </motion.div>
+  )
+}
+
+function VendleSteps() {
+  const [activeStep, setActiveStep] = React.useState(0)
+
+  React.useEffect(() => {
+    const interval = setInterval(() => {
+      setActiveStep(prev => (prev + 1) % 5)
+    }, 3000) // 3 seconds per step
+    return () => clearInterval(interval)
+  }, [])
+
+  const steps = [
+    {
+      num: 1,
+      title: "Share Project Details",
+      desc: "Provide clear details about your project through our easy-to-follow forms with guided inputs and intuitive file uploads.",
+    },
+    {
+      num: 2,
+      title: "Expert Review (Optional)",
+      desc: "Our third-party adjusters can review and negotiate your damage estimate for financial clarity and peace of mind.",
+    },
+    {
+      num: 3,
+      title: "Compare Contractor Bids",
+      desc: "Receive and compare competitive bids from verified contractors side-by-side, reviewing costs, timelines, and ratings.",
+    },
+    {
+      num: 4,
+      title: "Collaborate Seamlessly",
+      desc: "Connect with your chosen contractor via user-friendly messaging, scheduling, and document sharing.",
+    },
+    {
+      num: 5,
+      title: "Track Progress & Pay Securely",
+      desc: "Monitor your project with visual updates and pay securely through our milestone-based payment system.",
+    },
+  ]
+
+  return (
+    <div className="max-w-7xl mx-auto mb-12 relative px-4 sm:px-6 lg:px-8">
+      {/* Grid of step cards */}
+      <div className="relative grid grid-cols-1 md:grid-cols-5 gap-8">
+        {steps.map((step, index) => {
+          const isCurrent = activeStep === index
+          return (
+            <motion.div
+              key={step.num}
+              className="bg-white rounded-xl border border-gray-200 shadow-md p-5 flex flex-col items-center h-full text-center"
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5, delay: index * 0.1 }}
+            >
+              {/* Step number circle - positioned above line (z-20) */}
+              <motion.div
+                className="w-10 h-10 flex items-center justify-center rounded-full text-white text-base font-bold mb-4 relative border-4 border-white shadow-md bg-white z-20"
+                animate={{
+                  scale: isCurrent ? 1.4 : 1,
+                }}
+                transition={{ type: "spring", stiffness: 300, damping: 20 }}
+              >
+                <motion.div
+                  className="w-full h-full rounded-full flex items-center justify-center"
+                  animate={{
+                    backgroundColor: isCurrent ? "#7c3aed" : "#1f2937",
+                  }}
+                >
+                  {step.num}
+                </motion.div>
+              </motion.div>
+              <h3 className="text-lg font-bold text-gray-900 mb-1">{step.title}</h3>
+              <p className="text-gray-600 text-sm">{step.desc}</p>
+            </motion.div>
+          )
+        })}
+      </div>
+
+      {/* Line and animated ball - positioned over cards (z-10) */}
+      <div
+        aria-hidden="true"
+        className="absolute top-10 left-0 right-0 h-2 bg-gray-200 z-10"
+        style={{ margin: "0 10%", transform: "translateY(-50%)" }}
+      >
+        <motion.div
+          className="absolute w-4 h-4 bg-purple-600 rounded-full"
+          style={{ top: "50%", transform: "translateY(-50%)" }}
+          animate={{ left: `calc(${activeStep * 25}% - 0.5rem)` }}
+          transition={{ type: "spring", stiffness: 100, damping: 20 }}
+        />
+      </div>
+    </div>
   )
 }
