@@ -1,12 +1,10 @@
 "use client"
 import Link from "next/link"
 import Image from "next/image"
-import { motion, AnimatePresence } from "framer-motion"
-import { ArrowRight, ShieldCheck, UserCheck, ClipboardCheck, ChevronDown } from "lucide-react"
+import { motion, AnimatePresence, useScroll, useTransform } from "framer-motion"
+import { ArrowRight, ChevronDown, Play } from "lucide-react"
 import { Inter } from "next/font/google"
-import { useState } from "react"
-import { useParallaxImages } from "@/hooks/useParallaxImages"
-import React from "react"
+import { useState, useRef, useEffect } from "react"
 
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
@@ -15,17 +13,32 @@ import DotsBackground from "@/components/DotsBackground"
 const inter = Inter({ subsets: ["latin"] })
 
 export default function HomePage() {
-  // Mock auth state - replace with your actual auth context
   const user = null
-  const currentImageIndex = useParallaxImages(5)
+  const [currentImageIndex, setCurrentImageIndex] = useState(0)
+  const heroRef = useRef<HTMLDivElement>(null)
+  const { scrollYProgress } = useScroll({
+    target: heroRef,
+    offset: ["start start", "end start"],
+  })
 
-  // Animation variants with reduced motion
-  const fadeIn = {
-    hidden: { opacity: 0, y: 10 },
+  const y = useTransform(scrollYProgress, [0, 1], ["0%", "50%"])
+  const opacity = useTransform(scrollYProgress, [0, 0.5], [1, 0])
+
+  // Parallax image rotation
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setCurrentImageIndex((prev) => (prev + 1) % 5)
+    }, 4000)
+    return () => clearInterval(interval)
+  }, [])
+
+  // Smooth animation variants
+  const fadeInUp = {
+    hidden: { opacity: 0, y: 30 },
     visible: {
       opacity: 1,
       y: 0,
-      transition: { duration: 0.4, ease: "easeOut" },
+      transition: { duration: 0.8, ease: [0.25, 0.46, 0.45, 0.94] },
     },
   }
 
@@ -34,49 +47,34 @@ export default function HomePage() {
     visible: {
       opacity: 1,
       transition: {
-        staggerChildren: 0.1,
+        staggerChildren: 0.15,
+        delayChildren: 0.1,
       },
     },
   }
 
   return (
     <div className={`min-h-screen bg-white ${inter.className} relative overflow-x-hidden`}>
-      {/* Subtle star/dot background */}
-      <div aria-hidden="true" className="pointer-events-none absolute inset-0 z-0">
-        <svg width="100%" height="100%" className="w-full h-full" style={{ opacity: 0.13 }}>
-          <defs>
-            <pattern id="starfield" x="0" y="0" width="40" height="40" patternUnits="userSpaceOnUse">
-              <circle cx="2" cy="2" r="1.1" fill="#222" />
-              <circle cx="30" cy="10" r="0.7" fill="#222" />
-              <circle cx="20" cy="30" r="0.6" fill="#222" />
-              <circle cx="35" cy="35" r="0.8" fill="#222" />
-            </pattern>
-          </defs>
-          <rect width="100%" height="100%" fill="url(#starfield)" />
-        </svg>
-      </div>
-
       {/* Hero Section */}
-      <div className="relative min-h-screen flex">
+      <motion.div ref={heroRef} className="relative min-h-screen flex" style={{ y, opacity }}>
         {/* Parallax Section - Left Half */}
-        <div
-          className="w-1/2 relative overflow-hidden"
-          style={{ background: "linear-gradient(180deg, #ede9fe 0%, #f3f4f6 50%, #ede9fe 100%)" }}
-        >
-          <DotsBackground color="#a78bfa" opacity={0.18} />
+        <div className="w-1/2 relative overflow-hidden">
+          <div className="absolute inset-0" style={{ background: "linear-gradient(180deg, #ede9fe 0%, #f3f4f6 50%, #ede9fe 100%)" }}>
+            <DotsBackground color="#a78bfa" opacity={0.13} />
+          </div>
           <div className="absolute inset-0">
             {[1, 2, 3, 4, 5].map((num, index) => (
               <motion.div
                 key={num}
                 className="absolute inset-0"
-                initial={{ opacity: 0 }}
+                initial={{ opacity: 0, scale: 1.1 }}
                 animate={{
                   opacity: index === currentImageIndex ? 1 : 0,
-                  scale: index === currentImageIndex ? 1.1 : 1.05,
+                  scale: index === currentImageIndex ? 1 : 1.05,
                 }}
                 transition={{
-                  duration: 1.5,
-                  ease: "easeInOut",
+                  duration: 2,
+                  ease: [0.25, 0.46, 0.45, 0.94],
                 }}
                 style={{
                   backgroundImage: `url(/plax${num}.jpg)`,
@@ -86,87 +84,123 @@ export default function HomePage() {
               />
             ))}
           </div>
-          <div className="absolute inset-0 bg-gradient-to-r from-black/40 to-transparent" />
+          <div className="absolute inset-0 bg-gradient-to-r from-black/20 to-transparent" />
+
+          {/* Floating elements */}
+          <motion.div
+            className="absolute top-20 left-10 w-3 h-3 bg-purple-400 rounded-full"
+            animate={{ y: [0, -20, 0] }}
+            transition={{ duration: 3, repeat: Number.POSITIVE_INFINITY, ease: "easeInOut" }}
+          />
+          <motion.div
+            className="absolute bottom-32 right-16 w-2 h-2 bg-blue-400 rounded-full"
+            animate={{ y: [0, -15, 0] }}
+            transition={{ duration: 4, repeat: Number.POSITIVE_INFINITY, ease: "easeInOut", delay: 1 }}
+          />
         </div>
 
         {/* Content Section - Right Half */}
-        <div
-          className="w-1/2 flex items-center relative"
-          style={{ background: "linear-gradient(180deg, #ede9fe 0%, #f3f4f6 50%, #ede9fe 100%)" }}
-        >
-          <DotsBackground color="#a78bfa" opacity={0.13} />
-          <div className="container mx-auto px-8 relative z-10">
-            <motion.div className="max-w-xl text-left" initial="hidden" animate="visible" variants={fadeIn}>
-              <div className="flex items-center gap-4 mb-4">
-                <Image
-                  src="/vendle_logo.jpg"
-                  alt="Vendle Logo"
-                  width={90}
-                  height={30}
-                  className="h-7 w-auto"
-                  priority
-                />
-                <Badge className="px-3 py-1 text-xs bg-purple-50 text-purple-700 border border-purple-100">
+        <div className="w-1/2 flex items-center relative">
+          <div className="absolute inset-0" style={{ background: "linear-gradient(180deg, #ede9fe 0%, #f3f4f6 50%, #ede9fe 100%)" }}>
+            <DotsBackground color="#a78bfa" opacity={0.13} />
+          </div>
+          <div className="container mx-auto px-12 relative z-10">
+            <motion.div className="max-w-xl" initial="hidden" animate="visible" variants={staggerContainer}>
+              <motion.div className="flex items-center gap-4 mb-8" variants={fadeInUp}>
+                <div className="relative">
+                  <Image
+                    src="/vendle_logo.jpg"
+                    alt="Vendle Logo"
+                    width={120}
+                    height={40}
+                    className="h-10 w-auto"
+                    priority
+                  />
+                </div>
+                <Badge className="px-4 py-2 text-xs bg-purple-100 text-purple-800 border-0 rounded-full font-medium">
                   DISASTER RECOVERY MADE SIMPLE
                 </Badge>
-              </div>
+              </motion.div>
 
-              <h1 className="text-3xl md:text-4xl font-bold tracking-tight text-gray-900 mb-3 leading-tight uppercase">
-                RECONSTRUCTION? <span className="text-purple-700">VENDLE IT.</span>
-              </h1>
+              <motion.h1
+                className="text-5xl md:text-6xl font-bold tracking-tight text-gray-900 mb-6 leading-[1.1]"
+                variants={fadeInUp}
+              >
+                RECONSTRUCTION?{" "}
+                <span className="text-transparent bg-clip-text bg-gradient-to-r from-purple-600 to-purple-800">
+                  VENDLE IT.
+                </span>
+              </motion.h1>
 
-              <p className="text-base text-gray-600 mb-8 max-w-md">
+              <motion.p className="text-lg text-gray-600 mb-10 leading-relaxed max-w-lg" variants={fadeInUp}>
                 Navigate the post-disaster reconstruction process with ease. Connect with trusted contractors, ensure
                 fair pricing, and experience transparent communication.
-              </p>
+              </motion.p>
 
-              <div className="flex flex-col sm:flex-row gap-4">
+              <motion.div className="flex flex-col sm:flex-row gap-4" variants={fadeInUp}>
                 <Link href={user ? "/start-claim" : "/signup"}>
                   <Button
                     size="lg"
-                    className="bg-purple-700 hover:bg-purple-800 text-white rounded-lg px-8 transition-colors duration-200"
+                    className="group bg-purple-600 hover:bg-purple-700 text-white rounded-2xl px-10 py-4 text-base font-medium transition-all duration-300 hover:scale-105 hover:shadow-xl"
                   >
                     START RECOVERY
-                    <ArrowRight className="ml-2 h-5 w-5" />
+                    <ArrowRight className="ml-3 h-5 w-5 transition-transform group-hover:translate-x-1" />
                   </Button>
                 </Link>
-              </div>
+                <Button
+                  variant="outline"
+                  size="lg"
+                  className="group border-2 border-gray-200 hover:border-purple-200 rounded-2xl px-10 py-4 text-base font-medium transition-all duration-300 hover:bg-purple-50"
+                >
+                  <Play className="mr-3 h-5 w-5" />
+                  Watch Demo
+                </Button>
+              </motion.div>
             </motion.div>
           </div>
         </div>
-      </div>
+      </motion.div>
 
       {/* How It Works Section */}
-      <section
-        className="py-20 w-full relative"
-        style={{ background: "linear-gradient(180deg, #ede9fe 0%, #f3f4f6 50%, #ede9fe 100%)" }}
-      >
-        <DotsBackground color="#a78bfa" opacity={0.13} />
-        <div className="container mx-auto px-4 relative z-10">
-          {/* Section Label */}
-          <div className="flex items-center justify-center gap-2 mb-2">
-            <svg width="18" height="18" fill="none" viewBox="0 0 20 20">
-              <circle cx="10" cy="10" r="9" stroke="#6B7280" strokeWidth="2" />
-              <path d="M10 6v4l2 2" stroke="#6B7280" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-            </svg>
-            <span className="uppercase tracking-wider text-xs text-gray-500 font-semibold">Product</span>
-          </div>
-          <h2
-            className="text-3xl md:text-4xl font-bold tracking-tight text-gray-900 mb-3 leading-tight uppercase text-center"
-            style={{ letterSpacing: "0.01em" }}
+      <section className="py-32 relative">
+        <div className="absolute inset-0" style={{ background: "linear-gradient(180deg, #ede9fe 0%, #f3f4f6 50%, #ede9fe 100%)" }}>
+          <DotsBackground color="#a78bfa" opacity={0.13} />
+        </div>
+        <div className="container mx-auto px-6 relative z-10">
+          <motion.div
+            className="text-center mb-20"
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true, margin: "-100px" }}
+            variants={staggerContainer}
           >
-            What Does Vendle Do?
-          </h2>
-          <p className="text-base text-gray-600 mb-8 text-center max-w-lg mx-auto">
-            Automate your entire reconstruction workflow so you recover more, with less effort.
-          </p>
+            <motion.div className="flex items-center justify-center gap-3 mb-4" variants={fadeInUp}>
+              <div className="w-8 h-8 rounded-full bg-purple-100 flex items-center justify-center">
+                <div className="w-3 h-3 rounded-full bg-purple-600" />
+              </div>
+              <span className="uppercase tracking-wider text-sm text-gray-500 font-semibold">How It Works</span>
+            </motion.div>
 
-          {/* Steps Cards */}
+            <motion.h2 className="text-4xl md:text-5xl font-bold text-gray-900 mb-6 leading-tight" variants={fadeInUp}>
+              What Does Vendle Do?
+            </motion.h2>
+
+            <motion.p className="text-xl text-gray-600 max-w-2xl mx-auto leading-relaxed" variants={fadeInUp}>
+              Automate your entire reconstruction workflow so you recover more, with less effort.
+            </motion.p>
+          </motion.div>
+
           <VendleSteps />
 
-          {/* Animated Buzzwords */}
-          <div className="max-w-5xl mx-auto">
-            <div className="flex flex-wrap justify-center gap-2">
+          {/* Feature Tags */}
+          <motion.div
+            className="max-w-6xl mx-auto mt-20"
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true }}
+            variants={staggerContainer}
+          >
+            <div className="flex flex-wrap justify-center gap-3">
               {[
                 "Real-Time Metrics",
                 "Policy-Aware Coding",
@@ -179,263 +213,221 @@ export default function HomePage() {
               ].map((word, index) => (
                 <motion.div
                   key={word}
-                  className="px-4 py-2 bg-gray-100 rounded-full text-gray-700 text-xs font-medium shadow-sm"
-                  initial={{ opacity: 0, y: 20 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.5, delay: index * 0.1 }}
-                  whileHover={{ scale: 1.05 }}
+                  className="px-6 py-3 bg-white rounded-full text-gray-700 text-sm font-medium shadow-sm border border-gray-100 hover:shadow-md hover:border-purple-200 transition-all duration-300"
+                  variants={fadeInUp}
+                  whileHover={{ scale: 1.05, y: -2 }}
+                  whileTap={{ scale: 0.95 }}
                 >
                   {word}
                 </motion.div>
               ))}
             </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Why We Shine Section */}
-      <section className="relative w-full overflow-hidden m-0 p-0 flex items-center justify-center min-h-[220px] py-6">
-        {/* Parallax Full-Width Background */}
-        <div className="absolute inset-0 w-full h-full z-0">
-          <ParallaxImages images={[6,7,8,9,10]} />
-          <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-black/20 to-transparent z-10" />
-        </div>
-        {/* Content: Left title and right dropdown, both above parallax */}
-        <div className="relative z-20 w-full max-w-7xl mx-auto flex flex-row items-center justify-between gap-8 px-4 md:px-0">
-          {/* Left: WHY WE SHINE title only */}
-          <div className="flex flex-col items-start w-1/3">
-            <h2 className="text-5xl md:text-7xl font-extrabold uppercase tracking-tight text-white drop-shadow-lg text-left mb-0">
-              WHY WE SHINE
-            </h2>
-          </div>
-          {/* Right: Dropdown (wider, shorter, farther right) */}
-          <div className="w-2/3 flex justify-end">
-            <div className="w-full max-w-3xl rounded-xl bg-white/15 backdrop-blur-xl shadow-lg border border-white/20 p-2">
-              <ModernFeaturesList compact />
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Steps to Rebuild Section */}
-      <section
-        className="py-12 w-full relative"
-        style={{ background: "linear-gradient(180deg, #ede9fe 0%, #f3f4f6 50%, #ede9fe 100%)" }}
-      >
-        <DotsBackground color="#a78bfa" opacity={0.13} />
-        <div className="container mx-auto px-4 relative z-10">
-          <div className="flex items-center gap-2 mb-2">
-            <svg width="18" height="18" fill="none" viewBox="0 0 20 20">
-              <circle cx="10" cy="10" r="9" stroke="#6B7280" strokeWidth="2" />
-              <path d="M10 6v4l2 2" stroke="#6B7280" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-            </svg>
-            <span className="uppercase tracking-wider text-xs text-gray-500 font-semibold">Steps to Rebuild</span>
-          </div>
-          <h2 className="text-xl md:text-2xl font-bold text-gray-900 mb-1 text-left">Steps to Rebuild</h2>
-          <div className="max-w-4xl mb-2">
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              {[
-                {
-                  num: 1,
-                  title: "Share Project Details",
-                  desc: "Tell us about your rebuild needs and upload your insurance estimate.",
-                },
-                {
-                  num: 2,
-                  title: "Connect with Contractors",
-                  desc: "Review profiles of qualified contractors in your area.",
-                },
-                {
-                  num: 3,
-                  title: "Compare Blind Bids",
-                  desc: "Receive transparent bids based on fair market value.",
-                },
-              ].map((step, index) => (
-                <motion.div
-                  key={step.num}
-                  className="bg-white rounded-xl border border-gray-200 shadow-sm p-5 flex flex-col items-start h-full"
-                  initial={{ opacity: 0, y: 20 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.5, delay: index * 0.2 }}
-                >
-                  <div className="w-8 h-8 flex items-center justify-center rounded-full bg-purple-700 text-white text-base font-bold mb-4">
-                    {step.num}
-                  </div>
-                  <h3 className="text-base font-bold text-gray-900 mb-1">{step.title}</h3>
-                  <p className="text-gray-600 text-sm">{step.desc}</p>
-                </motion.div>
-              ))}
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Newsletter Section */}
-      <section className="py-24 bg-white">
-        <div className="container mx-auto px-4">
-          <div className="max-w-2xl mx-auto text-center">
-            <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-6">Stay Updated</h2>
-            <p className="text-xl text-gray-600 mb-8">
-              Get the latest updates on disaster recovery and reconstruction.
-            </p>
-            <form className="flex flex-col sm:flex-row gap-4 max-w-md mx-auto">
-              <input
-                type="email"
-                placeholder="Enter your email"
-                className="flex-1 px-4 py-3 rounded-lg border border-gray-200 focus:outline-none focus:ring-2 focus:ring-purple-500"
-              />
-              <Button className="bg-purple-700 hover:bg-purple-800 text-white px-8">Subscribe</Button>
-            </form>
-          </div>
-        </div>
-      </section>
-
-      {/* Two Column Section */}
-      <section className="relative pt-24 pb-16 md:pt-32 md:pb-24">
-        <div className="container mx-auto px-4">
-          <motion.div className="max-w-4xl mx-auto text-center" initial="hidden" animate="visible" variants={fadeIn}>
-            <div className="grid md:grid-cols-2 gap-8 max-w-7xl mx-auto">
-              {/* Why Vendle Section */}
-              <motion.div
-                className="bg-white border-l-4 border-purple-500 rounded-2xl p-8 shadow-sm flex flex-col gap-4 items-center text-center max-w-full transition-all duration-300 min-h-[320px]"
-                initial={{ opacity: 0, x: -20 }}
-                whileInView={{ opacity: 1, x: 0 }}
-                viewport={{ once: true }}
-                transition={{ duration: 0.5, ease: "easeOut" }}
-                style={{ minWidth: "340px" }}
-              >
-                <h2 className="text-2xl md:text-3xl font-extrabold text-gray-900 mb-2 tracking-tight leading-tight text-center">
-                  Why Vendle?
-                </h2>
-                <div className="flex flex-col gap-2 w-full">
-                  {/* Feature Accordions */}
-                  <WhyVendleFeatures />
-                </div>
-              </motion.div>
-
-              {/* Steps to Rebuild Section */}
-              <motion.div
-                className="bg-white border-l-4 border-purple-500 rounded-2xl p-8 shadow-sm flex flex-col gap-4 items-center text-center max-w-full transition-all duration-300 min-h-[320px]"
-                initial={{ opacity: 0, x: 20 }}
-                whileInView={{ opacity: 1, x: 0 }}
-                viewport={{ once: true }}
-                transition={{ duration: 0.5, ease: "easeOut" }}
-                style={{ minWidth: "340px" }}
-              >
-                <h2 className="text-2xl md:text-3xl font-extrabold text-gray-900 mb-2 tracking-tight leading-tight text-center">
-                  Steps to Rebuild
-                </h2>
-                <div className="relative flex flex-col gap-2 w-full items-center">
-                  {/* Timeline vertical line with animation */}
-                  <motion.div
-                    className="absolute left-6 top-6 bottom-6 w-1 bg-purple-200 z-0 rounded-full"
-                    initial={{ height: 0 }}
-                    whileInView={{ height: "calc(100% - 3rem)" }}
-                    transition={{ duration: 0.8, ease: "easeOut" }}
-                    style={{ minHeight: "2rem" }}
-                  />
-                  {/* Step Accordions */}
-                  <StepsToRebuildFeatures />
-                </div>
-              </motion.div>
-            </div>
           </motion.div>
         </div>
       </section>
 
-      {/* Footer */}
-      <footer className="bg-gray-50 text-gray-900 py-16 md:py-20 border-t border-gray-100">
-        <div className="container mx-auto px-4">
-          <div className="grid md:grid-cols-4 gap-8 md:gap-12">
-            <div>
-              <Image src="/vendle_logo.jpg" alt="Vendle Logo" width={100} height={32} className="mb-4" />
-              <p className="text-gray-600 mb-4">Your trusted partner for home recovery and reconstruction.</p>
-            </div>
+      {/* Why We Shine Section */}
+      <section className="relative min-h-screen flex items-center justify-center overflow-hidden">
+        <div className="absolute inset-0" style={{ background: "linear-gradient(180deg, #ede9fe 0%, #f3f4f6 50%, #ede9fe 100%)" }}>
+          <DotsBackground color="#a78bfa" opacity={0.13} />
+        </div>
+        <ParallaxBackground />
 
-            <div>
-              <h4 className="font-semibold mb-4 text-gray-900 uppercase">Services</h4>
-              <ul className="space-y-2">
-                <li>
-                  <a href="#" className="text-gray-600 hover:text-gray-900 transition-colors">
-                    Contractor Matching
-                  </a>
-                </li>
-                <li>
-                  <a href="#" className="text-gray-600 hover:text-gray-900 transition-colors">
-                    Adjuster Certification
-                  </a>
-                </li>
-                <li>
-                  <a href="#" className="text-gray-600 hover:text-gray-900 transition-colors">
-                    Blind Bidding
-                  </a>
-                </li>
-                <li>
-                  <a href="#" className="text-gray-600 hover:text-gray-900 transition-colors">
-                    Project Management
-                  </a>
-                </li>
-              </ul>
-            </div>
+        <div className="relative z-10 w-full max-w-5xl mx-auto px-6">
+          <motion.div
+            className="text-center"
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true }}
+            variants={staggerContainer}
+          >
+            <motion.h2 className="text-4xl md:text-5xl font-bold text-white mb-12" variants={fadeInUp}>
+              WHY WE SHINE
+            </motion.h2>
 
-            <div>
-              <h4 className="font-semibold mb-4 text-gray-900 uppercase">Company</h4>
-              <ul className="space-y-2">
-                <li>
-                  <a href="#" className="text-gray-600 hover:text-gray-900 transition-colors">
-                    About Us
-                  </a>
-                </li>
-                <li>
-                  <a href="#" className="text-gray-600 hover:text-gray-900 transition-colors">
-                    How It Works
-                  </a>
-                </li>
-                <li>
-                  <a href="#" className="text-gray-600 hover:text-gray-900 transition-colors">
-                    For Contractors
-                  </a>
-                </li>
-                <li>
-                  <a href="#" className="text-gray-600 hover:text-gray-900 transition-colors">
-                    Contact
-                  </a>
-                </li>
-              </ul>
-            </div>
+            <motion.div
+              className="backdrop-blur-xl bg-white/10 rounded-3xl border border-white/20 p-8 shadow-2xl"
+              variants={fadeInUp}
+            >
+              <ModernFeaturesList />
+            </motion.div>
+          </motion.div>
+        </div>
+      </section>
 
-            <div>
-              <h4 className="font-semibold mb-4 text-gray-900 uppercase">Legal</h4>
-              <ul className="space-y-2">
-                <li>
-                  <a href="#" className="text-gray-600 hover:text-gray-900 transition-colors">
-                    Terms of Service
-                  </a>
-                </li>
-                <li>
-                  <a href="#" className="text-gray-600 hover:text-gray-900 transition-colors">
-                    Privacy Policy
-                  </a>
-                </li>
-                <li>
-                  <a href="#" className="text-gray-600 hover:text-gray-900 transition-colors">
-                    Cookie Policy
-                  </a>
-                </li>
-              </ul>
-            </div>
-          </div>
+      {/* Statistics Section */}
+      <section className="py-32 relative">
+        <div className="absolute inset-0" style={{ background: "linear-gradient(180deg, #ede9fe 0%, #f3f4f6 50%, #ede9fe 100%)" }}>
+          <DotsBackground color="#a78bfa" opacity={0.13} />
+        </div>
+        <div className="container mx-auto px-6 relative z-10">
+          <motion.div
+            className="text-center mb-20"
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true }}
+            variants={staggerContainer}
+          >
+            <motion.h2 className="text-4xl md:text-5xl font-bold text-gray-900 mb-6" variants={fadeInUp}>
+              STATISTICS
+            </motion.h2>
+            <motion.p className="text-xl text-gray-600 max-w-3xl mx-auto leading-relaxed" variants={fadeInUp}>
+              Real numbers that demonstrate our impact on disaster recovery and reconstruction
+            </motion.p>
+          </motion.div>
 
-          <div className="mt-12 pt-8 border-t border-gray-200 text-center text-gray-500 text-sm">
-            <p>© {new Date().getFullYear()} Vendle. All rights reserved.</p>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-7xl mx-auto">
+            {[
+              {
+                stat: "85%",
+                title: "Faster Recovery Time",
+                desc: "Our streamlined process reduces reconstruction time from months to weeks, getting families back home faster.",
+              },
+              {
+                stat: "70%",
+                title: "Lower Project Costs",
+                desc: "Our competitive bidding system and transparent pricing save homeowners thousands on reconstruction costs.",
+              },
+              {
+                stat: "$50B+",
+                title: "Recovered Annually",
+                desc: "We've helped homeowners recover billions in insurance claims and reconstruction costs across the US.",
+              },
+            ].map((item, index) => (
+              <motion.div
+                key={index}
+                className="group bg-white rounded-3xl p-10 shadow-lg border border-gray-100 hover:shadow-2xl transition-all duration-500 hover:-translate-y-2"
+                initial={{ opacity: 0, y: 30 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.6, delay: index * 0.2 }}
+              >
+                <h3 className="text-5xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-purple-600 to-purple-800 mb-4">
+                  {item.stat}
+                </h3>
+                <h4 className="text-xl font-semibold text-gray-900 mb-4">{item.title}</h4>
+                <p className="text-gray-600 mb-8 leading-relaxed">{item.desc}</p>
+                <Link href="/signup">
+                  <Button className="group bg-purple-600 hover:bg-purple-700 text-white rounded-xl transition-all duration-300 hover:scale-105">
+                    Get Started
+                    <ArrowRight className="ml-2 h-4 w-4 transition-transform group-hover:translate-x-1" />
+                  </Button>
+                </Link>
+              </motion.div>
+            ))}
           </div>
         </div>
-      </footer>
+      </section>
+
+      {/* Newsletter & Footer Section */}
+      <section className="relative min-h-[700px] overflow-hidden">
+        {/* Video Background */}
+        <div className="absolute inset-0 w-full h-full">
+          <video
+            autoPlay
+            loop
+            muted
+            playsInline
+            className="absolute inset-0 w-full h-full object-cover"
+          >
+            <source src="/loop_vid.mp4" type="video/mp4" />
+          </video>
+          <div className="absolute inset-0 bg-gradient-to-b from-black/50 via-black/30 to-black/70" />
+        </div>
+
+        <div className="relative z-10 container mx-auto px-6 py-24">
+          {/* Newsletter */}
+          <motion.div
+            className="max-w-2xl mx-auto text-center mb-24"
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true }}
+            variants={staggerContainer}
+          >
+            <motion.h2 className="text-4xl md:text-5xl font-bold text-white mb-6" variants={fadeInUp}>
+              Stay Updated
+            </motion.h2>
+            <motion.p className="text-xl text-gray-200 mb-10 leading-relaxed" variants={fadeInUp}>
+              Get the latest updates on disaster recovery and reconstruction.
+            </motion.p>
+            <motion.form className="flex flex-col sm:flex-row gap-4 max-w-lg mx-auto" variants={fadeInUp}>
+              <input
+                type="email"
+                placeholder="Enter your email"
+                className="flex-1 px-6 py-4 rounded-2xl border-0 bg-white/10 backdrop-blur-sm text-white placeholder-gray-300 focus:outline-none focus:ring-2 focus:ring-purple-400"
+              />
+              <Button className="bg-purple-600 hover:bg-purple-700 text-white px-8 py-4 rounded-2xl font-medium transition-all duration-300 hover:scale-105">
+                Subscribe
+              </Button>
+            </motion.form>
+          </motion.div>
+
+          {/* Footer */}
+          <motion.div
+            className="grid md:grid-cols-4 gap-12 text-white"
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true }}
+            variants={staggerContainer}
+          >
+            <motion.div variants={fadeInUp}>
+              <Image
+                src="/vendle_logo.jpg"
+                alt="Vendle Logo"
+                width={120}
+                height={40}
+                className="mb-6 brightness-0 invert"
+              />
+              <p className="text-gray-300 leading-relaxed">
+                Your trusted partner for home recovery and reconstruction.
+              </p>
+            </motion.div>
+
+            {[
+              {
+                title: "Services",
+                links: ["Contractor Matching", "Adjuster Certification", "Blind Bidding", "Project Management"],
+              },
+              {
+                title: "Company",
+                links: ["About Us", "How It Works", "For Contractors", "Contact"],
+              },
+              {
+                title: "Legal",
+                links: ["Terms of Service", "Privacy Policy", "Cookie Policy"],
+              },
+            ].map((section, index) => (
+              <motion.div key={section.title} variants={fadeInUp}>
+                <h4 className="font-semibold mb-6 text-white uppercase tracking-wider text-sm">{section.title}</h4>
+                <ul className="space-y-3">
+                  {section.links.map((link) => (
+                    <li key={link}>
+                      <a href="#" className="text-gray-300 hover:text-white transition-colors duration-300 text-sm">
+                        {link}
+                      </a>
+                    </li>
+                  ))}
+                </ul>
+              </motion.div>
+            ))}
+          </motion.div>
+
+          <motion.div
+            className="mt-16 pt-8 border-t border-white/20 text-center text-gray-400 text-sm"
+            initial={{ opacity: 0 }}
+            whileInView={{ opacity: 1 }}
+            viewport={{ once: true }}
+            transition={{ delay: 0.5 }}
+          >
+            <p>© {new Date().getFullYear()} Vendle. All rights reserved.</p>
+          </motion.div>
+        </div>
+      </section>
     </div>
   )
 }
 
-function ModernFeaturesList({ compact = false }: { compact?: boolean }) {
+function ModernFeaturesList() {
   const features = [
     {
       title: "Prioritized Project Matching",
@@ -466,60 +458,56 @@ function ModernFeaturesList({ compact = false }: { compact?: boolean }) {
   const [activeIndex, setActiveIndex] = useState<number | null>(null)
 
   return (
-    <div className={`space-y-2 ${compact ? 'py-2' : 'py-4'}`}>
+    <div className="space-y-3">
       {features.map((feature, index) => {
         const isActive = activeIndex === index
         return (
           <motion.div
             key={index}
             className={`
-              group cursor-pointer transition-all duration-300 ease-out
-              ${isActive ? "bg-purple-50" : "hover:bg-gray-50"}
-              rounded-xl border border-gray-100 hover:border-purple-200
-              ${isActive ? "shadow-lg border-purple-200" : "hover:shadow-md"}
-              ${compact ? 'p-2' : 'p-6'}
+              group cursor-pointer transition-all duration-500 ease-out
+              ${isActive ? "bg-white/20" : "hover:bg-white/10"}
+              rounded-2xl border border-white/20 hover:border-white/40
+              ${isActive ? "shadow-xl border-white/40" : "hover:shadow-lg"}
+              p-6
             `}
             onClick={() => setActiveIndex(isActive ? null : index)}
-            whileHover={{ scale: 1.01 }}
-            whileTap={{ scale: 0.99 }}
+            whileHover={{ scale: 1.02 }}
+            whileTap={{ scale: 0.98 }}
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.5, delay: index * 0.1 }}
           >
             <div className="flex items-center justify-between">
-              <div className="flex items-center gap-3">
-                <div
-                  className={`
-                    w-7 h-7 rounded-full flex items-center justify-center font-bold text-base
-                    transition-all duration-300
-                    bg-purple-700 text-white
-                  `}
-                >
-                  {index + 1}
+              <div className="flex items-center gap-4">
+                <div className="w-8 h-8 rounded-full bg-purple-500 flex items-center justify-center font-bold text-white text-sm">
+                  +
                 </div>
                 <h3
-                  className={`
-                    font-semibold ${compact ? 'text-base' : 'text-lg'} transition-colors duration-300
-                    ${isActive ? "text-purple-700" : "text-gray-900 group-hover:text-purple-600"}
-                  `}
+                  className={`font-semibold text-lg transition-colors duration-300 ${isActive ? "text-white" : "text-white/90 group-hover:text-white"}`}
                 >
                   {feature.title}
                 </h3>
               </div>
               <motion.div animate={{ rotate: isActive ? 180 : 0 }} transition={{ duration: 0.3, ease: "easeInOut" }}>
                 <ChevronDown
-                  size={compact ? 18 : 20}
-                  className={`transition-colors duration-300 ${isActive ? "text-purple-600" : "text-gray-400 group-hover:text-purple-500"}`}
+                  size={20}
+                  className={`transition-colors duration-300 ${isActive ? "text-white" : "text-white/60 group-hover:text-white/80"}`}
                 />
               </motion.div>
             </div>
+
             <AnimatePresence initial={false}>
               {isActive && (
                 <motion.div
                   initial={{ height: 0, opacity: 0 }}
                   animate={{ height: "auto", opacity: 1 }}
                   exit={{ height: 0, opacity: 0 }}
-                  transition={{ duration: 0.3, ease: "easeInOut" }}
-                  className={`overflow-hidden ${compact ? 'pt-1 pl-10' : 'pt-4 pl-14'}`}
+                  transition={{ duration: 0.4, ease: [0.25, 0.46, 0.45, 0.94] }}
+                  className="overflow-hidden pt-4 pl-12"
                 >
-                  <p className="text-gray-600 leading-relaxed text-sm">{feature.desc}</p>
+                  <p className="text-white/80 leading-relaxed">{feature.desc}</p>
                 </motion.div>
               )}
             </AnimatePresence>
@@ -530,169 +518,62 @@ function ModernFeaturesList({ compact = false }: { compact?: boolean }) {
   )
 }
 
-function ParallaxImages({ images }: { images: number[] }) {
+function ParallaxBackground() {
   const [current, setCurrent] = useState(0)
-  // Simple auto-rotate
-  React.useEffect(() => {
-    const timer = setInterval(() => setCurrent((c) => (c + 1) % images.length), 4000)
+  const images = [6, 7, 8, 9, 10]
+
+  useEffect(() => {
+    const timer = setInterval(() => setCurrent((c) => (c + 1) % images.length), 5000)
     return () => clearInterval(timer)
   }, [images.length])
+
   return (
     <div className="absolute inset-0 w-full h-full">
-      {images.map((num: number, idx: number) => (
+      {images.map((num, idx) => (
         <motion.div
           key={num}
           className="absolute inset-0"
-          initial={{ opacity: 0 }}
-          animate={{ opacity: idx === current ? 1 : 0, scale: idx === current ? 1.1 : 1.05 }}
-          transition={{ duration: 1.5, ease: "easeInOut" }}
+          initial={{ opacity: 0, scale: 1.1 }}
+          animate={{
+            opacity: idx === current ? 1 : 0,
+            scale: idx === current ? 1 : 1.05,
+          }}
+          transition={{ duration: 2, ease: [0.25, 0.46, 0.45, 0.94] }}
           style={{
-            backgroundImage: `url(/plax${num}.jpg)`,
+            backgroundImage: `url(/saikiran-kesari-qVULJ6acwe8-unsplash.jpg)`,
             backgroundSize: "cover",
             backgroundPosition: "center",
           }}
         />
       ))}
+      <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-black/40 to-black/60" />
     </div>
   )
 }
 
-function WhyVendleFeatures() {
-  const features = [
-    {
-      icon: <ShieldCheck className="h-5 w-5 text-purple-700" />,
-      title: "Verified Contractors",
-      desc: "All contractors are thoroughly vetted and verified for quality and reliability.",
-    },
-    {
-      icon: <UserCheck className="h-5 w-5 text-purple-700" />,
-      title: "Certified Adjusters",
-      desc: "Professional adjusters ensure accurate damage assessment and fair settlements.",
-    },
-    {
-      icon: <ClipboardCheck className="h-5 w-5 text-purple-700" />,
-      title: "Transparent Bidding",
-      desc: "Get fair market value through our blind bidding system, free from price inflation.",
-    },
-  ]
-
+function VideoBackground() {
   return (
-    <>
-      {features.map((item, i) => (
-        <WhyVendleFeatureItem key={item.title} item={item} i={i} />
-      ))}
-    </>
-  )
-}
-
-function WhyVendleFeatureItem({ item, i }: { item: any; i: number }) {
-  const [open, setOpen] = useState(false)
-
-  return (
-    <motion.div
-      className={`flex items-center gap-4 w-full px-4 py-2 rounded-xl border border-purple-100 bg-white shadow-sm cursor-pointer transition-all duration-200 ${
-        open ? "bg-purple-50" : ""
-      }`}
-      initial={{ opacity: 0, x: -10 }}
-      whileInView={{ opacity: 1, x: 0 }}
-      transition={{ duration: 0.3 + i * 0.1, type: "spring", bounce: 0.3 }}
-      onClick={() => setOpen((v) => !v)}
-    >
-      <motion.div animate={{ scale: open ? 1.15 : 1 }} transition={{ type: "spring", stiffness: 300 }}>
-        {item.icon}
-      </motion.div>
-      <div className="flex-1 text-left">
-        <div className="flex items-center justify-between">
-          <h3 className="font-bold text-base md:text-lg text-gray-900 leading-snug">{item.title}</h3>
-          <span className="ml-2 text-purple-500 text-xs">{open ? "▲" : "▼"}</span>
-        </div>
-        <motion.div
-          initial={false}
-          animate={{ height: open ? "auto" : 0, opacity: open ? 1 : 0 }}
-          transition={{ duration: 0.2 }}
-          className="overflow-hidden"
-        >
-          <p className="text-gray-500 text-xs md:text-sm leading-relaxed font-normal mt-1">{item.desc}</p>
-        </motion.div>
-      </div>
-    </motion.div>
-  )
-}
-
-function StepsToRebuildFeatures() {
-  const features = [
-    {
-      num: 1,
-      title: "Share Project Details",
-      desc: "Tell us about your rebuild needs and upload your insurance estimate.",
-    },
-    {
-      num: 2,
-      title: "Connect with Contractors",
-      desc: "Review profiles of qualified contractors in your area.",
-    },
-    {
-      num: 3,
-      title: "Compare Blind Bids",
-      desc: "Receive transparent bids based on fair market value.",
-    },
-  ]
-
-  return (
-    <>
-      {features.map((item, i) => {
-        return <StepsToRebuildFeatureItem key={item.title} item={item} num={i + 1} />
-      })}
-    </>
-  )
-}
-
-function StepsToRebuildFeatureItem({ item, num }: { item: any; num: number }) {
-  const [open, setOpen] = useState(false)
-
-  return (
-    <motion.div
-      key={item.title}
-      className={`flex items-center gap-4 w-full px-4 py-2 rounded-xl border border-purple-100 bg-white shadow-sm cursor-pointer transition-all duration-200 relative z-10 ${
-        open ? "bg-purple-50" : ""
-      }`}
-      initial={{ opacity: 0, x: 10 }}
-      whileInView={{ opacity: 1, x: 0 }}
-      transition={{ duration: 0.3 + num * 0.1, type: "spring", bounce: 0.3 }}
-      onClick={() => setOpen((v) => !v)}
-    >
-      <motion.div
-        animate={{ scale: open ? 1.15 : 1 }}
-        transition={{ type: "spring", stiffness: 300 }}
-        className="flex items-center justify-center w-8 h-8 rounded-lg bg-purple-700 text-white font-bold text-sm md:text-base"
-      >
-        {num}
-      </motion.div>
-      <div className="flex-1 text-left">
-        <div className="flex items-center justify-between">
-          <h3 className="font-bold text-base md:text-lg text-gray-900 leading-snug">{item.title}</h3>
-          <span className="ml-2 text-purple-500 text-xs">{open ? "▲" : "▼"}</span>
-        </div>
-        <motion.div
-          initial={false}
-          animate={{ height: open ? "auto" : 0, opacity: open ? 1 : 0 }}
-          transition={{ duration: 0.2 }}
-          className="overflow-hidden"
-        >
-          <p className="text-gray-500 text-xs md:text-sm leading-relaxed font-normal mt-1">{item.desc}</p>
-        </motion.div>
-      </div>
-    </motion.div>
+    <div className="absolute inset-0 w-full h-full">
+      <div
+        className="absolute inset-0 w-full h-full bg-gradient-to-br from-purple-900 via-slate-900 to-black"
+        style={{
+          backgroundImage: `url(/placeholder.svg?height=800&width=1200)`,
+          backgroundSize: "cover",
+          backgroundPosition: "center",
+        }}
+      />
+      <div className="absolute inset-0 bg-gradient-to-b from-black/50 via-black/30 to-black/70" />
+    </div>
   )
 }
 
 function VendleSteps() {
-  const [activeStep, setActiveStep] = React.useState(0)
+  const [activeStep, setActiveStep] = useState(0)
 
-  React.useEffect(() => {
+  useEffect(() => {
     const interval = setInterval(() => {
-      setActiveStep(prev => (prev + 1) % 5)
-    }, 3000) // 3 seconds per step
+      setActiveStep((prev) => (prev + 1) % 5)
+    }, 4000)
     return () => clearInterval(interval)
   }, [])
 
@@ -725,55 +606,52 @@ function VendleSteps() {
   ]
 
   return (
-    <div className="max-w-7xl mx-auto mb-12 relative px-4 sm:px-6 lg:px-8">
-      {/* Grid of step cards */}
-      <div className="relative grid grid-cols-1 md:grid-cols-5 gap-8">
+    <div className="max-w-7xl mx-auto relative">
+      {/* Progress line */}
+      <div className="absolute top-16 left-0 right-0 h-1 bg-gray-200 rounded-full mx-[10%] z-0">
+        <motion.div
+          className="absolute h-full bg-gradient-to-r from-purple-500 to-purple-600 rounded-full"
+          animate={{ width: `${((activeStep + 1) / 5) * 100}%` }}
+          transition={{ duration: 0.8, ease: [0.25, 0.46, 0.45, 0.94] }}
+        />
+      </div>
+
+      {/* Step cards */}
+      <div className="grid grid-cols-1 md:grid-cols-5 gap-8 relative z-10">
         {steps.map((step, index) => {
           const isCurrent = activeStep === index
+          const isPast = activeStep > index
+
           return (
             <motion.div
               key={step.num}
-              className="bg-white rounded-xl border border-gray-200 shadow-md p-5 flex flex-col items-center h-full text-center"
-              initial={{ opacity: 0, y: 20 }}
+              className="bg-white rounded-3xl border-2 shadow-lg p-8 flex flex-col items-center text-center relative"
+              initial={{ opacity: 0, y: 30 }}
               whileInView={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5, delay: index * 0.1 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.6, delay: index * 0.1 }}
+              animate={{
+                borderColor: isCurrent ? "#7c3aed" : isPast ? "#a855f7" : "#e5e7eb",
+                scale: isCurrent ? 1.05 : 1,
+              }}
             >
-              {/* Step number circle - positioned above line (z-20) */}
+              {/* Step number */}
               <motion.div
-                className="w-10 h-10 flex items-center justify-center rounded-full text-white text-base font-bold mb-4 relative border-4 border-white shadow-md bg-white z-20"
+                className="w-12 h-12 rounded-full flex items-center justify-center text-white font-bold text-lg mb-6 relative z-20"
                 animate={{
-                  scale: isCurrent ? 1.4 : 1,
+                  backgroundColor: isCurrent ? "#7c3aed" : isPast ? "#a855f7" : "#6b7280",
+                  scale: isCurrent ? 1.2 : 1,
                 }}
-                transition={{ type: "spring", stiffness: 300, damping: 20 }}
+                transition={{ duration: 0.5, ease: [0.25, 0.46, 0.45, 0.94] }}
               >
-                <motion.div
-                  className="w-full h-full rounded-full flex items-center justify-center"
-                  animate={{
-                    backgroundColor: isCurrent ? "#7c3aed" : "#1f2937",
-                  }}
-                >
-                  {step.num}
-                </motion.div>
+                {step.num}
               </motion.div>
-              <h3 className="text-lg font-bold text-gray-900 mb-1">{step.title}</h3>
-              <p className="text-gray-600 text-sm">{step.desc}</p>
+
+              <h3 className="text-xl font-bold text-gray-900 mb-3">{step.title}</h3>
+              <p className="text-gray-600 leading-relaxed text-sm">{step.desc}</p>
             </motion.div>
           )
         })}
-      </div>
-
-      {/* Line and animated ball - positioned over cards (z-10) */}
-      <div
-        aria-hidden="true"
-        className="absolute top-10 left-0 right-0 h-2 bg-gray-200 z-10"
-        style={{ margin: "0 10%", transform: "translateY(-50%)" }}
-      >
-        <motion.div
-          className="absolute w-4 h-4 bg-purple-600 rounded-full"
-          style={{ top: "50%", transform: "translateY(-50%)" }}
-          animate={{ left: `calc(${activeStep * 25}% - 0.5rem)` }}
-          transition={{ type: "spring", stiffness: 100, damping: 20 }}
-        />
       </div>
     </div>
   )
