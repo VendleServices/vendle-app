@@ -105,15 +105,15 @@ const HowItWorks = () => {
   }, [steps.length])
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-purple-50 via-white to-violet-50">
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-blue-50">
       <div className="container mx-auto px-4 py-16 max-w-7xl">
         {/* Header Section */}
         <div className="text-center mb-20">
-          <div className="inline-flex items-center gap-2 bg-gradient-to-r from-purple-600 to-violet-600 bg-clip-text text-transparent mb-4">
+          <div className="inline-flex items-center gap-2 bg-gradient-to-r from-blue-600 to-blue-800 bg-clip-text text-transparent mb-4">
             <span className="text-sm font-semibold tracking-wide uppercase">Process Overview</span>
           </div>
-          <h1 className="text-4xl md:text-6xl font-bold text-purple-900 mb-6 tracking-tight">How Vendle Works</h1>
-          <p className="text-xl text-purple-700 max-w-3xl mx-auto leading-relaxed">
+          <h1 className="text-4xl md:text-6xl font-bold text-blue-900 mb-6 tracking-tight">How Vendle Works</h1>
+          <p className="text-xl text-blue-700 max-w-3xl mx-auto leading-relaxed">
             Simplifying disaster recovery and property repair with an intuitive, modern user experience that puts you in
             control.
           </p>
@@ -124,9 +124,9 @@ const HowItWorks = () => {
           {/* Desktop Timeline */}
           <div className="hidden lg:block" ref={stepsRef}>
             {/* Timeline Line */}
-            <div className="absolute left-1/2 top-0 bottom-0 w-1 bg-purple-100 transform -translate-x-1/2 rounded-full overflow-hidden">
+            <div className="absolute left-1/2 top-0 bottom-0 w-1 bg-blue-100 transform -translate-x-1/2 rounded-full overflow-hidden">
               <div
-                className="w-full bg-gradient-to-b from-purple-500 to-violet-600 transition-all duration-700 ease-out rounded-full"
+                className="w-full bg-gradient-to-b from-blue-500 to-blue-600 transition-all duration-700 ease-out rounded-full"
                 style={{ height: `${Math.max(5, timelineProgress * 100)}%` }}
               />
             </div>
@@ -136,7 +136,7 @@ const HowItWorks = () => {
                 <div key={step.id} className={`flex items-center gap-12 ${index % 2 === 0 ? "" : "flex-row-reverse"}`}>
                   <div className={`flex-1 ${index % 2 === 0 ? "text-right" : "text-left"}`}>
                     <Card
-                      className={`bg-white/90 backdrop-blur-sm border border-purple-100 shadow-lg hover:shadow-xl transition-all duration-500 hover:border-purple-200 ${
+                      className={`bg-white/90 backdrop-blur-sm border border-blue-100 shadow-lg hover:shadow-xl transition-all duration-500 hover:border-blue-200 ${
                         activeStep >= index ? "opacity-100 translate-y-0" : "opacity-70 translate-y-4"
                       }`}
                     >
@@ -148,21 +148,21 @@ const HowItWorks = () => {
                                 {step.optional && (
                                   <Badge
                                     variant="secondary"
-                                    className="bg-purple-100 text-purple-700 hover:bg-purple-100"
+                                    className="bg-blue-100 text-blue-700 hover:bg-blue-100"
                                   >
                                     Optional
                                   </Badge>
                                 )}
-                                <Badge className="bg-purple-600 hover:bg-purple-600">Step {step.id}</Badge>
+                                <Badge className="bg-blue-600 hover:bg-blue-600">Step {step.id}</Badge>
                               </div>
                             </>
                           ) : (
                             <>
-                              <Badge className="bg-purple-600 hover:bg-purple-600">Step {step.id}</Badge>
+                              <Badge className="bg-blue-600 hover:bg-blue-600">Step {step.id}</Badge>
                               {step.optional && (
                                 <Badge
                                   variant="secondary"
-                                  className="bg-purple-100 text-purple-700 hover:bg-purple-100"
+                                  className="bg-blue-100 text-blue-700 hover:bg-blue-100"
                                 >
                                   Optional
                                 </Badge>
@@ -170,8 +170,8 @@ const HowItWorks = () => {
                             </>
                           )}
                         </div>
-                        <h3 className="text-2xl font-bold text-purple-900 mb-3">{step.title}</h3>
-                        <p className="text-purple-600 italic mb-3 text-lg">"{step.prompt}"</p>
+                        <h3 className="text-2xl font-bold text-blue-900 mb-3">{step.title}</h3>
+                        <p className="text-blue-600 italic mb-3 text-lg">"{step.prompt}"</p>
                         <p className="text-slate-600 leading-relaxed">{step.description}</p>
                       </CardContent>
                     </Card>
@@ -180,7 +180,7 @@ const HowItWorks = () => {
                   {/* Timeline Node */}
                   <div className="relative">
                     <div
-                      className={`w-16 h-16 rounded-2xl bg-gradient-to-br from-purple-500 to-violet-600 flex items-center justify-center text-white shadow-lg ring-4 ring-white transition-all duration-500 ${
+                      className={`w-16 h-16 rounded-2xl bg-gradient-to-br from-blue-500 to-blue-600 flex items-center justify-center text-white shadow-lg ring-4 ring-white transition-all duration-500 ${
                         activeStep >= index ? "scale-100" : "scale-90 opacity-70"
                       }`}
                     >
@@ -188,7 +188,7 @@ const HowItWorks = () => {
                     </div>
                     {/* Pulse Ring Animation */}
                     {activeStep === index && (
-                      <div className="absolute inset-0 rounded-2xl bg-purple-400 animate-ping opacity-20" />
+                      <div className="absolute inset-0 rounded-2xl bg-blue-400 animate-ping opacity-20" />
                     )}
                   </div>
                   <div className="flex-1"></div>
@@ -200,9 +200,9 @@ const HowItWorks = () => {
           {/* Mobile Timeline */}
           <div className="lg:hidden space-y-8">
             {/* Mobile Timeline Line */}
-            <div className="absolute left-8 top-6 bottom-6 w-0.5 bg-purple-100 rounded-full overflow-hidden">
+            <div className="absolute left-8 top-6 bottom-6 w-0.5 bg-blue-100 rounded-full overflow-hidden">
               <div
-                className="w-full bg-gradient-to-b from-purple-500 to-violet-600 transition-all duration-700 ease-out rounded-full"
+                className="w-full bg-gradient-to-b from-blue-500 to-blue-600 transition-all duration-700 ease-out rounded-full"
                 style={{ height: `${Math.max(5, timelineProgress * 100)}%` }}
               />
             </div>
@@ -210,14 +210,14 @@ const HowItWorks = () => {
             {steps.map((step, index) => (
               <Card
                 key={step.id}
-                className={`bg-white/90 backdrop-blur-sm border border-purple-100 shadow-lg ml-16 transition-all duration-500 ${
+                className={`bg-white/90 backdrop-blur-sm border border-blue-100 shadow-lg ml-16 transition-all duration-500 ${
                   activeStep >= index ? "opacity-100 translate-x-0" : "opacity-70 translate-x-4"
                 }`}
               >
                 <CardContent className="p-6">
                   <div className="flex items-start gap-4">
                     <div
-                      className={`w-12 h-12 rounded-xl bg-gradient-to-br from-purple-500 to-violet-600 flex items-center justify-center text-white shadow-lg flex-shrink-0 -ml-20 transition-all duration-500 ${
+                      className={`w-12 h-12 rounded-xl bg-gradient-to-br from-blue-500 to-blue-600 flex items-center justify-center text-white shadow-lg flex-shrink-0 -ml-20 transition-all duration-500 ${
                         activeStep >= index ? "scale-100" : "scale-90 opacity-70"
                       }`}
                     >
@@ -225,15 +225,15 @@ const HowItWorks = () => {
                     </div>
                     <div className="flex-1">
                       <div className="flex items-center gap-2 mb-3">
-                        <Badge className="bg-purple-600 hover:bg-purple-600">Step {step.id}</Badge>
+                        <Badge className="bg-blue-600 hover:bg-blue-600">Step {step.id}</Badge>
                         {step.optional && (
-                          <Badge variant="secondary" className="bg-purple-100 text-purple-700 hover:bg-purple-100">
+                          <Badge variant="secondary" className="bg-blue-100 text-blue-700 hover:bg-blue-100">
                             Optional
                           </Badge>
                         )}
                       </div>
-                      <h3 className="text-xl font-bold text-purple-900 mb-2">{step.title}</h3>
-                      <p className="text-purple-600 italic mb-2">"{step.prompt}"</p>
+                      <h3 className="text-xl font-bold text-blue-900 mb-2">{step.title}</h3>
+                      <p className="text-blue-600 italic mb-2">"{step.prompt}"</p>
                       <p className="text-slate-600 text-sm leading-relaxed">{step.description}</p>
                     </div>
                   </div>
@@ -245,28 +245,28 @@ const HowItWorks = () => {
 
         {/* Grid Overview */}
         <div className="mb-20">
-          <h2 className="text-3xl font-bold text-purple-900 text-center mb-12">Complete Process Overview</h2>
+          <h2 className="text-3xl font-bold text-blue-900 text-center mb-12">Complete Process Overview</h2>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
             {steps.map((step, index) => (
               <Card
                 key={step.id}
-                className="group bg-white/90 backdrop-blur-sm border border-purple-100 shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-1 hover:border-purple-200"
+                className="group bg-white/90 backdrop-blur-sm border border-blue-100 shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-1 hover:border-blue-200"
               >
                 <CardContent className="p-6">
-                  <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-purple-500 to-violet-600 flex items-center justify-center text-white shadow-lg mb-4 group-hover:scale-110 transition-transform duration-300">
+                  <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-blue-500 to-blue-600 flex items-center justify-center text-white shadow-lg mb-4 group-hover:scale-110 transition-transform duration-300">
                     {step.icon}
                   </div>
                   <div className="flex items-center gap-2 mb-3">
-                    <Badge variant="outline" className="text-xs border-purple-200 text-purple-700">
+                    <Badge variant="outline" className="text-xs border-blue-200 text-blue-700">
                       {step.id}
                     </Badge>
                     {step.optional && (
-                      <Badge variant="secondary" className="bg-purple-100 text-purple-700 hover:bg-purple-100 text-xs">
+                      <Badge variant="secondary" className="bg-blue-100 text-blue-700 hover:bg-blue-100 text-xs">
                         Optional
                       </Badge>
                     )}
                   </div>
-                  <h4 className="font-bold text-purple-900 mb-2 text-lg leading-tight">{step.title}</h4>
+                  <h4 className="font-bold text-blue-900 mb-2 text-lg leading-tight">{step.title}</h4>
                   <p className="text-slate-600 text-sm leading-relaxed">{step.description}</p>
                 </CardContent>
               </Card>
@@ -276,10 +276,10 @@ const HowItWorks = () => {
 
         {/* CTA Section */}
         <div className="text-center">
-          <Card className="bg-gradient-to-br from-purple-900 to-violet-800 border-0 shadow-2xl">
+          <Card className="bg-gradient-to-br from-blue-900 to-blue-800 border-0 shadow-2xl">
             <CardContent className="p-12">
               <h2 className="text-3xl md:text-4xl font-bold text-white mb-6">Ready to Start Your Project?</h2>
-              <p className="text-xl text-purple-100 max-w-2xl mx-auto mb-8 leading-relaxed">
+              <p className="text-xl text-blue-100 max-w-2xl mx-auto mb-8 leading-relaxed">
                 Vendle makes navigating disaster recovery smooth, transparent, and stress-free, from the first report to
                 final completion.
               </p>
@@ -287,7 +287,7 @@ const HowItWorks = () => {
                 <Button
                   asChild
                   size="lg"
-                  className="bg-white text-purple-900 hover:bg-purple-50 font-semibold px-8 py-3 text-lg transition-all duration-300 hover:scale-105"
+                  className="bg-white text-blue-900 hover:bg-blue-50 font-semibold px-8 py-3 text-lg transition-all duration-300 hover:scale-105"
                 >
                   <Link href="/start-claim">
                     Start Your Project
@@ -298,7 +298,7 @@ const HowItWorks = () => {
                   asChild
                   variant="outline"
                   size="lg"
-                  className="border-purple-300 text-purple-100 hover:bg-purple-800 hover:text-white font-semibold px-8 py-3 text-lg transition-all duration-300"
+                  className="border-blue-300 text-blue-100 hover:bg-blue-800 hover:text-white font-semibold px-8 py-3 text-lg transition-all duration-300"
                 >
                   <Link href="/about">Learn More</Link>
                 </Button>

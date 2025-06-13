@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { cn } from "@/lib/utils";
 
@@ -30,10 +29,10 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
     
     // Variant styles
     const variantStyles = {
-      primary: "bg-vendle-blue text-white hover:bg-vendle-blue/90 shadow-subtle hover:shadow-medium active:shadow-inner-subtle",
-      secondary: "bg-vendle-teal text-white hover:bg-vendle-teal/90 shadow-subtle hover:shadow-medium active:shadow-inner-subtle",
-      outline: "bg-transparent border border-vendle-blue text-vendle-blue hover:bg-vendle-blue/10",
-      ghost: "bg-transparent text-vendle-blue hover:bg-vendle-blue/10",
+      primary: "bg-[#1a365d] text-white hover:bg-[#1a365d]/90 shadow-subtle hover:shadow-medium active:shadow-inner-subtle",
+      secondary: "bg-[#1a365d]/80 text-white hover:bg-[#1a365d]/70 shadow-subtle hover:shadow-medium active:shadow-inner-subtle",
+      outline: "bg-transparent border border-[#1a365d] text-[#1a365d] hover:bg-[#1a365d]/10",
+      ghost: "bg-transparent text-[#1a365d] hover:bg-[#1a365d]/10",
     };
     
     // Size styles

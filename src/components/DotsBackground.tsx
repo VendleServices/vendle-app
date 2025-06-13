@@ -1,6 +1,6 @@
 import React from 'react';
 
-const DotsBackground = ({ className = '', color = '#a78bfa', opacity = 0.13, style = {} }) => (
+const DotsBackground = ({ className = '', color = '#1a365d', opacity = 0.13, style = {} }) => (
   <svg
     className={className}
     style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', zIndex: 0, ...style }}
