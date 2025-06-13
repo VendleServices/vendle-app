@@ -15,14 +15,55 @@ const inter = Inter({ subsets: ["latin"] })
 export default function HomePage() {
   const user = null
   const [currentImageIndex, setCurrentImageIndex] = useState(0)
+
+  // Refs for each section
   const heroRef = useRef<HTMLDivElement>(null)
-  const { scrollYProgress } = useScroll({
+  const howItWorksRef = useRef<HTMLDivElement>(null)
+  const whyWeShineRef = useRef<HTMLDivElement>(null)
+  const statisticsRef = useRef<HTMLDivElement>(null)
+  const newsletterRef = useRef<HTMLDivElement>(null)
+
+  // Scroll animations for each section
+  const heroScroll = useScroll({
     target: heroRef,
     offset: ["start start", "end start"],
   })
 
-  const y = useTransform(scrollYProgress, [0, 1], ["0%", "50%"])
-  const opacity = useTransform(scrollYProgress, [0, 0.5], [1, 0])
+  const howItWorksScroll = useScroll({
+    target: howItWorksRef,
+    offset: ["start start", "end start"],
+  })
+
+  const whyWeShineScroll = useScroll({
+    target: whyWeShineRef,
+    offset: ["start start", "end start"],
+  })
+
+  const statisticsScroll = useScroll({
+    target: statisticsRef,
+    offset: ["start start", "end start"],
+  })
+
+  const newsletterScroll = useScroll({
+    target: newsletterRef,
+    offset: ["start start", "end start"],
+  })
+
+  // Transform values for each section
+  const heroY = useTransform(heroScroll.scrollYProgress, [0, 1], ["0%", "50%"])
+  const heroOpacity = useTransform(heroScroll.scrollYProgress, [0, 0.5], [1, 0])
+
+  const howItWorksY = useTransform(howItWorksScroll.scrollYProgress, [0, 1], ["0%", "50%"])
+  const howItWorksOpacity = useTransform(howItWorksScroll.scrollYProgress, [0, 0.5], [1, 0])
+
+  const whyWeShineY = useTransform(whyWeShineScroll.scrollYProgress, [0, 1], ["0%", "50%"])
+  const whyWeShineOpacity = useTransform(whyWeShineScroll.scrollYProgress, [0, 0.5], [1, 0])
+
+  const statisticsY = useTransform(statisticsScroll.scrollYProgress, [0, 1], ["0%", "50%"])
+  const statisticsOpacity = useTransform(statisticsScroll.scrollYProgress, [0, 0.5], [1, 0])
+
+  const newsletterY = useTransform(newsletterScroll.scrollYProgress, [0, 1], ["0%", "50%"])
+  const newsletterOpacity = useTransform(newsletterScroll.scrollYProgress, [0, 0.5], [1, 0])
 
   // Parallax image rotation
   useEffect(() => {
@@ -56,10 +97,13 @@ export default function HomePage() {
   return (
     <div className={`min-h-screen bg-white ${inter.className} relative overflow-x-hidden`}>
       {/* Hero Section */}
-      <motion.div ref={heroRef} className="relative min-h-screen flex" style={{ y, opacity }}>
+      <motion.div ref={heroRef} className="relative min-h-screen flex" style={{ y: heroY, opacity: heroOpacity }}>
         {/* Parallax Section - Left Half */}
         <div className="w-1/2 relative overflow-hidden">
-          <div className="absolute inset-0" style={{ background: "linear-gradient(180deg, #ede9fe 0%, #f3f4f6 50%, #ede9fe 100%)" }}>
+          <div
+            className="absolute inset-0"
+            style={{ background: "linear-gradient(180deg, #ede9fe 0%, #f3f4f6 50%, #ede9fe 100%)" }}
+          >
             <DotsBackground color="#a78bfa" opacity={0.13} />
           </div>
           <div className="absolute inset-0">
@@ -101,7 +145,10 @@ export default function HomePage() {
 
         {/* Content Section - Right Half */}
         <div className="w-1/2 flex items-center relative">
-          <div className="absolute inset-0" style={{ background: "linear-gradient(180deg, #ede9fe 0%, #f3f4f6 50%, #ede9fe 100%)" }}>
+          <div
+            className="absolute inset-0"
+            style={{ background: "linear-gradient(180deg, #ede9fe 0%, #f3f4f6 50%, #ede9fe 100%)" }}
+          >
             <DotsBackground color="#a78bfa" opacity={0.13} />
           </div>
           <div className="container mx-auto px-12 relative z-10">
@@ -162,8 +209,15 @@ export default function HomePage() {
       </motion.div>
 
       {/* How It Works Section */}
-      <section className="py-32 relative">
-        <div className="absolute inset-0" style={{ background: "linear-gradient(180deg, #ede9fe 0%, #f3f4f6 50%, #ede9fe 100%)" }}>
+      <motion.section
+        ref={howItWorksRef}
+        className="py-32 relative"
+        style={{ y: howItWorksY, opacity: howItWorksOpacity }}
+      >
+        <div
+          className="absolute inset-0"
+          style={{ background: "linear-gradient(180deg, #ede9fe 0%, #f3f4f6 50%, #ede9fe 100%)" }}
+        >
           <DotsBackground color="#a78bfa" opacity={0.13} />
         </div>
         <div className="container mx-auto px-6 relative z-10">
@@ -182,7 +236,9 @@ export default function HomePage() {
             </motion.div>
 
             <motion.h2 className="text-4xl md:text-5xl font-bold text-gray-900 mb-6 leading-tight" variants={fadeInUp}>
-              What Does Vendle Do?
+              THE                 <span className="text-transparent bg-clip-text bg-gradient-to-r from-purple-600 to-purple-800">
+                  VENDLE
+                </span> PROCESS
             </motion.h2>
 
             <motion.p className="text-xl text-gray-600 max-w-2xl mx-auto leading-relaxed" variants={fadeInUp}>
@@ -224,11 +280,18 @@ export default function HomePage() {
             </div>
           </motion.div>
         </div>
-      </section>
+      </motion.section>
 
       {/* Why We Shine Section */}
-      <section className="relative min-h-screen flex items-center justify-center overflow-hidden">
-        <div className="absolute inset-0" style={{ background: "linear-gradient(180deg, #ede9fe 0%, #f3f4f6 50%, #ede9fe 100%)" }}>
+      <motion.section
+        ref={whyWeShineRef}
+        className="relative min-h-screen flex items-center justify-center overflow-hidden"
+        style={{ y: whyWeShineY, opacity: whyWeShineOpacity }}
+      >
+        <div
+          className="absolute inset-0"
+          style={{ background: "linear-gradient(180deg, #ede9fe 0%, #f3f4f6 50%, #ede9fe 100%)" }}
+        >
           <DotsBackground color="#a78bfa" opacity={0.13} />
         </div>
         <ParallaxBackground />
@@ -242,7 +305,7 @@ export default function HomePage() {
             variants={staggerContainer}
           >
             <motion.h2 className="text-4xl md:text-5xl font-bold text-white mb-12" variants={fadeInUp}>
-              WHY WE SHINE
+              Why We Stand Out?
             </motion.h2>
 
             <motion.div
@@ -253,11 +316,18 @@ export default function HomePage() {
             </motion.div>
           </motion.div>
         </div>
-      </section>
+      </motion.section>
 
       {/* Statistics Section */}
-      <section className="py-32 relative">
-        <div className="absolute inset-0" style={{ background: "linear-gradient(180deg, #ede9fe 0%, #f3f4f6 50%, #ede9fe 100%)" }}>
+      <motion.section
+        ref={statisticsRef}
+        className="py-32 relative"
+        style={{ y: statisticsY, opacity: statisticsOpacity }}
+      >
+        <div
+          className="absolute inset-0"
+          style={{ background: "linear-gradient(180deg, #ede9fe 0%, #f3f4f6 50%, #ede9fe 100%)" }}
+        >
           <DotsBackground color="#a78bfa" opacity={0.13} />
         </div>
         <div className="container mx-auto px-6 relative z-10">
@@ -317,19 +387,17 @@ export default function HomePage() {
             ))}
           </div>
         </div>
-      </section>
+      </motion.section>
 
       {/* Newsletter & Footer Section */}
-      <section className="relative min-h-[700px] overflow-hidden">
+      <motion.section
+        ref={newsletterRef}
+        className="relative min-h-[700px] overflow-hidden"
+        style={{ y: newsletterY, opacity: newsletterOpacity }}
+      >
         {/* Video Background */}
         <div className="absolute inset-0 w-full h-full">
-          <video
-            autoPlay
-            loop
-            muted
-            playsInline
-            className="absolute inset-0 w-full h-full object-cover"
-          >
+          <video autoPlay loop muted playsInline className="absolute inset-0 w-full h-full object-cover">
             <source src="/loop_vid.mp4" type="video/mp4" />
           </video>
           <div className="absolute inset-0 bg-gradient-to-b from-black/50 via-black/30 to-black/70" />
@@ -422,7 +490,7 @@ export default function HomePage() {
             <p>© {new Date().getFullYear()} Vendle. All rights reserved.</p>
           </motion.div>
         </div>
-      </section>
+      </motion.section>
     </div>
   )
 }
@@ -462,22 +530,16 @@ function ModernFeaturesList() {
       {features.map((feature, index) => {
         const isActive = activeIndex === index
         return (
-          <motion.div
+          <div
             key={index}
             className={`
-              group cursor-pointer transition-all duration-500 ease-out
+              group cursor-pointer transition-all duration-300 ease-out
               ${isActive ? "bg-white/20" : "hover:bg-white/10"}
               rounded-2xl border border-white/20 hover:border-white/40
               ${isActive ? "shadow-xl border-white/40" : "hover:shadow-lg"}
               p-6
             `}
             onClick={() => setActiveIndex(isActive ? null : index)}
-            whileHover={{ scale: 1.02 }}
-            whileTap={{ scale: 0.98 }}
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.5, delay: index * 0.1 }}
           >
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-4">
@@ -490,7 +552,11 @@ function ModernFeaturesList() {
                   {feature.title}
                 </h3>
               </div>
-              <motion.div animate={{ rotate: isActive ? 180 : 0 }} transition={{ duration: 0.3, ease: "easeInOut" }}>
+              <motion.div
+                animate={{ rotate: isActive ? 180 : 0 }}
+                transition={{ duration: 0.3, ease: "easeInOut" }}
+                style={{ willChange: "transform" }}
+              >
                 <ChevronDown
                   size={20}
                   className={`transition-colors duration-300 ${isActive ? "text-white" : "text-white/60 group-hover:text-white/80"}`}
@@ -504,14 +570,14 @@ function ModernFeaturesList() {
                   initial={{ height: 0, opacity: 0 }}
                   animate={{ height: "auto", opacity: 1 }}
                   exit={{ height: 0, opacity: 0 }}
-                  transition={{ duration: 0.4, ease: [0.25, 0.46, 0.45, 0.94] }}
+                  transition={{ duration: 0.3, ease: "easeOut" }}
                   className="overflow-hidden pt-4 pl-12"
                 >
                   <p className="text-white/80 leading-relaxed">{feature.desc}</p>
                 </motion.div>
               )}
             </AnimatePresence>
-          </motion.div>
+          </div>
         )
       })}
     </div>
@@ -533,14 +599,13 @@ function ParallaxBackground() {
         <motion.div
           key={num}
           className="absolute inset-0"
-          initial={{ opacity: 0, scale: 1.1 }}
+          initial={{ opacity: 0 }}
           animate={{
             opacity: idx === current ? 1 : 0,
-            scale: idx === current ? 1 : 1.05,
           }}
-          transition={{ duration: 2, ease: [0.25, 0.46, 0.45, 0.94] }}
+          transition={{ duration: 1.5, ease: "easeInOut" }}
           style={{
-            backgroundImage: `url(/saikiran-kesari-qVULJ6acwe8-unsplash.jpg)`,
+            backgroundImage: `url(/plax${num}.jpg)`,
             backgroundSize: "cover",
             backgroundPosition: "center",
           }}
