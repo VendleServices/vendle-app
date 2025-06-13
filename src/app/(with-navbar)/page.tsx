@@ -96,15 +96,15 @@ export default function HomePage() {
 
   return (
     <div className={`min-h-screen bg-white ${inter.className} relative overflow-x-hidden`}>
-      {/* Hero Section */}
+      {/* hero / top page */}
       <motion.div ref={heroRef} className="relative min-h-screen flex" style={{ y: heroY, opacity: heroOpacity }}>
-        {/* Parallax Section - Left Half */}
+        {/* parallax image*/}
         <div className="w-1/2 relative overflow-hidden">
           <div
             className="absolute inset-0"
-            style={{ background: "linear-gradient(180deg, #ede9fe 0%, #f3f4f6 50%, #ede9fe 100%)" }}
+            style={{ background: "linear-gradient(180deg, #e6eef7 0%, #f3f4f6 50%, #e6eef7 100%)" }}
           >
-            <DotsBackground color="#a78bfa" opacity={0.13} />
+            <DotsBackground color="#1a365d" opacity={0.13} />
           </div>
           <div className="absolute inset-0">
             {[1, 2, 3, 4, 5].map((num, index) => (
@@ -130,9 +130,8 @@ export default function HomePage() {
           </div>
           <div className="absolute inset-0 bg-gradient-to-r from-black/20 to-transparent" />
 
-          {/* Floating elements */}
           <motion.div
-            className="absolute top-20 left-10 w-3 h-3 bg-purple-400 rounded-full"
+            className="absolute top-20 left-10 w-3 h-3 bg-blue-400 rounded-full"
             animate={{ y: [0, -20, 0] }}
             transition={{ duration: 3, repeat: Number.POSITIVE_INFINITY, ease: "easeInOut" }}
           />
@@ -143,13 +142,13 @@ export default function HomePage() {
           />
         </div>
 
-        {/* Content Section - Right Half */}
+        {/* right half content */}
         <div className="w-1/2 flex items-center relative">
           <div
             className="absolute inset-0"
-            style={{ background: "linear-gradient(180deg, #ede9fe 0%, #f3f4f6 50%, #ede9fe 100%)" }}
+            style={{ background: "linear-gradient(180deg, #e6eef7 0%, #f3f4f6 50%, #e6eef7 100%)" }}
           >
-            <DotsBackground color="#a78bfa" opacity={0.13} />
+            <DotsBackground color="#1a365d" opacity={0.13} />
           </div>
           <div className="container mx-auto px-12 relative z-10">
             <motion.div className="max-w-xl" initial="hidden" animate="visible" variants={staggerContainer}>
@@ -164,7 +163,7 @@ export default function HomePage() {
                     priority
                   />
                 </div>
-                <Badge className="px-4 py-2 text-xs bg-purple-100 text-purple-800 border-0 rounded-full font-medium">
+                <Badge className="px-4 py-2 text-xs bg-blue-100 text-blue-800 border-0 rounded-full font-medium">
                   DISASTER RECOVERY MADE SIMPLE
                 </Badge>
               </motion.div>
@@ -174,7 +173,7 @@ export default function HomePage() {
                 variants={fadeInUp}
               >
                 RECONSTRUCTION?{" "}
-                <span className="text-transparent bg-clip-text bg-gradient-to-r from-purple-600 to-purple-800">
+                <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-blue-800">
                   VENDLE IT.
                 </span>
               </motion.h1>
@@ -188,7 +187,7 @@ export default function HomePage() {
                 <Link href={user ? "/start-claim" : "/signup"}>
                   <Button
                     size="lg"
-                    className="group bg-purple-600 hover:bg-purple-700 text-white rounded-2xl px-10 py-4 text-base font-medium transition-all duration-300 hover:scale-105 hover:shadow-xl"
+                    className="group bg-[#1a365d] hover:bg-[#1a365d]/90 text-white rounded-2xl px-10 py-4 text-base font-medium transition-all duration-300 hover:scale-105 hover:shadow-xl"
                   >
                     START RECOVERY
                     <ArrowRight className="ml-3 h-5 w-5 transition-transform group-hover:translate-x-1" />
@@ -197,7 +196,7 @@ export default function HomePage() {
                 <Button
                   variant="outline"
                   size="lg"
-                  className="group border-2 border-gray-200 hover:border-purple-200 rounded-2xl px-10 py-4 text-base font-medium transition-all duration-300 hover:bg-purple-50"
+                  className="group border-2 border-gray-200 hover:border-blue-200 rounded-2xl px-10 py-4 text-base font-medium transition-all duration-300 hover:bg-blue-50"
                 >
                   <Play className="mr-3 h-5 w-5" />
                   Watch Demo
@@ -208,7 +207,7 @@ export default function HomePage() {
         </div>
       </motion.div>
 
-      {/* How It Works Section */}
+      {/* how it works sec*/}
       <motion.section
         ref={howItWorksRef}
         className="py-32 relative"
@@ -216,9 +215,9 @@ export default function HomePage() {
       >
         <div
           className="absolute inset-0"
-          style={{ background: "linear-gradient(180deg, #ede9fe 0%, #f3f4f6 50%, #ede9fe 100%)" }}
+          style={{ background: "linear-gradient(180deg, #e6eef7 0%, #f3f4f6 50%, #e6eef7 100%)" }}
         >
-          <DotsBackground color="#a78bfa" opacity={0.13} />
+          <DotsBackground color="#1a365d" opacity={0.13} />
         </div>
         <div className="container mx-auto px-6 relative z-10">
           <motion.div
@@ -229,14 +228,14 @@ export default function HomePage() {
             variants={staggerContainer}
           >
             <motion.div className="flex items-center justify-center gap-3 mb-4" variants={fadeInUp}>
-              <div className="w-8 h-8 rounded-full bg-purple-100 flex items-center justify-center">
-                <div className="w-3 h-3 rounded-full bg-purple-600" />
+              <div className="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center">
+                <div className="w-3 h-3 rounded-full bg-blue-600" />
               </div>
               <span className="uppercase tracking-wider text-sm text-gray-500 font-semibold">How It Works</span>
             </motion.div>
 
             <motion.h2 className="text-4xl md:text-5xl font-bold text-gray-900 mb-6 leading-tight" variants={fadeInUp}>
-              THE                 <span className="text-transparent bg-clip-text bg-gradient-to-r from-purple-600 to-purple-800">
+              THE                 <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-blue-800">
                   VENDLE
                 </span> PROCESS
             </motion.h2>
@@ -269,7 +268,7 @@ export default function HomePage() {
               ].map((word, index) => (
                 <motion.div
                   key={word}
-                  className="px-6 py-3 bg-white rounded-full text-gray-700 text-sm font-medium shadow-sm border border-gray-100 hover:shadow-md hover:border-purple-200 transition-all duration-300"
+                  className="px-6 py-3 bg-white rounded-full text-gray-700 text-sm font-medium shadow-sm border border-gray-100 hover:shadow-md hover:border-blue-200 transition-all duration-300"
                   variants={fadeInUp}
                   whileHover={{ scale: 1.05, y: -2 }}
                   whileTap={{ scale: 0.95 }}
@@ -282,7 +281,7 @@ export default function HomePage() {
         </div>
       </motion.section>
 
-      {/* Why We Shine Section */}
+      {/* features sec */}
       <motion.section
         ref={whyWeShineRef}
         className="relative min-h-screen flex items-center justify-center overflow-hidden"
@@ -290,9 +289,9 @@ export default function HomePage() {
       >
         <div
           className="absolute inset-0"
-          style={{ background: "linear-gradient(180deg, #ede9fe 0%, #f3f4f6 50%, #ede9fe 100%)" }}
+          style={{ background: "linear-gradient(180deg, #e6eef7 0%, #f3f4f6 50%, #e6eef7 100%)" }}
         >
-          <DotsBackground color="#a78bfa" opacity={0.13} />
+          <DotsBackground color="#1a365d" opacity={0.13} />
         </div>
         <ParallaxBackground />
 
@@ -305,7 +304,7 @@ export default function HomePage() {
             variants={staggerContainer}
           >
             <motion.h2 className="text-4xl md:text-5xl font-bold text-white mb-12" variants={fadeInUp}>
-              Why We Stand Out?
+              OUR FEATURES
             </motion.h2>
 
             <motion.div
@@ -326,9 +325,9 @@ export default function HomePage() {
       >
         <div
           className="absolute inset-0"
-          style={{ background: "linear-gradient(180deg, #ede9fe 0%, #f3f4f6 50%, #ede9fe 100%)" }}
+          style={{ background: "linear-gradient(180deg, #e6eef7 0%, #f3f4f6 50%, #e6eef7 100%)" }}
         >
-          <DotsBackground color="#a78bfa" opacity={0.13} />
+          <DotsBackground color="#1a365d" opacity={0.13} />
         </div>
         <div className="container mx-auto px-6 relative z-10">
           <motion.div
@@ -372,13 +371,13 @@ export default function HomePage() {
                 viewport={{ once: true }}
                 transition={{ duration: 0.6, delay: index * 0.2 }}
               >
-                <h3 className="text-5xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-purple-600 to-purple-800 mb-4">
+                <h3 className="text-5xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-blue-800 mb-4">
                   {item.stat}
                 </h3>
                 <h4 className="text-xl font-semibold text-gray-900 mb-4">{item.title}</h4>
                 <p className="text-gray-600 mb-8 leading-relaxed">{item.desc}</p>
                 <Link href="/signup">
-                  <Button className="group bg-purple-600 hover:bg-purple-700 text-white rounded-xl transition-all duration-300 hover:scale-105">
+                  <Button className="group bg-[#1a365d] hover:bg-[#1a365d]/90 text-white rounded-xl transition-all duration-300 hover:scale-105">
                     Get Started
                     <ArrowRight className="ml-2 h-4 w-4 transition-transform group-hover:translate-x-1" />
                   </Button>
@@ -422,9 +421,9 @@ export default function HomePage() {
               <input
                 type="email"
                 placeholder="Enter your email"
-                className="flex-1 px-6 py-4 rounded-2xl border-0 bg-white/10 backdrop-blur-sm text-white placeholder-gray-300 focus:outline-none focus:ring-2 focus:ring-purple-400"
+                className="flex-1 px-6 py-4 rounded-2xl border-0 bg-white/10 backdrop-blur-sm text-white placeholder-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-400"
               />
-              <Button className="bg-purple-600 hover:bg-purple-700 text-white px-8 py-4 rounded-2xl font-medium transition-all duration-300 hover:scale-105">
+              <Button className="bg-[#1a365d] hover:bg-[#1a365d]/90 text-white px-8 py-4 rounded-2xl font-medium transition-all duration-300 hover:scale-105">
                 Subscribe
               </Button>
             </motion.form>
@@ -543,7 +542,7 @@ function ModernFeaturesList() {
           >
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-4">
-                <div className="w-8 h-8 rounded-full bg-purple-500 flex items-center justify-center font-bold text-white text-sm">
+                <div className="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center font-bold text-white text-sm">
                   +
                 </div>
                 <h3
@@ -632,6 +631,7 @@ function VideoBackground() {
   )
 }
 
+//function for the steps
 function VendleSteps() {
   const [activeStep, setActiveStep] = useState(0)
 
@@ -675,13 +675,13 @@ function VendleSteps() {
       {/* Progress line */}
       <div className="absolute top-16 left-0 right-0 h-1 bg-gray-200 rounded-full mx-[10%] z-0">
         <motion.div
-          className="absolute h-full bg-gradient-to-r from-purple-500 to-purple-600 rounded-full"
+          className="absolute h-full bg-gradient-to-r from-blue-500 to-blue-600 rounded-full"
           animate={{ width: `${((activeStep + 1) / 5) * 100}%` }}
           transition={{ duration: 0.8, ease: [0.25, 0.46, 0.45, 0.94] }}
         />
       </div>
 
-      {/* Step cards */}
+      {/* step cards */}
       <div className="grid grid-cols-1 md:grid-cols-5 gap-8 relative z-10">
         {steps.map((step, index) => {
           const isCurrent = activeStep === index
@@ -696,15 +696,15 @@ function VendleSteps() {
               viewport={{ once: true }}
               transition={{ duration: 0.6, delay: index * 0.1 }}
               animate={{
-                borderColor: isCurrent ? "#7c3aed" : isPast ? "#a855f7" : "#e5e7eb",
+                borderColor: isCurrent ? "#1a365d" : isPast ? "#1a365d" : "#e5e7eb",
                 scale: isCurrent ? 1.05 : 1,
               }}
             >
-              {/* Step number */}
+              {/* to control number of steps animation */}
               <motion.div
                 className="w-12 h-12 rounded-full flex items-center justify-center text-white font-bold text-lg mb-6 relative z-20"
                 animate={{
-                  backgroundColor: isCurrent ? "#7c3aed" : isPast ? "#a855f7" : "#6b7280",
+                  backgroundColor: isCurrent ? "#1a365d" : isPast ? "#1a365d" : "#6b7280",
                   scale: isCurrent ? 1.2 : 1,
                 }}
                 transition={{ duration: 0.5, ease: [0.25, 0.46, 0.45, 0.94] }}
