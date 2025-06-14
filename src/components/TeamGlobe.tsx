@@ -27,6 +27,8 @@ const TeamGlobe = () => {
     );
   }, [globeReady]);
 
+  
+
   return (
     <div style={{ position: 'absolute', top: '100px', width: 700, height: 500, background: 'white' }}>
       <GlobeAny
@@ -41,7 +43,7 @@ const TeamGlobe = () => {
         pointLng="lng"
         pointAltitude={0}
         pointRadius={1.2}
-        pointColor={() => '#7f5af0'}
+        pointColor={() => '#1E88E5'}
         pointsMerge={false}
         onGlobeReady={() => setGlobeReady(true)}
         onPointClick={(point: object) => setSelectedMember(point as Member)}

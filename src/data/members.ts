@@ -35,7 +35,7 @@ export const teamMembers: Member[] = [
   },
   {
     id: "3",
-    name: "TJ",
+    name: "TJ Clayton",
     imgUrl: "/team/tj.jpg",
     lat: 36.0014,
     lng: -78.9382,
@@ -45,7 +45,7 @@ export const teamMembers: Member[] = [
   },
   {
     id: "4",
-    name: "Minh",
+    name: "Minh Giang",
     imgUrl: "/team/minh.jpg",
     lat: 38.8816,
     lng: -77.091,
@@ -55,7 +55,7 @@ export const teamMembers: Member[] = [
   },
   {
     id: "5",
-    name: "Diego",
+    name: "Diego Ferrera",
     imgUrl: "/team/diego.jpg",
     lat: -33.8688,
     lng: 151.2093,
@@ -65,8 +65,8 @@ export const teamMembers: Member[] = [
   },
   {
     id: "6",
-    name: "David",
-    imgUrl: "/team/david.jpg",
+    name: "David Fitzgerald",
+    imgUrl: "/team/david.jpeg",
     lat: 45.5017,
     lng: -73.5673,
     role: "COO & Co-Founder",
@@ -75,11 +75,11 @@ export const teamMembers: Member[] = [
   },
   {
     id: "7",
-    name: "Suneru",
+    name: "Suneru Perera",
     imgUrl: "/team/suneru.jpg",
     lat: 43.4643,
     lng: -80.5204,
-    role: "Machine Learning Engineer",
+    role: "Software Engineer",
     location: "Waterloo, Ontario",
     description:
       "Suneru is an engineer behind Vendle, implementing AI & Component Design to Vendle. He is a undergraduate student @ University of Waterloo.",
