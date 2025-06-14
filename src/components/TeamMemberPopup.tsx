@@ -1,7 +1,6 @@
 "use client"
 
 import { Card, CardContent } from "@/components/ui/card"
-import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { MapPin, Linkedin } from "lucide-react"
 import Image from "next/image"
@@ -20,61 +19,54 @@ export default function TeamMemberPopup({ member, className = "" }: TeamMemberPo
   }
 
   return (
-    <Card className={`w-64 border border-gray-200/50 shadow-2xl bg-white backdrop-blur-xl ${className}`}>
-      <CardContent className="p-0 overflow-hidden">
-        {/* Header with Image */}
-        <div className="relative h-20 bg-gradient-to-br from-gray-900 via-gray-800 to-black">
-          <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_20%,rgba(255,255,255,0.1),transparent_50%)]" />
-
-          <div className="absolute -bottom-6 left-4">
-            <div className="relative w-12 h-12">
-              <Image
-                src={member.imgUrl || "/placeholder.svg"}
-                alt={member.name}
-                fill
-                className="rounded-full border-2 border-white shadow-lg object-cover"
-              />
-            </div>
-          </div>
+    <Card className={`w-80 border-0 shadow-2xl bg-white backdrop-blur-xl overflow-hidden ${className}`}>
+      <CardContent className="p-0">
+        {/* Large Image Section */}
+        <div className="relative h-64 bg-gradient-to-br from-slate-800 via-slate-700 to-slate-900">
+          <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_20%,rgba(59,130,246,0.15),transparent_60%)]" />
 
           {/* LinkedIn Button */}
           <Button
             size="sm"
             variant="ghost"
-            className="absolute top-3 right-3 h-7 w-7 p-0 text-white/70 hover:text-white hover:bg-white/10 rounded-full transition-all duration-200"
+            className="absolute top-4 left-4 h-8 w-8 p-0 text-white/70 hover:text-white hover:bg-white/10 rounded-full transition-all duration-200 z-10"
             onClick={() => {
               // TODO: Add LinkedIn URL here
               console.log(`LinkedIn for ${member.name}`)
             }}
           >
-            <Linkedin className="h-3 w-3" />
+            <Linkedin className="h-4 w-4" />
           </Button>
+
+          {/* Profile Image */}
+          <div className="absolute inset-4 rounded-2xl overflow-hidden">
+            <Image src={member.imgUrl || "/placeholder.svg"} alt={member.name} fill className="object-cover" />
+          </div>
         </div>
 
-        {/* Content */}
-        <div className="pt-8 px-4 pb-4">
-          {/* Name and Role */}
-          <div className="mb-3">
-            <h3 className="text-lg font-bold text-gray-900 mb-2 tracking-tight">{member.name}</h3>
-            <Badge
-              variant={getRoleBadgeVariant(member.role)}
-              className="text-xs font-semibold px-3 py-1 bg-gray-900 text-white hover:bg-gray-800 border-0"
-            >
+        {/* Content Section */}
+        <div className="p-6">
+          {/* Name */}
+          <h3 className="text-2xl font-bold text-gray-900 mb-3 tracking-tight leading-tight">{member.name}</h3>
+
+          {/* Role */}
+          <div className="mb-4">
+            <p className="text-sm font-semibold text-slate-600 uppercase tracking-wider leading-relaxed">
               {member.role}
-            </Badge>
+            </p>
           </div>
 
           {/* Location */}
-          <div className="flex items-center text-xs text-gray-500 mb-3">
-            <div className="flex items-center justify-center w-4 h-4 rounded-full bg-gray-100 mr-2">
-              <MapPin className="h-2.5 w-2.5 text-gray-600" />
+          <div className="flex items-center mb-4">
+            <div className="flex items-center justify-center w-5 h-5 rounded-full bg-slate-100 mr-3">
+              <MapPin className="h-3 w-3 text-slate-600" />
             </div>
-            <span className="font-medium text-gray-700">{member.location}</span>
+            <span className="text-sm font-medium text-slate-700">{member.location}</span>
           </div>
 
           {/* Description */}
           {member.description && (
-            <p className="text-xs text-gray-600 leading-relaxed font-medium line-clamp-3">{member.description}</p>
+            <p className="text-sm text-slate-600 leading-relaxed line-clamp-4">{member.description}</p>
           )}
         </div>
       </CardContent>

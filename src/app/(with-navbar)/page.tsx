@@ -129,17 +129,6 @@ export default function HomePage() {
             ))}
           </div>
           <div className="absolute inset-0 bg-gradient-to-r from-black/20 to-transparent" />
-
-          <motion.div
-            className="absolute top-20 left-10 w-3 h-3 bg-blue-400 rounded-full"
-            animate={{ y: [0, -20, 0] }}
-            transition={{ duration: 3, repeat: Number.POSITIVE_INFINITY, ease: "easeInOut" }}
-          />
-          <motion.div
-            className="absolute bottom-32 right-16 w-2 h-2 bg-blue-400 rounded-full"
-            animate={{ y: [0, -15, 0] }}
-            transition={{ duration: 4, repeat: Number.POSITIVE_INFINITY, ease: "easeInOut", delay: 1 }}
-          />
         </div>
 
         {/* right half content */}
