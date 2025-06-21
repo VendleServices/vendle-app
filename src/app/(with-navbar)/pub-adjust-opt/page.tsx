@@ -7,6 +7,7 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Star, MapPin, Calendar, ShieldCheck, Mail } from 'lucide-react';
 import { useToast } from '@/components/ui/use-toast';
 import { motion, AnimatePresence } from 'framer-motion';
+import { useRouter } from 'next/navigation';
 
 interface Adjuster {
   id: string;
@@ -66,6 +67,7 @@ export default function PubAdjustOptPage() {
   const [showAdjusters, setShowAdjusters] = useState(false);
   const [selectedAdjuster, setSelectedAdjuster] = useState<Adjuster | null>(null);
   const { toast } = useToast();
+  const router = useRouter();
 
   const handleSelectAdjuster = (adjuster: Adjuster) => {
     setSelectedAdjuster(adjuster);
@@ -90,11 +92,7 @@ export default function PubAdjustOptPage() {
   };
   
   const handleNoThanks = () => {
-    setShowAdjusters(false);
-    toast({
-        title: "No Problem",
-        description: "You can proceed with your claim. You can always hire an adjuster later.",
-    })
+    router.push('/sec-fund');
   }
 
   return (
