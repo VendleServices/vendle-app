@@ -3,15 +3,18 @@
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
-import { DollarSign, Landmark, Banknote, ShieldCheck, TrendingUp, Info } from 'lucide-react';
+import { DollarSign, Landmark, Banknote, ShieldCheck, TrendingUp, Info, CheckCircle } from 'lucide-react';
 import { useToast } from '@/components/ui/use-toast';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { useRouter } from 'next/navigation';
 
 export default function SecFundPage() {
   const [selectedOption, setSelectedOption] = useState<string | null>(null);
+  const [fundingCompleted, setFundingCompleted] = useState(false);
   const { toast } = useToast();
+  const router = useRouter();
 
   const handleSelectOption = (option: string) => {
     setSelectedOption(option);
@@ -23,14 +26,23 @@ export default function SecFundPage() {
         title: "Loan Application Submitted",
         description: "Your application is being processed. We will notify you upon approval."
     });
-    // API call to submit loan application
+    setFundingCompleted(true);
+    // Navigate to inspection page after 3 seconds
+    setTimeout(() => {
+      router.push('/inspection-plan');
+    }, 3000);
   }
   
   const handleFundTransfer = () => {
       toast({
           title: "Awaiting Transfer",
           description: "Please follow the instructions to complete the bank transfer."
-      })
+      });
+      setFundingCompleted(true);
+      // Navigate to inspection page after 3 seconds
+      setTimeout(() => {
+        router.push('/inspection-plan');
+      }, 3000);
   }
 
   return (
@@ -41,75 +53,99 @@ export default function SecFundPage() {
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5 }}
       >
-        <Card className="mb-8 shadow-lg">
-          <CardHeader>
-            <CardTitle className="text-3xl font-bold text-gray-800">Secure Project Funding</CardTitle>
-            <CardDescription className="text-lg text-gray-600">
-              Choose a funding source to ensure your project is financially secured. Funds will be held in a secure escrow account.
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              {/* SBA Disaster Loan */}
-              <Card 
-                className={`cursor-pointer transition-all hover:shadow-xl hover:border-blue-500 ${selectedOption === 'sba' ? 'border-blue-500 border-2' : ''}`}
-                onClick={() => handleSelectOption('sba')}
-              >
-                <CardHeader>
-                    <div className="flex items-center space-x-4">
-                        <div className="p-3 bg-blue-100 rounded-full">
-                            <Landmark className="w-6 h-6 text-blue-600" />
-                        </div>
-                        <CardTitle>SBA Disaster Loan</CardTitle>
-                    </div>
-                </CardHeader>
-                <CardContent>
-                  <p className="text-sm text-gray-600">Access low-interest, long-term loans from the Small Business Administration to repair or replace damaged property.</p>
-                </CardContent>
-              </Card>
+        {!fundingCompleted ? (
+          <Card className="mb-8 shadow-lg">
+            <CardHeader>
+              <CardTitle className="text-3xl font-bold text-gray-800">Secure Project Funding</CardTitle>
+              <CardDescription className="text-lg text-gray-600">
+                Choose a funding source to ensure your project is financially secured. Funds will be held in a secure escrow account.
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                {/* SBA Disaster Loan */}
+                <Card 
+                  className={`cursor-pointer transition-all hover:shadow-xl hover:border-blue-500 ${selectedOption === 'sba' ? 'border-blue-500 border-2' : ''}`}
+                  onClick={() => handleSelectOption('sba')}
+                >
+                  <CardHeader>
+                      <div className="flex items-center space-x-4">
+                          <div className="p-3 bg-blue-100 rounded-full">
+                              <Landmark className="w-6 h-6 text-blue-600" />
+                          </div>
+                          <CardTitle>SBA Disaster Loan</CardTitle>
+                      </div>
+                  </CardHeader>
+                  <CardContent>
+                    <p className="text-sm text-gray-600">Access low-interest, long-term loans from the Small Business Administration to repair or replace damaged property.</p>
+                  </CardContent>
+                </Card>
 
-              {/* Vendle Financial Partners */}
-              <Card 
-                className={`cursor-pointer transition-all hover:shadow-xl hover:border-green-500 ${selectedOption === 'vendle' ? 'border-green-500 border-2' : ''}`}
-                onClick={() => handleSelectOption('vendle')}
-              >
-                <CardHeader>
-                    <div className="flex items-center space-x-4">
-                        <div className="p-3 bg-green-100 rounded-full">
-                            <DollarSign className="w-6 h-6 text-green-600" />
-                        </div>
-                        <CardTitle>Vendle Financial Partners</CardTitle>
-                    </div>
-                </CardHeader>
-                <CardContent>
-                  <p className="text-sm text-gray-600">Explore pre-approved loan offers from our network of trusted financial partners, tailored for restoration projects.</p>
-                </CardContent>
-              </Card>
+                {/* Vendle Financial Partners */}
+                <Card 
+                  className={`cursor-pointer transition-all hover:shadow-xl hover:border-green-500 ${selectedOption === 'vendle' ? 'border-green-500 border-2' : ''}`}
+                  onClick={() => handleSelectOption('vendle')}
+                >
+                  <CardHeader>
+                      <div className="flex items-center space-x-4">
+                          <div className="p-3 bg-green-100 rounded-full">
+                              <DollarSign className="w-6 h-6 text-green-600" />
+                          </div>
+                          <CardTitle>Vendle Financial Partners</CardTitle>
+                      </div>
+                  </CardHeader>
+                  <CardContent>
+                    <p className="text-sm text-gray-600">Explore pre-approved loan offers from our network of trusted financial partners, tailored for restoration projects.</p>
+                  </CardContent>
+                </Card>
 
-              {/* Emergency Funds */}
-              <Card 
-                className={`cursor-pointer transition-all hover:shadow-xl hover:border-yellow-500 ${selectedOption === 'emergency' ? 'border-yellow-500 border-2' : ''}`}
-                onClick={() => handleSelectOption('emergency')}
-              >
-                <CardHeader>
-                    <div className="flex items-center space-x-4">
-                        <div className="p-3 bg-yellow-100 rounded-full">
-                            <Banknote className="w-6 h-6 text-yellow-600" />
-                        </div>
-                        <CardTitle>Emergency Funds</CardTitle>
-                    </div>
-                </CardHeader>
-                <CardContent>
-                  <p className="text-sm text-gray-600">Use your own emergency funds. Securely transfer the amount to your project's escrow account.</p>
-                </CardContent>
-              </Card>
+                {/* Emergency Funds */}
+                <Card 
+                  className={`cursor-pointer transition-all hover:shadow-xl hover:border-yellow-500 ${selectedOption === 'emergency' ? 'border-yellow-500 border-2' : ''}`}
+                  onClick={() => handleSelectOption('emergency')}
+                >
+                  <CardHeader>
+                      <div className="flex items-center space-x-4">
+                          <div className="p-3 bg-yellow-100 rounded-full">
+                              <Banknote className="w-6 h-6 text-yellow-600" />
+                          </div>
+                          <CardTitle>Emergency Funds</CardTitle>
+                      </div>
+                  </CardHeader>
+                  <CardContent>
+                    <p className="text-sm text-gray-600">Use your own emergency funds. Securely transfer the amount to your project's escrow account.</p>
+                  </CardContent>
+                </Card>
+              </div>
+            </CardContent>
+          </Card>
+        ) : (
+          <motion.div
+            initial={{ opacity: 0, scale: 0.9 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ duration: 0.5 }}
+            className="text-center py-16"
+          >
+            <div className="max-w-2xl mx-auto">
+              <div className="mb-8">
+                <div className="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <CheckCircle className="w-10 h-10 text-green-600" />
+                </div>
+                <h1 className="text-3xl font-bold text-gray-800 mb-4">Your funds are ready!</h1>
+                <p className="text-lg text-gray-600 mb-8">Next, let's plan your rebuild.</p>
+              </div>
+              
+              <div className="flex items-center justify-center space-x-2 text-gray-500">
+                <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-blue-600"></div>
+                <span>Preparing your inspection plan...</span>
+              </div>
             </div>
-          </CardContent>
-        </Card>
+          </motion.div>
+        )}
       </motion.div>
 
       <AnimatePresence>
-        {selectedOption && (
+        {selectedOption && !fundingCompleted && (
           <motion.div
             initial={{ opacity: 0, height: 0 }}
             animate={{ opacity: 1, height: 'auto' }}
