@@ -105,7 +105,7 @@ const Contractors = () => {
       </div>
 
       {/* Benefits Section */}
-      <div className="container mx-auto px-4 py-16 max-w-6xl">
+      <div className="container mx-auto px-4 pt-20 pb-16 max-w-6xl">
         <SlideUpTransition className="text-center mb-12">
           <h2 className="text-3xl font-bold text-vendle-navy mb-4">
             Why Partner with Vendle?
@@ -236,7 +236,7 @@ const Contractors = () => {
       </div>
 
       {/* Partnership Section */}
-      <div className="bg-vendle-teal/10 py-16">
+      <div className="bg-vendle-teal/10 pt-20 pb-16">
         <div className="container mx-auto px-4 max-w-6xl">
           <div className="max-w-3xl mx-auto text-center">
             <Award className="h-16 w-16 text-vendle-teal mx-auto mb-6" />

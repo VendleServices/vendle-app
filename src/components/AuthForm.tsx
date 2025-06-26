@@ -289,6 +289,20 @@ const AuthForm = ({ type }: Props) => {
                             </Link>
                         </p>
                     </div>
+
+                    {type === 'login' && (
+                        <div className="mt-6 text-center">
+                            <p className="text-sm text-vendle-navy/70">
+                                Are you a contractor?{' '}
+                                <Link 
+                                    href="/contractor-auth?mode=login" 
+                                    className="text-vendle-blue hover:text-vendle-blue/80 font-medium"
+                                >
+                                    Login here
+                                </Link>
+                            </p>
+                        </div>
+                    )}
                 </div>
             </FadeTransition>
         </div>
