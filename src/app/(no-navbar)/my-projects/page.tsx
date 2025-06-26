@@ -603,7 +603,7 @@ export default function MyProjectsPage() {
                                     ) : (
                                         <div className="grid gap-6">
                                             {auctions.map((auction) => (
-                                                <Card key={auction.auction_id} className="hover:shadow-md transition-shadow border-gray-200">
+                                                <Card key={auction.auction_id} className="hover:shadow-lg hover:scale-[1.02] transition-all duration-300 border border-gray-100 hover:border-vendle-blue/20">
                                                     <CardContent className="p-6">
                                                         <div className="flex justify-between items-start mb-4">
                                                             <div>
@@ -640,8 +640,8 @@ export default function MyProjectsPage() {
 
                                                         <div className="flex justify-end space-x-3">
                                                             <Button
-                                                                variant="outline"
                                                                 onClick={() => router.push(`/auction/${auction.auction_id}`)}
+                                                                className="w-full bg-vendle-navy text-white hover:bg-vendle-navy/90 transition-colors duration-200"
                                                             >
                                                                 View Details
                                                             </Button>
@@ -711,15 +711,16 @@ export default function MyProjectsPage() {
 
                                                         <div className="flex justify-end space-x-3">
                                                             <Button
-                                                                variant="outline"
                                                                 onClick={() => router.push(`/auction/${auction.auction_id}`)}
+                                                                className="w-full bg-vendle-navy text-white hover:bg-vendle-navy/90 hover:scale-[1.02] transition-all duration-200 shadow-sm hover:shadow-md"
                                                             >
                                                                 View Details
                                                             </Button>
                                                             <Button
-                                                                variant="destructive"
-                                                                size="icon"
                                                                 onClick={() => handleClosedAuctionDelete(auction)}
+                                                                variant="ghost"
+                                                                size="icon"
+                                                                className="text-gray-400 hover:text-red-500 hover:bg-red-50 transition-all duration-200 rounded-full"
                                                             >
                                                                 <Trash2 className="h-4 w-4" />
                                                             </Button>
@@ -753,7 +754,7 @@ export default function MyProjectsPage() {
                                     ) : (
                                         <div className="grid gap-6">
                                             {claims.map((claim: Claim) => (
-                                                <Card key={claim.id} className="hover:shadow-md transition-shadow border-gray-200">
+                                                <Card key={claim.id} className="hover:shadow-md transition-shadow">
                                                     <CardContent className="p-6">
                                                         <div className="flex justify-between items-start mb-4">
                                                             <div>
@@ -807,14 +808,16 @@ export default function MyProjectsPage() {
                                                                 </Button>
                                                             )}
                                                             <Button
-                                                                variant="outline"
                                                                 onClick={() => router.push(`/claim/${claim.id}`)}
+                                                                className="w-full bg-vendle-navy text-white hover:bg-vendle-navy/90 hover:scale-[1.02] transition-all duration-200 shadow-sm hover:shadow-md"
                                                             >
                                                                 View Details
                                                             </Button>
                                                             <Button
-                                                                variant="destructive"
                                                                 onClick={() => handleDeleteClick(claim)}
+                                                                variant="ghost"
+                                                                size="icon"
+                                                                className="text-gray-400 hover:text-red-500 hover:bg-red-50 transition-all duration-200 rounded-full"
                                                             >
                                                                 Delete
                                                             </Button>
@@ -831,7 +834,7 @@ export default function MyProjectsPage() {
                                 <CardContent className="p-6">
                                     <div className="grid gap-6">
                                         {reviews.map((review) => (
-                                            <Card key={review.id} className="hover:shadow-md transition-shadow border-gray-200">
+                                            <Card key={review.id} className="hover:shadow-lg hover:scale-[1.02] transition-all duration-300 border border-gray-100 hover:border-vendle-blue/20">
                                                 <CardContent className="p-6">
                                                     <div className="flex justify-between items-start mb-4">
                                                         <div>

@@ -5,9 +5,10 @@ import OnboardingCard from '@/components/OnboardingCard';
 import ProgressBar from '@/components/ProgressBar';
 import { useToast } from '@/hooks/use-toast';
 import { FadeTransition, SlideUpTransition } from '@/lib/transitions';
-import { CheckCircle, Upload, AlertCircle, ArrowRight } from 'lucide-react';
+import { CheckCircle, Upload, AlertCircle, ArrowRight, Building2, MapPin, FileText, Users, DollarSign } from 'lucide-react';
 import { createClient } from "@/auth/client";
 import { useMutation } from "@tanstack/react-query";
+import { motion } from 'framer-motion';
 
 const supabase = createClient();
 
@@ -177,78 +178,109 @@ const Onboarding = () => {
   };
   
   return (
-    <div className="min-h-screen pb-20 flex items-center mt-20">
-      <div className="h-1/2 bg-gray-50 pb-4">
+    <motion.div 
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      transition={{ duration: 0.5 }}
+      className="min-h-screen pb-20 flex items-center mt-20 bg-gradient-to-b from-gray-50 to-white"
+    >
+      <div className="h-screen pb-4 w-full flex flex-col">
         {/* Header */}
-        <header className="bg-white border-b border-gray-200 py-4 px-4 md:px-6 shadow-sm">
+        <motion.header 
+          initial={{ y: -20, opacity: 0 }}
+          animate={{ y: 0, opacity: 1 }}
+          transition={{ duration: 0.5 }}
+          className="bg-white border-b border-gray-200 py-6 px-4 md:px-6 shadow-sm"
+        >
           <div className="container mx-auto flex items-center justify-between">
             <h1 className="text-2xl font-bold text-vendle-navy">Vendle</h1>
-            <button
-                onClick={() => router.push('/')}
-                className="text-sm text-vendle-blue font-medium hover:text-vendle-blue/80 transition-colors"
+            <motion.button
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              onClick={() => router.push('/')}
+              className="text-sm text-vendle-blue font-medium hover:text-vendle-blue/80 transition-colors"
             >
               Exit Setup
-            </button>
+            </motion.button>
           </div>
-        </header>
+        </motion.header>
 
         {/* Progress Bar */}
-        <div className="container mx-auto px-4 md:px-6 py-6">
+        <motion.div 
+          initial={{ y: 20, opacity: 0 }}
+          animate={{ y: 0, opacity: 1 }}
+          transition={{ delay: 0.2, duration: 0.5 }}
+          className="container mx-auto px-4 md:px-6 py-4"
+        >
           <ProgressBar currentStep={currentStep} totalSteps={totalSteps} />
-        </div>
+        </motion.div>
 
         {/* Content */}
-        <div className="container mx-auto px-4 md:px-6 flex justify-center mt-8">
+        <div className="container mx-auto px-4 md:px-6 flex-1 flex items-start justify-center pt-4">
           {/* Step 1: Address Information */}
           <OnboardingCard
-              title="Where is your property located?"
-              subtitle="Enter the address of the property you're rebuilding"
-              isActive={currentStep === 1}
-              onNext={nextStep}
-              onBack={() => router.push('/auth')}
-              isNextDisabled={!isCurrentStepValid()}
-              backButtonLabel="Back to Login"
+            title="Where is your property located?"
+            subtitle="Enter the address of the property you're rebuilding"
+            isActive={currentStep === 1}
+            onNext={nextStep}
+            onBack={() => router.push('/auth')}
+            isNextDisabled={!isCurrentStepValid()}
+            backButtonLabel="Back to Login"
           >
             <FadeTransition>
               <div className="space-y-4">
-                <div>
-                  <label htmlFor="street" className="block text-sm font-medium text-vendle-navy mb-1">
+                <motion.div
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.1 }}
+                >
+                  <label htmlFor="street" className="block text-sm font-medium text-vendle-navy mb-1 flex items-center gap-2">
+                    <MapPin className="w-4 h-4" />
                     Street Address
                   </label>
                   <input
-                      id="street"
-                      type="text"
-                      value={address.street}
-                      onChange={(e) => setAddress({...address, street: e.target.value})}
-                      className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-vendle-blue/20 focus:border-vendle-blue transition-colors"
-                      placeholder="123 Main St"
+                    id="street"
+                    type="text"
+                    value={address.street}
+                    onChange={(e) => setAddress({...address, street: e.target.value})}
+                    className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-vendle-blue/20 focus:border-vendle-blue transition-all hover:border-vendle-blue/50"
+                    placeholder="123 Main St"
                   />
-                </div>
+                </motion.div>
 
                 <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <label htmlFor="city" className="block text-sm font-medium text-vendle-navy mb-1">
+                  <motion.div
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.2 }}
+                  >
+                    <label htmlFor="city" className="block text-sm font-medium text-vendle-navy mb-1 flex items-center gap-2">
+                      <Building2 className="w-4 h-4" />
                       City
                     </label>
                     <input
-                        id="city"
-                        type="text"
-                        value={address.city}
-                        onChange={(e) => setAddress({...address, city: e.target.value})}
-                        className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-vendle-blue/20 focus:border-vendle-blue transition-colors"
-                        placeholder="San Francisco"
+                      id="city"
+                      type="text"
+                      value={address.city}
+                      onChange={(e) => setAddress({...address, city: e.target.value})}
+                      className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-vendle-blue/20 focus:border-vendle-blue transition-all hover:border-vendle-blue/50"
+                      placeholder="San Francisco"
                     />
-                  </div>
+                  </motion.div>
 
-                  <div>
+                  <motion.div
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.3 }}
+                  >
                     <label htmlFor="state" className="block text-sm font-medium text-vendle-navy mb-1">
                       State
                     </label>
                     <select
-                        id="state"
-                        value={address.state}
-                        onChange={(e) => setAddress({...address, state: e.target.value})}
-                        className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-vendle-blue/20 focus:border-vendle-blue transition-colors"
+                      id="state"
+                      value={address.state}
+                      onChange={(e) => setAddress({...address, state: e.target.value})}
+                      className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-vendle-blue/20 focus:border-vendle-blue transition-all hover:border-vendle-blue/50"
                     >
                       <option value="">Select State</option>
                       <option value="CA">California</option>
@@ -258,55 +290,57 @@ const Onboarding = () => {
                       <option value="CO">Colorado</option>
                       {/* Add more states as needed */}
                     </select>
-                  </div>
+                  </motion.div>
                 </div>
 
-                <div>
+                <motion.div
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.4 }}
+                >
                   <label htmlFor="zip" className="block text-sm font-medium text-vendle-navy mb-1">
                     ZIP Code
                   </label>
                   <input
-                      id="zip"
-                      type="text"
-                      value={address.zip}
-                      onChange={(e) => setAddress({...address, zip: e.target.value})}
-                      className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-vendle-blue/20 focus:border-vendle-blue transition-colors"
-                      placeholder="94105"
-                      maxLength={5}
+                    id="zip"
+                    type="text"
+                    value={address.zip}
+                    onChange={(e) => setAddress({...address, zip: e.target.value})}
+                    className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-vendle-blue/20 focus:border-vendle-blue transition-all hover:border-vendle-blue/50"
+                    placeholder="94105"
                   />
-                </div>
+                </motion.div>
               </div>
             </FadeTransition>
           </OnboardingCard>
 
           {/* Step 2: Project Type */}
           <OnboardingCard
-              title="What type of rebuild do you need?"
-              subtitle="Select the option that best describes your project"
-              isActive={currentStep === 2}
-              onNext={nextStep}
-              onBack={prevStep}
-              isNextDisabled={!isCurrentStepValid()}
+            title="What type of rebuild do you need?"
+            subtitle="Select the option that best describes your project"
+            isActive={currentStep === 2}
+            onNext={nextStep}
+            onBack={prevStep}
+            isNextDisabled={!isCurrentStepValid()}
           >
             <FadeTransition>
               <div className="space-y-4">
-                <div
-                    className={`p-4 rounded-lg border-2 transition-all cursor-pointer ${
-                        projectType === 'full'
-                            ? 'border-vendle-blue bg-vendle-blue/5'
-                            : 'border-gray-200 hover:border-vendle-blue/50'
-                    }`}
-                    onClick={() => setProjectType('full')}
+                <motion.div
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.1 }}
+                  className={`p-4 rounded-xl border-2 transition-all cursor-pointer ${
+                    projectType === 'full'
+                      ? 'border-vendle-blue bg-vendle-blue/5'
+                      : 'border-gray-200 hover:border-vendle-blue/50'
+                  }`}
+                  onClick={() => setProjectType('full')}
                 >
                   <div className="flex items-start">
-                    <div className={`mt-0.5 p-1 rounded-full flex-shrink-0 ${
-                        projectType === 'full' ? 'bg-vendle-blue text-white' : 'bg-gray-200'
+                    <div className={`mt-0.5 p-2 rounded-lg flex-shrink-0 ${
+                      projectType === 'full' ? 'bg-vendle-blue text-white' : 'bg-gray-100 text-gray-600'
                     }`}>
-                      {projectType === 'full' ? (
-                          <CheckCircle className="h-4 w-4" />
-                      ) : (
-                          <div className="h-4 w-4" />
-                      )}
+                      <FileText className="w-5 h-5" />
                     </div>
                     <div className="ml-3">
                       <h3 className="font-semibold text-vendle-navy">Full Reconstruction</h3>
@@ -315,25 +349,24 @@ const Onboarding = () => {
                       </p>
                     </div>
                   </div>
-                </div>
+                </motion.div>
 
-                <div
-                    className={`p-4 rounded-lg border-2 transition-all cursor-pointer ${
-                        projectType === 'partial'
-                            ? 'border-vendle-blue bg-vendle-blue/5'
-                            : 'border-gray-200 hover:border-vendle-blue/50'
-                    }`}
-                    onClick={() => setProjectType('partial')}
+                <motion.div
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.2 }}
+                  className={`p-4 rounded-xl border-2 transition-all cursor-pointer ${
+                    projectType === 'partial'
+                      ? 'border-vendle-blue bg-vendle-blue/5'
+                      : 'border-gray-200 hover:border-vendle-blue/50'
+                  }`}
+                  onClick={() => setProjectType('partial')}
                 >
                   <div className="flex items-start">
-                    <div className={`mt-0.5 p-1 rounded-full flex-shrink-0 ${
-                        projectType === 'partial' ? 'bg-vendle-blue text-white' : 'bg-gray-200'
+                    <div className={`mt-0.5 p-2 rounded-lg flex-shrink-0 ${
+                      projectType === 'partial' ? 'bg-vendle-blue text-white' : 'bg-gray-100 text-gray-600'
                     }`}>
-                      {projectType === 'partial' ? (
-                          <CheckCircle className="h-4 w-4" />
-                      ) : (
-                          <div className="h-4 w-4" />
-                      )}
+                      <FileText className="w-5 h-5" />
                     </div>
                     <div className="ml-3">
                       <h3 className="font-semibold text-vendle-navy">Partial Rebuild</h3>
@@ -342,25 +375,24 @@ const Onboarding = () => {
                       </p>
                     </div>
                   </div>
-                </div>
+                </motion.div>
 
-                <div
-                    className={`p-4 rounded-lg border-2 transition-all cursor-pointer ${
-                        projectType === 'new'
-                            ? 'border-vendle-blue bg-vendle-blue/5'
-                            : 'border-gray-200 hover:border-vendle-blue/50'
-                    }`}
-                    onClick={() => setProjectType('new')}
+                <motion.div
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.3 }}
+                  className={`p-4 rounded-xl border-2 transition-all cursor-pointer ${
+                    projectType === 'new'
+                      ? 'border-vendle-blue bg-vendle-blue/5'
+                      : 'border-gray-200 hover:border-vendle-blue/50'
+                  }`}
+                  onClick={() => setProjectType('new')}
                 >
                   <div className="flex items-start">
-                    <div className={`mt-0.5 p-1 rounded-full flex-shrink-0 ${
-                        projectType === 'new' ? 'bg-vendle-blue text-white' : 'bg-gray-200'
+                    <div className={`mt-0.5 p-2 rounded-lg flex-shrink-0 ${
+                      projectType === 'new' ? 'bg-vendle-blue text-white' : 'bg-gray-100 text-gray-600'
                     }`}>
-                      {projectType === 'new' ? (
-                          <CheckCircle className="h-4 w-4" />
-                      ) : (
-                          <div className="h-4 w-4" />
-                      )}
+                      <FileText className="w-5 h-5" />
                     </div>
                     <div className="ml-3">
                       <h3 className="font-semibold text-vendle-navy">New Construction</h3>
@@ -369,39 +401,38 @@ const Onboarding = () => {
                       </p>
                     </div>
                   </div>
-                </div>
+                </motion.div>
               </div>
             </FadeTransition>
           </OnboardingCard>
 
           {/* Step 3: Design Plan */}
           <OnboardingCard
-              title="How would you like to approach the design?"
-              subtitle="Tell us about your design preferences"
-              isActive={currentStep === 3}
-              onNext={nextStep}
-              onBack={prevStep}
-              isNextDisabled={!isCurrentStepValid()}
+            title="How would you like to approach the design?"
+            subtitle="Tell us about your design preferences"
+            isActive={currentStep === 3}
+            onNext={nextStep}
+            onBack={prevStep}
+            isNextDisabled={!isCurrentStepValid()}
           >
             <FadeTransition>
               <div className="space-y-4">
-                <div
-                    className={`p-4 rounded-lg border-2 transition-all cursor-pointer ${
-                        designPlan === 'existing'
-                            ? 'border-vendle-blue bg-vendle-blue/5'
-                            : 'border-gray-200 hover:border-vendle-blue/50'
-                    }`}
-                    onClick={() => setDesignPlan('existing')}
+                <motion.div
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.1 }}
+                  className={`p-4 rounded-xl border-2 transition-all cursor-pointer ${
+                    designPlan === 'existing'
+                      ? 'border-vendle-blue bg-vendle-blue/5'
+                      : 'border-gray-200 hover:border-vendle-blue/50'
+                  }`}
+                  onClick={() => setDesignPlan('existing')}
                 >
                   <div className="flex items-start">
-                    <div className={`mt-0.5 p-1 rounded-full flex-shrink-0 ${
-                        designPlan === 'existing' ? 'bg-vendle-blue text-white' : 'bg-gray-200'
+                    <div className={`mt-0.5 p-2 rounded-lg flex-shrink-0 ${
+                      designPlan === 'existing' ? 'bg-vendle-blue text-white' : 'bg-gray-100 text-gray-600'
                     }`}>
-                      {designPlan === 'existing' ? (
-                          <CheckCircle className="h-4 w-4" />
-                      ) : (
-                          <div className="h-4 w-4" />
-                      )}
+                      <FileText className="w-5 h-5" />
                     </div>
                     <div className="ml-3">
                       <h3 className="font-semibold text-vendle-navy">Use Existing Plan</h3>
@@ -410,25 +441,24 @@ const Onboarding = () => {
                       </p>
                     </div>
                   </div>
-                </div>
+                </motion.div>
 
-                <div
-                    className={`p-4 rounded-lg border-2 transition-all cursor-pointer ${
-                        designPlan === 'modify'
-                            ? 'border-vendle-blue bg-vendle-blue/5'
-                            : 'border-gray-200 hover:border-vendle-blue/50'
-                    }`}
-                    onClick={() => setDesignPlan('modify')}
+                <motion.div
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.2 }}
+                  className={`p-4 rounded-xl border-2 transition-all cursor-pointer ${
+                    designPlan === 'modify'
+                      ? 'border-vendle-blue bg-vendle-blue/5'
+                      : 'border-gray-200 hover:border-vendle-blue/50'
+                  }`}
+                  onClick={() => setDesignPlan('modify')}
                 >
                   <div className="flex items-start">
-                    <div className={`mt-0.5 p-1 rounded-full flex-shrink-0 ${
-                        designPlan === 'modify' ? 'bg-vendle-blue text-white' : 'bg-gray-200'
+                    <div className={`mt-0.5 p-2 rounded-lg flex-shrink-0 ${
+                      designPlan === 'modify' ? 'bg-vendle-blue text-white' : 'bg-gray-100 text-gray-600'
                     }`}>
-                      {designPlan === 'modify' ? (
-                          <CheckCircle className="h-4 w-4" />
-                      ) : (
-                          <div className="h-4 w-4" />
-                      )}
+                      <FileText className="w-5 h-5" />
                     </div>
                     <div className="ml-3">
                       <h3 className="font-semibold text-vendle-navy">Modify Existing Plan</h3>
@@ -437,25 +467,24 @@ const Onboarding = () => {
                       </p>
                     </div>
                   </div>
-                </div>
+                </motion.div>
 
-                <div
-                    className={`p-4 rounded-lg border-2 transition-all cursor-pointer ${
-                        designPlan === 'custom'
-                            ? 'border-vendle-blue bg-vendle-blue/5'
-                            : 'border-gray-200 hover:border-vendle-blue/50'
-                    }`}
-                    onClick={() => setDesignPlan('custom')}
+                <motion.div
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.3 }}
+                  className={`p-4 rounded-xl border-2 transition-all cursor-pointer ${
+                    designPlan === 'custom'
+                      ? 'border-vendle-blue bg-vendle-blue/5'
+                      : 'border-gray-200 hover:border-vendle-blue/50'
+                  }`}
+                  onClick={() => setDesignPlan('custom')}
                 >
                   <div className="flex items-start">
-                    <div className={`mt-0.5 p-1 rounded-full flex-shrink-0 ${
-                        designPlan === 'custom' ? 'bg-vendle-blue text-white' : 'bg-gray-200'
+                    <div className={`mt-0.5 p-2 rounded-lg flex-shrink-0 ${
+                      designPlan === 'custom' ? 'bg-vendle-blue text-white' : 'bg-gray-100 text-gray-600'
                     }`}>
-                      {designPlan === 'custom' ? (
-                          <CheckCircle className="h-4 w-4" />
-                      ) : (
-                          <div className="h-4 w-4" />
-                      )}
+                      <FileText className="w-5 h-5" />
                     </div>
                     <div className="ml-3">
                       <h3 className="font-semibold text-vendle-navy">Create New Custom Design</h3>
@@ -464,224 +493,199 @@ const Onboarding = () => {
                       </p>
                     </div>
                   </div>
-                </div>
+                </motion.div>
               </div>
             </FadeTransition>
           </OnboardingCard>
 
           {/* Step 4: File Upload */}
           <OnboardingCard
-              title="Upload your insurance estimate"
-              subtitle="This helps contractors provide accurate bids"
-              isActive={currentStep === 4}
-              onNext={nextStep}
-              onBack={prevStep}
-              isNextDisabled={!isCurrentStepValid()}
+            title="Upload Insurance Estimate"
+            subtitle="Upload your insurance estimate document (PDF only)"
+            isActive={currentStep === 4}
+            onNext={nextStep}
+            onBack={prevStep}
+            isNextDisabled={!isCurrentStepValid()}
           >
             <FadeTransition>
-              <div className="space-y-6">
-                <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center">
-                  {hasUploaded ? (
-                      <div className="flex flex-col items-center text-vendle-teal">
-                        <CheckCircle className="h-12 w-12 mb-3" />
-                        <p className="font-medium">File uploaded successfully</p>
-                        <p className="text-sm text-vendle-navy/70 mt-1">
-                          {uploadedFileName || "Insurance_Estimate.pdf"}
+              <div className="space-y-4">
+                <motion.div
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.1 }}
+                  className="border-2 border-dashed border-gray-300 rounded-xl p-8 text-center hover:border-vendle-blue/50 transition-colors"
+                >
+                  <input
+                    type="file"
+                    accept=".pdf"
+                    onChange={handleFileUpload}
+                    className="hidden"
+                    id="file-upload"
+                  />
+                  <label
+                    htmlFor="file-upload"
+                    className="cursor-pointer"
+                  >
+                    <div className="space-y-4">
+                      <div className="mx-auto w-12 h-12 rounded-full bg-vendle-blue/10 flex items-center justify-center">
+                        <Upload className="w-6 h-6 text-vendle-blue" />
+                      </div>
+                      <div>
+                        <p className="text-vendle-navy font-medium">
+                          {hasUploaded ? 'File Uploaded Successfully!' : 'Click to upload or drag and drop'}
                         </p>
-                        <button
-                            className="mt-4 text-sm text-vendle-blue"
-                            onClick={() => setHasUploaded(false)}
-                        >
-                          Replace file
-                        </button>
+                        <p className="text-sm text-vendle-navy/70 mt-1">
+                          PDF files only, up to 10MB
+                        </p>
                       </div>
-                  ) : (
-                      <div className="flex flex-col items-center">
-                        <Upload className="h-12 w-12 text-vendle-navy/50 mb-3" />
-                        <p className="font-medium text-vendle-navy">Drag your file here or click to browse</p>
-                        <p className="text-sm text-vendle-navy/70 mt-1">Accepts PDF files up to 10MB</p>
-
-                        <div className="mt-4 flex flex-col items-center">
-                          <input
-                              type="file"
-                              id="insurance-estimate"
-                              accept=".pdf"
-                              onChange={handleFileUpload}
-                              className="hidden"
-                          />
-                          <label
-                              htmlFor="insurance-estimate"
-                              className="cursor-pointer bg-vendle-blue text-white font-medium px-6 py-2.5 rounded-lg shadow-subtle hover:bg-vendle-blue/90 hover:shadow-medium transition-colors"
-                          >
-                            Select File
-                          </label>
-
-                          <button
-                              type="button"
-                              className="mt-4 text-sm text-vendle-blue hover:text-vendle-blue/80 transition-colors"
-                              onClick={() => {
-                                setSkipUpload(true);
-                                toast({
-                                  title: "Upload Skipped",
-                                  description: "You can upload a file later from your dashboard."
-                                });
-                              }}
-                          >
-                            I don't have a file right now
-                          </button>
-                        </div>
-                      </div>
-                  )}
-                </div>
-
-                {skipUpload && !hasUploaded && (
-                    <div className="bg-amber-50 border border-amber-200 rounded-lg p-4">
-                      <p className="text-sm text-amber-800">
-                        You've chosen to skip the file upload. You can always upload your insurance estimate later from your dashboard.
-                      </p>
                     </div>
-                )}
+                  </label>
+                </motion.div>
 
-                <div className="bg-vendle-blue/10 rounded-lg p-4 flex items-start">
-                  <div className="flex-shrink-0 p-1">
-                    <AlertCircle className="h-5 w-5 text-vendle-blue" />
+                <motion.button
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.2 }}
+                  onClick={() => setSkipUpload(true)}
+                  className={`w-full p-4 rounded-xl border-2 transition-all ${
+                    skipUpload
+                      ? 'border-vendle-blue bg-vendle-blue/5'
+                      : 'border-gray-200 hover:border-vendle-blue/50'
+                  }`}
+                >
+                  <div className="flex items-center justify-center gap-3">
+                    <span className="font-medium text-vendle-navy">Skip Upload</span>
                   </div>
-                  <div className="ml-3">
-                    <h4 className="text-sm font-medium text-vendle-navy">Why is this important?</h4>
-                    <p className="text-sm text-vendle-navy/70 mt-1">
-                      Your insurance estimate helps contractors understand the scope and value of your project.
-                      It ensures their bids align with your coverage.
-                    </p>
-                    <p className="text-sm font-medium text-vendle-blue mt-2">
-                      We'll also use this document to power an AI assistant that can answer your questions about the estimate.
-                    </p>
-                  </div>
-                </div>
+                </motion.button>
               </div>
             </FadeTransition>
           </OnboardingCard>
 
           {/* Step 5: Adjuster Need */}
           <OnboardingCard
-              title="Would you like assistance with your claim?"
-              subtitle="Our certified adjusters can review your insurance estimate"
-              isActive={currentStep === 5}
-              onNext={nextStep}
-              onBack={prevStep}
-              isNextDisabled={!isCurrentStepValid()}
-              nextButtonLabel="Complete Setup"
+            title="Would you like assistance with your claim?"
+            subtitle="Our certified adjusters can review your insurance estimate"
+            isActive={currentStep === 5}
+            onNext={nextStep}
+            onBack={prevStep}
+            isNextDisabled={!isCurrentStepValid()}
+            nextButtonLabel="Complete Setup"
           >
             <FadeTransition>
               <div className="space-y-6">
-                <div className="grid grid-cols-1 gap-4">
-                  <div
-                      className={`p-5 rounded-lg border-2 transition-all cursor-pointer ${
-                          needsAdjuster === true
-                              ? 'border-vendle-blue bg-vendle-blue/5'
-                              : 'border-gray-200 hover:border-vendle-blue/50'
-                      }`}
-                      onClick={() => setNeedsAdjuster(true)}
-                  >
-                    <div className="flex items-start">
-                      <div className={`mt-0.5 p-1 rounded-full flex-shrink-0 ${
-                          needsAdjuster === true ? 'bg-vendle-blue text-white' : 'bg-gray-200'
-                      }`}>
-                        {needsAdjuster === true ? (
-                            <CheckCircle className="h-4 w-4" />
-                        ) : (
-                            <div className="h-4 w-4" />
-                        )}
-                      </div>
-                      <div className="ml-3">
-                        <h3 className="font-semibold text-vendle-navy">Yes, I'd like adjuster assistance</h3>
-                        <p className="text-sm text-vendle-navy/70 mt-1">
-                          Our certified adjusters will review your claim, identify missed items, and negotiate with your insurance company on your behalf.
-                        </p>
-                        <div className="mt-2 text-vendle-teal text-sm font-medium flex items-center">
-                          <span>Learn more</span>
-                          <ArrowRight className="h-3 w-3 ml-1" />
-                        </div>
+                <motion.div
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.1 }}
+                  className={`p-5 rounded-xl border-2 transition-all cursor-pointer ${
+                    needsAdjuster === true
+                      ? 'border-vendle-blue bg-vendle-blue/5'
+                      : 'border-gray-200 hover:border-vendle-blue/50'
+                  }`}
+                  onClick={() => setNeedsAdjuster(true)}
+                >
+                  <div className="flex items-start">
+                    <div className={`mt-0.5 p-2 rounded-lg flex-shrink-0 ${
+                      needsAdjuster === true ? 'bg-vendle-blue text-white' : 'bg-gray-100 text-gray-600'
+                    }`}>
+                      <Users className="w-5 h-5" />
+                    </div>
+                    <div className="ml-3">
+                      <h3 className="font-semibold text-vendle-navy">Yes, I'd like adjuster assistance</h3>
+                      <p className="text-sm text-vendle-navy/70 mt-1">
+                        Our certified adjusters will review your claim, identify missed items, and negotiate with your insurance company on your behalf.
+                      </p>
+                      <div className="mt-2 text-vendle-teal text-sm font-medium flex items-center">
+                        <span>Learn more</span>
+                        <ArrowRight className="h-3 w-3 ml-1" />
                       </div>
                     </div>
                   </div>
+                </motion.div>
 
-                  <div
-                      className={`p-5 rounded-lg border-2 transition-all cursor-pointer ${
-                          needsAdjuster === false
-                              ? 'border-vendle-blue bg-vendle-blue/5'
-                              : 'border-gray-200 hover:border-vendle-blue/50'
-                      }`}
-                      onClick={() => setNeedsAdjuster(false)}
-                  >
-                    <div className="flex items-start">
-                      <div className={`mt-0.5 p-1 rounded-full flex-shrink-0 ${
-                          needsAdjuster === false ? 'bg-vendle-blue text-white' : 'bg-gray-200'
-                      }`}>
-                        {needsAdjuster === false ? (
-                            <CheckCircle className="h-4 w-4" />
-                        ) : (
-                            <div className="h-4 w-4" />
-                        )}
-                      </div>
-                      <div className="ml-3">
-                        <h3 className="font-semibold text-vendle-navy">No, I'll proceed without an adjuster</h3>
-                        <p className="text-sm text-vendle-navy/70 mt-1">
-                          I'm satisfied with my current insurance estimate and would like to proceed directly to contractor selection.
-                        </p>
-                      </div>
+                <motion.div
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.2 }}
+                  className={`p-5 rounded-xl border-2 transition-all cursor-pointer ${
+                    needsAdjuster === false
+                      ? 'border-vendle-blue bg-vendle-blue/5'
+                      : 'border-gray-200 hover:border-vendle-blue/50'
+                  }`}
+                  onClick={() => setNeedsAdjuster(false)}
+                >
+                  <div className="flex items-start">
+                    <div className={`mt-0.5 p-2 rounded-lg flex-shrink-0 ${
+                      needsAdjuster === false ? 'bg-vendle-blue text-white' : 'bg-gray-100 text-gray-600'
+                    }`}>
+                      <DollarSign className="w-5 h-5" />
+                    </div>
+                    <div className="ml-3">
+                      <h3 className="font-semibold text-vendle-navy">No, I'll proceed without an adjuster</h3>
+                      <p className="text-sm text-vendle-navy/70 mt-1">
+                        I'm satisfied with my current insurance estimate and would like to proceed directly to contractor selection.
+                      </p>
                     </div>
                   </div>
-                </div>
+                </motion.div>
 
                 {needsAdjuster === false && (
-                    <SlideUpTransition>
-                      <div className="space-y-4 pt-2">
-                        <div>
-                          <label htmlFor="insurance" className="block text-sm font-medium text-vendle-navy mb-1">
-                            Insurance Provider
-                          </label>
-                          <select
-                              id="insurance"
-                              value={insuranceProvider}
-                              onChange={(e) => setInsuranceProvider(e.target.value)}
-                              className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-vendle-blue/20 focus:border-vendle-blue transition-colors"
-                          >
-                            <option value="">Select Provider</option>
-                            <option value="allstate">Allstate</option>
-                            <option value="statefarm">State Farm</option>
-                            <option value="geico">GEICO</option>
-                            <option value="progressive">Progressive</option>
-                            <option value="usaa">USAA</option>
-                            <option value="other">Other</option>
-                          </select>
-                        </div>
+                  <SlideUpTransition>
+                    <div className="space-y-4 pt-2">
+                      <motion.div
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ delay: 0.3 }}
+                      >
+                        <label htmlFor="insurance" className="block text-sm font-medium text-vendle-navy mb-1">
+                          Insurance Provider
+                        </label>
+                        <select
+                          id="insurance"
+                          value={insuranceProvider}
+                          onChange={(e) => setInsuranceProvider(e.target.value)}
+                          className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-vendle-blue/20 focus:border-vendle-blue transition-all hover:border-vendle-blue/50"
+                        >
+                          <option value="">Select Provider</option>
+                          <option value="allstate">Allstate</option>
+                          <option value="statefarm">State Farm</option>
+                          <option value="geico">GEICO</option>
+                          <option value="progressive">Progressive</option>
+                          <option value="usaa">USAA</option>
+                          <option value="other">Other</option>
+                        </select>
+                      </motion.div>
 
-                        <div>
-                          <label htmlFor="payment" className="block text-sm font-medium text-vendle-navy mb-1">
-                            How will you finance this project?
-                          </label>
-                          <select
-                              id="payment"
-                              value={paymentMethod}
-                              onChange={(e) => setPaymentMethod(e.target.value)}
-                              className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-vendle-blue/20 focus:border-vendle-blue transition-colors"
-                          >
-                            <option value="">Select Payment Method</option>
-                            <option value="insurance">Insurance Claim</option>
-                            <option value="cash">Cash/Savings</option>
-                            <option value="loan">Home Reconstruction Loan</option>
-                            <option value="mixed">Mixed Funding Sources</option>
-                          </select>
-                        </div>
-                      </div>
-                    </SlideUpTransition>
+                      <motion.div
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ delay: 0.4 }}
+                      >
+                        <label htmlFor="payment" className="block text-sm font-medium text-vendle-navy mb-1">
+                          How will you finance this project?
+                        </label>
+                        <select
+                          id="payment"
+                          value={paymentMethod}
+                          onChange={(e) => setPaymentMethod(e.target.value)}
+                          className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-vendle-blue/20 focus:border-vendle-blue transition-all hover:border-vendle-blue/50"
+                        >
+                          <option value="">Select Payment Method</option>
+                          <option value="insurance">Insurance Claim</option>
+                          <option value="cash">Cash/Savings</option>
+                          <option value="loan">Home Reconstruction Loan</option>
+                          <option value="mixed">Mixed Funding Sources</option>
+                        </select>
+                      </motion.div>
+                    </div>
+                  </SlideUpTransition>
                 )}
               </div>
             </FadeTransition>
           </OnboardingCard>
         </div>
       </div>
-    </div>
+    </motion.div>
   );
 };
 

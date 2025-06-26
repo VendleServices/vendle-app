@@ -106,7 +106,7 @@ const HowItWorks = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-blue-50">
-      <div className="container mx-auto px-4 py-16 max-w-7xl">
+      <div className="container mx-auto px-4 pt-24 pb-16 max-w-7xl">
         {/* Header Section */}
         <div className="text-center mb-20">
           <div className="inline-flex items-center gap-2 bg-gradient-to-r from-blue-600 to-blue-800 bg-clip-text text-transparent mb-4">
