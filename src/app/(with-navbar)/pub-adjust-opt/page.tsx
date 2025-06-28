@@ -92,7 +92,7 @@ export default function PubAdjustOptPage() {
   };
   
   const handleNoThanks = () => {
-    router.push('/sec-fund');
+    router.push('/inspection-plan');
   }
 
   return (
