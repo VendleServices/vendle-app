@@ -122,10 +122,28 @@ export default function InspectionPlanPage() {
   const scheduleInspection = (date: string) => {
     setScheduledDate(date);
     setInspectionStatus('scheduled');
-    setCurrentStep('assessment');
+    
+    // Automatically simulate the assessment after scheduling
+    const mockAssessment: InspectionAssessment = {
+      structuralDamage: "Moderate structural damage to load-bearing walls. Foundation appears sound with minor settling.",
+      foundationStatus: "Good condition with minor settling. No major structural issues detected.",
+      rebuildFeasibility: "Highly feasible. Site is accessible and suitable for reconstruction.",
+      safetyAndAccess: "Site is safe for construction. Good access for equipment and materials.",
+      recommendations: [
+        "Replace damaged load-bearing walls",
+        "Reinforce foundation connections",
+        "Update electrical system to current code",
+        "Improve insulation and energy efficiency"
+      ]
+    };
+    
+    setAssessment(mockAssessment);
+    setInspectionStatus('complete');
+    setCurrentStep('strategy');
+    
     toast({
-      title: "Inspection Scheduled",
-      description: `Your inspection has been scheduled for ${date}.`,
+      title: "Inspection Scheduled & Completed",
+      description: `Your inspection has been scheduled for ${date} and the assessment is complete.`,
     });
   };
 

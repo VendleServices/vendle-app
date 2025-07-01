@@ -106,23 +106,6 @@ export default function InsuranceEstimatePage() {
                             </RadioGroup>
                         </div>
 
-                        {/* Claim Type Section */}
-                        <div className="space-y-4">
-                            <Label className="text-xl font-semibold text-vendle-navy">
-                                What type of claim is this?
-                            </Label>
-                            <RadioGroup value={claimType} onValueChange={setClaimType}>
-                                <div className="flex items-center space-x-2">
-                                    <RadioGroupItem value="rcv" id="rcv" />
-                                    <Label htmlFor="rcv">Replacement Cost Value (RCV)</Label>
-                                </div>
-                                <div className="flex items-center space-x-2">
-                                    <RadioGroupItem value="acv" id="acv" />
-                                    <Label htmlFor="acv">Actual Cash Value (ACV)</Label>
-                                </div>
-                            </RadioGroup>
-                        </div>
-
                         {/* Financial Details Grid */}
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                             {/* RCV */}

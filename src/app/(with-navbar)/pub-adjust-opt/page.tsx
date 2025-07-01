@@ -92,7 +92,7 @@ export default function PubAdjustOptPage() {
   };
   
   const handleNoThanks = () => {
-    router.push('/inspection-plan');
+    router.push('/documentation');
   }
 
   return (

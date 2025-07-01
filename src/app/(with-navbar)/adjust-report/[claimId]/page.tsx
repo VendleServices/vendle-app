@@ -91,7 +91,7 @@ export default function AdjustReportPage() {
                 description: "No claim ID provided.",
                 variant: "destructive",
             });
-            router.push('/my-projects');
+            router.push('/pub-adjust-opt');
         }
     }, [params, router, toast]);
 
@@ -125,20 +125,13 @@ export default function AdjustReportPage() {
             setFiles: setDamageMedia
         },
         {
-            id: 'receipts',
-            label: "Receipts or Estimates",
-            icon: <Receipt className="w-5 h-5" />,
-            multiple: true,
-            files: receipts,
-            setFiles: setReceipts
-        },
-        {
             id: 'supporting-files',
             label: "Blueprints or Supporting Files",
             icon: <Folder className="w-5 h-5" />,
             multiple: true,
             files: supportingFiles,
-            setFiles: setSupportingFiles
+            setFiles: setSupportingFiles,
+            isOptional: true
         }
     ];
 
@@ -161,7 +154,7 @@ export default function AdjustReportPage() {
             title: "Upload Successful",
             description: "Your documents have been submitted.",
         });
-        router.push('/my-projects');
+        
     };
 
     const isNextDisabled = () => {
@@ -238,10 +231,11 @@ export default function AdjustReportPage() {
                                 </Button>
                             ) : (
                                 <Button
-                                    type="submit"
-                                    className="bg-green-500 text-white hover:bg-green-600"
+                                type="submit"
+                                onClick={() => router.push('/pub-adjust-opt')}
+                                className="bg-green-500 text-white hover:bg-green-600"
                                 >
-                                    Submit All Documents
+                                Submit All Documents
                                 </Button>
                             )}
                         </div>

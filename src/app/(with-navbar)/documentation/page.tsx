@@ -41,8 +41,8 @@ const assignedLegalConsultant: Professional = {
 export default function DocumentationPage() {
   const [architectDocuments, setArchitectDocuments] = useState([
     { id: 1, name: 'Floor Plan', status: 'draft', description: 'Detailed floor plan showing room layouts and dimensions' },
-    { id: 2, name: 'Exterior Elevation', status: 'draft', description: 'Front, side, and rear elevation drawings' },
-    { id: 3, name: 'Material Recommendations', status: 'draft', description: 'Specifications for building materials and finishes' },
+    { id: 2, name: 'Remote Inspection Report', status: 'draft', description: 'Report based on remote/virtual inspection of the property' },
+    { id: 3, name: 'Adjustment Estimate', status: 'draft', description: 'Estimate for adjustments and repairs based on inspection findings' },
   ]);
 
   const [legalDocuments, setLegalDocuments] = useState([
@@ -91,104 +91,25 @@ export default function DocumentationPage() {
           </CardHeader>
           <CardContent>
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
-              {/* Assigned Architect */}
-              <Card className="border-2 border-blue-200">
+              <Card className="border-2 border-blue-200 lg:col-span-2">
                 <CardHeader>
                   <div className="flex items-center space-x-4">
                     <div className="p-3 bg-blue-100 rounded-full">
                       <Building2 className="w-6 h-6 text-blue-600" />
                     </div>
                     <div>
-                      <CardTitle>Assigned Architect</CardTitle>
-                      <CardDescription>Your dedicated design specialist</CardDescription>
+                      <CardTitle>Need Architectural or Legal Documentation?</CardTitle>
+                      <CardDescription>
+                        Get in contact with a licensed architect or legal consultant to assist with your rebuild project. They can help you prepare the necessary documents and guide you through the process.
+                      </CardDescription>
                     </div>
                   </div>
                 </CardHeader>
                 <CardContent>
-                  <div className="flex items-start space-x-4 mb-4">
-                    <img 
-                      src={assignedArchitect.avatar} 
-                      alt={assignedArchitect.name}
-                      className="w-16 h-16 rounded-full border-2 border-gray-200"
-                    />
-                    <div>
-                      <h3 className="font-semibold text-lg">{assignedArchitect.name}</h3>
-                      <p className="text-sm text-gray-600">{assignedArchitect.role}</p>
-                      <p className="text-xs text-gray-500">License: {assignedArchitect.license}</p>
-                      <div className="flex items-center mt-2">
-                        <CheckCircle className="w-4 h-4 text-green-500 mr-1" />
-                        <span className="text-sm text-green-600">Licensed Professional</span>
-                      </div>
-                    </div>
-                  </div>
-                  
-                  <div className="space-y-3">
-                    <div className="flex items-center text-sm">
-                      <Award className="w-4 h-4 mr-2 text-gray-500" />
-                      <span>Rating: <strong>{assignedArchitect.rating}/5.0</strong></span>
-                    </div>
-                  </div>
-
-                  <div className="mt-4">
-                    <h4 className="font-semibold text-sm mb-2">Specialties:</h4>
-                    <div className="flex flex-wrap gap-2">
-                      {assignedArchitect.specialties.map(specialty => (
-                        <Badge key={specialty} variant="secondary" className="text-xs text-white bg-blue-600">
-                          {specialty}
-                        </Badge>
-                      ))}
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-
-              {/* Assigned Legal Consultant */}
-              <Card className="border-2 border-green-200">
-                <CardHeader>
-                  <div className="flex items-center space-x-4">
-                    <div className="p-3 bg-green-100 rounded-full">
-                      <Gavel className="w-6 h-6 text-green-600" />
-                    </div>
-                    <div>
-                      <CardTitle>Legal Consultant</CardTitle>
-                      <CardDescription>Your legal documentation specialist</CardDescription>
-                    </div>
-                  </div>
-                </CardHeader>
-                <CardContent>
-                  <div className="flex items-start space-x-4 mb-4">
-                    <img 
-                      src={assignedLegalConsultant.avatar} 
-                      alt={assignedLegalConsultant.name}
-                      className="w-16 h-16 rounded-full border-2 border-gray-200"
-                    />
-                    <div>
-                      <h3 className="font-semibold text-lg">{assignedLegalConsultant.name}</h3>
-                      <p className="text-sm text-gray-600">{assignedLegalConsultant.role}</p>
-                      <p className="text-xs text-gray-500">License: {assignedLegalConsultant.license}</p>
-                      <div className="flex items-center mt-2">
-                        <CheckCircle className="w-4 h-4 text-green-500 mr-1" />
-                        <span className="text-sm text-green-600">Licensed Attorney</span>
-                      </div>
-                    </div>
-                  </div>
-                  
-                  <div className="space-y-3">
-                    <div className="flex items-center text-sm">
-                      <Award className="w-4 h-4 mr-2 text-gray-500" />
-                      <span>Rating: <strong>{assignedLegalConsultant.rating}/5.0</strong></span>
-                    </div>
-                  </div>
-
-                  <div className="mt-4">
-                    <h4 className="font-semibold text-sm mb-2">Specialties:</h4>
-                    <div className="flex flex-wrap gap-2">
-                      {assignedLegalConsultant.specialties.map(specialty => (
-                        <Badge key={specialty} variant="secondary" className="text-xs text-white bg-green-600">
-                          {specialty}
-                        </Badge>
-                      ))}
-                    </div>
+                  <div className="flex flex-col items-center justify-center py-4">
+                    <Button className="bg-blue-600 text-white px-8 py-3 text-lg font-semibold rounded-lg hover:bg-blue-700 transition-colors duration-200">
+                      Find a Professional
+                    </Button>
                   </div>
                 </CardContent>
               </Card>
@@ -252,7 +173,7 @@ export default function DocumentationPage() {
               </Card>
 
               {/* Legal Documents */}
-              <Card>
+              <Card className="opacity-50 pointer-events-none">
                 <CardHeader>
                   <div className="flex items-center space-x-4">
                     <div className="p-3 bg-green-100 rounded-full">
@@ -266,42 +187,9 @@ export default function DocumentationPage() {
                 </CardHeader>
                 <CardContent>
                   <div className="space-y-4">
-                    {legalDocuments.map((doc) => (
-                      <div key={doc.id} className="flex items-center justify-between p-4 border rounded-lg">
-                        <div className="flex-1">
-                          <h4 className="font-semibold">{doc.name}</h4>
-                          <p className="text-sm text-gray-600">{doc.description}</p>
-                          <div className="flex items-center mt-2">
-                            <Clock className="w-4 h-4 mr-1 text-gray-500" />
-                            <span className="text-xs text-gray-500">Status: {doc.status}</span>
-                          </div>
-                        </div>
-                        <div className="flex space-x-2">
-                          <Button
-                            size="sm"
-                            variant="outline"
-                            onClick={() => handleDocumentAction(doc, 'view')}
-                          >
-                            <Eye className="w-4 h-4 mr-1" />
-                            View
-                          </Button>
-                          <Button
-                            size="sm"
-                            variant="outline"
-                            onClick={() => handleDocumentAction(doc, 'download')}
-                          >
-                            <Download className="w-4 h-4 mr-1" />
-                            Download
-                          </Button>
-                          <Button
-                            size="sm"
-                            onClick={() => handleDocumentAction(doc, 'approve')}
-                          >
-                            Approve
-                          </Button>
-                        </div>
-                      </div>
-                    ))}
+                    <div className="text-center text-gray-500 py-8">
+                      Legal documents section coming soon.
+                    </div>
                   </div>
                 </CardContent>
               </Card>
