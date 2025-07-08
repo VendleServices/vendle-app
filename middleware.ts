@@ -78,20 +78,28 @@ export async function updateSession(request: NextRequest) {
       request.nextUrl.pathname.startsWith(route)
     )
     
-    // If user is not logged in and trying to access protected route
+        // If user is not logged in and trying to access protected route
     if (!user && isProtectedRoute) {
-      // Redirect to login page
-      const url = request.nextUrl.clone()
-      url.pathname = '/login'
-      return NextResponse.redirect(url)
+        // Only redirect if there's no session at all
+        // This prevents redirecting during login process when session is being established
+        const hasSessionCookie = request.cookies.get('sb-access-token') || 
+                                request.cookies.get('sb-refresh-token') ||
+                                request.cookies.getAll().some(cookie => cookie.name.includes('supabase'));
+        
+        if (!hasSessionCookie) {
+            // Redirect to login page
+            const url = request.nextUrl.clone()
+            url.pathname = '/login'
+            return NextResponse.redirect(url)
+        }
     }
     
     // If user is logged in and trying to access auth routes
     if (user && isAuthRoute) {
-      // Redirect to dashboard
-      const url = request.nextUrl.clone()
-      url.pathname = '/dashboard'
-      return NextResponse.redirect(url)
+        // Redirect to dashboard
+        const url = request.nextUrl.clone()
+        url.pathname = '/dashboard'
+        return NextResponse.redirect(url)
     }
 
     // IMPORTANT: You *must* return the supabaseResponse object as it is.

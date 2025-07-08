@@ -6,6 +6,7 @@ import { useToast } from '@/hooks/use-toast';
 import { Mail, Lock, ArrowLeft, Eye, EyeOff } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { loginAction, signUpAction } from "@/actions/users";
+import { useAuth } from '@/contexts/AuthContext';
 import Link from "next/link";
 
 type Props = {
@@ -15,6 +16,7 @@ type Props = {
 const AuthForm = ({ type }: Props) => {
     const { toast } = useToast();
     const router = useRouter();
+    const { login, signup } = useAuth();
     const [isPending, startTransition] = useTransition()
 
     const [showPassword, setShowPassword] = useState(false);
@@ -65,10 +67,10 @@ const AuthForm = ({ type }: Props) => {
             let description;
 
             if (type === 'login') {
-                errorMessage = (await loginAction(email, password)).errorMessage;
+                errorMessage = await login(email, password);
                 description = !errorMessage ? 'Successfully logged in!' : "Failed to log in";
             } else {
-                errorMessage = (await signUpAction(email, password)).errorMessage;
+                errorMessage = await signup(email, password);
                 description = !errorMessage ? "Account Created" : "Error creating account";
             }
 
@@ -78,8 +80,12 @@ const AuthForm = ({ type }: Props) => {
                     description,
                     variant: "default"
                 });
-                // Use Next.js redirect instead of window.location.reload()
-                router.push('/my-projects?tab=claims');
+                
+                // Wait longer for the auth state and cookies to sync properly, then redirect
+                setTimeout(() => {
+                    // Use window.location.href as fallback to ensure navigation works
+                    window.location.href = '/my-projects?tab=claims';
+                }, 500);
             } else {
                 toast({
                     title: "Error",
@@ -94,17 +100,17 @@ const AuthForm = ({ type }: Props) => {
     const handleSocialAuth = (provider: string) => {
         setIsLoading(true);
 
-        // Simulate social auth
+        // TODO: Implement actual social auth with Supabase
+        // For now, just show a message that it's not implemented
         setTimeout(() => {
             toast({
-                title: `${provider} Authentication Successful`,
-                description: "Redirecting...",
+                title: `${provider} Authentication`,
+                description: "Social authentication is not yet implemented. Please use email/password login.",
+                variant: "destructive"
             });
 
             setIsLoading(false);
-            // Use Next.js redirect instead of window.location.reload()
-            router.push('/my-projects?tab=claims');
-        }, 1500);
+        }, 1000);
     };
 
     return (

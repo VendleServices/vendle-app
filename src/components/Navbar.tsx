@@ -4,31 +4,13 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { Button } from "@/components/ui/button";
 import LogOutButton from "@/components/LogOutButton";
+import { useAuth } from "@/contexts/AuthContext";
 
 const Navbar = () => {
-  let user = null;
-  let isLoggedIn = false;
-  let isLoading = false;
-  let showLoginButtons = true; // Default to showing login buttons
-
-  try {
-    // Try to import and use the auth context
-    const { useAuth } = require("@/contexts/AuthContext");
-    const auth = useAuth();
-    user = auth.user;
-    isLoggedIn = auth.isLoggedIn;
-    isLoading = auth.isLoading;
-    
-    // Only hide login buttons if we're definitely logged in
-    if (isLoggedIn && user) {
-      showLoginButtons = false;
-    }
-    
-    console.log('Auth working - user:', user, 'isLoggedIn:', isLoggedIn, 'isLoading:', isLoading);
-  } catch (error) {
-    console.error('Auth not working, showing login buttons:', error);
-    showLoginButtons = true;
-  }
+  const { user, isLoggedIn, isLoading } = useAuth();
+  
+  // Show login buttons if user is not logged in or still loading
+  const showLoginButtons = !isLoggedIn || isLoading;
 
   const getProjectsPath = () => {
     if (!user) return "/my-projects";
