@@ -17,12 +17,27 @@ export async function GET() {
         CAST(COALESCE(MIN(b.amount), a.starting_bid) AS FLOAT) as current_bid,
         COUNT(b.bid_id) as bid_count,
         TO_CHAR(a.auction_end_date, 'YYYY-MM-DD"T"HH24:MI:SS.MS"Z"') as end_date,
-        c.project_type,
-        c.design_plan
+        CAST(a.total_job_value AS FLOAT) as total_job_value,
+        CAST(a.overhead_and_profit AS FLOAT) as overhead_and_profit,
+        a.cost_basis,
+        CAST(a.materials AS FLOAT) as materials,
+        CAST(a.sales_taxes AS FLOAT) as sales_taxes,
+        CAST(a.depreciation AS FLOAT) as depreciation,
+        a.reconstruction_type,
+        a.needs_3rd_party_adjuster,
+        a.has_deductible_funds,
+        a.funding_source,
+        a.scope_of_work,
+        a.photos,
+        'General Restoration' as project_type,
+        'Standard' as design_plan,
+        'Property Location' as property_address
       FROM auctions a
-      LEFT JOIN claims c ON a.claim_id = c.claim_id
       LEFT JOIN bids b ON a.auction_id = b.auction_id
-      GROUP BY a.auction_id, a.claim_id, a.title, a.description, a.status, a.starting_bid, a.auction_end_date, c.project_type, c.design_plan
+      GROUP BY a.auction_id, a.claim_id, a.title, a.description, a.status, a.starting_bid, a.auction_end_date, 
+               a.total_job_value, a.overhead_and_profit, a.cost_basis, a.materials, a.sales_taxes, a.depreciation,
+               a.reconstruction_type, a.needs_3rd_party_adjuster, a.has_deductible_funds, a.funding_source,
+               a.scope_of_work, a.photos
       ORDER BY a.created_at DESC
     `);
     
@@ -51,10 +66,8 @@ export async function POST(request: Request) {
     const requiredFields = [
       'claim_id',
       'title',
-      'description',
       'starting_bid',
-      'auction_end_date',
-      'scope_of_work'
+      'auction_end_date'
     ];
     
     const missingFields = requiredFields.filter(field => !auctionData[field]);
@@ -75,19 +88,39 @@ export async function POST(request: Request) {
         starting_bid,
         current_bid,
         auction_end_date,
+        total_job_value,
+        overhead_and_profit,
+        cost_basis,
+        materials,
+        sales_taxes,
+        depreciation,
+        reconstruction_type,
+        needs_3rd_party_adjuster,
+        has_deductible_funds,
+        funding_source,
         scope_of_work,
         photos,
         status
-      ) VALUES ($1, $2, $3, $4, $4, $5, $6, $7, 'open')
+      ) VALUES ($1, $2, $3, $4, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, 'open')
       RETURNING *`,
       [
         auctionData.claim_id,
         auctionData.title,
-        auctionData.description,
+        auctionData.description || '',
         auctionData.starting_bid,
         auctionData.auction_end_date,
-        auctionData.scope_of_work,
-        auctionData.photos || []
+        auctionData.total_job_value || null,
+        auctionData.overhead_and_profit || null,
+        auctionData.cost_basis || null,
+        auctionData.materials || null,
+        auctionData.sales_taxes || null,
+        auctionData.depreciation || null,
+        auctionData.reconstruction_type || null,
+        auctionData.needs_3rd_party_adjuster || false,
+        auctionData.has_deductible_funds || false,
+        auctionData.funding_source || null,
+        auctionData.scope_of_work || null,
+        auctionData.photos || null
       ]
     );
     
