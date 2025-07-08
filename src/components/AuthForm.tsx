@@ -79,7 +79,7 @@ const AuthForm = ({ type }: Props) => {
                     variant: "default"
                 });
                 // Use Next.js redirect instead of window.location.reload()
-                router.push('/dashboard');
+                router.push('/my-projects?tab=claims');
             } else {
                 toast({
                     title: "Error",
@@ -103,7 +103,7 @@ const AuthForm = ({ type }: Props) => {
 
             setIsLoading(false);
             // Use Next.js redirect instead of window.location.reload()
-            router.push('/dashboard');
+            router.push('/my-projects?tab=claims');
         }, 1500);
     };
 

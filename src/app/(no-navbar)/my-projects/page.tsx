@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -75,6 +75,7 @@ interface Review {
 
 export default function MyProjectsPage() {
     const router = useRouter();
+    const searchParams = useSearchParams();
     const queryClient = useQueryClient();
     const { user, isLoggedIn } = useAuth();
     const { toast } = useToast();
@@ -102,6 +103,14 @@ export default function MyProjectsPage() {
     const [auctions, setAuctions] = useState<Auction[]>([]);
     const [auctionLoading, setAuctionLoading] = useState(false);
     const [activeSection, setActiveSection] = useState<'auctions' | 'claims' | 'reviews' | 'closed-auctions'>('auctions');
+    
+    // Set active section based on URL parameter
+    useEffect(() => {
+        const tab = searchParams.get('tab');
+        if (tab && ['auctions', 'claims', 'reviews', 'closed-auctions'].includes(tab)) {
+            setActiveSection(tab as 'auctions' | 'claims' | 'reviews' | 'closed-auctions');
+        }
+    }, [searchParams]);
     const [auctionToDelete, setAuctionToDelete] = useState<Auction | null>(null);
     const [showAuctionDeleteConfirmation, setShowAuctionDeleteConfirmation] = useState(false);
     const [closedAuctions, setClosedAuctions] = useState<Auction[]>([]);
