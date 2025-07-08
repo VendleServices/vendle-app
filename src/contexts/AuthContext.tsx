@@ -104,10 +104,30 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     };
 
     const logout = async () => {
-        await logOutAction();
-        setUser(null);
-        setIsLoggedIn(false);
-        window.location.reload();
+        try {
+            // Clear the session using the client-side supabase instance
+            const { error } = await supabase.auth.signOut();
+            if (error) {
+                console.error('Error signing out:', error);
+            }
+            
+            // Also call the server action to ensure server-side cleanup
+            await logOutAction();
+            
+            // The onAuthStateChange listener should handle updating the state
+            // But let's also manually update it to ensure immediate UI updates
+            setUser(null);
+            setIsLoggedIn(false);
+            
+            // Navigate to home page
+            window.location.href = '/';
+        } catch (error) {
+            console.error('Error during logout:', error);
+            // Fallback: manually clear state if logout action fails
+            setUser(null);
+            setIsLoggedIn(false);
+            window.location.href = '/';
+        }
     };
 
     const value = {

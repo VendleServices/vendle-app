@@ -81,16 +81,10 @@ export default function MyProjectsPage() {
     const router = useRouter();
     const searchParams = useSearchParams();
     const queryClient = useQueryClient();
-    const { user, isLoggedIn } = useAuth();
+    const { user, isLoggedIn, isLoading: authLoading, logout } = useAuth();
     const { toast } = useToast();
     
-    // Redirect to login if not authenticated
-    useEffect(() => {
-        if (!isLoggedIn) {
-            router.push('/login');
-        }
-    }, [isLoggedIn, router]);
-
+    // All hooks must be called before any early returns
     const [loading, setLoading] = useState(false);
     const [showConfirmation, setShowConfirmation] = useState(false);
     const [selectedClaim, setSelectedClaim] = useState<Claim | null>(null);
@@ -108,20 +102,75 @@ export default function MyProjectsPage() {
     const [auctionLoading, setAuctionLoading] = useState(false);
     const [activeSection, setActiveSection] = useState<'auctions' | 'claims' | 'reviews' | 'closed-auctions'>('auctions');
     const [sidebarExpanded, setSidebarExpanded] = useState(true);
-    
-    // Set active section based on URL parameter
-    useEffect(() => {
-        const tab = searchParams.get('tab');
-        if (tab && ['auctions', 'claims', 'reviews', 'closed-auctions'].includes(tab)) {
-            setActiveSection(tab as 'auctions' | 'claims' | 'reviews' | 'closed-auctions');
-        }
-    }, [searchParams]);
     const [auctionToDelete, setAuctionToDelete] = useState<Auction | null>(null);
     const [showAuctionDeleteConfirmation, setShowAuctionDeleteConfirmation] = useState(false);
     const [closedAuctions, setClosedAuctions] = useState<Auction[]>([]);
     const [closedAuctionLoading, setClosedAuctionLoading] = useState(false);
     const [showClosedAuctionDeleteConfirmation, setShowClosedAuctionDeleteConfirmation] = useState(false);
     const [closedAuctionToDelete, setClosedAuctionToDelete] = useState<Auction | null>(null);
+
+    // Function definitions before they're used in hooks
+    const fetchClaims = async () => {
+        const response = await fetch("/api/claim");
+        const { claims } = await response.json();
+        console.log(claims);
+        return claims ? claims : []
+    }
+
+    const deleteClaim = async (claim: Claim) => {
+        try {
+            const response = await fetch(`/api/claim/${claim.id}`, {
+                method: "DELETE",
+            });
+        } catch (error) {
+            console.log(error);
+        }
+    }
+
+    // All useQuery and useMutation hooks
+    const {  data: claims = [], isLoading, isError, error } = useQuery({
+        queryKey: ["getClaims"],
+        queryFn: fetchClaims,
+    });
+
+    const deleteClaimMutation = useMutation({
+        mutationFn: deleteClaim,
+        onSuccess: () => {
+            queryClient.invalidateQueries({
+                queryKey: ["getClaims"]
+            });
+        },
+        onError: error => { console.log(error); }
+    });
+
+    // All useEffect hooks
+    useEffect(() => {
+        const tab = searchParams.get('tab');
+        if (tab && ['auctions', 'claims', 'reviews', 'closed-auctions'].includes(tab)) {
+            setActiveSection(tab as 'auctions' | 'claims' | 'reviews' | 'closed-auctions');
+        }
+    }, [searchParams]);
+
+    // Redirect to login if not authenticated (but wait for loading to complete)
+    useEffect(() => {
+        if (!authLoading && !isLoggedIn) {
+            router.push('/login');
+        }
+    }, [isLoggedIn, authLoading, router]);
+
+    // Show loading while auth state is being determined
+    if (authLoading) {
+        return (
+            <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#0f172a]"></div>
+            </div>
+        );
+    }
+
+    // If not logged in, don't render anything (redirect will happen)
+    if (!isLoggedIn) {
+        return null;
+    }
 
     // Hardcoded reviews data
     const reviews: Review[] = [
@@ -167,18 +216,6 @@ export default function MyProjectsPage() {
         }
     ];
 
-    const fetchClaims = async () => {
-        const response = await fetch("/api/claim");
-        const { claims } = await response.json();
-        console.log(claims);
-        return claims ? claims : []
-    }
-
-    const {  data: claims = [], isLoading, isError, error } = useQuery({
-        queryKey: ["getClaims"],
-        queryFn: fetchClaims,
-    });
-
     const getTimeRemaining = (endDate: string) => {
         const end = new Date(endDate);
         const now = new Date();
@@ -223,26 +260,6 @@ export default function MyProjectsPage() {
                 return "View Details";
         }
     };
-
-    const deleteClaim = async (claim: Claim) => {
-        try {
-            const response = await fetch(`/api/claim/${claim.id}`, {
-                method: "DELETE",
-            });
-        } catch (error) {
-            console.log(error);
-        }
-    }
-
-    const deleteClaimMutation = useMutation({
-        mutationFn: deleteClaim,
-        onSuccess: () => {
-            queryClient.invalidateQueries({
-                queryKey: ["getClaims"]
-            });
-        },
-        onError: error => { console.log(error); }
-    })
 
     const handleDeleteClick = (claim: Claim) => {
         deleteClaimMutation.mutate(claim);
@@ -602,11 +619,8 @@ export default function MyProjectsPage() {
                                             variant="ghost"
                                             size="icon"
                                             className="text-gray-400 hover:text-white hover:bg-[#1e293b]"
-                                            onClick={() => {
-                                                // Clear user data and navigate to home
-                                                localStorage.removeItem('user');
-                                                localStorage.removeItem('isAuthenticated');
-                                                router.push("/");
+                                            onClick={async () => {
+                                                await logout();
                                             }}
                                         >
                                             <LogOut className="w-4 h-4" />
@@ -849,15 +863,15 @@ export default function MyProjectsPage() {
                                                         </div>
 
                                                         <div className="flex justify-end space-x-3">
-                                                            {claim.id && (
-                                                                <Button
-                                                                    variant="default"
-                                                                    onClick={() => router.push(`/start-claim/create-restor?claimId=${parseInt(claim.id)}`)}
-                                                                    className="bg-[#0f172a] hover:bg-[#1e293b] text-white"
-                                                                >
-                                                                    Create Restoration
-                                                                </Button>
-                                                            )}
+                                                                                                        {claim.id && (
+                                                <Button
+                                                    variant="default"
+                                                    onClick={() => router.push(`/start-claim/create-restor/${claim.id}`)}
+                                                    className="bg-[#0f172a] hover:bg-[#1e293b] text-white"
+                                                >
+                                                    Create Restoration
+                                                </Button>
+                                            )}
                                                             <Button
                                                                 onClick={() => router.push(`/claim/${claim.id}`)}
                                                                 className="w-full bg-vendle-navy text-white hover:bg-vendle-navy/90 hover:scale-[1.02] transition-all duration-200 shadow-sm hover:shadow-md"
@@ -955,3 +969,4 @@ export default function MyProjectsPage() {
         </motion.div>
     );
 }
+

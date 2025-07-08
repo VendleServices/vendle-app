@@ -26,6 +26,9 @@ export const loginAction = async (email: string, password: string) => {
             });
         }
 
+        // Refresh the session to ensure server-side cookies are updated
+        await supabase.auth.refreshSession();
+
         return { errorMessage: null };
     } catch (error) {
         console.error(error)
