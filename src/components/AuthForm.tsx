@@ -24,41 +24,43 @@ const AuthForm = ({ type }: Props) => {
         setShowPassword(!showPassword);
     };
 
-    const handleSubmit = (formData: FormData) => {
+    const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+        e.preventDefault();
+        
+        const formData = new FormData(e.currentTarget);
+        const email = formData.get('email') as string;
+        const password = formData.get('password') as string;
+        const confirmPassword = formData.get('confirmPassword');
+
+        // Basic form validation
+        if (!email) {
+            toast({
+                title: "Email Required",
+                description: "Please enter your email address",
+                variant: "destructive"
+            });
+            return;
+        }
+
+        if (!password) {
+            toast({
+                title: "Password Required",
+                description: "Please enter your password",
+                variant: "destructive"
+            });
+            return;
+        }
+
+        if (type === 'signup' && password !== confirmPassword) {
+            toast({
+                title: "Passwords Don't Match",
+                description: "Please make sure your passwords match",
+                variant: "destructive"
+            });
+            return;
+        }
+
         startTransition(async () => {
-            const email = formData.get('email') as string;
-            const password = formData.get('password') as string;
-            console.log(email);
-            const confirmPassword = formData.get('confirmPassword');
-
-            // Basic form validation
-            if (!email) {
-                toast({
-                    title: "Email Required",
-                    description: "Please enter your email address",
-                    variant: "destructive"
-                });
-                return;
-            }
-
-            if (!password) {
-                toast({
-                    title: "Password Required",
-                    description: "Please enter your password",
-                    variant: "destructive"
-                });
-                return;
-            }
-
-            if (type === 'signup' && password !== confirmPassword) {
-                toast({
-                    title: "Passwords Don't Match",
-                    description: "Please make sure your passwords match",
-                    variant: "destructive"
-                });
-                return;
-            }
-
             let errorMessage;
             let description;
 
@@ -76,15 +78,16 @@ const AuthForm = ({ type }: Props) => {
                     description,
                     variant: "default"
                 });
-                router.replace('/dashboard');
+                // Use Next.js redirect instead of window.location.reload()
+                router.push('/dashboard');
             } else {
                 toast({
                     title: "Error",
-                    description,
+                    description: errorMessage,
                     variant: "destructive"
                 })
             }
-        })
+        });
     };
 
     // Handle social authentication
@@ -95,11 +98,12 @@ const AuthForm = ({ type }: Props) => {
         setTimeout(() => {
             toast({
                 title: `${provider} Authentication Successful`,
-                description: "Redirecting to dashboard...",
+                description: "Redirecting...",
             });
 
             setIsLoading(false);
-            router.replace('/dashboard');
+            // Use Next.js redirect instead of window.location.reload()
+            router.push('/dashboard');
         }, 1500);
     };
 
@@ -190,7 +194,7 @@ const AuthForm = ({ type }: Props) => {
                         <div className="flex-grow border-t border-gray-300"></div>
                     </div>
 
-                    <form action={handleSubmit} className="space-y-5">
+                    <form onSubmit={handleSubmit} className="space-y-5">
                         <div>
                             <label htmlFor="email" className="block text-sm font-medium text-vendle-navy mb-1">
                                 Email

@@ -31,8 +31,8 @@ export async function createClient() {
 }
 
 export async function getUser() {
-    const { auth } = await createClient();
-    const userObject = await auth.getUser();
+    const supabase = await createClient();
+    const userObject = await supabase.auth.getUser();
 
     if (userObject.error) {
         console.error(userObject.error);

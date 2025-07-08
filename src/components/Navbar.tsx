@@ -1,31 +1,38 @@
 'use client';
 
-import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
-import { createClient } from '@supabase/supabase-js';
 import { Button } from "@/components/ui/button";
 import LogOutButton from "@/components/LogOutButton";
 
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-);
-
 const Navbar = () => {
-  const [user, setUser] = useState<any>(null);
+  let user = null;
+  let isLoggedIn = false;
+  let isLoading = false;
+  let showLoginButtons = true; // Default to showing login buttons
 
-  useEffect(() => {
-    const getUser = async () => {
-      const { data: { user } } = await supabase.auth.getUser();
-      setUser(user);
-    };
-    getUser();
-  }, []);
+  try {
+    // Try to import and use the auth context
+    const { useAuth } = require("@/contexts/AuthContext");
+    const auth = useAuth();
+    user = auth.user;
+    isLoggedIn = auth.isLoggedIn;
+    isLoading = auth.isLoading;
+    
+    // Only hide login buttons if we're definitely logged in
+    if (isLoggedIn && user) {
+      showLoginButtons = false;
+    }
+    
+    console.log('Auth working - user:', user, 'isLoggedIn:', isLoggedIn, 'isLoading:', isLoading);
+  } catch (error) {
+    console.error('Auth not working, showing login buttons:', error);
+    showLoginButtons = true;
+  }
 
   const getProjectsPath = () => {
     if (!user) return "/my-projects";
-    return user?.user_metadata?.user_type === 'contractor' ? "/contractor-projects" : "/my-projects";
+    return user?.user_type === 'contractor' ? "/contractor-projects" : "/my-projects";
   };
 
   return (
@@ -42,7 +49,7 @@ const Navbar = () => {
           <Link href="/how-it-works" className="text-gray-700 hover:text-black transition-colors">How It Works</Link>
           <Link href="/reverse-auction" className="text-gray-700 hover:text-black transition-colors">Auctions</Link>
           <Link href={getProjectsPath()} className="text-gray-700 hover:text-black transition-colors">My Projects</Link>
-          {user?.user_metadata?.user_type === "contractor" && (
+          {user?.user_type === "contractor" && (
             <Link href="/reviews" className="text-gray-700 hover:text-black transition-colors">My Reviews</Link>
           )}
           {!user && (
@@ -52,7 +59,8 @@ const Navbar = () => {
         </div>
 
         <div className="flex items-center space-x-4">
-          {!user ? (
+          {showLoginButtons ? (
+            // ALWAYS show login buttons unless we're definitely logged in
             <>
               <Link href="/login">
                 <Button variant="outline" className="text-gray-600 hover:text-gray-900 border-gray-200">
@@ -60,13 +68,13 @@ const Navbar = () => {
                 </Button>
               </Link>
               <Link href="/signup">
-              <Button className="bg-[#1a365d] hover:bg-[#112240] text-white">
-  Get Started
-</Button>
-
+                <Button className="bg-[#1a365d] hover:bg-[#112240] text-white">
+                  Get Started
+                </Button>
               </Link>
             </>
           ) : (
+            // Only show logout when definitely logged in
             <LogOutButton />
           )}
         </div>

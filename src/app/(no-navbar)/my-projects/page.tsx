@@ -10,6 +10,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Building2, MapPin, Calendar, FileText, Clock, LayoutIcon, Trash2, Filter, ArrowUpDown, DollarSign, Users, Folder, CheckCircle, Archive, Plus, Upload, Download, BarChart, HelpCircle, MessageCircle, Bell, Settings, Flag, LogOut, Star, Trophy, AlertCircle } from "lucide-react";
 import { useToast } from "@/components/ui/use-toast";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useAuth } from "@/contexts/AuthContext";
 import {
     AlertDialog,
     AlertDialogAction,
@@ -75,8 +76,16 @@ interface Review {
 export default function MyProjectsPage() {
     const router = useRouter();
     const queryClient = useQueryClient();
-    const user = { user_type: "user", user_id: 1, name: "sav", email: "sav@sav.com", picture: "" };
+    const { user, isLoggedIn } = useAuth();
     const { toast } = useToast();
+    
+    // Redirect to login if not authenticated
+    useEffect(() => {
+        if (!isLoggedIn) {
+            router.push('/login');
+        }
+    }, [isLoggedIn, router]);
+
     const [loading, setLoading] = useState(false);
     const [showConfirmation, setShowConfirmation] = useState(false);
     const [selectedClaim, setSelectedClaim] = useState<Claim | null>(null);
