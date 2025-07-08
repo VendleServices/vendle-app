@@ -2,15 +2,17 @@
 
 import { useState, useEffect } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
+import Image from "next/image";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { motion } from "framer-motion";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Building2, MapPin, Calendar, FileText, Clock, LayoutIcon, Trash2, Filter, ArrowUpDown, DollarSign, Users, Folder, CheckCircle, Archive, Plus, Upload, Download, BarChart, HelpCircle, MessageCircle, Bell, Settings, Flag, LogOut, Star, Trophy, AlertCircle } from "lucide-react";
+import { Building2, MapPin, Calendar, FileText, Clock, LayoutIcon, Trash2, Filter, ArrowUpDown, DollarSign, Users, Folder, CheckCircle, Archive, Plus, Upload, Download, BarChart, HelpCircle, MessageCircle, Bell, Settings, Flag, LogOut, Star, Trophy, AlertCircle, Menu, ChevronLeft } from "lucide-react";
 import { useToast } from "@/components/ui/use-toast";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useAuth } from "@/contexts/AuthContext";
+import { Inter } from "next/font/google";
 import {
     AlertDialog,
     AlertDialogAction,
@@ -21,6 +23,8 @@ import {
     AlertDialogHeader,
     AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
+
+const inter = Inter({ subsets: ["latin"] });
 
 interface Claim {
     id: string;
@@ -103,6 +107,7 @@ export default function MyProjectsPage() {
     const [auctions, setAuctions] = useState<Auction[]>([]);
     const [auctionLoading, setAuctionLoading] = useState(false);
     const [activeSection, setActiveSection] = useState<'auctions' | 'claims' | 'reviews' | 'closed-auctions'>('auctions');
+    const [sidebarExpanded, setSidebarExpanded] = useState(true);
     
     // Set active section based on URL parameter
     useEffect(() => {
@@ -325,64 +330,86 @@ export default function MyProjectsPage() {
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -20 }}
             transition={{ duration: 0.3 }}
-            className="min-h-screen bg-gray-50"
+            className={`min-h-screen bg-gray-50 ${inter.className}`}
         >
             <div className="flex">
                 {/* Sidebar */}
-                <div className="w-72 bg-[#1a365d] min-h-screen">
-                    <div className="sticky top-0 p-6">
-                        <Button
-                            variant="ghost"
-                            className="w-full justify-start text-3xl font-semibold text-white mb-6 hover:bg-transparent hover:text-white"
-                            onClick={() => router.push("/")}
-                        >
-                            Vendle
-                        </Button>
+                <div className={`${sidebarExpanded ? 'w-72' : 'w-16'} bg-[#0f172a] min-h-screen transition-all duration-300 ease-in-out`}>
+                    <div className={`sticky top-0 ${sidebarExpanded ? 'p-6' : 'p-3'}`}>
+                        {/* Toggle Button */}
+                        <div className="flex items-center justify-between mb-6">
+                            <Button
+                                variant="ghost"
+                                className={`${sidebarExpanded ? 'justify-start' : 'justify-center'} hover:bg-transparent hover:text-white transition-all duration-200 p-2 flex-shrink-0`}
+                                onClick={() => router.push("/")}
+                            >
+                                <div className={`${sidebarExpanded ? 'w-auto' : 'w-8'} flex justify-center`}>
+                                    <Image
+                                        src="/vendle_logo.jpg"
+                                        alt="Logo"
+                                        width={sidebarExpanded ? 120 : 32}
+                                        height={sidebarExpanded ? 40 : 32}
+                                        className={`${sidebarExpanded ? 'h-8 w-auto' : 'h-8 w-8 object-contain'}`}
+                                        priority
+                                    />
+                                </div>
+                            </Button>
+                            <Button
+                                variant="ghost"
+                                size="icon"
+                                className="text-white hover:bg-[#1e293b] hover:text-white flex-shrink-0"
+                                onClick={() => setSidebarExpanded(!sidebarExpanded)}
+                            >
+                                {sidebarExpanded ? <ChevronLeft className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
+                            </Button>
+                        </div>
                         {/* Quick Stats */}
-                        <div className="mb-6 p-4 bg-[#2c5282] rounded-lg">
-                            <h3 className="text-white text-sm font-medium mb-2">Quick Stats</h3>
-                            <div className="space-y-2">
-                                <div className="flex justify-between text-white text-sm">
-                                    <span>Active Claims</span>
-                                    <span>{claims.filter((c: Claim) => c.id === 'in-progress').length}</span>
-                                </div>
-                                <div className="flex justify-between text-white text-sm">
-                                    <span>Active Auctions</span>
-                                    <span>{auctions.length}</span>
-                                </div>
-                                <div className="flex justify-between text-white text-sm">
-                                    <span>Completed</span>
-                                    <span>{claims.filter((c: Claim)=> c.id === 'completed').length}</span>
+                        {sidebarExpanded && (
+                            <div className="mb-6 p-4 bg-[#1e293b] rounded-lg">
+                                <h3 className="text-white text-sm font-medium mb-2">Quick Stats</h3>
+                                <div className="space-y-2">
+                                    <div className="flex justify-between text-white text-sm">
+                                        <span>Active Claims</span>
+                                        <span>{claims.filter((c: Claim) => c.id === 'in-progress').length}</span>
+                                    </div>
+                                    <div className="flex justify-between text-white text-sm">
+                                        <span>Active Auctions</span>
+                                        <span>{auctions.length}</span>
+                                    </div>
+                                    <div className="flex justify-between text-white text-sm">
+                                        <span>Completed</span>
+                                        <span>{claims.filter((c: Claim)=> c.id === 'completed').length}</span>
+                                    </div>
                                 </div>
                             </div>
-                        </div>
+                        )}
 
                         <div className="space-y-1 mb-32">
                             {/* Main Navigation */}
                             <Button
                                 variant="ghost"
-                                className={`w-full justify-start h-12 text-base ${
+                                className={`w-full ${sidebarExpanded ? 'justify-start' : 'justify-center'} h-12 text-base ${
                                     activeSection === 'auctions' 
-                                        ? 'bg-[#2c5282] text-white hover:bg-[#2c5282]' 
-                                        : 'text-gray-200 hover:bg-[#2c5282] hover:text-white'
+                                        ? 'bg-[#1e293b] text-white hover:bg-[#1e293b]' 
+                                        : 'text-gray-200 hover:bg-[#1e293b] hover:text-white'
                                 }`}
                                 onClick={() => setActiveSection('auctions')}
                             >
-                                <Users className="w-5 h-5 mr-3" />
-                                Active Auctions
+                                <Users className={`w-5 h-5 ${sidebarExpanded ? 'mr-3' : ''}`} />
+                                {sidebarExpanded && "Active Auctions"}
                             </Button>
 
                             <Button
                                 variant="ghost"
-                                className={`w-full justify-start h-12 text-base ${
+                                className={`w-full ${sidebarExpanded ? 'justify-start' : 'justify-center'} h-12 text-base ${
                                     activeSection === 'closed-auctions' 
-                                        ? 'bg-[#2c5282] text-white hover:bg-[#2c5282]' 
-                                        : 'text-gray-200 hover:bg-[#2c5282] hover:text-white'
+                                        ? 'bg-[#1e293b] text-white hover:bg-[#1e293b]' 
+                                        : 'text-gray-200 hover:bg-[#1e293b] hover:text-white'
                                 }`}
                                 onClick={() => setActiveSection('closed-auctions')}
                             >
-                                <Archive className="w-5 h-5 mr-3" />
-                                Closed Auctions
+                                <Archive className={`w-5 h-5 ${sidebarExpanded ? 'mr-3' : ''}`} />
+                                {sidebarExpanded && "Closed Auctions"}
                             </Button>
 
                             {(() => {
@@ -394,192 +421,198 @@ export default function MyProjectsPage() {
                                 return user?.user_type === "contractor" && (
                                     <Button
                                         variant="ghost"
-                                        className={`w-full justify-start h-12 text-base ${
+                                        className={`w-full ${sidebarExpanded ? 'justify-start' : 'justify-center'} h-12 text-base ${
                                             activeSection === 'reviews' 
-                                                ? 'bg-[#2c5282] text-white hover:bg-[#2c5282]' 
-                                                : 'text-gray-200 hover:bg-[#2c5282] hover:text-white'
+                                                ? 'bg-[#1e293b] text-white hover:bg-[#1e293b]' 
+                                                : 'text-gray-200 hover:bg-[#1e293b] hover:text-white'
                                         }`}
                                         onClick={() => setActiveSection('reviews')}
                                     >
-                                        <Star className="w-5 h-5 mr-3" />
-                                        My Reviews
+                                        <Star className={`w-5 h-5 ${sidebarExpanded ? 'mr-3' : ''}`} />
+                                        {sidebarExpanded && "My Reviews"}
                                     </Button>
                                 );
                             })()}
 
                             <Button
                                 variant="ghost"
-                                className={`w-full justify-start h-12 text-base ${
+                                className={`w-full ${sidebarExpanded ? 'justify-start' : 'justify-center'} h-12 text-base ${
                                     activeSection === 'claims' 
-                                        ? 'bg-[#2c5282] text-white hover:bg-[#2c5282]' 
-                                        : 'text-gray-200 hover:bg-[#2c5282] hover:text-white'
+                                        ? 'bg-[#1e293b] text-white hover:bg-[#1e293b]' 
+                                        : 'text-gray-200 hover:bg-[#1e293b] hover:text-white'
                                 }`}
                                 onClick={() => setActiveSection('claims')}
                             >
-                                <FileText className="w-5 h-5 mr-3" />
-                                Claims
+                                <FileText className={`w-5 h-5 ${sidebarExpanded ? 'mr-3' : ''}`} />
+                                {sidebarExpanded && "Claims"}
                             </Button>
+
+
 
                             {/* Project Categories */}
                             <div className="pt-4">
-                                <h4 className="text-gray-400 text-xs font-semibold px-4 mb-2">PROJECT CATEGORIES</h4>
+                                {sidebarExpanded && <h4 className="text-gray-400 text-xs font-semibold px-4 mb-2">PROJECT CATEGORIES</h4>}
                                 <Button
                                     variant="ghost"
-                                    className="w-full justify-start h-10 text-sm text-gray-200 hover:bg-[#2c5282] hover:text-white"
+                                    className={`w-full ${sidebarExpanded ? 'justify-start' : 'justify-center'} h-10 text-sm text-gray-200 hover:bg-[#1e293b] hover:text-white`}
                                 >
-                                    <Folder className="w-4 h-4 mr-3" />
-                                    Active Projects
+                                    <Folder className={`w-4 h-4 ${sidebarExpanded ? 'mr-3' : ''}`} />
+                                    {sidebarExpanded && "Active Projects"}
                                 </Button>
                                 <Button
                                     variant="ghost"
-                                    className="w-full justify-start h-10 text-sm text-gray-200 hover:bg-[#2c5282] hover:text-white"
+                                    className={`w-full ${sidebarExpanded ? 'justify-start' : 'justify-center'} h-10 text-sm text-gray-200 hover:bg-[#1e293b] hover:text-white`}
                                 >
-                                    <CheckCircle className="w-4 h-4 mr-3" />
-                                    Completed Projects
+                                    <CheckCircle className={`w-4 h-4 ${sidebarExpanded ? 'mr-3' : ''}`} />
+                                    {sidebarExpanded && "Completed Projects"}
                                 </Button>
                                 <Button
                                     variant="ghost"
-                                    className="w-full justify-start h-10 text-sm text-gray-200 hover:bg-[#2c5282] hover:text-white"
+                                    className={`w-full ${sidebarExpanded ? 'justify-start' : 'justify-center'} h-10 text-sm text-gray-200 hover:bg-[#1e293b] hover:text-white`}
                                 >
-                                    <Archive className="w-4 h-4 mr-3" />
-                                    Archived Projects
+                                    <Archive className={`w-4 h-4 ${sidebarExpanded ? 'mr-3' : ''}`} />
+                                    {sidebarExpanded && "Archived Projects"}
                                 </Button>
                             </div>
 
                             {/* Quick Actions */}
                             <div className="pt-4">
-                                <h4 className="text-gray-400 text-xs font-semibold px-4 mb-2">QUICK ACTIONS</h4>
+                                {sidebarExpanded && <h4 className="text-gray-400 text-xs font-semibold px-4 mb-2">QUICK ACTIONS</h4>}
                                 <Button
                                     variant="ghost"
-                                    className="w-full justify-start h-10 text-sm text-gray-200 hover:bg-[#2c5282] hover:text-white"
+                                    className={`w-full ${sidebarExpanded ? 'justify-start' : 'justify-center'} h-10 text-sm text-gray-200 hover:bg-[#1e293b] hover:text-white`}
                                     onClick={() => router.push("/start-claim")}
                                 >
-                                    <Plus className="w-4 h-4 mr-3" />
-                                    Create New Claim
+                                    <Plus className={`w-4 h-4 ${sidebarExpanded ? 'mr-3' : ''}`} />
+                                    {sidebarExpanded && "Create New Claim"}
                                 </Button>
                                 <Button
                                     variant="ghost"
-                                    className="w-full justify-start h-10 text-sm text-gray-200 hover:bg-[#2c5282] hover:text-white"
+                                    className={`w-full ${sidebarExpanded ? 'justify-start' : 'justify-center'} h-10 text-sm text-gray-200 hover:bg-[#1e293b] hover:text-white`}
                                 >
-                                    <Upload className="w-4 h-4 mr-3" />
-                                    Import Projects
+                                    <Upload className={`w-4 h-4 ${sidebarExpanded ? 'mr-3' : ''}`} />
+                                    {sidebarExpanded && "Import Projects"}
                                 </Button>
                                 <Button
                                     variant="ghost"
-                                    className="w-full justify-start h-10 text-sm text-gray-200 hover:bg-[#2c5282] hover:text-white"
+                                    className={`w-full ${sidebarExpanded ? 'justify-start' : 'justify-center'} h-10 text-sm text-gray-200 hover:bg-[#1e293b] hover:text-white`}
                                 >
-                                    <Download className="w-4 h-4 mr-3" />
-                                    Export Projects
+                                    <Download className={`w-4 h-4 ${sidebarExpanded ? 'mr-3' : ''}`} />
+                                    {sidebarExpanded && "Export Projects"}
                                 </Button>
                             </div>
 
                             {/* Reports & Analytics */}
                             <div className="pt-4">
-                                <h4 className="text-gray-400 text-xs font-semibold px-4 mb-2">REPORTS & ANALYTICS</h4>
+                                {sidebarExpanded && <h4 className="text-gray-400 text-xs font-semibold px-4 mb-2">REPORTS & ANALYTICS</h4>}
                                 <Button
                                     variant="ghost"
-                                    className="w-full justify-start h-10 text-sm text-gray-200 hover:bg-[#2c5282] hover:text-white"
+                                    className={`w-full ${sidebarExpanded ? 'justify-start' : 'justify-center'} h-10 text-sm text-gray-200 hover:bg-[#1e293b] hover:text-white`}
                                 >
-                                    <BarChart className="w-4 h-4 mr-3" />
-                                    Project Statistics
+                                    <BarChart className={`w-4 h-4 ${sidebarExpanded ? 'mr-3' : ''}`} />
+                                    {sidebarExpanded && "Project Statistics"}
                                 </Button>
                                 <Button
                                     variant="ghost"
-                                    className="w-full justify-start h-10 text-sm text-gray-200 hover:bg-[#2c5282] hover:text-white"
+                                    className={`w-full ${sidebarExpanded ? 'justify-start' : 'justify-center'} h-10 text-sm text-gray-200 hover:bg-[#1e293b] hover:text-white`}
                                 >
-                                    <DollarSign className="w-4 h-4 mr-3" />
-                                    Financial Overview
+                                    <DollarSign className={`w-4 h-4 ${sidebarExpanded ? 'mr-3' : ''}`} />
+                                    {sidebarExpanded && "Financial Overview"}
                                 </Button>
                             </div>
 
                             {/* Calendar & Timeline */}
                             <div className="pt-4">
-                                <h4 className="text-gray-400 text-xs font-semibold px-4 mb-2">CALENDAR & TIMELINE</h4>
+                                {sidebarExpanded && <h4 className="text-gray-400 text-xs font-semibold px-4 mb-2">CALENDAR & TIMELINE</h4>}
                                 <Button
                                     variant="ghost"
-                                    className="w-full justify-start h-10 text-sm text-gray-200 hover:bg-[#2c5282] hover:text-white"
+                                    className={`w-full ${sidebarExpanded ? 'justify-start' : 'justify-center'} h-10 text-sm text-gray-200 hover:bg-[#1e293b] hover:text-white`}
                                 >
-                                    <Calendar className="w-4 h-4 mr-3" />
-                                    Project Timeline
+                                    <Calendar className={`w-4 h-4 ${sidebarExpanded ? 'mr-3' : ''}`} />
+                                    {sidebarExpanded && "Project Timeline"}
                                 </Button>
                                 <Button
                                     variant="ghost"
-                                    className="w-full justify-start h-10 text-sm text-gray-200 hover:bg-[#2c5282] hover:text-white"
+                                    className={`w-full ${sidebarExpanded ? 'justify-start' : 'justify-center'} h-10 text-sm text-gray-200 hover:bg-[#1e293b] hover:text-white`}
                                 >
-                                    <Flag className="w-4 h-4 mr-3" />
-                                    Milestones
+                                    <Flag className={`w-4 h-4 ${sidebarExpanded ? 'mr-3' : ''}`} />
+                                    {sidebarExpanded && "Milestones"}
                                 </Button>
                             </div>
 
                             {/* Help & Support */}
                             <div className="pt-4">
-                                <h4 className="text-gray-400 text-xs font-semibold px-4 mb-2">HELP & SUPPORT</h4>
+                                {sidebarExpanded && <h4 className="text-gray-400 text-xs font-semibold px-4 mb-2">HELP & SUPPORT</h4>}
                                 <Button
                                     variant="ghost"
-                                    className="w-full justify-start h-10 text-sm text-gray-200 hover:bg-[#2c5282] hover:text-white"
+                                    className={`w-full ${sidebarExpanded ? 'justify-start' : 'justify-center'} h-10 text-sm text-gray-200 hover:bg-[#1e293b] hover:text-white`}
                                 >
-                                    <HelpCircle className="w-4 h-4 mr-3" />
-                                    Documentation
+                                    <HelpCircle className={`w-4 h-4 ${sidebarExpanded ? 'mr-3' : ''}`} />
+                                    {sidebarExpanded && "Documentation"}
                                 </Button>
                                 <Button
                                     variant="ghost"
-                                    className="w-full justify-start h-10 text-sm text-gray-200 hover:bg-[#2c5282] hover:text-white"
+                                    className={`w-full ${sidebarExpanded ? 'justify-start' : 'justify-center'} h-10 text-sm text-gray-200 hover:bg-[#1e293b] hover:text-white`}
                                 >
-                                    <MessageCircle className="w-4 h-4 mr-3" />
-                                    Contact Support
+                                    <MessageCircle className={`w-4 h-4 ${sidebarExpanded ? 'mr-3' : ''}`} />
+                                    {sidebarExpanded && "Contact Support"}
                                 </Button>
                             </div>
 
                             {/* Settings */}
                             <div className="pt-4">
-                                <h4 className="text-gray-400 text-xs font-semibold px-4 mb-2">SETTINGS</h4>
+                                {sidebarExpanded && <h4 className="text-gray-400 text-xs font-semibold px-4 mb-2">SETTINGS</h4>}
                                 <Button
                                     variant="ghost"
-                                    className="w-full justify-start h-10 text-sm text-gray-200 hover:bg-[#2c5282] hover:text-white"
+                                    className={`w-full ${sidebarExpanded ? 'justify-start' : 'justify-center'} h-10 text-sm text-gray-200 hover:bg-[#1e293b] hover:text-white`}
                                 >
-                                    <Bell className="w-4 h-4 mr-3" />
-                                    Notifications
+                                    <Bell className={`w-4 h-4 ${sidebarExpanded ? 'mr-3' : ''}`} />
+                                    {sidebarExpanded && "Notifications"}
                                 </Button>
                                 <Button
                                     variant="ghost"
-                                    className="w-full justify-start h-10 text-sm text-gray-200 hover:bg-[#2c5282] hover:text-white"
+                                    className={`w-full ${sidebarExpanded ? 'justify-start' : 'justify-center'} h-10 text-sm text-gray-200 hover:bg-[#1e293b] hover:text-white`}
                                 >
-                                    <Settings className="w-4 h-4 mr-3" />
-                                    Preferences
+                                    <Settings className={`w-4 h-4 ${sidebarExpanded ? 'mr-3' : ''}`} />
+                                    {sidebarExpanded && "Preferences"}
                                 </Button>
                             </div>
                         </div>
 
                         {/* User Profile Section */}
-                        <div className="absolute bottom-0 left-0 right-0 p-4 border-t border-[#2c5282] bg-[#1a365d]">
-                            <div className="flex items-center space-x-3">
+                        <div className="absolute bottom-0 left-0 right-0 p-4 border-t border-[#1e293b] bg-[#0f172a]">
+                            <div className={`flex items-center ${sidebarExpanded ? 'space-x-3' : 'justify-center'}`}>
                                 <Avatar>
                                     <AvatarImage src={user?.picture || ""} />
                                     <AvatarFallback>
                                         {(user?.name?.charAt(0) || "U").toUpperCase()}
                                     </AvatarFallback>
                                 </Avatar>
-                                <div className="flex-1 min-w-0">
-                                    <p className="text-sm font-medium text-white truncate">
-                                        {user?.name || user?.email || "User"}
-                                    </p>
-                                    <p className="text-xs text-gray-400 truncate">
-                                        {user?.email || ""}
-                                    </p>
-                                </div>
-                                <Button
-                                    variant="ghost"
-                                    size="icon"
-                                    className="text-gray-400 hover:text-white hover:bg-[#2c5282]"
-                                    onClick={() => {
-                                        // Clear user data and navigate to home
-                                        localStorage.removeItem('user');
-                                        localStorage.removeItem('isAuthenticated');
-                                        router.push("/");
-                                    }}
-                                >
-                                    <LogOut className="w-4 h-4" />
-                                </Button>
+                                {sidebarExpanded && (
+                                    <>
+                                        <div className="flex-1 min-w-0">
+                                            <p className="text-sm font-medium text-white truncate">
+                                                {user?.name || user?.email || "User"}
+                                            </p>
+                                            <p className="text-xs text-gray-400 truncate">
+                                                {user?.email || ""}
+                                            </p>
+                                        </div>
+                                        <Button
+                                            variant="ghost"
+                                            size="icon"
+                                            className="text-gray-400 hover:text-white hover:bg-[#1e293b]"
+                                            onClick={() => {
+                                                // Clear user data and navigate to home
+                                                localStorage.removeItem('user');
+                                                localStorage.removeItem('isAuthenticated');
+                                                router.push("/");
+                                            }}
+                                        >
+                                            <LogOut className="w-4 h-4" />
+                                        </Button>
+                                    </>
+                                )}
                             </div>
                         </div>
                     </div>
@@ -599,7 +632,7 @@ export default function MyProjectsPage() {
                             </div>
                             <Button
                                 onClick={() => router.push("/start-claim")}
-                                className="bg-[#1a365d] hover:bg-[#2c5282] text-white h-10 px-6"
+                                className="bg-[#0f172a] hover:bg-[#1e293b] text-white h-10 px-6"
                             >
                                 Start New Claim
                             </Button>
@@ -610,7 +643,7 @@ export default function MyProjectsPage() {
                                 <CardContent className="p-6">
                                     {auctionLoading ? (
                                         <div className="flex justify-center items-center h-64">
-                                            <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-[#1a365d]"></div>
+                                            <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-[#0f172a]"></div>
                                         </div>
                                     ) : auctions.length === 0 ? (
                                         <div className="text-center py-12">
@@ -676,7 +709,7 @@ export default function MyProjectsPage() {
                                 <CardContent className="p-6">
                                     {closedAuctionLoading ? (
                                         <div className="flex justify-center items-center h-64">
-                                            <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-[#1a365d]"></div>
+                                            <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-[#0f172a]"></div>
                                         </div>
                                     ) : closedAuctions.length === 0 ? (
                                         <div className="text-center py-12">
@@ -755,7 +788,7 @@ export default function MyProjectsPage() {
                                 <CardContent className="p-6">
                                     {isLoading ? (
                                         <div className="flex justify-center items-center h-64">
-                                            <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-[#1a365d]"></div>
+                                            <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-[#0f172a]"></div>
                                         </div>
                                     ) : claims.length === 0 ? (
                                         <div className="text-center py-12">
@@ -764,7 +797,7 @@ export default function MyProjectsPage() {
                                             <p className="text-gray-500 mb-4">You haven't filed any claims yet.</p>
                                             <Button
                                                 onClick={() => router.push("/start-claim")}
-                                                className="bg-[#1a365d] hover:bg-[#2c5282] text-white"
+                                                className="bg-[#0f172a] hover:bg-[#1e293b] text-white"
                                             >
                                                 Start New Claim
                                             </Button>
@@ -820,7 +853,7 @@ export default function MyProjectsPage() {
                                                                 <Button
                                                                     variant="default"
                                                                     onClick={() => router.push(`/start-claim/create-restor?claimId=${parseInt(claim.id)}`)}
-                                                                    className="bg-[#1a365d] hover:bg-[#2c5282] text-white"
+                                                                    className="bg-[#0f172a] hover:bg-[#1e293b] text-white"
                                                                 >
                                                                     Create Restoration
                                                                 </Button>
