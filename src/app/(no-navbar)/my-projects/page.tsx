@@ -8,7 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { motion } from "framer-motion";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Building2, MapPin, Calendar, FileText, Clock, LayoutIcon, Trash2, Filter, ArrowUpDown, DollarSign, Users, Folder, CheckCircle, Archive, Plus, Upload, Download, BarChart, HelpCircle, MessageCircle, Bell, Settings, Flag, LogOut, Star, Trophy, AlertCircle, Menu, ChevronLeft } from "lucide-react";
+import { Building2, MapPin, Calendar, FileText, Clock, LayoutIcon, Trash2, Filter, ArrowUpDown, DollarSign, Users, Folder, CheckCircle, Archive, Plus, Upload, Download, BarChart, HelpCircle, MessageCircle, Bell, Settings, Flag, LogOut, Star, Trophy, AlertCircle, Menu, ChevronLeft, Wrench } from "lucide-react";
 import { useToast } from "@/components/ui/use-toast";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useAuth } from "@/contexts/AuthContext";
@@ -54,6 +54,18 @@ interface Auction {
     design_plan: string;
     title: string;
     winning_bidder?: string;
+    // New restoration workflow fields
+    total_job_value?: number;
+    overhead_and_profit?: number;
+    cost_basis?: string;
+    materials?: number;
+    sales_taxes?: number;
+    depreciation?: number;
+    reconstruction_type?: string;
+    needs_3rd_party_adjuster?: boolean;
+    has_deductible_funds?: boolean;
+    funding_source?: string;
+    description?: string;
 }
 
 interface UserProfile {
@@ -127,6 +139,43 @@ export default function MyProjectsPage() {
         }
     }
 
+    const fetchAuctions = async () => {
+        setAuctionLoading(true);
+        try {
+            const response = await fetch('/api/auctions');
+            if (!response.ok) {
+                throw new Error('Failed to fetch auctions');
+            }
+            const data = await response.json();
+            console.log('Fetched auctions:', data);
+            
+            // Filter for active auctions (status is 'open' and end date is in the future)
+            const activeAuctions = data.filter((auction: Auction) => {
+                const endDate = new Date(auction.end_date);
+                return auction.status === 'open' && endDate > new Date();
+            });
+            
+            // Filter for closed auctions 
+            const closedAuctions = data.filter((auction: Auction) => {
+                const endDate = new Date(auction.end_date);
+                return auction.status === 'closed' || endDate <= new Date();
+            });
+            
+            setAuctions(activeAuctions);
+            setClosedAuctions(closedAuctions);
+        } catch (error) {
+            console.error('Error fetching auctions:', error);
+            toast({
+                title: "Error",
+                description: "Failed to load auctions. Please try again later.",
+                variant: "destructive",
+            });
+        } finally {
+            setAuctionLoading(false);
+            setClosedAuctionLoading(false);
+        }
+    }
+
     // All useQuery and useMutation hooks
     const {  data: claims = [], isLoading, isError, error } = useQuery({
         queryKey: ["getClaims"],
@@ -150,6 +199,30 @@ export default function MyProjectsPage() {
             setActiveSection(tab as 'auctions' | 'claims' | 'reviews' | 'closed-auctions');
         }
     }, [searchParams]);
+
+    // Fetch auctions when component mounts or when switching to auction tabs
+    useEffect(() => {
+        if (isLoggedIn && !authLoading && (activeSection === 'auctions' || activeSection === 'closed-auctions')) {
+            fetchAuctions();
+        }
+    }, [isLoggedIn, authLoading, activeSection]);
+
+    // Refresh auctions when coming back from creating a restoration job
+    useEffect(() => {
+        const handleStorageChange = () => {
+            if (activeSection === 'auctions' || activeSection === 'closed-auctions') {
+                fetchAuctions();
+            }
+        };
+
+        window.addEventListener('storage', handleStorageChange);
+        window.addEventListener('focus', handleStorageChange);
+
+        return () => {
+            window.removeEventListener('storage', handleStorageChange);
+            window.removeEventListener('focus', handleStorageChange);
+        };
+    }, [activeSection]);
 
     // Redirect to login if not authenticated (but wait for loading to complete)
     useEffect(() => {
@@ -680,28 +753,67 @@ export default function MyProjectsPage() {
                                                             </Badge>
                                                         </div>
 
-                                                        <div className="grid grid-cols-2 gap-4 mb-4">
-                                                            <div className="space-y-2">
-                                                                <div className="flex items-center text-sm">
-                                                                    <DollarSign className="w-4 h-4 mr-2 text-gray-500" />
-                                                                    <span className="text-gray-600">Starting Bid: <span className="font-medium">${auction.starting_bid.toFixed(2)}</span></span>
-                                                                </div>
-                                                                <div className="flex items-center text-sm">
-                                                                    <DollarSign className="w-4 h-4 mr-2 text-gray-500" />
-                                                                    <span className="text-gray-600">Current Bid: <span className="font-medium">${auction.current_bid.toFixed(2)}</span></span>
-                                                                </div>
-                                                            </div>
-                                                            <div className="space-y-2">
-                                                                <div className="flex items-center text-sm">
-                                                                    <Users className="w-4 h-4 mr-2 text-gray-500" />
-                                                                    <span className="text-gray-600">{auction.bid_count} bids</span>
-                                                                </div>
-                                                                <div className="flex items-center text-sm">
-                                                                    <Clock className="w-4 h-4 mr-2 text-gray-500" />
-                                                                    <span className="text-gray-600">Ends: {new Date(auction.end_date).toLocaleDateString()}</span>
-                                                                </div>
-                                                            </div>
-                                                        </div>
+                                                                                                {/* Teaser Information for Contractors */}
+                                        <div className="bg-blue-50 p-4 rounded-lg mb-4">
+                                            <h4 className="font-medium text-blue-900 mb-3">Job Details for Contractors</h4>
+                                            <div className="grid grid-cols-2 gap-4">
+                                                <div className="space-y-2">
+                                                    <div className="flex items-center text-sm">
+                                                        <DollarSign className="w-4 h-4 mr-2 text-blue-600" />
+                                                        <span className="text-blue-800">Total Job Value: <span className="font-semibold">${auction.total_job_value?.toFixed(2) || auction.starting_bid.toFixed(2)}</span></span>
+                                                    </div>
+                                                    <div className="flex items-center text-sm">
+                                                        <DollarSign className="w-4 h-4 mr-2 text-blue-600" />
+                                                        <span className="text-blue-800">O&P: <span className="font-semibold">${auction.overhead_and_profit?.toFixed(2) || 'N/A'}</span></span>
+                                                    </div>
+                                                </div>
+                                                <div className="space-y-2">
+                                                    <div className="flex items-center text-sm">
+                                                        <MapPin className="w-4 h-4 mr-2 text-blue-600" />
+                                                        <span className="text-blue-800">Area: <span className="font-semibold">{auction.property_address || 'Address not specified'}</span></span>
+                                                    </div>
+                                                    <div className="flex items-center text-sm">
+                                                        <Wrench className="w-4 h-4 mr-2 text-blue-600" />
+                                                        <span className="text-blue-800">Type: <span className="font-semibold">{auction.reconstruction_type || auction.project_type || 'General Restoration'}</span></span>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        {/* Additional Information */}
+                                        <div className="grid grid-cols-2 gap-4 mb-4">
+                                            <div className="space-y-2">
+                                                <div className="flex items-center text-sm">
+                                                    <DollarSign className="w-4 h-4 mr-2 text-gray-500" />
+                                                    <span className="text-gray-600">Current Bid: <span className="font-medium">${auction.current_bid.toFixed(2)}</span></span>
+                                                </div>
+                                                <div className="flex items-center text-sm">
+                                                    <Users className="w-4 h-4 mr-2 text-gray-500" />
+                                                    <span className="text-gray-600">{auction.bid_count} bids</span>
+                                                </div>
+                                            </div>
+                                            <div className="space-y-2">
+                                                <div className="flex items-center text-sm">
+                                                    <Clock className="w-4 h-4 mr-2 text-gray-500" />
+                                                    <span className="text-gray-600">Ends: {new Date(auction.end_date).toLocaleDateString()}</span>
+                                                </div>
+                                                {auction.cost_basis && (
+                                                    <div className="flex items-center text-sm">
+                                                        <FileText className="w-4 h-4 mr-2 text-gray-500" />
+                                                        <span className="text-gray-600">Basis: <span className="font-medium">{auction.cost_basis}</span></span>
+                                                    </div>
+                                                )}
+                                            </div>
+                                        </div>
+
+                                        {/* Description if available */}
+                                        {auction.description && (
+                                            <div className="mb-4">
+                                                <p className="text-sm text-gray-600 bg-gray-50 p-3 rounded-lg">
+                                                    {auction.description}
+                                                </p>
+                                            </div>
+                                        )}
 
                                                         <div className="flex justify-end space-x-3">
                                                             <Button

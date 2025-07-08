@@ -54,3 +54,42 @@ CREATE TRIGGER update_bids_updated_at
     BEFORE UPDATE ON bids
     FOR EACH ROW
     EXECUTE FUNCTION update_updated_at_column(); 
+
+-- Migration script to add restoration workflow fields to auctions table
+-- Run this to update existing database
+
+-- Add new columns to auctions table
+ALTER TABLE auctions ADD COLUMN IF NOT EXISTS claim_id VARCHAR(255);
+ALTER TABLE auctions ADD COLUMN IF NOT EXISTS total_job_value DECIMAL(10,2);
+ALTER TABLE auctions ADD COLUMN IF NOT EXISTS overhead_and_profit DECIMAL(10,2);
+ALTER TABLE auctions ADD COLUMN IF NOT EXISTS cost_basis VARCHAR(10);
+ALTER TABLE auctions ADD COLUMN IF NOT EXISTS materials DECIMAL(10,2);
+ALTER TABLE auctions ADD COLUMN IF NOT EXISTS sales_taxes DECIMAL(10,2);
+ALTER TABLE auctions ADD COLUMN IF NOT EXISTS depreciation DECIMAL(10,2);
+ALTER TABLE auctions ADD COLUMN IF NOT EXISTS reconstruction_type VARCHAR(255);
+ALTER TABLE auctions ADD COLUMN IF NOT EXISTS needs_3rd_party_adjuster BOOLEAN DEFAULT FALSE;
+ALTER TABLE auctions ADD COLUMN IF NOT EXISTS has_deductible_funds BOOLEAN DEFAULT FALSE;
+ALTER TABLE auctions ADD COLUMN IF NOT EXISTS funding_source VARCHAR(50);
+ALTER TABLE auctions ADD COLUMN IF NOT EXISTS scope_of_work JSONB;
+ALTER TABLE auctions ADD COLUMN IF NOT EXISTS photos JSONB;
+
+-- Rename end_date to auction_end_date if it exists
+DO $$ 
+BEGIN
+    IF EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name = 'auctions' AND column_name = 'end_date') THEN
+        ALTER TABLE auctions RENAME COLUMN end_date TO auction_end_date;
+    END IF;
+END $$;
+
+-- Add indexes for better performance
+CREATE INDEX IF NOT EXISTS idx_auctions_claim_id ON auctions(claim_id);
+CREATE INDEX IF NOT EXISTS idx_auctions_status ON auctions(status);
+CREATE INDEX IF NOT EXISTS idx_auctions_end_date ON auctions(auction_end_date);
+CREATE INDEX IF NOT EXISTS idx_bids_auction_id ON bids(auction_id);
+CREATE INDEX IF NOT EXISTS idx_bids_contractor_id ON bids(contractor_id);
+
+-- Update any existing records to have default values
+UPDATE auctions SET 
+    needs_3rd_party_adjuster = FALSE,
+    has_deductible_funds = FALSE
+WHERE needs_3rd_party_adjuster IS NULL OR has_deductible_funds IS NULL; 
