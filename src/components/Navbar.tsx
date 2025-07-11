@@ -1,31 +1,20 @@
 'use client';
 
-import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
-import { createClient } from '@supabase/supabase-js';
 import { Button } from "@/components/ui/button";
 import LogOutButton from "@/components/LogOutButton";
-
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-);
+import { useAuth } from "@/contexts/AuthContext";
 
 const Navbar = () => {
-  const [user, setUser] = useState<any>(null);
-
-  useEffect(() => {
-    const getUser = async () => {
-      const { data: { user } } = await supabase.auth.getUser();
-      setUser(user);
-    };
-    getUser();
-  }, []);
+  const { user, isLoggedIn, isLoading } = useAuth();
+  
+  // Show login buttons if user is not logged in or still loading
+  const showLoginButtons = !isLoggedIn || isLoading;
 
   const getProjectsPath = () => {
     if (!user) return "/my-projects";
-    return user?.user_metadata?.user_type === 'contractor' ? "/contractor-projects" : "/my-projects";
+    return user?.user_type === 'contractor' ? "/contractor-projects" : "/my-projects";
   };
 
   return (
@@ -39,10 +28,9 @@ const Navbar = () => {
         <div className="hidden md:flex items-center space-x-8">
           <Link href="/" className="text-gray-700 hover:text-black transition-colors">Home</Link>
           <Link href="/about" className="text-gray-700 hover:text-black transition-colors">About Us</Link>
-          <Link href="/how-it-works" className="text-gray-700 hover:text-black transition-colors">How It Works</Link>
           <Link href="/reverse-auction" className="text-gray-700 hover:text-black transition-colors">Auctions</Link>
           <Link href={getProjectsPath()} className="text-gray-700 hover:text-black transition-colors">My Projects</Link>
-          {user?.user_metadata?.user_type === "contractor" && (
+          {user?.user_type === "contractor" && (
             <Link href="/reviews" className="text-gray-700 hover:text-black transition-colors">My Reviews</Link>
           )}
           {!user && (
@@ -52,7 +40,8 @@ const Navbar = () => {
         </div>
 
         <div className="flex items-center space-x-4">
-          {!user ? (
+          {showLoginButtons ? (
+            // ALWAYS show login buttons unless we're definitely logged in
             <>
               <Link href="/login">
                 <Button variant="outline" className="text-gray-600 hover:text-gray-900 border-gray-200">
@@ -60,13 +49,13 @@ const Navbar = () => {
                 </Button>
               </Link>
               <Link href="/signup">
-              <Button className="bg-[#1a365d] hover:bg-[#112240] text-white">
-  Get Started
-</Button>
-
+                <Button className="bg-[#1a365d] hover:bg-[#112240] text-white">
+                  Get Started
+                </Button>
               </Link>
             </>
           ) : (
+            // Only show logout when definitely logged in
             <LogOutButton />
           )}
         </div>

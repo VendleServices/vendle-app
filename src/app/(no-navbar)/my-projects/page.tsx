@@ -1,15 +1,18 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
+import Image from "next/image";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { motion } from "framer-motion";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Building2, MapPin, Calendar, FileText, Clock, LayoutIcon, Trash2, Filter, ArrowUpDown, DollarSign, Users, Folder, CheckCircle, Archive, Plus, Upload, Download, BarChart, HelpCircle, MessageCircle, Bell, Settings, Flag, LogOut, Star, Trophy, AlertCircle } from "lucide-react";
+import { Building2, MapPin, Calendar, FileText, Clock, LayoutIcon, Trash2, Filter, ArrowUpDown, DollarSign, Users, Folder, CheckCircle, Archive, Plus, Upload, Download, BarChart, HelpCircle, MessageCircle, Bell, Settings, Flag, LogOut, Star, Trophy, AlertCircle, Menu, ChevronLeft, Wrench } from "lucide-react";
 import { useToast } from "@/components/ui/use-toast";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useAuth } from "@/contexts/AuthContext";
+import { Inter } from "next/font/google";
 import {
     AlertDialog,
     AlertDialogAction,
@@ -20,6 +23,8 @@ import {
     AlertDialogHeader,
     AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
+
+const inter = Inter({ subsets: ["latin"] });
 
 interface Claim {
     id: string;
@@ -49,6 +54,18 @@ interface Auction {
     design_plan: string;
     title: string;
     winning_bidder?: string;
+    // New restoration workflow fields
+    total_job_value?: number;
+    overhead_and_profit?: number;
+    cost_basis?: string;
+    materials?: number;
+    sales_taxes?: number;
+    depreciation?: number;
+    reconstruction_type?: string;
+    needs_3rd_party_adjuster?: boolean;
+    has_deductible_funds?: boolean;
+    funding_source?: string;
+    description?: string;
 }
 
 interface UserProfile {
@@ -74,9 +91,12 @@ interface Review {
 
 export default function MyProjectsPage() {
     const router = useRouter();
+    const searchParams = useSearchParams();
     const queryClient = useQueryClient();
-    const user = { user_type: "user", user_id: 1, name: "sav", email: "sav@sav.com", picture: "" };
+    const { user, isLoggedIn, isLoading: authLoading, logout } = useAuth();
     const { toast } = useToast();
+    
+    // All hooks must be called before any early returns
     const [loading, setLoading] = useState(false);
     const [showConfirmation, setShowConfirmation] = useState(false);
     const [selectedClaim, setSelectedClaim] = useState<Claim | null>(null);
@@ -93,12 +113,137 @@ export default function MyProjectsPage() {
     const [auctions, setAuctions] = useState<Auction[]>([]);
     const [auctionLoading, setAuctionLoading] = useState(false);
     const [activeSection, setActiveSection] = useState<'auctions' | 'claims' | 'reviews' | 'closed-auctions'>('auctions');
+    const [sidebarExpanded, setSidebarExpanded] = useState(true);
     const [auctionToDelete, setAuctionToDelete] = useState<Auction | null>(null);
     const [showAuctionDeleteConfirmation, setShowAuctionDeleteConfirmation] = useState(false);
     const [closedAuctions, setClosedAuctions] = useState<Auction[]>([]);
     const [closedAuctionLoading, setClosedAuctionLoading] = useState(false);
     const [showClosedAuctionDeleteConfirmation, setShowClosedAuctionDeleteConfirmation] = useState(false);
     const [closedAuctionToDelete, setClosedAuctionToDelete] = useState<Auction | null>(null);
+
+    // Function definitions before they're used in hooks
+    const fetchClaims = async () => {
+        const response = await fetch("/api/claim");
+        const { claims } = await response.json();
+        console.log(claims);
+        return claims ? claims : []
+    }
+
+    const deleteClaim = async (claim: Claim) => {
+        try {
+            const response = await fetch(`/api/claim/${claim.id}`, {
+                method: "DELETE",
+            });
+        } catch (error) {
+            console.log(error);
+        }
+    }
+
+    const fetchAuctions = async () => {
+        setAuctionLoading(true);
+        try {
+            const response = await fetch('/api/auctions');
+            if (!response.ok) {
+                throw new Error('Failed to fetch auctions');
+            }
+            const data = await response.json();
+            console.log('Fetched auctions:', data);
+            
+            // Filter for active auctions (status is 'open' and end date is in the future)
+            const activeAuctions = data.filter((auction: Auction) => {
+                const endDate = new Date(auction.end_date);
+                return auction.status === 'open' && endDate > new Date();
+            });
+            
+            // Filter for closed auctions 
+            const closedAuctions = data.filter((auction: Auction) => {
+                const endDate = new Date(auction.end_date);
+                return auction.status === 'closed' || endDate <= new Date();
+            });
+            
+            setAuctions(activeAuctions);
+            setClosedAuctions(closedAuctions);
+        } catch (error) {
+            console.error('Error fetching auctions:', error);
+            toast({
+                title: "Error",
+                description: "Failed to load auctions. Please try again later.",
+                variant: "destructive",
+            });
+        } finally {
+            setAuctionLoading(false);
+            setClosedAuctionLoading(false);
+        }
+    }
+
+    // All useQuery and useMutation hooks
+    const {  data: claims = [], isLoading, isError, error } = useQuery({
+        queryKey: ["getClaims"],
+        queryFn: fetchClaims,
+    });
+
+    const deleteClaimMutation = useMutation({
+        mutationFn: deleteClaim,
+        onSuccess: () => {
+            queryClient.invalidateQueries({
+                queryKey: ["getClaims"]
+            });
+        },
+        onError: error => { console.log(error); }
+    });
+
+    // All useEffect hooks
+    useEffect(() => {
+        const tab = searchParams.get('tab');
+        if (tab && ['auctions', 'claims', 'reviews', 'closed-auctions'].includes(tab)) {
+            setActiveSection(tab as 'auctions' | 'claims' | 'reviews' | 'closed-auctions');
+        }
+    }, [searchParams]);
+
+    // Fetch auctions when component mounts or when switching to auction tabs
+    useEffect(() => {
+        if (isLoggedIn && !authLoading && (activeSection === 'auctions' || activeSection === 'closed-auctions')) {
+            fetchAuctions();
+        }
+    }, [isLoggedIn, authLoading, activeSection]);
+
+    // Refresh auctions when coming back from creating a restoration job
+    useEffect(() => {
+        const handleStorageChange = () => {
+            if (activeSection === 'auctions' || activeSection === 'closed-auctions') {
+                fetchAuctions();
+            }
+        };
+
+        window.addEventListener('storage', handleStorageChange);
+        window.addEventListener('focus', handleStorageChange);
+
+        return () => {
+            window.removeEventListener('storage', handleStorageChange);
+            window.removeEventListener('focus', handleStorageChange);
+        };
+    }, [activeSection]);
+
+    // Redirect to login if not authenticated (but wait for loading to complete)
+    useEffect(() => {
+        if (!authLoading && !isLoggedIn) {
+            router.push('/login');
+        }
+    }, [isLoggedIn, authLoading, router]);
+
+    // Show loading while auth state is being determined
+    if (authLoading) {
+        return (
+            <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#0f172a]"></div>
+            </div>
+        );
+    }
+
+    // If not logged in, don't render anything (redirect will happen)
+    if (!isLoggedIn) {
+        return null;
+    }
 
     // Hardcoded reviews data
     const reviews: Review[] = [
@@ -144,18 +289,6 @@ export default function MyProjectsPage() {
         }
     ];
 
-    const fetchClaims = async () => {
-        const response = await fetch("/api/claim");
-        const { claims } = await response.json();
-        console.log(claims);
-        return claims ? claims : []
-    }
-
-    const {  data: claims = [], isLoading, isError, error } = useQuery({
-        queryKey: ["getClaims"],
-        queryFn: fetchClaims,
-    });
-
     const getTimeRemaining = (endDate: string) => {
         const end = new Date(endDate);
         const now = new Date();
@@ -200,26 +333,6 @@ export default function MyProjectsPage() {
                 return "View Details";
         }
     };
-
-    const deleteClaim = async (claim: Claim) => {
-        try {
-            const response = await fetch(`/api/claim/${claim.id}`, {
-                method: "DELETE",
-            });
-        } catch (error) {
-            console.log(error);
-        }
-    }
-
-    const deleteClaimMutation = useMutation({
-        mutationFn: deleteClaim,
-        onSuccess: () => {
-            queryClient.invalidateQueries({
-                queryKey: ["getClaims"]
-            });
-        },
-        onError: error => { console.log(error); }
-    })
 
     const handleDeleteClick = (claim: Claim) => {
         deleteClaimMutation.mutate(claim);
@@ -307,64 +420,88 @@ export default function MyProjectsPage() {
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -20 }}
             transition={{ duration: 0.3 }}
-            className="min-h-screen bg-gray-50"
+            className={`min-h-screen bg-white ${inter.className}`}
         >
             <div className="flex">
                 {/* Sidebar */}
-                <div className="w-72 bg-[#1a365d] min-h-screen">
-                    <div className="sticky top-0 p-6">
-                        <Button
-                            variant="ghost"
-                            className="w-full justify-start text-3xl font-semibold text-white mb-6 hover:bg-transparent hover:text-white"
-                            onClick={() => router.push("/")}
-                        >
-                            Vendle
-                        </Button>
+                <div className={`${sidebarExpanded ? 'w-64' : 'w-16'} bg-[#0f172a] min-h-screen transition-all duration-300 ease-in-out flex flex-col`}>
+                    {/* Top Content */}
+                    <div className={`flex-1 ${sidebarExpanded ? 'p-4' : 'p-2'}`}>
+                        {/* Toggle Button */}
+                        <div className="flex items-center justify-between mb-4">
+                            <Button
+                                variant="ghost"
+                                className={`${sidebarExpanded ? 'justify-start' : 'justify-center'} hover:bg-transparent hover:text-white transition-all duration-200 p-2 flex-shrink-0`}
+                                onClick={() => router.push("/")}
+                            >
+                                <div className={`${sidebarExpanded ? 'w-auto' : 'w-8'} flex justify-center`}>
+                                    <Image
+                                        src="/vendle_logo.jpg"
+                                        alt="Logo"
+                                        width={sidebarExpanded ? 120 : 32}
+                                        height={sidebarExpanded ? 40 : 32}
+                                        className={`${sidebarExpanded ? 'h-8 w-auto' : 'h-8 w-8 object-contain'}`}
+                                        priority
+                                    />
+                                </div>
+                            </Button>
+                            <Button
+                                variant="ghost"
+                                size="icon"
+                                className="text-white hover:bg-[#1e293b] hover:text-white flex-shrink-0"
+                                onClick={() => setSidebarExpanded(!sidebarExpanded)}
+                            >
+                                {sidebarExpanded ? <ChevronLeft className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
+                            </Button>
+                        </div>
+                        
                         {/* Quick Stats */}
-                        <div className="mb-6 p-4 bg-[#2c5282] rounded-lg">
-                            <h3 className="text-white text-sm font-medium mb-2">Quick Stats</h3>
-                            <div className="space-y-2">
-                                <div className="flex justify-between text-white text-sm">
-                                    <span>Active Claims</span>
-                                    <span>{claims.filter((c: Claim) => c.id === 'in-progress').length}</span>
-                                </div>
-                                <div className="flex justify-between text-white text-sm">
-                                    <span>Active Auctions</span>
-                                    <span>{auctions.length}</span>
-                                </div>
-                                <div className="flex justify-between text-white text-sm">
-                                    <span>Completed</span>
-                                    <span>{claims.filter((c: Claim)=> c.id === 'completed').length}</span>
+                        {sidebarExpanded && (
+                            <div className="mb-4 p-3 bg-[#1e293b] rounded-lg">
+                                <h3 className="text-white text-xs font-medium mb-2">Quick Stats</h3>
+                                <div className="space-y-1">
+                                    <div className="flex justify-between text-white text-xs">
+                                        <span>Active Claims</span>
+                                        <span>{claims.filter((c: Claim) => c.id === 'in-progress').length}</span>
+                                    </div>
+                                    <div className="flex justify-between text-white text-xs">
+                                        <span>Active Auctions</span>
+                                        <span>{auctions.length}</span>
+                                    </div>
+                                    <div className="flex justify-between text-white text-xs">
+                                        <span>Completed</span>
+                                        <span>{claims.filter((c: Claim)=> c.id === 'completed').length}</span>
+                                    </div>
                                 </div>
                             </div>
-                        </div>
+                        )}
 
-                        <div className="space-y-1 mb-32">
+                        <div className="space-y-1 mb-8">
                             {/* Main Navigation */}
                             <Button
                                 variant="ghost"
-                                className={`w-full justify-start h-12 text-base ${
+                                className={`w-full ${sidebarExpanded ? 'justify-start' : 'justify-center'} h-9 text-xs ${
                                     activeSection === 'auctions' 
-                                        ? 'bg-[#2c5282] text-white hover:bg-[#2c5282]' 
-                                        : 'text-gray-200 hover:bg-[#2c5282] hover:text-white'
+                                        ? 'bg-[#1e293b] text-white hover:bg-[#1e293b]' 
+                                        : 'text-gray-200 hover:bg-[#1e293b] hover:text-white'
                                 }`}
                                 onClick={() => setActiveSection('auctions')}
                             >
-                                <Users className="w-5 h-5 mr-3" />
-                                Active Auctions
+                                <Users className={`w-3 h-3 ${sidebarExpanded ? 'mr-2' : ''}`} />
+                                {sidebarExpanded && "Active Auctions"}
                             </Button>
 
                             <Button
                                 variant="ghost"
-                                className={`w-full justify-start h-12 text-base ${
+                                className={`w-full ${sidebarExpanded ? 'justify-start' : 'justify-center'} h-9 text-xs ${
                                     activeSection === 'closed-auctions' 
-                                        ? 'bg-[#2c5282] text-white hover:bg-[#2c5282]' 
-                                        : 'text-gray-200 hover:bg-[#2c5282] hover:text-white'
+                                        ? 'bg-[#1e293b] text-white hover:bg-[#1e293b]' 
+                                        : 'text-gray-200 hover:bg-[#1e293b] hover:text-white'
                                 }`}
                                 onClick={() => setActiveSection('closed-auctions')}
                             >
-                                <Archive className="w-5 h-5 mr-3" />
-                                Closed Auctions
+                                <Archive className={`w-3 h-3 ${sidebarExpanded ? 'mr-2' : ''}`} />
+                                {sidebarExpanded && "Closed Auctions"}
                             </Button>
 
                             {(() => {
@@ -376,223 +513,142 @@ export default function MyProjectsPage() {
                                 return user?.user_type === "contractor" && (
                                     <Button
                                         variant="ghost"
-                                        className={`w-full justify-start h-12 text-base ${
+                                        className={`w-full ${sidebarExpanded ? 'justify-start' : 'justify-center'} h-9 text-xs ${
                                             activeSection === 'reviews' 
-                                                ? 'bg-[#2c5282] text-white hover:bg-[#2c5282]' 
-                                                : 'text-gray-200 hover:bg-[#2c5282] hover:text-white'
+                                                ? 'bg-[#1e293b] text-white hover:bg-[#1e293b]' 
+                                                : 'text-gray-200 hover:bg-[#1e293b] hover:text-white'
                                         }`}
                                         onClick={() => setActiveSection('reviews')}
                                     >
-                                        <Star className="w-5 h-5 mr-3" />
-                                        My Reviews
+                                        <Star className={`w-3 h-3 ${sidebarExpanded ? 'mr-2' : ''}`} />
+                                        {sidebarExpanded && "My Reviews"}
                                     </Button>
                                 );
                             })()}
 
                             <Button
                                 variant="ghost"
-                                className={`w-full justify-start h-12 text-base ${
+                                className={`w-full ${sidebarExpanded ? 'justify-start' : 'justify-center'} h-9 text-xs ${
                                     activeSection === 'claims' 
-                                        ? 'bg-[#2c5282] text-white hover:bg-[#2c5282]' 
-                                        : 'text-gray-200 hover:bg-[#2c5282] hover:text-white'
+                                        ? 'bg-[#1e293b] text-white hover:bg-[#1e293b]' 
+                                        : 'text-gray-200 hover:bg-[#1e293b] hover:text-white'
                                 }`}
                                 onClick={() => setActiveSection('claims')}
                             >
-                                <FileText className="w-5 h-5 mr-3" />
-                                Claims
+                                <FileText className={`w-3 h-3 ${sidebarExpanded ? 'mr-2' : ''}`} />
+                                {sidebarExpanded && "Claims"}
                             </Button>
 
                             {/* Project Categories */}
-                            <div className="pt-4">
-                                <h4 className="text-gray-400 text-xs font-semibold px-4 mb-2">PROJECT CATEGORIES</h4>
+                            <div className="pt-2">
+                                {sidebarExpanded && <h4 className="text-gray-400 text-xs font-semibold px-4 mb-1">PROJECT CATEGORIES</h4>}
                                 <Button
                                     variant="ghost"
-                                    className="w-full justify-start h-10 text-sm text-gray-200 hover:bg-[#2c5282] hover:text-white"
+                                    className={`w-full ${sidebarExpanded ? 'justify-start' : 'justify-center'} h-8 text-xs text-gray-200 hover:bg-[#1e293b] hover:text-white`}
                                 >
-                                    <Folder className="w-4 h-4 mr-3" />
-                                    Active Projects
+                                    <Folder className={`w-3 h-3 ${sidebarExpanded ? 'mr-2' : ''}`} />
+                                    {sidebarExpanded && "Active Projects"}
                                 </Button>
                                 <Button
                                     variant="ghost"
-                                    className="w-full justify-start h-10 text-sm text-gray-200 hover:bg-[#2c5282] hover:text-white"
+                                    className={`w-full ${sidebarExpanded ? 'justify-start' : 'justify-center'} h-8 text-xs text-gray-200 hover:bg-[#1e293b] hover:text-white`}
                                 >
-                                    <CheckCircle className="w-4 h-4 mr-3" />
-                                    Completed Projects
-                                </Button>
-                                <Button
-                                    variant="ghost"
-                                    className="w-full justify-start h-10 text-sm text-gray-200 hover:bg-[#2c5282] hover:text-white"
-                                >
-                                    <Archive className="w-4 h-4 mr-3" />
-                                    Archived Projects
+                                    <CheckCircle className={`w-3 h-3 ${sidebarExpanded ? 'mr-2' : ''}`} />
+                                    {sidebarExpanded && "Completed Projects"}
                                 </Button>
                             </div>
 
                             {/* Quick Actions */}
-                            <div className="pt-4">
-                                <h4 className="text-gray-400 text-xs font-semibold px-4 mb-2">QUICK ACTIONS</h4>
+                            <div className="pt-2">
+                                {sidebarExpanded && <h4 className="text-gray-400 text-xs font-semibold px-4 mb-1">QUICK ACTIONS</h4>}
                                 <Button
                                     variant="ghost"
-                                    className="w-full justify-start h-10 text-sm text-gray-200 hover:bg-[#2c5282] hover:text-white"
+                                    className={`w-full ${sidebarExpanded ? 'justify-start' : 'justify-center'} h-8 text-xs text-gray-200 hover:bg-[#1e293b] hover:text-white`}
                                     onClick={() => router.push("/start-claim")}
                                 >
-                                    <Plus className="w-4 h-4 mr-3" />
-                                    Create New Claim
+                                    <Plus className={`w-3 h-3 ${sidebarExpanded ? 'mr-2' : ''}`} />
+                                    {sidebarExpanded && "Create New Claim"}
                                 </Button>
                                 <Button
                                     variant="ghost"
-                                    className="w-full justify-start h-10 text-sm text-gray-200 hover:bg-[#2c5282] hover:text-white"
+                                    className={`w-full ${sidebarExpanded ? 'justify-start' : 'justify-center'} h-8 text-xs text-gray-200 hover:bg-[#1e293b] hover:text-white`}
                                 >
-                                    <Upload className="w-4 h-4 mr-3" />
-                                    Import Projects
+                                    <BarChart className={`w-3 h-3 ${sidebarExpanded ? 'mr-2' : ''}`} />
+                                    {sidebarExpanded && "Project Statistics"}
                                 </Button>
                                 <Button
                                     variant="ghost"
-                                    className="w-full justify-start h-10 text-sm text-gray-200 hover:bg-[#2c5282] hover:text-white"
+                                    className={`w-full ${sidebarExpanded ? 'justify-start' : 'justify-center'} h-8 text-xs text-gray-200 hover:bg-[#1e293b] hover:text-white`}
                                 >
-                                    <Download className="w-4 h-4 mr-3" />
-                                    Export Projects
-                                </Button>
-                            </div>
-
-                            {/* Reports & Analytics */}
-                            <div className="pt-4">
-                                <h4 className="text-gray-400 text-xs font-semibold px-4 mb-2">REPORTS & ANALYTICS</h4>
-                                <Button
-                                    variant="ghost"
-                                    className="w-full justify-start h-10 text-sm text-gray-200 hover:bg-[#2c5282] hover:text-white"
-                                >
-                                    <BarChart className="w-4 h-4 mr-3" />
-                                    Project Statistics
-                                </Button>
-                                <Button
-                                    variant="ghost"
-                                    className="w-full justify-start h-10 text-sm text-gray-200 hover:bg-[#2c5282] hover:text-white"
-                                >
-                                    <DollarSign className="w-4 h-4 mr-3" />
-                                    Financial Overview
-                                </Button>
-                            </div>
-
-                            {/* Calendar & Timeline */}
-                            <div className="pt-4">
-                                <h4 className="text-gray-400 text-xs font-semibold px-4 mb-2">CALENDAR & TIMELINE</h4>
-                                <Button
-                                    variant="ghost"
-                                    className="w-full justify-start h-10 text-sm text-gray-200 hover:bg-[#2c5282] hover:text-white"
-                                >
-                                    <Calendar className="w-4 h-4 mr-3" />
-                                    Project Timeline
-                                </Button>
-                                <Button
-                                    variant="ghost"
-                                    className="w-full justify-start h-10 text-sm text-gray-200 hover:bg-[#2c5282] hover:text-white"
-                                >
-                                    <Flag className="w-4 h-4 mr-3" />
-                                    Milestones
-                                </Button>
-                            </div>
-
-                            {/* Help & Support */}
-                            <div className="pt-4">
-                                <h4 className="text-gray-400 text-xs font-semibold px-4 mb-2">HELP & SUPPORT</h4>
-                                <Button
-                                    variant="ghost"
-                                    className="w-full justify-start h-10 text-sm text-gray-200 hover:bg-[#2c5282] hover:text-white"
-                                >
-                                    <HelpCircle className="w-4 h-4 mr-3" />
-                                    Documentation
-                                </Button>
-                                <Button
-                                    variant="ghost"
-                                    className="w-full justify-start h-10 text-sm text-gray-200 hover:bg-[#2c5282] hover:text-white"
-                                >
-                                    <MessageCircle className="w-4 h-4 mr-3" />
-                                    Contact Support
-                                </Button>
-                            </div>
-
-                            {/* Settings */}
-                            <div className="pt-4">
-                                <h4 className="text-gray-400 text-xs font-semibold px-4 mb-2">SETTINGS</h4>
-                                <Button
-                                    variant="ghost"
-                                    className="w-full justify-start h-10 text-sm text-gray-200 hover:bg-[#2c5282] hover:text-white"
-                                >
-                                    <Bell className="w-4 h-4 mr-3" />
-                                    Notifications
-                                </Button>
-                                <Button
-                                    variant="ghost"
-                                    className="w-full justify-start h-10 text-sm text-gray-200 hover:bg-[#2c5282] hover:text-white"
-                                >
-                                    <Settings className="w-4 h-4 mr-3" />
-                                    Preferences
+                                    <Settings className={`w-3 h-3 ${sidebarExpanded ? 'mr-2' : ''}`} />
+                                    {sidebarExpanded && "Settings"}
                                 </Button>
                             </div>
                         </div>
+                    </div>
 
-                        {/* User Profile Section */}
-                        <div className="absolute bottom-0 left-0 right-0 p-4 border-t border-[#2c5282] bg-[#1a365d]">
-                            <div className="flex items-center space-x-3">
-                                <Avatar>
-                                    <AvatarImage src={user?.picture || ""} />
-                                    <AvatarFallback>
-                                        {(user?.name?.charAt(0) || "U").toUpperCase()}
-                                    </AvatarFallback>
-                                </Avatar>
-                                <div className="flex-1 min-w-0">
-                                    <p className="text-sm font-medium text-white truncate">
-                                        {user?.name || user?.email || "User"}
-                                    </p>
-                                    <p className="text-xs text-gray-400 truncate">
-                                        {user?.email || ""}
-                                    </p>
-                                </div>
-                                <Button
-                                    variant="ghost"
-                                    size="icon"
-                                    className="text-gray-400 hover:text-white hover:bg-[#2c5282]"
-                                    onClick={() => {
-                                        // Clear user data and navigate to home
-                                        localStorage.removeItem('user');
-                                        localStorage.removeItem('isAuthenticated');
-                                        router.push("/");
-                                    }}
-                                >
-                                    <LogOut className="w-4 h-4" />
-                                </Button>
-                            </div>
+                    {/* User Profile Section - Fixed at bottom */}
+                    <div className="p-2 border-t border-[#1e293b] bg-[#0f172a]">
+                        <div className={`flex items-center ${sidebarExpanded ? 'space-x-2' : 'justify-center'}`}>
+                            <Avatar className="w-8 h-8">
+                                <AvatarImage src={user?.picture || ""} />
+                                <AvatarFallback>
+                                    {(user?.name?.charAt(0) || "U").toUpperCase()}
+                                </AvatarFallback>
+                            </Avatar>
+                            {sidebarExpanded && (
+                                <>
+                                    <div className="flex-1 min-w-0">
+                                        <p className="text-xs font-medium text-white truncate">
+                                            {user?.name || user?.email || "User"}
+                                        </p>
+                                        <p className="text-xs text-gray-400 truncate">
+                                            {user?.email || ""}
+                                        </p>
+                                    </div>
+                                    <Button
+                                        variant="ghost"
+                                        size="icon"
+                                        className="text-gray-400 hover:text-white hover:bg-[#1e293b] w-6 h-6"
+                                        onClick={async () => {
+                                            await logout();
+                                        }}
+                                    >
+                                        <LogOut className="w-3 h-3" />
+                                    </Button>
+                                </>
+                            )}
                         </div>
                     </div>
                 </div>
 
                 {/* Main Content */}
-                <div className="flex-1 p-8">
-                    <div className="max-w-7xl mx-auto min-h-screen flex flex-col justify-start">
-                        <div className="flex justify-between items-center mb-6 h-3/4">
-                            <div>
-                                <h1 className="text-3xl font-bold text-gray-900">
-                                    {activeSection === 'auctions' ? 'Active Auctions' : activeSection === 'claims' ? 'My Claims' : activeSection === 'closed-auctions' ? 'Closed Auctions' : 'My Reviews'}
-                                </h1>
-                                <p className="mt-1 text-sm text-gray-500">
-                                    {activeSection === 'auctions' ? 'Browse and manage your active auctions' : activeSection === 'claims' ? 'View and manage your insurance claims' : activeSection === 'closed-auctions' ? 'View and manage your closed auctions' : 'View and manage your reviews'}
-                                </p>
+                <div className="flex-1 bg-gray-50 border-l border-gray-200">
+                    <div className="p-8">
+                        <div className="max-w-7xl mx-auto">
+                            <div className="flex justify-between items-center mb-8">
+                                <div>
+                                    <h1 className="text-2xl font-semibold text-gray-900">
+                                        {activeSection === 'auctions' ? 'Active Auctions' : activeSection === 'claims' ? 'My Claims' : activeSection === 'closed-auctions' ? 'Closed Auctions' : 'My Reviews'}
+                                    </h1>
+                                    <p className="mt-1 text-sm text-gray-600">
+                                        {activeSection === 'auctions' ? 'Browse and manage your active auctions' : activeSection === 'claims' ? 'View and manage your insurance claims' : activeSection === 'closed-auctions' ? 'View and manage your closed auctions' : 'View and manage your reviews'}
+                                    </p>
+                                </div>
+                                <Button
+                                    onClick={() => router.push("/start-claim")}
+                                    className="bg-[#0f172a] hover:bg-[#1e293b] text-white h-9 px-4 text-sm font-medium rounded-lg shadow-sm"
+                                >
+                                    Start New Claim
+                                </Button>
                             </div>
-                            <Button
-                                onClick={() => router.push("/start-claim")}
-                                className="bg-[#1a365d] hover:bg-[#2c5282] text-white h-10 px-6"
-                            >
-                                Start New Claim
-                            </Button>
-                        </div>
 
                         {activeSection === 'auctions' ? (
-                            <Card className="shadow-sm border-gray-200">
+                            <Card className="shadow-sm border-gray-200 bg-white rounded-lg">
                                 <CardContent className="p-6">
                                     {auctionLoading ? (
                                         <div className="flex justify-center items-center h-64">
-                                            <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-[#1a365d]"></div>
+                                            <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-[#0f172a]"></div>
                                         </div>
                                     ) : auctions.length === 0 ? (
                                         <div className="text-center py-12">
@@ -601,9 +657,9 @@ export default function MyProjectsPage() {
                                             <p className="text-gray-500 mb-4">There are currently no active auctions to display.</p>
                                         </div>
                                     ) : (
-                                        <div className="grid gap-6">
+                                        <div className="grid gap-4">
                                             {auctions.map((auction) => (
-                                                <Card key={auction.auction_id} className="hover:shadow-lg hover:scale-[1.02] transition-all duration-300 border border-gray-100 hover:border-vendle-blue/20">
+                                                <Card key={auction.auction_id} className="hover:shadow-md transition-shadow duration-200 border border-gray-200 bg-white rounded-lg">
                                                     <CardContent className="p-6">
                                                         <div className="flex justify-between items-start mb-4">
                                                             <div>
@@ -615,33 +671,72 @@ export default function MyProjectsPage() {
                                                             </Badge>
                                                         </div>
 
-                                                        <div className="grid grid-cols-2 gap-4 mb-4">
-                                                            <div className="space-y-2">
-                                                                <div className="flex items-center text-sm">
-                                                                    <DollarSign className="w-4 h-4 mr-2 text-gray-500" />
-                                                                    <span className="text-gray-600">Starting Bid: <span className="font-medium">${auction.starting_bid.toFixed(2)}</span></span>
-                                                                </div>
-                                                                <div className="flex items-center text-sm">
-                                                                    <DollarSign className="w-4 h-4 mr-2 text-gray-500" />
-                                                                    <span className="text-gray-600">Current Bid: <span className="font-medium">${auction.current_bid.toFixed(2)}</span></span>
-                                                                </div>
-                                                            </div>
-                                                            <div className="space-y-2">
-                                                                <div className="flex items-center text-sm">
-                                                                    <Users className="w-4 h-4 mr-2 text-gray-500" />
-                                                                    <span className="text-gray-600">{auction.bid_count} bids</span>
-                                                                </div>
-                                                                <div className="flex items-center text-sm">
-                                                                    <Clock className="w-4 h-4 mr-2 text-gray-500" />
-                                                                    <span className="text-gray-600">Ends: {new Date(auction.end_date).toLocaleDateString()}</span>
-                                                                </div>
-                                                            </div>
-                                                        </div>
+                                                                                                {/* Teaser Information for Contractors */}
+                                        <div className="bg-blue-50 p-4 rounded-lg mb-4">
+                                            <h4 className="font-medium text-blue-900 mb-3">Job Details for Contractors</h4>
+                                            <div className="grid grid-cols-2 gap-4">
+                                                <div className="space-y-2">
+                                                    <div className="flex items-center text-sm">
+                                                        <DollarSign className="w-4 h-4 mr-2 text-blue-600" />
+                                                        <span className="text-blue-800">Total Job Value: <span className="font-semibold">${auction.total_job_value?.toFixed(2) || auction.starting_bid.toFixed(2)}</span></span>
+                                                    </div>
+                                                    <div className="flex items-center text-sm">
+                                                        <DollarSign className="w-4 h-4 mr-2 text-blue-600" />
+                                                        <span className="text-blue-800">O&P: <span className="font-semibold">${auction.overhead_and_profit?.toFixed(2) || 'N/A'}</span></span>
+                                                    </div>
+                                                </div>
+                                                <div className="space-y-2">
+                                                    <div className="flex items-center text-sm">
+                                                        <MapPin className="w-4 h-4 mr-2 text-blue-600" />
+                                                        <span className="text-blue-800">Area: <span className="font-semibold">{auction.property_address || 'Address not specified'}</span></span>
+                                                    </div>
+                                                    <div className="flex items-center text-sm">
+                                                        <Wrench className="w-4 h-4 mr-2 text-blue-600" />
+                                                        <span className="text-blue-800">Type: <span className="font-semibold">{auction.reconstruction_type || auction.project_type || 'General Restoration'}</span></span>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        {/* Additional Information */}
+                                        <div className="grid grid-cols-2 gap-4 mb-4">
+                                            <div className="space-y-2">
+                                                <div className="flex items-center text-sm">
+                                                    <DollarSign className="w-4 h-4 mr-2 text-gray-500" />
+                                                    <span className="text-gray-600">Current Bid: <span className="font-medium">${auction.current_bid.toFixed(2)}</span></span>
+                                                </div>
+                                                <div className="flex items-center text-sm">
+                                                    <Users className="w-4 h-4 mr-2 text-gray-500" />
+                                                    <span className="text-gray-600">{auction.bid_count} bids</span>
+                                                </div>
+                                            </div>
+                                            <div className="space-y-2">
+                                                <div className="flex items-center text-sm">
+                                                    <Clock className="w-4 h-4 mr-2 text-gray-500" />
+                                                    <span className="text-gray-600">Ends: {new Date(auction.end_date).toLocaleDateString()}</span>
+                                                </div>
+                                                {auction.cost_basis && (
+                                                    <div className="flex items-center text-sm">
+                                                        <FileText className="w-4 h-4 mr-2 text-gray-500" />
+                                                        <span className="text-gray-600">Basis: <span className="font-medium">{auction.cost_basis}</span></span>
+                                                    </div>
+                                                )}
+                                            </div>
+                                        </div>
+
+                                        {/* Description if available */}
+                                        {auction.description && (
+                                            <div className="mb-4">
+                                                <p className="text-sm text-gray-600 bg-gray-50 p-3 rounded-lg">
+                                                    {auction.description}
+                                                </p>
+                                            </div>
+                                        )}
 
                                                         <div className="flex justify-end space-x-3">
                                                             <Button
                                                                 onClick={() => router.push(`/auction/${auction.auction_id}`)}
-                                                                className="w-full bg-vendle-navy text-white hover:bg-vendle-navy/90 transition-colors duration-200"
+                                                                className="w-full bg-[#0f172a] text-white hover:bg-[#1e293b] transition-colors duration-200 rounded-lg"
                                                             >
                                                                 View Details
                                                             </Button>
@@ -654,11 +749,11 @@ export default function MyProjectsPage() {
                                 </CardContent>
                             </Card>
                         ) : activeSection === 'closed-auctions' ? (
-                            <Card className="shadow-sm border-gray-200">
+                            <Card className="shadow-sm border-gray-200 bg-white rounded-lg">
                                 <CardContent className="p-6">
                                     {closedAuctionLoading ? (
                                         <div className="flex justify-center items-center h-64">
-                                            <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-[#1a365d]"></div>
+                                            <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-[#0f172a]"></div>
                                         </div>
                                     ) : closedAuctions.length === 0 ? (
                                         <div className="text-center py-12">
@@ -669,7 +764,7 @@ export default function MyProjectsPage() {
                                     ) : (
                                         <div className="space-y-4">
                                             {closedAuctions.map((auction) => (
-                                                <Card key={auction.auction_id} className="hover:shadow-md transition-shadow border-gray-200">
+                                                <Card key={auction.auction_id} className="hover:shadow-md transition-shadow duration-200 border border-gray-200 bg-white rounded-lg">
                                                     <CardContent className="p-6">
                                                         <div className="flex justify-between items-start mb-4">
                                                             <div>
@@ -712,7 +807,7 @@ export default function MyProjectsPage() {
                                                         <div className="flex justify-end space-x-3">
                                                             <Button
                                                                 onClick={() => router.push(`/auction/${auction.auction_id}`)}
-                                                                className="w-full bg-vendle-navy text-white hover:bg-vendle-navy/90 hover:scale-[1.02] transition-all duration-200 shadow-sm hover:shadow-md"
+                                                                className="w-full bg-[#0f172a] text-white hover:bg-[#1e293b] transition-colors duration-200 rounded-lg"
                                                             >
                                                                 View Details
                                                             </Button>
@@ -733,11 +828,11 @@ export default function MyProjectsPage() {
                                 </CardContent>
                             </Card>
                         ) : activeSection === 'claims' ? (
-                            <Card className="shadow-sm border-gray-200">
+                            <Card className="shadow-sm border-gray-200 bg-white rounded-lg">
                                 <CardContent className="p-6">
                                     {isLoading ? (
                                         <div className="flex justify-center items-center h-64">
-                                            <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-[#1a365d]"></div>
+                                            <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-[#0f172a]"></div>
                                         </div>
                                     ) : claims.length === 0 ? (
                                         <div className="text-center py-12">
@@ -746,15 +841,15 @@ export default function MyProjectsPage() {
                                             <p className="text-gray-500 mb-4">You haven't filed any claims yet.</p>
                                             <Button
                                                 onClick={() => router.push("/start-claim")}
-                                                className="bg-[#1a365d] hover:bg-[#2c5282] text-white"
+                                                className="bg-[#0f172a] hover:bg-[#1e293b] text-white"
                                             >
                                                 Start New Claim
                                             </Button>
                                         </div>
                                     ) : (
-                                        <div className="grid gap-6">
+                                        <div className="grid gap-4">
                                             {claims.map((claim: Claim) => (
-                                                <Card key={claim.id} className="hover:shadow-md transition-shadow">
+                                                <Card key={claim.id} className="hover:shadow-md transition-shadow duration-200 border border-gray-200 bg-white rounded-lg">
                                                     <CardContent className="p-6">
                                                         <div className="flex justify-between items-start mb-4">
                                                             <div>
@@ -798,18 +893,18 @@ export default function MyProjectsPage() {
                                                         </div>
 
                                                         <div className="flex justify-end space-x-3">
-                                                            {claim.id && (
-                                                                <Button
-                                                                    variant="default"
-                                                                    onClick={() => router.push(`/start-claim/create-restor?claimId=${parseInt(claim.id)}`)}
-                                                                    className="bg-[#1a365d] hover:bg-[#2c5282] text-white"
-                                                                >
-                                                                    Create Restoration
-                                                                </Button>
-                                                            )}
+                                                                                                        {claim.id && (
+                                                <Button
+                                                    variant="default"
+                                                    onClick={() => router.push(`/start-claim/create-restor/${claim.id}`)}
+                                                    className="bg-[#0f172a] hover:bg-[#1e293b] text-white"
+                                                >
+                                                    Create Restoration
+                                                </Button>
+                                            )}
                                                             <Button
                                                                 onClick={() => router.push(`/claim/${claim.id}`)}
-                                                                className="w-full bg-vendle-navy text-white hover:bg-vendle-navy/90 hover:scale-[1.02] transition-all duration-200 shadow-sm hover:shadow-md"
+                                                                className="w-full bg-[#0f172a] text-white hover:bg-[#1e293b] transition-colors duration-200 rounded-lg"
                                                             >
                                                                 View Details
                                                             </Button>
@@ -830,11 +925,11 @@ export default function MyProjectsPage() {
                                 </CardContent>
                             </Card>
                         ) : (
-                            <Card className="shadow-sm border-gray-200">
+                            <Card className="shadow-sm border-gray-200 bg-white rounded-lg">
                                 <CardContent className="p-6">
-                                    <div className="grid gap-6">
+                                    <div className="grid gap-4">
                                         {reviews.map((review) => (
-                                            <Card key={review.id} className="hover:shadow-lg hover:scale-[1.02] transition-all duration-300 border border-gray-100 hover:border-vendle-blue/20">
+                                            <Card key={review.id} className="hover:shadow-md transition-shadow duration-200 border border-gray-200 bg-white rounded-lg">
                                                 <CardContent className="p-6">
                                                     <div className="flex justify-between items-start mb-4">
                                                         <div>
@@ -880,6 +975,7 @@ export default function MyProjectsPage() {
                                 </CardContent>
                             </Card>
                         )}
+                        </div>
                     </div>
                 </div>
             </div>
@@ -904,3 +1000,4 @@ export default function MyProjectsPage() {
         </motion.div>
     );
 }
+

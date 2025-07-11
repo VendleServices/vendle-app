@@ -1,30 +1,24 @@
 import { Pool } from 'pg';
 
-// Create a new pool using environment variables
+// Create a new pool using Supabase DATABASE_URL
 const pool = new Pool({
-  user: process.env.DB_USER,
-  host: process.env.DB_HOST,
-  database: process.env.DB_NAME,
-  password: process.env.DB_PASSWORD,
-  port: parseInt(process.env.DB_PORT || '5432'),
+  connectionString: process.env.DATABASE_URL,
+  ssl: {
+    rejectUnauthorized: false
+  }
 });
 
 // Test the connection
 async function testConnection() {
   try {
-    console.log('Attempting to connect with:', {
-      user: process.env.DB_USER,
-      host: process.env.DB_HOST,
-      database: process.env.DB_NAME,
-      port: process.env.DB_PORT
-    });
+    console.log('Attempting to connect to Supabase database...');
     
     const client = await pool.connect();
-    console.log('Successfully connected to PostgreSQL database');
+    console.log('Successfully connected to Supabase PostgreSQL database');
     client.release();
     return true;
   } catch (error) {
-    console.error('Error connecting to PostgreSQL database:', error);
+    console.error('Error connecting to Supabase database:', error);
     return false;
   }
 }

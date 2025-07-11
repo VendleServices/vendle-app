@@ -6,6 +6,7 @@ import { useToast } from '@/hooks/use-toast';
 import { Mail, Lock, ArrowLeft, Eye, EyeOff } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { loginAction, signUpAction } from "@/actions/users";
+import { useAuth } from '@/contexts/AuthContext';
 import Link from "next/link";
 
 type Props = {
@@ -15,6 +16,7 @@ type Props = {
 const AuthForm = ({ type }: Props) => {
     const { toast } = useToast();
     const router = useRouter();
+    const { login, signup } = useAuth();
     const [isPending, startTransition] = useTransition()
 
     const [showPassword, setShowPassword] = useState(false);
@@ -24,49 +26,51 @@ const AuthForm = ({ type }: Props) => {
         setShowPassword(!showPassword);
     };
 
-    const handleSubmit = (formData: FormData) => {
+    const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+        e.preventDefault();
+        
+        const formData = new FormData(e.currentTarget);
+        const email = formData.get('email') as string;
+        const password = formData.get('password') as string;
+        const confirmPassword = formData.get('confirmPassword');
+
+        // Basic form validation
+        if (!email) {
+            toast({
+                title: "Email Required",
+                description: "Please enter your email address",
+                variant: "destructive"
+            });
+            return;
+        }
+
+        if (!password) {
+            toast({
+                title: "Password Required",
+                description: "Please enter your password",
+                variant: "destructive"
+            });
+            return;
+        }
+
+        if (type === 'signup' && password !== confirmPassword) {
+            toast({
+                title: "Passwords Don't Match",
+                description: "Please make sure your passwords match",
+                variant: "destructive"
+            });
+            return;
+        }
+
         startTransition(async () => {
-            const email = formData.get('email') as string;
-            const password = formData.get('password') as string;
-            console.log(email);
-            const confirmPassword = formData.get('confirmPassword');
-
-            // Basic form validation
-            if (!email) {
-                toast({
-                    title: "Email Required",
-                    description: "Please enter your email address",
-                    variant: "destructive"
-                });
-                return;
-            }
-
-            if (!password) {
-                toast({
-                    title: "Password Required",
-                    description: "Please enter your password",
-                    variant: "destructive"
-                });
-                return;
-            }
-
-            if (type === 'signup' && password !== confirmPassword) {
-                toast({
-                    title: "Passwords Don't Match",
-                    description: "Please make sure your passwords match",
-                    variant: "destructive"
-                });
-                return;
-            }
-
             let errorMessage;
             let description;
 
             if (type === 'login') {
-                errorMessage = (await loginAction(email, password)).errorMessage;
+                errorMessage = await login(email, password);
                 description = !errorMessage ? 'Successfully logged in!' : "Failed to log in";
             } else {
-                errorMessage = (await signUpAction(email, password)).errorMessage;
+                errorMessage = await signup(email, password);
                 description = !errorMessage ? "Account Created" : "Error creating account";
             }
 
@@ -76,31 +80,37 @@ const AuthForm = ({ type }: Props) => {
                     description,
                     variant: "default"
                 });
-                router.replace('/dashboard');
+                
+                // Wait longer for the auth state and cookies to sync properly, then redirect
+                setTimeout(() => {
+                    // Use window.location.href as fallback to ensure navigation works
+                    window.location.href = '/my-projects?tab=claims';
+                }, 500);
             } else {
                 toast({
                     title: "Error",
-                    description,
+                    description: errorMessage,
                     variant: "destructive"
                 })
             }
-        })
+        });
     };
 
     // Handle social authentication
     const handleSocialAuth = (provider: string) => {
         setIsLoading(true);
 
-        // Simulate social auth
+        // TODO: Implement actual social auth with Supabase
+        // For now, just show a message that it's not implemented
         setTimeout(() => {
             toast({
-                title: `${provider} Authentication Successful`,
-                description: "Redirecting to dashboard...",
+                title: `${provider} Authentication`,
+                description: "Social authentication is not yet implemented. Please use email/password login.",
+                variant: "destructive"
             });
 
             setIsLoading(false);
-            router.replace('/dashboard');
-        }, 1500);
+        }, 1000);
     };
 
     return (
@@ -190,7 +200,7 @@ const AuthForm = ({ type }: Props) => {
                         <div className="flex-grow border-t border-gray-300"></div>
                     </div>
 
-                    <form action={handleSubmit} className="space-y-5">
+                    <form onSubmit={handleSubmit} className="space-y-5">
                         <div>
                             <label htmlFor="email" className="block text-sm font-medium text-vendle-navy mb-1">
                                 Email
