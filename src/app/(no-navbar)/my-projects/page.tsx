@@ -420,14 +420,15 @@ export default function MyProjectsPage() {
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -20 }}
             transition={{ duration: 0.3 }}
-            className={`min-h-screen bg-gray-50 ${inter.className}`}
+            className={`min-h-screen bg-white ${inter.className}`}
         >
             <div className="flex">
                 {/* Sidebar */}
-                <div className={`${sidebarExpanded ? 'w-72' : 'w-16'} bg-[#0f172a] min-h-screen transition-all duration-300 ease-in-out`}>
-                    <div className={`sticky top-0 ${sidebarExpanded ? 'p-6' : 'p-3'}`}>
+                <div className={`${sidebarExpanded ? 'w-64' : 'w-16'} bg-[#0f172a] min-h-screen transition-all duration-300 ease-in-out flex flex-col`}>
+                    {/* Top Content */}
+                    <div className={`flex-1 ${sidebarExpanded ? 'p-4' : 'p-2'}`}>
                         {/* Toggle Button */}
-                        <div className="flex items-center justify-between mb-6">
+                        <div className="flex items-center justify-between mb-4">
                             <Button
                                 variant="ghost"
                                 className={`${sidebarExpanded ? 'justify-start' : 'justify-center'} hover:bg-transparent hover:text-white transition-all duration-200 p-2 flex-shrink-0`}
@@ -453,20 +454,21 @@ export default function MyProjectsPage() {
                                 {sidebarExpanded ? <ChevronLeft className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
                             </Button>
                         </div>
+                        
                         {/* Quick Stats */}
                         {sidebarExpanded && (
-                            <div className="mb-6 p-4 bg-[#1e293b] rounded-lg">
-                                <h3 className="text-white text-sm font-medium mb-2">Quick Stats</h3>
-                                <div className="space-y-2">
-                                    <div className="flex justify-between text-white text-sm">
+                            <div className="mb-4 p-3 bg-[#1e293b] rounded-lg">
+                                <h3 className="text-white text-xs font-medium mb-2">Quick Stats</h3>
+                                <div className="space-y-1">
+                                    <div className="flex justify-between text-white text-xs">
                                         <span>Active Claims</span>
                                         <span>{claims.filter((c: Claim) => c.id === 'in-progress').length}</span>
                                     </div>
-                                    <div className="flex justify-between text-white text-sm">
+                                    <div className="flex justify-between text-white text-xs">
                                         <span>Active Auctions</span>
                                         <span>{auctions.length}</span>
                                     </div>
-                                    <div className="flex justify-between text-white text-sm">
+                                    <div className="flex justify-between text-white text-xs">
                                         <span>Completed</span>
                                         <span>{claims.filter((c: Claim)=> c.id === 'completed').length}</span>
                                     </div>
@@ -474,31 +476,31 @@ export default function MyProjectsPage() {
                             </div>
                         )}
 
-                        <div className="space-y-1 mb-32">
+                        <div className="space-y-1 mb-8">
                             {/* Main Navigation */}
                             <Button
                                 variant="ghost"
-                                className={`w-full ${sidebarExpanded ? 'justify-start' : 'justify-center'} h-12 text-base ${
+                                className={`w-full ${sidebarExpanded ? 'justify-start' : 'justify-center'} h-9 text-xs ${
                                     activeSection === 'auctions' 
                                         ? 'bg-[#1e293b] text-white hover:bg-[#1e293b]' 
                                         : 'text-gray-200 hover:bg-[#1e293b] hover:text-white'
                                 }`}
                                 onClick={() => setActiveSection('auctions')}
                             >
-                                <Users className={`w-5 h-5 ${sidebarExpanded ? 'mr-3' : ''}`} />
+                                <Users className={`w-3 h-3 ${sidebarExpanded ? 'mr-2' : ''}`} />
                                 {sidebarExpanded && "Active Auctions"}
                             </Button>
 
                             <Button
                                 variant="ghost"
-                                className={`w-full ${sidebarExpanded ? 'justify-start' : 'justify-center'} h-12 text-base ${
+                                className={`w-full ${sidebarExpanded ? 'justify-start' : 'justify-center'} h-9 text-xs ${
                                     activeSection === 'closed-auctions' 
                                         ? 'bg-[#1e293b] text-white hover:bg-[#1e293b]' 
                                         : 'text-gray-200 hover:bg-[#1e293b] hover:text-white'
                                 }`}
                                 onClick={() => setActiveSection('closed-auctions')}
                             >
-                                <Archive className={`w-5 h-5 ${sidebarExpanded ? 'mr-3' : ''}`} />
+                                <Archive className={`w-3 h-3 ${sidebarExpanded ? 'mr-2' : ''}`} />
                                 {sidebarExpanded && "Closed Auctions"}
                             </Button>
 
@@ -511,14 +513,14 @@ export default function MyProjectsPage() {
                                 return user?.user_type === "contractor" && (
                                     <Button
                                         variant="ghost"
-                                        className={`w-full ${sidebarExpanded ? 'justify-start' : 'justify-center'} h-12 text-base ${
+                                        className={`w-full ${sidebarExpanded ? 'justify-start' : 'justify-center'} h-9 text-xs ${
                                             activeSection === 'reviews' 
                                                 ? 'bg-[#1e293b] text-white hover:bg-[#1e293b]' 
                                                 : 'text-gray-200 hover:bg-[#1e293b] hover:text-white'
                                         }`}
                                         onClick={() => setActiveSection('reviews')}
                                     >
-                                        <Star className={`w-5 h-5 ${sidebarExpanded ? 'mr-3' : ''}`} />
+                                        <Star className={`w-3 h-3 ${sidebarExpanded ? 'mr-2' : ''}`} />
                                         {sidebarExpanded && "My Reviews"}
                                     </Button>
                                 );
@@ -526,207 +528,123 @@ export default function MyProjectsPage() {
 
                             <Button
                                 variant="ghost"
-                                className={`w-full ${sidebarExpanded ? 'justify-start' : 'justify-center'} h-12 text-base ${
+                                className={`w-full ${sidebarExpanded ? 'justify-start' : 'justify-center'} h-9 text-xs ${
                                     activeSection === 'claims' 
                                         ? 'bg-[#1e293b] text-white hover:bg-[#1e293b]' 
                                         : 'text-gray-200 hover:bg-[#1e293b] hover:text-white'
                                 }`}
                                 onClick={() => setActiveSection('claims')}
                             >
-                                <FileText className={`w-5 h-5 ${sidebarExpanded ? 'mr-3' : ''}`} />
+                                <FileText className={`w-3 h-3 ${sidebarExpanded ? 'mr-2' : ''}`} />
                                 {sidebarExpanded && "Claims"}
                             </Button>
 
-
-
                             {/* Project Categories */}
-                            <div className="pt-4">
-                                {sidebarExpanded && <h4 className="text-gray-400 text-xs font-semibold px-4 mb-2">PROJECT CATEGORIES</h4>}
+                            <div className="pt-2">
+                                {sidebarExpanded && <h4 className="text-gray-400 text-xs font-semibold px-4 mb-1">PROJECT CATEGORIES</h4>}
                                 <Button
                                     variant="ghost"
-                                    className={`w-full ${sidebarExpanded ? 'justify-start' : 'justify-center'} h-10 text-sm text-gray-200 hover:bg-[#1e293b] hover:text-white`}
+                                    className={`w-full ${sidebarExpanded ? 'justify-start' : 'justify-center'} h-8 text-xs text-gray-200 hover:bg-[#1e293b] hover:text-white`}
                                 >
-                                    <Folder className={`w-4 h-4 ${sidebarExpanded ? 'mr-3' : ''}`} />
+                                    <Folder className={`w-3 h-3 ${sidebarExpanded ? 'mr-2' : ''}`} />
                                     {sidebarExpanded && "Active Projects"}
                                 </Button>
                                 <Button
                                     variant="ghost"
-                                    className={`w-full ${sidebarExpanded ? 'justify-start' : 'justify-center'} h-10 text-sm text-gray-200 hover:bg-[#1e293b] hover:text-white`}
+                                    className={`w-full ${sidebarExpanded ? 'justify-start' : 'justify-center'} h-8 text-xs text-gray-200 hover:bg-[#1e293b] hover:text-white`}
                                 >
-                                    <CheckCircle className={`w-4 h-4 ${sidebarExpanded ? 'mr-3' : ''}`} />
+                                    <CheckCircle className={`w-3 h-3 ${sidebarExpanded ? 'mr-2' : ''}`} />
                                     {sidebarExpanded && "Completed Projects"}
-                                </Button>
-                                <Button
-                                    variant="ghost"
-                                    className={`w-full ${sidebarExpanded ? 'justify-start' : 'justify-center'} h-10 text-sm text-gray-200 hover:bg-[#1e293b] hover:text-white`}
-                                >
-                                    <Archive className={`w-4 h-4 ${sidebarExpanded ? 'mr-3' : ''}`} />
-                                    {sidebarExpanded && "Archived Projects"}
                                 </Button>
                             </div>
 
                             {/* Quick Actions */}
-                            <div className="pt-4">
-                                {sidebarExpanded && <h4 className="text-gray-400 text-xs font-semibold px-4 mb-2">QUICK ACTIONS</h4>}
+                            <div className="pt-2">
+                                {sidebarExpanded && <h4 className="text-gray-400 text-xs font-semibold px-4 mb-1">QUICK ACTIONS</h4>}
                                 <Button
                                     variant="ghost"
-                                    className={`w-full ${sidebarExpanded ? 'justify-start' : 'justify-center'} h-10 text-sm text-gray-200 hover:bg-[#1e293b] hover:text-white`}
+                                    className={`w-full ${sidebarExpanded ? 'justify-start' : 'justify-center'} h-8 text-xs text-gray-200 hover:bg-[#1e293b] hover:text-white`}
                                     onClick={() => router.push("/start-claim")}
                                 >
-                                    <Plus className={`w-4 h-4 ${sidebarExpanded ? 'mr-3' : ''}`} />
+                                    <Plus className={`w-3 h-3 ${sidebarExpanded ? 'mr-2' : ''}`} />
                                     {sidebarExpanded && "Create New Claim"}
                                 </Button>
                                 <Button
                                     variant="ghost"
-                                    className={`w-full ${sidebarExpanded ? 'justify-start' : 'justify-center'} h-10 text-sm text-gray-200 hover:bg-[#1e293b] hover:text-white`}
+                                    className={`w-full ${sidebarExpanded ? 'justify-start' : 'justify-center'} h-8 text-xs text-gray-200 hover:bg-[#1e293b] hover:text-white`}
                                 >
-                                    <Upload className={`w-4 h-4 ${sidebarExpanded ? 'mr-3' : ''}`} />
-                                    {sidebarExpanded && "Import Projects"}
-                                </Button>
-                                <Button
-                                    variant="ghost"
-                                    className={`w-full ${sidebarExpanded ? 'justify-start' : 'justify-center'} h-10 text-sm text-gray-200 hover:bg-[#1e293b] hover:text-white`}
-                                >
-                                    <Download className={`w-4 h-4 ${sidebarExpanded ? 'mr-3' : ''}`} />
-                                    {sidebarExpanded && "Export Projects"}
-                                </Button>
-                            </div>
-
-                            {/* Reports & Analytics */}
-                            <div className="pt-4">
-                                {sidebarExpanded && <h4 className="text-gray-400 text-xs font-semibold px-4 mb-2">REPORTS & ANALYTICS</h4>}
-                                <Button
-                                    variant="ghost"
-                                    className={`w-full ${sidebarExpanded ? 'justify-start' : 'justify-center'} h-10 text-sm text-gray-200 hover:bg-[#1e293b] hover:text-white`}
-                                >
-                                    <BarChart className={`w-4 h-4 ${sidebarExpanded ? 'mr-3' : ''}`} />
+                                    <BarChart className={`w-3 h-3 ${sidebarExpanded ? 'mr-2' : ''}`} />
                                     {sidebarExpanded && "Project Statistics"}
                                 </Button>
                                 <Button
                                     variant="ghost"
-                                    className={`w-full ${sidebarExpanded ? 'justify-start' : 'justify-center'} h-10 text-sm text-gray-200 hover:bg-[#1e293b] hover:text-white`}
+                                    className={`w-full ${sidebarExpanded ? 'justify-start' : 'justify-center'} h-8 text-xs text-gray-200 hover:bg-[#1e293b] hover:text-white`}
                                 >
-                                    <DollarSign className={`w-4 h-4 ${sidebarExpanded ? 'mr-3' : ''}`} />
-                                    {sidebarExpanded && "Financial Overview"}
-                                </Button>
-                            </div>
-
-                            {/* Calendar & Timeline */}
-                            <div className="pt-4">
-                                {sidebarExpanded && <h4 className="text-gray-400 text-xs font-semibold px-4 mb-2">CALENDAR & TIMELINE</h4>}
-                                <Button
-                                    variant="ghost"
-                                    className={`w-full ${sidebarExpanded ? 'justify-start' : 'justify-center'} h-10 text-sm text-gray-200 hover:bg-[#1e293b] hover:text-white`}
-                                >
-                                    <Calendar className={`w-4 h-4 ${sidebarExpanded ? 'mr-3' : ''}`} />
-                                    {sidebarExpanded && "Project Timeline"}
-                                </Button>
-                                <Button
-                                    variant="ghost"
-                                    className={`w-full ${sidebarExpanded ? 'justify-start' : 'justify-center'} h-10 text-sm text-gray-200 hover:bg-[#1e293b] hover:text-white`}
-                                >
-                                    <Flag className={`w-4 h-4 ${sidebarExpanded ? 'mr-3' : ''}`} />
-                                    {sidebarExpanded && "Milestones"}
-                                </Button>
-                            </div>
-
-                            {/* Help & Support */}
-                            <div className="pt-4">
-                                {sidebarExpanded && <h4 className="text-gray-400 text-xs font-semibold px-4 mb-2">HELP & SUPPORT</h4>}
-                                <Button
-                                    variant="ghost"
-                                    className={`w-full ${sidebarExpanded ? 'justify-start' : 'justify-center'} h-10 text-sm text-gray-200 hover:bg-[#1e293b] hover:text-white`}
-                                >
-                                    <HelpCircle className={`w-4 h-4 ${sidebarExpanded ? 'mr-3' : ''}`} />
-                                    {sidebarExpanded && "Documentation"}
-                                </Button>
-                                <Button
-                                    variant="ghost"
-                                    className={`w-full ${sidebarExpanded ? 'justify-start' : 'justify-center'} h-10 text-sm text-gray-200 hover:bg-[#1e293b] hover:text-white`}
-                                >
-                                    <MessageCircle className={`w-4 h-4 ${sidebarExpanded ? 'mr-3' : ''}`} />
-                                    {sidebarExpanded && "Contact Support"}
-                                </Button>
-                            </div>
-
-                            {/* Settings */}
-                            <div className="pt-4">
-                                {sidebarExpanded && <h4 className="text-gray-400 text-xs font-semibold px-4 mb-2">SETTINGS</h4>}
-                                <Button
-                                    variant="ghost"
-                                    className={`w-full ${sidebarExpanded ? 'justify-start' : 'justify-center'} h-10 text-sm text-gray-200 hover:bg-[#1e293b] hover:text-white`}
-                                >
-                                    <Bell className={`w-4 h-4 ${sidebarExpanded ? 'mr-3' : ''}`} />
-                                    {sidebarExpanded && "Notifications"}
-                                </Button>
-                                <Button
-                                    variant="ghost"
-                                    className={`w-full ${sidebarExpanded ? 'justify-start' : 'justify-center'} h-10 text-sm text-gray-200 hover:bg-[#1e293b] hover:text-white`}
-                                >
-                                    <Settings className={`w-4 h-4 ${sidebarExpanded ? 'mr-3' : ''}`} />
-                                    {sidebarExpanded && "Preferences"}
+                                    <Settings className={`w-3 h-3 ${sidebarExpanded ? 'mr-2' : ''}`} />
+                                    {sidebarExpanded && "Settings"}
                                 </Button>
                             </div>
                         </div>
+                    </div>
 
-                        {/* User Profile Section */}
-                        <div className="absolute bottom-0 left-0 right-0 p-4 border-t border-[#1e293b] bg-[#0f172a]">
-                            <div className={`flex items-center ${sidebarExpanded ? 'space-x-3' : 'justify-center'}`}>
-                                <Avatar>
-                                    <AvatarImage src={user?.picture || ""} />
-                                    <AvatarFallback>
-                                        {(user?.name?.charAt(0) || "U").toUpperCase()}
-                                    </AvatarFallback>
-                                </Avatar>
-                                {sidebarExpanded && (
-                                    <>
-                                        <div className="flex-1 min-w-0">
-                                            <p className="text-sm font-medium text-white truncate">
-                                                {user?.name || user?.email || "User"}
-                                            </p>
-                                            <p className="text-xs text-gray-400 truncate">
-                                                {user?.email || ""}
-                                            </p>
-                                        </div>
-                                        <Button
-                                            variant="ghost"
-                                            size="icon"
-                                            className="text-gray-400 hover:text-white hover:bg-[#1e293b]"
-                                            onClick={async () => {
-                                                await logout();
-                                            }}
-                                        >
-                                            <LogOut className="w-4 h-4" />
-                                        </Button>
-                                    </>
-                                )}
-                            </div>
+                    {/* User Profile Section - Fixed at bottom */}
+                    <div className="p-2 border-t border-[#1e293b] bg-[#0f172a]">
+                        <div className={`flex items-center ${sidebarExpanded ? 'space-x-2' : 'justify-center'}`}>
+                            <Avatar className="w-8 h-8">
+                                <AvatarImage src={user?.picture || ""} />
+                                <AvatarFallback>
+                                    {(user?.name?.charAt(0) || "U").toUpperCase()}
+                                </AvatarFallback>
+                            </Avatar>
+                            {sidebarExpanded && (
+                                <>
+                                    <div className="flex-1 min-w-0">
+                                        <p className="text-xs font-medium text-white truncate">
+                                            {user?.name || user?.email || "User"}
+                                        </p>
+                                        <p className="text-xs text-gray-400 truncate">
+                                            {user?.email || ""}
+                                        </p>
+                                    </div>
+                                    <Button
+                                        variant="ghost"
+                                        size="icon"
+                                        className="text-gray-400 hover:text-white hover:bg-[#1e293b] w-6 h-6"
+                                        onClick={async () => {
+                                            await logout();
+                                        }}
+                                    >
+                                        <LogOut className="w-3 h-3" />
+                                    </Button>
+                                </>
+                            )}
                         </div>
                     </div>
                 </div>
 
                 {/* Main Content */}
-                <div className="flex-1 p-8">
-                    <div className="max-w-7xl mx-auto min-h-screen flex flex-col justify-start">
-                        <div className="flex justify-between items-center mb-6 h-3/4">
-                            <div>
-                                <h1 className="text-3xl font-bold text-gray-900">
-                                    {activeSection === 'auctions' ? 'Active Auctions' : activeSection === 'claims' ? 'My Claims' : activeSection === 'closed-auctions' ? 'Closed Auctions' : 'My Reviews'}
-                                </h1>
-                                <p className="mt-1 text-sm text-gray-500">
-                                    {activeSection === 'auctions' ? 'Browse and manage your active auctions' : activeSection === 'claims' ? 'View and manage your insurance claims' : activeSection === 'closed-auctions' ? 'View and manage your closed auctions' : 'View and manage your reviews'}
-                                </p>
+                <div className="flex-1 bg-gray-50 border-l border-gray-200">
+                    <div className="p-8">
+                        <div className="max-w-7xl mx-auto">
+                            <div className="flex justify-between items-center mb-8">
+                                <div>
+                                    <h1 className="text-2xl font-semibold text-gray-900">
+                                        {activeSection === 'auctions' ? 'Active Auctions' : activeSection === 'claims' ? 'My Claims' : activeSection === 'closed-auctions' ? 'Closed Auctions' : 'My Reviews'}
+                                    </h1>
+                                    <p className="mt-1 text-sm text-gray-600">
+                                        {activeSection === 'auctions' ? 'Browse and manage your active auctions' : activeSection === 'claims' ? 'View and manage your insurance claims' : activeSection === 'closed-auctions' ? 'View and manage your closed auctions' : 'View and manage your reviews'}
+                                    </p>
+                                </div>
+                                <Button
+                                    onClick={() => router.push("/start-claim")}
+                                    className="bg-[#0f172a] hover:bg-[#1e293b] text-white h-9 px-4 text-sm font-medium rounded-lg shadow-sm"
+                                >
+                                    Start New Claim
+                                </Button>
                             </div>
-                            <Button
-                                onClick={() => router.push("/start-claim")}
-                                className="bg-[#0f172a] hover:bg-[#1e293b] text-white h-10 px-6"
-                            >
-                                Start New Claim
-                            </Button>
-                        </div>
 
                         {activeSection === 'auctions' ? (
-                            <Card className="shadow-sm border-gray-200">
+                            <Card className="shadow-sm border-gray-200 bg-white rounded-lg">
                                 <CardContent className="p-6">
                                     {auctionLoading ? (
                                         <div className="flex justify-center items-center h-64">
@@ -739,9 +657,9 @@ export default function MyProjectsPage() {
                                             <p className="text-gray-500 mb-4">There are currently no active auctions to display.</p>
                                         </div>
                                     ) : (
-                                        <div className="grid gap-6">
+                                        <div className="grid gap-4">
                                             {auctions.map((auction) => (
-                                                <Card key={auction.auction_id} className="hover:shadow-lg hover:scale-[1.02] transition-all duration-300 border border-gray-100 hover:border-vendle-blue/20">
+                                                <Card key={auction.auction_id} className="hover:shadow-md transition-shadow duration-200 border border-gray-200 bg-white rounded-lg">
                                                     <CardContent className="p-6">
                                                         <div className="flex justify-between items-start mb-4">
                                                             <div>
@@ -818,7 +736,7 @@ export default function MyProjectsPage() {
                                                         <div className="flex justify-end space-x-3">
                                                             <Button
                                                                 onClick={() => router.push(`/auction/${auction.auction_id}`)}
-                                                                className="w-full bg-vendle-navy text-white hover:bg-vendle-navy/90 transition-colors duration-200"
+                                                                className="w-full bg-[#0f172a] text-white hover:bg-[#1e293b] transition-colors duration-200 rounded-lg"
                                                             >
                                                                 View Details
                                                             </Button>
@@ -831,7 +749,7 @@ export default function MyProjectsPage() {
                                 </CardContent>
                             </Card>
                         ) : activeSection === 'closed-auctions' ? (
-                            <Card className="shadow-sm border-gray-200">
+                            <Card className="shadow-sm border-gray-200 bg-white rounded-lg">
                                 <CardContent className="p-6">
                                     {closedAuctionLoading ? (
                                         <div className="flex justify-center items-center h-64">
@@ -846,7 +764,7 @@ export default function MyProjectsPage() {
                                     ) : (
                                         <div className="space-y-4">
                                             {closedAuctions.map((auction) => (
-                                                <Card key={auction.auction_id} className="hover:shadow-md transition-shadow border-gray-200">
+                                                <Card key={auction.auction_id} className="hover:shadow-md transition-shadow duration-200 border border-gray-200 bg-white rounded-lg">
                                                     <CardContent className="p-6">
                                                         <div className="flex justify-between items-start mb-4">
                                                             <div>
@@ -889,7 +807,7 @@ export default function MyProjectsPage() {
                                                         <div className="flex justify-end space-x-3">
                                                             <Button
                                                                 onClick={() => router.push(`/auction/${auction.auction_id}`)}
-                                                                className="w-full bg-vendle-navy text-white hover:bg-vendle-navy/90 hover:scale-[1.02] transition-all duration-200 shadow-sm hover:shadow-md"
+                                                                className="w-full bg-[#0f172a] text-white hover:bg-[#1e293b] transition-colors duration-200 rounded-lg"
                                                             >
                                                                 View Details
                                                             </Button>
@@ -910,7 +828,7 @@ export default function MyProjectsPage() {
                                 </CardContent>
                             </Card>
                         ) : activeSection === 'claims' ? (
-                            <Card className="shadow-sm border-gray-200">
+                            <Card className="shadow-sm border-gray-200 bg-white rounded-lg">
                                 <CardContent className="p-6">
                                     {isLoading ? (
                                         <div className="flex justify-center items-center h-64">
@@ -929,9 +847,9 @@ export default function MyProjectsPage() {
                                             </Button>
                                         </div>
                                     ) : (
-                                        <div className="grid gap-6">
+                                        <div className="grid gap-4">
                                             {claims.map((claim: Claim) => (
-                                                <Card key={claim.id} className="hover:shadow-md transition-shadow">
+                                                <Card key={claim.id} className="hover:shadow-md transition-shadow duration-200 border border-gray-200 bg-white rounded-lg">
                                                     <CardContent className="p-6">
                                                         <div className="flex justify-between items-start mb-4">
                                                             <div>
@@ -986,7 +904,7 @@ export default function MyProjectsPage() {
                                             )}
                                                             <Button
                                                                 onClick={() => router.push(`/claim/${claim.id}`)}
-                                                                className="w-full bg-vendle-navy text-white hover:bg-vendle-navy/90 hover:scale-[1.02] transition-all duration-200 shadow-sm hover:shadow-md"
+                                                                className="w-full bg-[#0f172a] text-white hover:bg-[#1e293b] transition-colors duration-200 rounded-lg"
                                                             >
                                                                 View Details
                                                             </Button>
@@ -1007,11 +925,11 @@ export default function MyProjectsPage() {
                                 </CardContent>
                             </Card>
                         ) : (
-                            <Card className="shadow-sm border-gray-200">
+                            <Card className="shadow-sm border-gray-200 bg-white rounded-lg">
                                 <CardContent className="p-6">
-                                    <div className="grid gap-6">
+                                    <div className="grid gap-4">
                                         {reviews.map((review) => (
-                                            <Card key={review.id} className="hover:shadow-lg hover:scale-[1.02] transition-all duration-300 border border-gray-100 hover:border-vendle-blue/20">
+                                            <Card key={review.id} className="hover:shadow-md transition-shadow duration-200 border border-gray-200 bg-white rounded-lg">
                                                 <CardContent className="p-6">
                                                     <div className="flex justify-between items-start mb-4">
                                                         <div>
@@ -1057,6 +975,7 @@ export default function MyProjectsPage() {
                                 </CardContent>
                             </Card>
                         )}
+                        </div>
                     </div>
                 </div>
             </div>
