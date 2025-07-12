@@ -27,7 +27,6 @@ const Navbar = () => {
 
         <div className="hidden md:flex items-center space-x-8">
           <Link href="/" className="text-gray-700 hover:text-black transition-colors">Home</Link>
-          <Link href="/about" className="text-gray-700 hover:text-black transition-colors">About Us</Link>
           <Link href="/reverse-auction" className="text-gray-700 hover:text-black transition-colors">Auctions</Link>
           <Link href={getProjectsPath()} className="text-gray-700 hover:text-black transition-colors">My Projects</Link>
           {user?.user_type === "contractor" && (
