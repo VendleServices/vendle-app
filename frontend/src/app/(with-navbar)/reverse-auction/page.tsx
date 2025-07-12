@@ -39,7 +39,7 @@ export default function ReverseAuction() {
 
     const fetchAuctions = async () => {
         try {
-            const response = await fetch('/api/auctions');
+            const response = await fetch('http://localhost:3001/api/auctions');
             if (!response.ok) {
                 throw new Error('Failed to fetch auctions');
             }
@@ -97,7 +97,7 @@ export default function ReverseAuction() {
         setBidding(prev => ({ ...prev, [auction.auction_id]: true }));
 
         try {
-            const response = await fetch('/api/bids', {
+            const response = await fetch('http://localhost:3001/api/bids', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',

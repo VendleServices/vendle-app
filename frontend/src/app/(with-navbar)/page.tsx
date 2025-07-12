@@ -24,7 +24,7 @@ export default function HomePage() {
 
   useEffect(() => {
     if (!isLoading && user) {
-      router.push('/dashboard')
+      router.push('/my-projects')
     }
   }, [user, isLoading, router])
 

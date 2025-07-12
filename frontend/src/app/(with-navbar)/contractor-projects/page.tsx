@@ -31,7 +31,7 @@ const ContractorProjectsPage = () => {
     useEffect(() => {
         const fetchProjects = async () => {
             try {
-                const response = await fetch('/api/projects/available');
+                const response = await fetch('http://localhost:3001/api/projects/available');
                 if (!response.ok) {
                     throw new Error('Failed to fetch projects');
                 }

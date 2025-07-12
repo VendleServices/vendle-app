@@ -173,7 +173,7 @@ export default function AuctionDetailsPage() {
                                 variant="outline"
                                 onClick={async () => {
                                     try {
-                                        const response = await fetch('/api/bids/seed', {
+                                        const response = await fetch('http://localhost:3001/api/bids/seed', {
                                             method: 'POST',
                                             headers: {
                                                 'Content-Type': 'application/json',

@@ -17,12 +17,15 @@ export const loginAction = async (email: string, password: string) => {
 
         // After successful login, ensure user metadata is set
         const { data: { user } } = await supabase.auth.getUser();
-        if (user && (!user.user_metadata?.name || !user.user_metadata?.user_type)) {
+        if (user) {
+            const metadata = {
+                name: user.user_metadata?.name || user.email?.split('@')[0] || "User",
+                user_type: user.user_metadata?.user_type || "homeowner",
+                user_id: user.user_metadata?.user_id || user.id
+            };
+            
             await supabase.auth.updateUser({
-                data: {
-                    name: user.user_metadata?.name || user.email?.split('@')[0] || "User",
-                    user_type: user.user_metadata?.user_type || "homeowner"
-                }
+                data: metadata
             });
         }
 
@@ -62,7 +65,15 @@ export const signUpAction = async (email: string, password: string) => {
                 id: userId,
                 email,
             }
-        })
+        });
+
+        // Update user metadata to include the user_id
+        await supabase.auth.updateUser({
+            data: {
+                user_id: userId
+            }
+        });
+
         return { errorMessage: null };
     } catch (error) {
         console.error(error)

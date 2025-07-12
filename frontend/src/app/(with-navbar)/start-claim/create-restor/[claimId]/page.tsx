@@ -137,7 +137,7 @@ export default function CreateRestorPage() {
          parseFloat(formData.salesTaxes || '0') - 
          parseFloat(formData.depreciation || '0')).toString();
 
-      const response = await fetch('/api/auctions', {
+              const response = await fetch('http://localhost:3001/api/auctions', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -158,6 +158,7 @@ export default function CreateRestorPage() {
           has_deductible_funds: formData.hasDeductibleFunds,
           funding_source: formData.fundingSource,
           auction_end_date: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(), // 7 days from now
+          userId: user?.id, // <-- add userId
         }),
       });
 

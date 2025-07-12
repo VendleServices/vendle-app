@@ -75,7 +75,7 @@ const Onboarding = () => {
 
   const submitClaimData = async (claimData: any) => {
     try {
-      await fetch('/api/onboarding', {
+              await fetch('http://localhost:3001/api/onboarding', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

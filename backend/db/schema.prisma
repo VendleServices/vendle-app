@@ -12,6 +12,7 @@ model User {
   email String  @unique
   femaForms Fema[]
   claim Claim[]
+  auction Auction[]
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt @default(now())
 }
@@ -51,4 +52,31 @@ model Claim {
   updatedAt DateTime @updatedAt @default(now())
   user    User   @relation(fields: [userId], references: [id])
   userId String
+  auctions Auction[]
+}
+
+model Auction {
+  id String @id @default(uuid())
+  claimId String
+  title String
+  description String?
+  startingBid Float
+  currentBid Float?
+  status String @default("open")
+  auctionEndDate DateTime
+  totalJobValue Float?
+  overheadAndProfit Float?
+  costBasis String?
+  materials Float?
+  salesTaxes Float?
+  depreciation Float?
+  reconstructionType String?
+  needs3rdPartyAdjuster Boolean @default(false)
+  hasDeductibleFunds Boolean @default(false)
+  fundingSource String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt @default(now())
+  user User @relation(fields: [userId], references: [id])
+  userId String
+  claim Claim @relation(fields: [claimId], references: [id])
 }

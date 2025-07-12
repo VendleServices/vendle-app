@@ -36,10 +36,11 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
                 
                 if (supabaseUser) {
                     const userData = { 
+                        id: supabaseUser.id, // <-- always include UUID
                         email: supabaseUser.email!, 
                         name: supabaseUser.user_metadata?.name || supabaseUser.email?.split('@')[0] || "User", 
                         user_type: supabaseUser.user_metadata?.user_type || "homeowner",
-                        user_id: supabaseUser.user_metadata?.user_id,
+                        user_id: supabaseUser.user_metadata?.user_id, // keep for compatibility
                         picture: supabaseUser.user_metadata?.picture
                     };
                     console.log('Setting user data:', userData); // Debug log
@@ -69,10 +70,11 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
                 try {
                     if (session?.user) {
                         const userData = { 
+                            id: session.user.id, // <-- always include UUID
                             email: session.user.email!, 
                             name: session.user.user_metadata?.name || session.user.email?.split('@')[0] || "User", 
                             user_type: session.user.user_metadata?.user_type || "homeowner",
-                            user_id: session.user.user_metadata?.user_id,
+                            user_id: session.user.user_metadata?.user_id, // keep for compatibility
                             picture: session.user.user_metadata?.picture
                         };
                         setUser(userData);

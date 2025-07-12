@@ -123,10 +123,21 @@ export default function MyProjectsPage() {
 
     // Function definitions before they're used in hooks
     const fetchClaims = async () => {
-        const response = await fetch("/api/claim");
-        const { claims } = await response.json();
-        console.log(claims);
-        return claims ? claims : []
+        console.log('fetchClaims called, user:', user);
+        const id = user?.user_id || user?.id;
+        console.log('Using user ID:', id);
+        if (!id) {
+            console.log('No user_id available');
+            return [];
+        }
+        console.log('Making API call to:', `http://localhost:3001/api/claim?user_id=${id}`);
+        const response = await fetch(`http://localhost:3001/api/claim?user_id=${id}`);
+        if (!response.ok) {
+            throw new Error('Failed to fetch claims');
+        }
+        const data = await response.json();
+        console.log('Fetched claims:', data);
+        return data || [];
     }
 
     const deleteClaim = async (claim: Claim) => {
@@ -142,7 +153,7 @@ export default function MyProjectsPage() {
     const fetchAuctions = async () => {
         setAuctionLoading(true);
         try {
-            const response = await fetch('/api/auctions');
+            const response = await fetch('http://localhost:3001/api/auctions');
             if (!response.ok) {
                 throw new Error('Failed to fetch auctions');
             }
@@ -180,7 +191,10 @@ export default function MyProjectsPage() {
     const {  data: claims = [], isLoading, isError, error } = useQuery({
         queryKey: ["getClaims"],
         queryFn: fetchClaims,
+        enabled: !!user?.id, // Only run when user is available
     });
+
+    console.log('useQuery state:', { claims, isLoading, isError, error, userId: user?.id });
 
     const deleteClaimMutation = useMutation({
         mutationFn: deleteClaim,
