@@ -1,6 +1,6 @@
 "use client"
 import React, { useEffect, useState } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams, useRouter } from 'next/navigation';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -33,8 +33,9 @@ interface Bid {
 }
 
 export default function AuctionDetailsPage() {
-    const { auction_id } = useParams<{ auction_id: string }>();
-    const navigate = useNavigate();
+    const params = useParams();
+    const auction_id = params.auction_id as string;
+    const router = useRouter();
     const [auction, setAuction] = useState<Auction | null>(null);
     const [bids, setBids] = useState<Bid[]>([]);
     const [loading, setLoading] = useState(true);
@@ -88,14 +89,14 @@ export default function AuctionDetailsPage() {
         return (
             <div className="flex flex-col items-center justify-center min-h-screen">
                 <p className="text-lg text-gray-600">Auction not found.</p>
-                <Button className="mt-4" onClick={() => navigate(-1)}>Go Back</Button>
+                <Button className="mt-4" onClick={() => router.back()}>Go Back</Button>
             </div>
         );
     }
 
     return (
         <div className="container mx-auto px-4 py-8">
-            <Button variant="ghost" className="mb-4" onClick={() => navigate(-1)}>
+            <Button variant="ghost" className="mb-4" onClick={() => router.back()}>
                 &larr; Back
             </Button>
             <Card className="mb-8">

@@ -13,19 +13,22 @@
   },
   "dependencies": {
     "@prisma/client": "^6.9.0",
+    "@react-three/drei": "^10.5.0",
+    "@react-three/fiber": "^9.2.0",
     "@supabase/ssr": "^0.6.1",
     "@supabase/supabase-js": "^2.49.9",
-    "express": "^4.18.2",
     "cors": "^2.8.5",
     "dotenv": "^16.3.1",
-    "pg": "^8.14.1"
+    "express": "^4.18.2",
+    "pg": "^8.14.1",
+    "three": "^0.178.0"
   },
   "devDependencies": {
-    "@types/express": "^4.17.21",
     "@types/cors": "^2.8.17",
+    "@types/express": "^4.17.21",
     "@types/pg": "^8.11.13",
     "prisma": "^6.9.0",
-    "typescript": "^5.5.3",
-    "tsx": "^4.19.2"
+    "tsx": "^4.19.2",
+    "typescript": "^5.5.3"
   }
-} 
+}

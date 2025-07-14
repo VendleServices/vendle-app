@@ -84,7 +84,7 @@ const AuthForm = ({ type }: Props) => {
                 // Wait longer for the auth state and cookies to sync properly, then redirect
                 setTimeout(() => {
                     // Use window.location.href as fallback to ensure navigation works
-                    window.location.href = '/my-projects?tab=claims';
+                    window.location.href = '/dashboard';
                 }, 500);
             } else {
                 toast({
@@ -292,7 +292,7 @@ const AuthForm = ({ type }: Props) => {
                         <p className="text-vendle-navy/70">
                             {type === 'login' ? "Don't have an account? " : "Already have an account? "}
                             <Link
-                                href={type === "login" ? "/signup" : "/login"}
+                                href={type === "login" ? "/signup" : "/"}
                                 className="text-vendle-blue font-medium hover:text-vendle-blue/80 transition-colors"
                             >
                                 {type === 'login' ? 'Sign up' : 'Sign in'}

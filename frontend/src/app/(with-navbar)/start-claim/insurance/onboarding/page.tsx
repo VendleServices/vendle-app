@@ -9,12 +9,14 @@ import { CheckCircle, Upload, AlertCircle, ArrowRight, Building2, MapPin, FileTe
 import { createClient } from "@/auth/client";
 import { useMutation } from "@tanstack/react-query";
 import { motion } from 'framer-motion';
+import { useAuth } from '@/contexts/AuthContext';
 
 const supabase = createClient();
 
 const Onboarding = () => {
   const router = useRouter();
   const { toast } = useToast();
+  const { user } = useAuth();
   
   // Onboarding state
   const [currentStep, setCurrentStep] = useState(1);
@@ -75,15 +77,22 @@ const Onboarding = () => {
 
   const submitClaimData = async (claimData: any) => {
     try {
-              await fetch('http://localhost:3001/api/onboarding', {
+      const response = await fetch('http://localhost:3001/api/claim', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify(claimData),
       });
+      
+      if (!response.ok) {
+        throw new Error('Failed to create claim');
+      }
+      
+      return response.json();
     } catch (error) {
       console.log(error);
+      throw error;
     }
   }
 
@@ -96,17 +105,32 @@ const Onboarding = () => {
         duration: 5000,
       });
 
-      router.push('/start-claim/insurance');
+      router.push('/dashboard');
     },
     onError: (error) => {
-      console.log(error);
+      console.error('Error creating claim:', error);
+      toast({
+        title: "Error",
+        description: "Failed to create claim. Please try again.",
+        variant: "destructive"
+      });
     }
   })
 
   const completeOnboarding = () => {
     try {
+      if (!user?.id) {
+        toast({
+          title: "Error",
+          description: "You must be logged in to create a claim.",
+          variant: "destructive"
+        });
+        return;
+      }
+
       // Prepare claim data
       const claimData = {
+        user_id: user.id,
         street: address.street,
         city: address.city,
         state: address.state,

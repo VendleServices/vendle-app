@@ -563,3 +563,17 @@
     @apply dark:bg-gray-900 dark:text-white;
   }
 }
+
+@keyframes bg-move {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+.bg-animated-smoke {
+  background: linear-gradient(120deg, #232526 0%, #414345 50%, #232526 100%);
+  background-size: 200% 200%;
+  animation: bg-move 12s ease-in-out infinite;
+  filter: blur(2px);
+  opacity: 0.9;
+}

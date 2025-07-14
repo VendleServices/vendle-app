@@ -27,6 +27,9 @@ const Navbar = () => {
 
         <div className="hidden md:flex items-center space-x-8">
           <Link href="/" className="text-gray-700 hover:text-black transition-colors">Home</Link>
+          {isLoggedIn && (
+            <Link href="/dashboard" className="text-gray-700 hover:text-black transition-colors">Dashboard</Link>
+          )}
           <Link href="/reverse-auction" className="text-gray-700 hover:text-black transition-colors">Auctions</Link>
           <Link href={getProjectsPath()} className="text-gray-700 hover:text-black transition-colors">My Projects</Link>
           {user?.user_type === "contractor" && (
@@ -42,7 +45,7 @@ const Navbar = () => {
           {showLoginButtons ? (
             // ALWAYS show login buttons unless we're definitely logged in
             <>
-              <Link href="/login">
+              <Link href="/">
                 <Button variant="outline" className="text-gray-600 hover:text-gray-900 border-gray-200">
                   Log In
                 </Button>
