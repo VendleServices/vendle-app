@@ -88,7 +88,7 @@ interface Review {
     project_address: string;
 }
 
-export default function MyProjectsPage() {
+export default function DashboardPage() {
     const router = useRouter();
     const searchParams = useSearchParams();
     const queryClient = useQueryClient();
@@ -110,7 +110,7 @@ export default function MyProjectsPage() {
     const [sortBy, setSortBy] = useState('date-desc');
     const [auctions, setAuctions] = useState<Auction[]>([]);
     const [auctionLoading, setAuctionLoading] = useState(false);
-    const [activeSection, setActiveSection] = useState<'auctions' | 'claims' | 'reviews' | 'closed-auctions'>('auctions');
+    const [activeSection, setActiveSection] = useState<'auctions' | 'claims' | 'reviews' | 'closed-auctions'>('claims');
     const [sidebarExpanded, setSidebarExpanded] = useState(true);
     const [auctionToDelete, setAuctionToDelete] = useState<Auction | null>(null);
     const [showAuctionDeleteConfirmation, setShowAuctionDeleteConfirmation] = useState(false);
@@ -421,32 +421,12 @@ export default function MyProjectsPage() {
 
     return (
         <div className={`min-h-screen bg-white ${inter.className}`}>
-            {/* Top bar with back button and logo */}
-            <div className="fixed top-0 left-0 right-0 z-40 flex items-center justify-between h-16 px-6 bg-white border-b border-gray-200 shadow-sm">
-                <button
-                    onClick={() => router.push('/dashboard')}
-                    className="flex items-center gap-2 text-gray-700 hover:text-blue-700 font-medium"
-                >
-                    <ChevronLeft className="w-5 h-5" />
-                    Dashboard
-                </button>
-                <button
-                    onClick={() => router.push('/dashboard')}
-                    className="flex items-center gap-2"
-                >
-                    <Image src="/vendle_logo.jpg" alt="Vendle Logo" width={32} height={32} className="h-8 w-8" />
-                    <span className="text-lg font-semibold text-black">Vendle</span>
-                </button>
-                <div style={{ width: 120 }} />
-            </div>
-            
-            {/* Main content with top padding to avoid overlap */}
+            {/* Main content */}
             <motion.div
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: -20 }}
                 transition={{ duration: 0.3 }}
-                className="pt-20"
             >
                 <div className="flex">
                     {/* Sidebar */}

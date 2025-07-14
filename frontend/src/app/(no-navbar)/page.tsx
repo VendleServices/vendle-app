@@ -2,7 +2,6 @@
 import { useEffect } from "react"
 import { useRouter } from "next/navigation"
 import { useAuth } from "@/contexts/AuthContext"
-import AuthForm from "@/components/AuthForm"
 import { 
   Shield, 
   Users, 
@@ -26,8 +25,8 @@ export default function HomePage() {
 
   useEffect(() => {
     if (!isLoading && user) {
-      // Redirect to dashboard instead of my-projects
-      router.push('/dashboard')
+      // Redirect to home page when user is logged in
+      router.push('/home')
     }
   }, [user, isLoading, router])
 
@@ -80,9 +79,8 @@ export default function HomePage() {
       {/* Content */}
       <div className="relative z-10">
         <div className="container mx-auto px-4 py-20">
-          <div className="grid lg:grid-cols-2 gap-12 items-center">
-            {/* Left side - Marketing content */}
-            <div className="space-y-8">
+          <div className="flex flex-col items-center justify-center min-h-screen text-center">
+            <div className="space-y-8 max-w-3xl">
               <div className="space-y-4">
                 <h1 className="text-5xl font-bold text-gray-900 leading-tight">
                   Rebuild Your Home
@@ -93,12 +91,12 @@ export default function HomePage() {
                 </p>
               </div>
 
-              <div className="flex flex-col sm:flex-row gap-4">
+              <div className="flex flex-col sm:flex-row gap-4 justify-center">
                 <button 
-                  onClick={() => document.getElementById('login-section')?.scrollIntoView({ behavior: 'smooth' })}
+                  onClick={() => router.push('/login')}
                   className="bg-blue-600 text-white px-8 py-4 rounded-lg font-semibold hover:bg-blue-700 transition-colors flex items-center justify-center gap-2"
                 >
-                  Get Started
+                  Login
                   <ArrowRight className="w-5 h-5" />
                 </button>
                 <button className="border border-gray-300 text-gray-700 px-8 py-4 rounded-lg font-semibold hover:bg-gray-50 transition-colors flex items-center justify-center gap-2">
@@ -106,26 +104,6 @@ export default function HomePage() {
                   Watch Demo
                 </button>
               </div>
-
-              <div className="grid grid-cols-3 gap-8 pt-8">
-                <div className="text-center">
-                  <div className="text-2xl font-bold text-blue-600">500+</div>
-                  <div className="text-sm text-gray-600">Happy Families</div>
-                </div>
-                <div className="text-center">
-                  <div className="text-2xl font-bold text-blue-600">$2M+</div>
-                  <div className="text-sm text-gray-600">Claims Processed</div>
-                </div>
-                <div className="text-center">
-                  <div className="text-2xl font-bold text-blue-600">50+</div>
-                  <div className="text-sm text-gray-600">Trusted Contractors</div>
-                </div>
-              </div>
-            </div>
-
-            {/* Right side - Login form */}
-            <div id="login-section" className="bg-white rounded-2xl shadow-xl p-8">
-              <AuthForm type="login" />
             </div>
           </div>
         </div>

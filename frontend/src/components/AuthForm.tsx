@@ -3,7 +3,7 @@ import { useState, useTransition } from 'react';
 import Button from '@/components/Button';
 import { FadeTransition } from '@/lib/transitions';
 import { useToast } from '@/hooks/use-toast';
-import { Mail, Lock, ArrowLeft, Eye, EyeOff } from 'lucide-react';
+import { Mail, Lock, Eye, EyeOff } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { loginAction, signUpAction } from "@/actions/users";
 import { useAuth } from '@/contexts/AuthContext';
@@ -84,7 +84,7 @@ const AuthForm = ({ type }: Props) => {
                 // Wait longer for the auth state and cookies to sync properly, then redirect
                 setTimeout(() => {
                     // Use window.location.href as fallback to ensure navigation works
-                    window.location.href = '/dashboard';
+                    window.location.href = '/home';
                 }, 500);
             } else {
                 toast({
@@ -114,27 +114,18 @@ const AuthForm = ({ type }: Props) => {
     };
 
     return (
-        <div className="flex-1 flex items-center justify-center px-4 py-20">
-            <FadeTransition>
-                <div className="w-full max-w-md bg-white rounded-2xl shadow-medium p-8">
-                    <div className="mb-8 text-center">
-                        <button
-                            onClick={() => router.push('/')}
-                            className="inline-flex items-center text-vendle-blue hover:text-vendle-blue/80 mb-6"
-                        >
-                            <ArrowLeft className="h-4 w-4 mr-1" />
-                            <span>Back to Home</span>
-                        </button>
-
-                        <h1 className="text-2xl font-bold text-vendle-navy">
-                            {type === 'login' ? 'Welcome Back' : 'Create Your Account'}
-                        </h1>
-                        <p className="text-vendle-navy/70 mt-2">
-                            {type === 'login'
-                                ? 'Sign in to continue your recovery journey'
-                                : 'Join thousands rebuilding with confidence'}
-                        </p>
-                    </div>
+        <FadeTransition>
+            <div className="w-full max-w-md bg-white rounded-2xl shadow-medium p-8">
+                                    <div className="mb-8 text-center">
+                    <h1 className="text-2xl font-bold text-vendle-navy">
+                        {type === 'login' ? 'Welcome Back' : 'Create Your Account'}
+                    </h1>
+                    <p className="text-vendle-navy/70 mt-2">
+                        {type === 'login'
+                            ? 'Sign in to continue your recovery journey'
+                            : 'Join thousands rebuilding with confidence'}
+                    </p>
+                </div>
 
                     <div className="space-y-4 mb-6">
                         <button
@@ -315,7 +306,6 @@ const AuthForm = ({ type }: Props) => {
                     )}
                 </div>
             </FadeTransition>
-        </div>
     );
 };
 

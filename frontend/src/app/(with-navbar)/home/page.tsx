@@ -51,7 +51,7 @@ interface RecentAuction {
   status: string
 }
 
-export default function DashboardPage() {
+export default function HomePage() {
   const { user, isLoggedIn, isLoading: authLoading } = useAuth()
   const router = useRouter()
 
@@ -198,69 +198,70 @@ export default function DashboardPage() {
               <Plus className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
-              <Button 
-                onClick={() => router.push('/start-claim')}
-                className="w-full"
-                size="sm"
-              >
-                Start New Claim
-              </Button>
+              <div className="space-y-2">
+                <Button 
+                  onClick={() => router.push('/start-claim')}
+                  className="w-full text-xs"
+                  size="sm"
+                >
+                  Start New Claim
+                </Button>
+                <Button 
+                  onClick={() => router.push('/dashboard')}
+                  variant="outline"
+                  className="w-full text-xs"
+                  size="sm"
+                >
+                  View All Projects
+                </Button>
+              </div>
             </CardContent>
           </Card>
         </div>
 
-        {/* Main Content Grid */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+        {/* Recent Activity */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           {/* Recent Claims */}
           <Card>
             <CardHeader>
-              <div className="flex items-center justify-between">
-                <CardTitle>Recent Claims</CardTitle>
-                <Button 
-                  variant="ghost" 
-                  size="sm"
-                  onClick={() => router.push('/my-projects?tab=claims')}
-                >
-                  View All
-                  <ArrowRight className="w-4 h-4 ml-1" />
-                </Button>
-              </div>
+              <CardTitle className="flex items-center gap-2">
+                <FileText className="h-5 w-5" />
+                Recent Claims
+              </CardTitle>
             </CardHeader>
             <CardContent>
-              {claimsLoading ? (
-                <div className="text-center py-4">Loading...</div>
-              ) : recentClaims.length > 0 ? (
+              {recentClaims.length > 0 ? (
                 <div className="space-y-4">
                   {recentClaims.map((claim: any) => (
-                    <div key={claim.id} className="flex items-center justify-between p-3 border rounded-lg">
-                      <div className="flex-1">
-                        <div className="font-medium">{claim.street}</div>
-                        <div className="text-sm text-gray-500">{claim.city}, {claim.state}</div>
-                        <div className="text-xs text-gray-400">{claim.projectType}</div>
+                    <div key={claim.id} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                      <div className="flex items-center gap-3">
+                        <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
+                        <div>
+                          <p className="font-medium text-sm">{claim.street}</p>
+                          <p className="text-xs text-gray-500">{claim.city}, {claim.state}</p>
+                        </div>
                       </div>
-                      <div className="flex items-center gap-2">
-                        <Badge variant={claim.status === 'completed' ? 'default' : 'secondary'}>
-                          {claim.status}
-                        </Badge>
-                        <Button 
-                          variant="ghost" 
-                          size="sm"
-                          onClick={() => router.push(`/claim/${claim.id}`)}
-                        >
-                          View
-                        </Button>
-                      </div>
+                      <Badge variant="secondary" className="text-xs">
+                        {claim.projectType || 'General'}
+                      </Badge>
                     </div>
                   ))}
+                  <Button 
+                    onClick={() => router.push('/dashboard')}
+                    variant="outline" 
+                    className="w-full"
+                  >
+                    View All Claims
+                    <ArrowRight className="w-4 h-4 ml-2" />
+                  </Button>
                 </div>
               ) : (
-                <div className="text-center py-8 text-gray-500">
-                  <FileText className="w-12 h-12 mx-auto mb-4 text-gray-300" />
-                  <p>No claims yet</p>
+                <div className="text-center py-8">
+                  <FileText className="h-12 w-12 text-gray-400 mx-auto mb-4" />
+                  <p className="text-gray-500">No claims yet</p>
                   <Button 
                     onClick={() => router.push('/start-claim')}
-                    className="mt-2"
-                    size="sm"
+                    className="mt-4"
                   >
                     Start Your First Claim
                   </Button>
@@ -272,57 +273,44 @@ export default function DashboardPage() {
           {/* Recent Auctions */}
           <Card>
             <CardHeader>
-              <div className="flex items-center justify-between">
-                <CardTitle>Active Auctions</CardTitle>
-                <Button 
-                  variant="ghost" 
-                  size="sm"
-                  onClick={() => router.push('/my-projects?tab=auctions')}
-                >
-                  View All
-                  <ArrowRight className="w-4 h-4 ml-1" />
-                </Button>
-              </div>
+              <CardTitle className="flex items-center gap-2">
+                <DollarSign className="h-5 w-5" />
+                Recent Auctions
+              </CardTitle>
             </CardHeader>
             <CardContent>
-              {auctionsLoading ? (
-                <div className="text-center py-4">Loading...</div>
-              ) : recentAuctions.length > 0 ? (
+              {recentAuctions.length > 0 ? (
                 <div className="space-y-4">
                   {recentAuctions.map((auction: any) => (
-                    <div key={auction.auction_id} className="flex items-center justify-between p-3 border rounded-lg">
-                      <div className="flex-1">
-                        <div className="font-medium">{auction.title}</div>
-                        <div className="text-sm text-gray-500">
-                          Current Bid: ${auction.current_bid?.toLocaleString() || 'N/A'}
-                        </div>
-                        <div className="text-xs text-gray-400">
-                          {auction.bid_count} bids • Ends {new Date(auction.end_date).toLocaleDateString()}
+                    <div key={auction.auction_id} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                      <div className="flex items-center gap-3">
+                        <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+                        <div>
+                          <p className="font-medium text-sm">{auction.title}</p>
+                          <p className="text-xs text-gray-500">${auction.current_bid?.toLocaleString()}</p>
                         </div>
                       </div>
-                      <div className="flex items-center gap-2">
-                        <Badge variant={auction.status === 'open' ? 'default' : 'secondary'}>
-                          {auction.status}
-                        </Badge>
-                        <Button 
-                          variant="ghost" 
-                          size="sm"
-                          onClick={() => router.push(`/auction/${auction.auction_id}`)}
-                        >
-                          View
-                        </Button>
-                      </div>
+                      <Badge variant="secondary" className="text-xs">
+                        {auction.bid_count} bids
+                      </Badge>
                     </div>
                   ))}
-                </div>
-              ) : (
-                <div className="text-center py-8 text-gray-500">
-                  <DollarSign className="w-12 h-12 mx-auto mb-4 text-gray-300" />
-                  <p>No active auctions</p>
                   <Button 
                     onClick={() => router.push('/reverse-auction')}
-                    className="mt-2"
-                    size="sm"
+                    variant="outline" 
+                    className="w-full"
+                  >
+                    View All Auctions
+                    <ArrowRight className="w-4 h-4 ml-2" />
+                  </Button>
+                </div>
+              ) : (
+                <div className="text-center py-8">
+                  <DollarSign className="h-12 w-12 text-gray-400 mx-auto mb-4" />
+                  <p className="text-gray-500">No auctions yet</p>
+                  <Button 
+                    onClick={() => router.push('/reverse-auction')}
+                    className="mt-4"
                   >
                     Browse Auctions
                   </Button>
@@ -330,39 +318,6 @@ export default function DashboardPage() {
               )}
             </CardContent>
           </Card>
-        </div>
-
-        {/* Quick Actions */}
-        <div className="mt-8">
-          <h2 className="text-xl font-semibold mb-4">Quick Actions</h2>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <Button 
-              onClick={() => router.push('/start-claim')}
-              className="h-20 flex flex-col items-center justify-center gap-2"
-              variant="outline"
-            >
-              <Plus className="w-6 h-6" />
-              <span>Start New Claim</span>
-            </Button>
-            
-            <Button 
-              onClick={() => router.push('/reverse-auction')}
-              className="h-20 flex flex-col items-center justify-center gap-2"
-              variant="outline"
-            >
-              <DollarSign className="w-6 h-6" />
-              <span>Browse Auctions</span>
-            </Button>
-            
-            <Button 
-              onClick={() => router.push('/contractors')}
-              className="h-20 flex flex-col items-center justify-center gap-2"
-              variant="outline"
-            >
-              <Users className="w-6 h-6" />
-              <span>Find Contractors</span>
-            </Button>
-          </div>
         </div>
       </div>
     </div>
