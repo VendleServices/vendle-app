@@ -8,75 +8,90 @@ generator client {
 }
 
 model User {
-  id    String     @id @default(uuid())
-  email String  @unique
-  femaForms Fema[]
-  claim Claim[]
-  auction Auction[]
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt @default(now())
+  id          String        @id
+  email       String        @unique
+  femaForms   Fema[]
+  claim       Claim[]
+  auction     Auction[]
+  restoration Restoration[]
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @default(now()) @updatedAt
 }
 
 model Fema {
-  id String @id @default(uuid())
-  firstName String
-  lastName String
-  email String
-  phone String
-  address String
-  city String
-  state String
-  zipCode String
-  propertyDamage String
+  id                 String   @id @default(uuid())
+  firstName          String
+  lastName           String
+  email              String
+  phone              String
+  address            String
+  city               String
+  state              String
+  zipCode            String
+  propertyDamage     String
   isPrimaryResidence Boolean
-  hasInsurance Boolean
-  isUsCitizen Boolean
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt @default(now())
-  user    User   @relation(fields: [userId], references: [id])
-  userId String
+  hasInsurance       Boolean
+  isUsCitizen        Boolean
+  createdAt          DateTime @default(now())
+  updatedAt          DateTime @default(now()) @updatedAt
+  user               User     @relation(fields: [userId], references: [id])
+  userId             String
 }
 
 model Claim {
-  id String @id @default(uuid())
-  street String
-  city String
-  state String
-  zipCode String
-  projectType String
-  designPlan String
+  id                        String    @id @default(uuid())
+  street                    String
+  city                      String
+  state                     String
+  zipCode                   String
+  projectType               String
+  designPlan                String
   insuranceEstimateFilePath String
-  needsAdjuster Boolean
-  insuranceProvider String
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt @default(now())
-  user    User   @relation(fields: [userId], references: [id])
-  userId String
-  auctions Auction[]
+  needsAdjuster             Boolean
+  createdAt                 DateTime  @default(now())
+  updatedAt                 DateTime  @default(now()) @updatedAt
+  user                      User      @relation(fields: [userId], references: [id])
+  userId                    String
+  auctions                  Auction[]
 }
 
 model Auction {
-  id String @id @default(uuid())
-  claimId String
-  title String
-  description String?
-  startingBid Float
-  currentBid Float?
-  status String @default("open")
-  auctionEndDate DateTime
-  totalJobValue Float?
-  overheadAndProfit Float?
-  costBasis String?
-  materials Float?
-  salesTaxes Float?
-  depreciation Float?
-  reconstructionType String?
-  needs3rdPartyAdjuster Boolean @default(false)
-  hasDeductibleFunds Boolean @default(false)
-  fundingSource String?
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt @default(now())
-  user User @relation(fields: [userId], references: [id])
-  userId String
-  claim Claim @relation(fields: [claimId], references: [id])
+  id                    String   @id @default(uuid())
+  claimId               String
+  title                 String
+  description           String?
+  startingBid           Float
+  currentBid            Float?
+  status                String   @default("open")
+  auctionEndDate        DateTime
+  totalJobValue         Float?
+  overheadAndProfit     Float?
+  costBasis             String?
+  materials             Float?
+  salesTaxes            Float?
+  depreciation          Float?
+  reconstructionType    String?
+  needs3rdPartyAdjuster Boolean  @default(false)
+  hasDeductibleFunds    Boolean  @default(false)
+  fundingSource         String?
+  createdAt             DateTime @default(now())
+  updatedAt             DateTime @default(now()) @updatedAt
+  user                  User     @relation(fields: [userId], references: [id])
+  userId                String
+  claim                 Claim    @relation(fields: [claimId], references: [id])
+}
+
+model Restoration {
+  id                        String   @id @default(uuid())
+  insuranceEstimateFilePath String
+  needsAdjuster             Boolean
+  createdAt                 DateTime @default(now())
+  updatedAt                 DateTime @default(now()) @updatedAt
+  user                      User     @relation(fields: [userId], references: [id])
+  userId                    String
+  isRcv                     Boolean
+  overheadProfit            Boolean
+  materials                 Boolean
+  salesTaxes                Boolean
+  depreciation              Boolean
 }

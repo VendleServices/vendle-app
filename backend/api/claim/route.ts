@@ -1,60 +1,77 @@
 import { Router } from 'express';
 import { prisma } from '../../db/prisma.js';
+import { getUser } from '../../auth/server.js';
 
 const router = Router();
 
-// GET /api/claim - Get claims for a specific user
-router.get('/', async (req, res) => {
+router.get('/:claimId', async (req, res) => {
   try {
-    const { user_id } = req.query;
-    
-    if (!user_id) {
-      return res.status(400).json({ 
-        status: 'error', 
-        message: 'user_id is required' 
-      });
+    const { claimId } = req.params;
+
+    const user = await getUser(req);
+
+    if (!user) {
+      return res.status(401).json({ error: 'No user found' });
     }
 
-    const claims = await prisma.claim.findMany({
+    const claim = await prisma.claim.findUnique({
       where: {
-        userId: user_id as string
-      },
-      orderBy: {
-        createdAt: 'desc'
+        id: claimId,
+        userId: user.id
       }
     });
-    
-    res.json(claims);
+
+    return res.status(200).json({ claim });
   } catch (error) {
-    console.error('Error fetching claims:', error);
-    res.status(500).json({ status: 'error', message: 'Failed to fetch claims' });
+    console.error('Error fetching claim:', error);
+    return res.status(500).json({ message: 'Internal server error' });
   }
 });
 
-// POST /api/claim - Create new claim
-router.post('/', async (req, res) => {
+router.delete('/:claimId', async (req, res) => {
   try {
-    const claimData = req.body;
-    
-    const claim = await prisma.claim.create({
-      data: {
-        userId: claimData.user_id,
-        street: claimData.street || '',
-        city: claimData.city || '',
-        state: claimData.state || '',
-        zipCode: claimData.zipCode || '',
-        projectType: claimData.projectType || '',
-        designPlan: claimData.designPlan || '',
-        insuranceEstimateFilePath: claimData.insuranceEstimateFilePath || '',
-        needsAdjuster: claimData.needsAdjuster || false,
-        insuranceProvider: claimData.insuranceProvider || ''
+    const { claimId } = req.params;
+
+    const user = await getUser(req);
+    if (!user) {
+      return res.status(401).json({ error: 'No user found' });
+    }
+
+    await prisma.claim.delete({
+      where: {
+        id: claimId,
+        userId: user.id
       }
     });
-    
-    res.json({ status: 'success', claim });
+
+    return res.status(204).send(); // No Content
+  } catch (error) {
+    console.error('Error deleting claim:', error);
+    return res.status(500).json({ message: 'Internal server error' });
+  }
+});
+
+router.post('/', async (req, res) => {
+  try {
+    const user = req?.user;
+
+    if (!user) {
+      return res.status(401).json({ error: 'Not authorized' });
+    }
+
+    const claimData = req.body; // Assumes body-parser middleware is used
+
+    await prisma.claim.create({
+      data: {
+        ...claimData,
+        userId: user.id
+      }
+    });
+
+    return res.status(201).json({ data: claimData });
   } catch (error) {
     console.error('Error creating claim:', error);
-    res.status(500).json({ status: 'error', message: 'Failed to create claim' });
+    return res.status(500).json({ error: 'Internal server error' });
   }
 });
 

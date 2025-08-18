@@ -1,9 +1,7 @@
 "use server"
-
-import { createClient } from "@/auth/server";
-import { handleError } from "@/lib/utils";
-import { prisma } from "@/db/prisma";
-import { redirect } from "next/navigation";
+import { createClient } from "../auth/server";
+import { handleError } from "../lib/utils";
+import { prisma } from "../db/prisma";
 
 export const loginAction = async (email: string, password: string) => {
     try {
@@ -23,7 +21,7 @@ export const loginAction = async (email: string, password: string) => {
                 user_type: user.user_metadata?.user_type || "homeowner",
                 user_id: user.user_metadata?.user_id || user.id
             };
-            
+
             await supabase.auth.updateUser({
                 data: metadata
             });

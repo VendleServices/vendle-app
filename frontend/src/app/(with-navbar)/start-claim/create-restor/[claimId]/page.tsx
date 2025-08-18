@@ -14,6 +14,7 @@ import { useToast } from "@/hooks/use-toast";
 import { DollarSign, Calendar, FileText, Upload, CheckCircle, AlertCircle, ArrowRight, ArrowLeft, Building, MapPin, Wrench } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { Progress } from "@/components/ui/progress";
+import { createClient } from "@/auth/client";
 
 interface RestoreFormData {
   // Step 1: Insurance Estimate
@@ -49,6 +50,7 @@ export default function CreateRestorPage() {
   const [claimId, setClaimId] = useState<string | null>(null);
   const [currentStep, setCurrentStep] = useState(1);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const supabase = createClient();
 
   const [formData, setFormData] = useState<RestoreFormData>({
     insuranceEstimatePdf: null,
@@ -100,16 +102,52 @@ export default function CreateRestorPage() {
     }
   };
 
-  const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
       setFormData(prev => ({
         ...prev,
         insuranceEstimatePdf: e.target.files![0]
       }));
+
+      const file = e.target.files[0];
+      if (file.type !== 'application/pdf') {
+        toast({
+          title: "Invalid File Type",
+          description: "Please upload a PDF file.",
+          variant: "destructive"
+        });
+        return;
+      }
+
+      if (file.size > 10 * 1024 * 1024) { // 10MB max
+        toast({
+          title: "File Too Large",
+          description: "File size should be less than 10MB.",
+          variant: "destructive"
+        });
+        return;
+      }
+
+      try {
+        const timestamp = Date.now();
+        const { data, error } = await supabase.storage.from("vendle-estimates").upload(`public/${timestamp}-${file.name}`, file);
+
+        if (error) {
+          console.error('Upload error:', error);
+          toast({
+            title: "Upload Failed",
+            description: error.message || "There was an error uploading your file.",
+            variant: "destructive"
+          });
+          return;
+        }
+      } catch (error) {
+        console.log(error);
+      }
     }
   };
 
-  const handleInputChange = (field: keyof RestoreFormData, value: any) => {
+  const handleInputChange = (field: keyof RestoreFormData, value: never) => {
     setFormData(prev => ({
       ...prev,
       [field]: value

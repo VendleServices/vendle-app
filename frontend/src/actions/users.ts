@@ -46,7 +46,16 @@ export const signUpAction = async (email: string, password: string) => {
 
         if (error) throw error;
 
-        return { errorMessage: null };
+        const user = data.user;
+
+        if (user) {
+            await fetch("http://localhost:3001/api/signup", {
+                method: "POST",
+                body: JSON.stringify({ id: user.id, email: user.email! })
+            });
+        }
+
+        return { errorMessage: null, id: data?.user?.id };
     } catch (error) {
         console.error(error)
         return { errorMessage: error instanceof Error ? error.message : 'An error occurred' }
