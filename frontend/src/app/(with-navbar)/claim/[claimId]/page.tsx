@@ -8,6 +8,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { Building2, MapPin, Calendar, FileText, Clock, LayoutIcon, Trash2, ArrowLeft } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { use } from "react";
+import { useApiService } from "@/services/api";
 
 interface PageProps {
     params: Promise<{
@@ -32,13 +33,17 @@ interface Claim {
 
 export default function ClaimPage({ params }: PageProps) {
     const { claimId } = use(params);
+    const apiService = useApiService();
     const router = useRouter();
     const { user } = useAuth();
 
+    if (!user) {
+        router.push("/login");
+    }
+
     const fetchClaim = async () => {
-        const response = await fetch(`/api/claim/${claimId}`);
-        const { claim } = await response.json();
-        console.log(claim);
+        const response: any = await apiService.get(`/api/claim/${claimId}`);
+        const claim  = response?.claim;
         return claim ? claim : null
     }
 

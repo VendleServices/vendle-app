@@ -3,23 +3,25 @@ import { prisma } from '../../db/prisma.js';
 
 const router = Router();
 
-router.get('/', async (req, res) => {
+router.post('/', async (req, res) => {
     try {
         const { id, email } = req.body;
+
+        if (!id || !email) {
+            return res.status(400).json({ message: 'Missing required fields: id and email' });
+        }
 
         const existingUser = await prisma.user.findUnique({
             where: { email },
         });
 
-        if (existingUser) {
-            return res.status(500).json({ message: 'User already exists' });
+        if (!existingUser) {
+            await prisma.user.create({
+                data: {
+                    id, email
+                }
+            });
         }
-
-        await prisma.user.create({
-            data: {
-                id, email
-            }
-        });
 
         return res.status(201).json({ message: "Created user successfully" });
     } catch (error) {

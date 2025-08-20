@@ -2,7 +2,6 @@
 import { createContext, ReactNode, useState, useEffect, useContext } from 'react';
 import { signUpAction, logOutAction, loginAction } from "@/actions/users";
 import { createClient } from "@/auth/client";
-import { useApiService } from "@/services/api";
 
 type User = {
     id: string; // Supabase UUID
@@ -86,11 +85,21 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
         // Listen for auth changes
         const { data: { subscription } } = supabase.auth.onAuthStateChange(
-            (event, session) => {
+            async (event, session) => {
                 console.log('Auth state change:', event, session?.user?.email); // Debug log
 
                 try {
                     if (session?.user) {
+                        if (event === "SIGNED_IN") {
+                            await fetch('http://localhost:3001/api/signup', {
+                                method: 'POST',
+                                headers: { 'Content-Type': 'application/json' },
+                                body: JSON.stringify({
+                                    id: session?.user?.id,
+                                    email: session?.user?.email,
+                                })
+                            });
+                        }
                         const userData: User = {
                             id: session.user.id, // Supabase UUID
                             email: session.user.email!,

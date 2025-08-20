@@ -1,25 +1,45 @@
 import { Router } from 'express';
 import { prisma } from '../../db/prisma.js';
-import { getUser } from '../../auth/server.js';
 
 const router = Router();
 
-router.get('/:claimId', async (req, res) => {
+router.get('/', async (req: any, res) => {
+  try {
+    const user = req?.user;
+    if (!user) {
+      return res.status(401).json({ error: 'Not Authorized' });
+    }
+
+    const claims = await prisma.claim.findMany({
+      where: {
+        userId: user.id
+      }
+    }) || [];
+
+    return res.status(200).json({ claims });
+  } catch (error) {
+    console.error('Error fetching claims:', error);
+    return res.status(500).json({ message: 'Internal server error' });
+  }
+});
+
+router.get('/:claimId', async (req: any, res) => {
   try {
     const { claimId } = req.params;
-
-    const user = await getUser(req);
-
+    const user = req?.user;
     if (!user) {
-      return res.status(401).json({ error: 'No user found' });
+      return res.status(401).json({ error: 'Not Authorized' });
     }
 
     const claim = await prisma.claim.findUnique({
       where: {
         id: claimId,
-        userId: user.id
       }
     });
+
+    if (!claim) {
+      return res.status(404).json({ error: 'Claim not found' });
+    }
 
     return res.status(200).json({ claim });
   } catch (error) {
@@ -28,11 +48,11 @@ router.get('/:claimId', async (req, res) => {
   }
 });
 
-router.delete('/:claimId', async (req, res) => {
+router.delete('/:claimId', async (req: any, res) => {
   try {
     const { claimId } = req.params;
 
-    const user = await getUser(req);
+    const user = req?.user;
     if (!user) {
       return res.status(401).json({ error: 'No user found' });
     }
@@ -40,18 +60,17 @@ router.delete('/:claimId', async (req, res) => {
     await prisma.claim.delete({
       where: {
         id: claimId,
-        userId: user.id
       }
     });
 
-    return res.status(204).send(); // No Content
+    return res.status(204).send();
   } catch (error) {
     console.error('Error deleting claim:', error);
     return res.status(500).json({ message: 'Internal server error' });
   }
 });
 
-router.post('/', async (req, res) => {
+router.post('/', async (req: any, res) => {
   try {
     const user = req?.user;
 

@@ -91,7 +91,7 @@ const Onboarding = () => {
   const submitClaimData = async (claimData: ClaimData) => {
     try {
       const response = await apiService.post('/api/claim', claimData)
-      return response.json();
+      return response;
     } catch (error) {
       console.log(error);
       throw error;
