@@ -234,7 +234,7 @@ const ContractorDetails = ({ contractor, onClose, isSelected, onSelect }: Contra
 
       <ScrollArea className="flex-1 mt-4">
         <TabsContent value="projects" className="space-y-4">
-          {contractor.projects.map(project => (
+          {contractor.projects?.map(project => (
             <Card key={project.id}>
               <CardHeader className="py-3">
                 <div className="flex items-center gap-3">
@@ -252,13 +252,13 @@ const ContractorDetails = ({ contractor, onClose, isSelected, onSelect }: Contra
         </TabsContent>
 
         <TabsContent value="reviews" className="space-y-4">
-          {contractor.reviews.map(review => (
+          {contractor.reviews?.map(review => (
             <Card key={review.id}>
               <CardHeader className="py-3">
                 <div className="flex justify-between">
                   <CardTitle className="text-base">{review.author}</CardTitle>
                   <div className="flex items-center text-amber-500">
-                    {Array.from({ length: 5 }).map((_, i) => (
+                    {Array.from({ length: 5 })?.map((_, i) => (
                       <Star 
                         key={i} 
                         className={`h-4 w-4 ${i < review.rating ? 'fill-current' : 'stroke-current fill-transparent'}`} 
@@ -328,7 +328,7 @@ const ContractorBrowser = ({ onSelect }: ContractorBrowserProps) => {
     if (savedContractors) {
       try {
         const parsedContractors = JSON.parse(savedContractors);
-        setSelectedContractors(parsedContractors.map((c: any) => c.id));
+        setSelectedContractors(parsedContractors?.map((c: any) => c.id));
       } catch (e) {
         console.error("Error parsing saved contractors", e);
       }
@@ -346,7 +346,7 @@ const ContractorBrowser = ({ onSelect }: ContractorBrowserProps) => {
         description: `Notification sent to ${CONTRACTORS.find(c => c.id === id)?.name}`,
       });
     } else {
-      newSelected = selectedContractors.filter(contractorId => contractorId !== id);
+      newSelected = selectedContractors?.filter(contractorId => contractorId !== id);
       setSelectedContractors(newSelected);
       toast({
         title: "Contractor Removed",
@@ -356,8 +356,8 @@ const ContractorBrowser = ({ onSelect }: ContractorBrowserProps) => {
     
     if (onSelect) {
       const selectedContractorObjects = CONTRACTORS
-        .filter(c => newSelected.includes(c.id))
-        .map(({ id, name, avatar, location, specialty }) => ({ 
+        ?.filter(c => newSelected.includes(c.id))
+        ?.map(({ id, name, avatar, location, specialty }) => ({ 
           id, name, avatar, location, specialty 
         }));
       
@@ -393,7 +393,7 @@ const ContractorBrowser = ({ onSelect }: ContractorBrowserProps) => {
 
           {viewingContractor === null ? (
             <ScrollArea className="flex-1 pr-4 h-[60vh]">
-              {CONTRACTORS.map(contractor => (
+              {CONTRACTORS?.map(contractor => (
                 <ContractorCard
                   key={contractor.id}
                   contractor={contractor}
@@ -418,19 +418,19 @@ const ContractorBrowser = ({ onSelect }: ContractorBrowserProps) => {
 
           <div className="mt-4 flex justify-between items-center">
             <div className="text-sm text-gray-500">
-              {selectedContractors.length === 0 ? (
+              {selectedContractors?.length === 0 ? (
                 'No contractors selected'
               ) : (
-                `${selectedContractors.length} contractor${selectedContractors.length > 1 ? 's' : ''} selected`
+                `${selectedContractors?.length} contractor${selectedContractors?.length > 1 ? 's' : ''} selected`
               )}
             </div>
             <Button 
               variant="outline" 
               onClick={() => {
-                if (onSelect && selectedContractors.length > 0) {
+                if (onSelect && selectedContractors?.length > 0) {
                   const selectedContractorObjects = CONTRACTORS
-                    .filter(c => selectedContractors.includes(c.id))
-                    .map(({ id, name, avatar, location, specialty }) => ({ 
+                    ?.filter(c => selectedContractors.includes(c.id))
+                    ?.map(({ id, name, avatar, location, specialty }) => ({ 
                       id, name, avatar, location, specialty 
                     }));
                   

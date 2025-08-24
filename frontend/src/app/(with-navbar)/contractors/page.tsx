@@ -116,7 +116,7 @@ const Contractors = () => {
         </SlideUpTransition>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-16">
-          {benefits.map((benefit, index) => (
+          {benefits?.map((benefit, index) => (
             <motion.div
               key={index}
               initial={{ opacity: 0, y: 20 }}
@@ -198,7 +198,7 @@ const Contractors = () => {
               </p>
               
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
-                {documents.map((doc, index) => (
+                {documents?.map((doc, index) => (
                   <Card key={index} className="border-l-4 border-l-vendle-sand shadow-subtle hover:shadow-medium transition-all">
                     <CardContent className="p-4">
                       <div className="flex items-start">

@@ -138,12 +138,12 @@ export default function DashboardPage() {
             const data = await response.json();
             console.log('Fetched auctions:', data);
             
-            const activeAuctions = data.filter((auction: Auction) => {
+            const activeAuctions = data?.filter((auction: Auction) => {
                 const endDate = new Date(auction.end_date);
                 return auction.status === 'open' && endDate > new Date();
             });
             
-            const closedAuctions = data.filter((auction: Auction) => {
+            const closedAuctions = data?.filter((auction: Auction) => {
                 const endDate = new Date(auction.end_date);
                 return auction.status === 'closed' || endDate <= new Date();
             });
@@ -293,7 +293,7 @@ export default function DashboardPage() {
                 throw new Error('Failed to delete auction');
             }
 
-            setAuctions(auctions.filter(auction => auction.auction_id !== auctionToDelete.auction_id));
+            setAuctions(auctions?.filter(auction => auction.auction_id !== auctionToDelete.auction_id));
             
             toast({
                 title: "Auction Deleted",
@@ -330,7 +330,7 @@ export default function DashboardPage() {
                 throw new Error('Failed to delete auction');
             }
 
-            setClosedAuctions(closedAuctions.filter(auction => auction.auction_id !== closedAuctionToDelete.auction_id));
+            setClosedAuctions(closedAuctions?.filter(auction => auction.auction_id !== closedAuctionToDelete.auction_id));
             
             toast({
                 title: "Auction Deleted",
@@ -442,15 +442,15 @@ export default function DashboardPage() {
                                     <div className="space-y-1">
                                         <div className="flex justify-between text-white text-xs">
                                             <span>Active Claims</span>
-                                            <span>{claims.filter((c: Claim) => c.id === 'in-progress').length}</span>
+                                            <span>{claims?.filter((c: Claim) => c.id === 'in-progress')?.length}</span>
                                         </div>
                                         <div className="flex justify-between text-white text-xs">
                                             <span>Active Auctions</span>
-                                            <span>{auctions.length}</span>
+                                            <span>{auctions?.length}</span>
                                         </div>
                                         <div className="flex justify-between text-white text-xs">
                                             <span>Completed</span>
-                                            <span>{claims.filter((c: Claim)=> c.id === 'completed').length}</span>
+                                            <span>{claims?.filter((c: Claim)=> c.id === 'completed')?.length}</span>
                                         </div>
                                     </div>
                                 </div>
@@ -630,7 +630,7 @@ export default function DashboardPage() {
                                                     <div className="flex justify-center items-center h-64">
                                                         <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-[#0f172a]"></div>
                                                     </div>
-                                                ) : auctions.length === 0 ? (
+                                                ) : auctions?.length === 0 ? (
                                                     <div className="text-center py-12">
                                                         <Users className="w-12 h-12 mx-auto text-gray-400 mb-4" />
                                                         <h3 className="text-lg font-medium text-gray-900 mb-2">No Active Auctions</h3>
@@ -638,7 +638,7 @@ export default function DashboardPage() {
                                                     </div>
                                                 ) : (
                                                     <div className="grid gap-4">
-                                                        {auctions.map((auction) => (
+                                                        {auctions?.map((auction) => (
                                                             <Card key={auction.auction_id} className="hover:shadow-md transition-shadow duration-200 border border-gray-200 bg-white rounded-lg">
                                                                 <CardContent className="p-6">
                                                                     <div className="flex justify-between items-start mb-4">
@@ -733,7 +733,7 @@ export default function DashboardPage() {
                                                     <div className="flex justify-center items-center h-64">
                                                         <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-[#0f172a]"></div>
                                                     </div>
-                                                ) : closedAuctions.length === 0 ? (
+                                                ) : closedAuctions?.length === 0 ? (
                                                     <div className="text-center py-12">
                                                         <Archive className="w-12 h-12 mx-auto text-gray-400 mb-4" />
                                                         <h3 className="text-lg font-medium text-gray-900 mb-2">No Closed Auctions</h3>
@@ -741,7 +741,7 @@ export default function DashboardPage() {
                                                     </div>
                                                 ) : (
                                                     <div className="space-y-4">
-                                                        {closedAuctions.map((auction) => (
+                                                        {closedAuctions?.map((auction) => (
                                                             <Card key={auction.auction_id} className="hover:shadow-md transition-shadow duration-200 border border-gray-200 bg-white rounded-lg">
                                                                 <CardContent className="p-6">
                                                                     <div className="flex justify-between items-start mb-4">
@@ -810,7 +810,7 @@ export default function DashboardPage() {
                                                     <div className="flex justify-center items-center h-64">
                                                         <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-[#0f172a]"></div>
                                                     </div>
-                                                ) : claims.length === 0 ? (
+                                                ) : claims?.length === 0 ? (
                                                     <div className="text-center py-12">
                                                         <FileText className="w-12 h-12 mx-auto text-gray-400 mb-4" />
                                                         <h3 className="text-lg font-medium text-gray-900 mb-2">No Claims Found</h3>
@@ -824,7 +824,7 @@ export default function DashboardPage() {
                                                     </div>
                                                 ) : (
                                                     <div className="grid gap-4">
-                                                        {claims.map((claim: Claim) => (
+                                                        {claims?.map((claim: Claim) => (
                                                             <Card key={claim.id} className="hover:shadow-md transition-shadow duration-200 border border-gray-200 bg-white rounded-lg">
                                                                 <CardContent className="p-6">
                                                                     <div className="flex justify-between items-start mb-4">
@@ -902,7 +902,7 @@ export default function DashboardPage() {
                                         ) : (
                                             <>
                                                 <div className="grid gap-4">
-                                                    {reviews.map((review) => (
+                                                    {reviews?.map((review) => (
                                                         <Card key={review.id} className="hover:shadow-md transition-shadow duration-200 border border-gray-200 bg-white rounded-lg">
                                                             <CardContent className="p-6">
                                                                 <div className="flex justify-between items-start mb-4">
@@ -911,7 +911,7 @@ export default function DashboardPage() {
                                                                         <p className="text-sm text-gray-500 mt-1">{review.project_address}</p>
                                                                     </div>
                                                                     <div className="flex items-center">
-                                                                        {[...Array(5)].map((_, i) => (
+                                                                        {[...Array(5)]?.map((_, i) => (
                                                                             <Star
                                                                                 key={i}
                                                                                 className={`w-5 h-5 ${

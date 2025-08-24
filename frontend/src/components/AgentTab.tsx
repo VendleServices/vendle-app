@@ -60,7 +60,7 @@ export default function AgentTab() {
       <CardContent className="flex-1 p-4">
         <ScrollArea className="h-full pr-4" ref={scrollAreaRef}>
           <div className="space-y-4">
-            {messages.map((message, index) => (
+            {messages?.map((message, index) => (
               <div 
                 key={index} 
                 className={`flex ${message.role === "user" ? "justify-end" : "justify-start"}`}

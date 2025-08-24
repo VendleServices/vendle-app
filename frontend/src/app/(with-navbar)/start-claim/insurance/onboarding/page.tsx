@@ -158,7 +158,7 @@ const Onboarding = () => {
   const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
     
-    if (files && files.length > 0) {
+    if (files && files?.length > 0) {
       const file = files[0];
       
       // Basic validation

@@ -133,7 +133,7 @@ export default function PubAdjustOptPage() {
           >
             <h2 className="text-2xl font-bold mb-6 text-gray-800">Verified Public Adjusters</h2>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {publicAdjusters.map((adjuster) => (
+              {publicAdjusters?.map((adjuster) => (
                 <Card key={adjuster.id} className={`transition-all duration-300 hover:shadow-xl ${selectedAdjuster?.id === adjuster.id ? 'border-blue-500 border-2' : 'border-gray-200'}`}>
                   <CardHeader>
                     <div className="flex items-start space-x-4">
@@ -164,7 +164,7 @@ export default function PubAdjustOptPage() {
                     <div className="space-y-1">
                       <h4 className="font-semibold text-sm">Specialties:</h4>
                       <div className="flex flex-wrap gap-2">
-                        {adjuster.specialties.map(spec => (
+                        {adjuster.specialties?.map(spec => (
                           <span key={spec} className="bg-gray-100 text-gray-800 text-xs font-medium px-2.5 py-0.5 rounded-full">{spec}</span>
                         ))}
                       </div>

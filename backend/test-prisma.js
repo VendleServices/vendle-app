@@ -12,7 +12,7 @@ async function testPrisma() {
     
     // Test basic connection
     const users = await prisma.user.findMany();
-    console.log('Users found:', users.length);
+    console.log('Users found:', users?.length);
     
     // Test claims query
     const claims = await prisma.claim.findMany({
@@ -20,7 +20,7 @@ async function testPrisma() {
         userId: '1410752e-3305-476f-bfb4-3bef4a25bce0'
       }
     });
-    console.log('Claims found:', claims.length);
+    console.log('Claims found:', claims?.length);
     console.log('Claims:', claims);
     
   } catch (error) {

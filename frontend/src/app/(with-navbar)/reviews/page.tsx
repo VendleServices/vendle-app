@@ -71,7 +71,7 @@ export default function Reviews() {
 
     const getAverageRating = () => {
         const total = reviews.reduce((acc, review) => acc + review.rating, 0);
-        return (total / reviews.length).toFixed(1);
+        return (total / reviews?.length).toFixed(1);
     };
 
     const getRatingDistribution = () => {
@@ -97,7 +97,7 @@ export default function Reviews() {
     const handleSubmitResponse = () => {
         if (!selectedReview || !responseText.trim()) return;
 
-        const updatedReviews = reviews.map(review => {
+        const updatedReviews = reviews?.map(review => {
             if (review.id === selectedReview.id) {
                 return {
                     ...review,
@@ -167,7 +167,7 @@ export default function Reviews() {
                             <div className="text-center mb-6">
                                 <h2 className="text-4xl font-bold text-gray-900 mb-2">{getAverageRating()}</h2>
                                 <div className="flex justify-center mb-2">
-                                    {[...Array(5)].map((_, i) => (
+                                    {[...Array(5)?.map((_, i) => (
                                         <Star
                                             key={i}
                                             className={`w-5 h-5 ${
@@ -176,20 +176,20 @@ export default function Reviews() {
                                                     : "text-gray-300"
                                             }`}
                                         />
-                                    ))}
+                                    ))]}
                                 </div>
-                                <p className="text-sm text-gray-500">{reviews.length} total reviews</p>
+                                <p className="tesxt-sm text-gray-500">{reviews?.length} total reviews</p>
                             </div>
 
                             <div className="space-y-4">
-                                {Object.entries(ratingDistribution).reverse().map(([rating, count]) => (
+                                {Object.entries(ratingDistribution).reverse()?.map(([rating, count]) => (
                                     <div key={rating} className="flex items-center">
                                         <span className="text-sm text-gray-600 w-8">{rating} stars</span>
                                         <div className="flex-1 h-2 bg-gray-200 rounded-full mx-2">
                                             <div
                                                 className="h-2 bg-yellow-400 rounded-full"
                                                 style={{
-                                                    width: `${(count / reviews.length) * 100}%`
+                                                    width: `${(count / reviews?.length) * 100}%`
                                                 }}
                                             />
                                         </div>
@@ -202,7 +202,7 @@ export default function Reviews() {
 
                     {/* Reviews List */}
                     <div className="lg:col-span-3 space-y-4">
-                        {reviews.map((review) => (
+                        {reviews?.map((review) => (
                             <Card key={review.id} className="hover:shadow-md transition-shadow">
                                 <CardContent className="p-6">
                                     <div className="flex justify-between items-start mb-4">
@@ -214,7 +214,7 @@ export default function Reviews() {
                                             </div>
                                         </div>
                                         <div className="flex items-center">
-                                            {[...Array(5)].map((_, i) => (
+                                            {[...Array(5)]?.map((_, i) => (
                                                 <Star
                                                     key={i}
                                                     className={`w-5 h-5 ${

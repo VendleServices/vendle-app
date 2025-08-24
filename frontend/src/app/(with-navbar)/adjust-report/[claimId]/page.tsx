@@ -28,7 +28,7 @@ const FileUploadArea = ({ id, label, icon, multiple, accept, files, setFiles, on
 
     const removeFile = (fileToRemove: File) => {
         if (multiple) {
-            setFiles((prev: File[]) => prev.filter(file => file !== fileToRemove));
+            setFiles((prev: File[]) => prev?.filter(file => file !== fileToRemove));
         } else {
             setFiles(null);
         }
@@ -50,7 +50,7 @@ const FileUploadArea = ({ id, label, icon, multiple, accept, files, setFiles, on
                 <Input id={id} type="file" multiple={multiple} accept={accept} onChange={handleLocalFileChange} className="absolute inset-0 w-full h-full opacity-0 cursor-pointer" />
             </div>
             <div className="mt-2 space-y-2 h-24 overflow-y-auto">
-                {fileList.map((file: File, index: number) => (
+                {fileList?.map((file: File, index: number) => (
                     <motion.div
                         key={index}
                         initial={{ opacity: 0, y: -10 }}
@@ -143,7 +143,7 @@ export default function AdjustReportPage() {
     ];
 
     const handleNext = () => {
-        if (currentStep < steps.length) {
+        if (currentStep < steps?.length) {
             setCurrentStep(currentStep + 1);
         }
     };
@@ -170,7 +170,7 @@ export default function AdjustReportPage() {
         
         if (currentStepData.multiple) {
             // We can safely assume files is File[] here because multiple is true
-            return (currentStepData.files as File[]).length === 0;
+            return (currentStepData.files as File[])?.length === 0;
         }
         // We can safely assume files is File | null here
         return !currentStepData.files;
@@ -196,7 +196,7 @@ export default function AdjustReportPage() {
                 </CardHeader>
                 <CardContent>
                     <form onSubmit={handleSubmit} className="space-y-8 pt-4">
-                        <ProgressBar current={currentStep} total={steps.length} />
+                        <ProgressBar current={currentStep} total={steps?.length} />
                         <AnimatePresence mode="wait">
                             <motion.div
                                 key={currentStep}
@@ -205,7 +205,7 @@ export default function AdjustReportPage() {
                                 exit={{ x: -300, opacity: 0 }}
                                 transition={{ type: 'tween', ease: 'easeInOut', duration: 0.4 }}
                             >
-                                {currentStep < steps.length ? (
+                                {currentStep < steps?.length ? (
                                     <FileUploadArea {...steps[currentStep]} onFileChange={handleFileChange} />
                                 ) : (
                                     <div className="text-center p-8">
@@ -227,7 +227,7 @@ export default function AdjustReportPage() {
                                 Back
                             </Button>
 
-                            {currentStep < steps.length ? (
+                            {currentStep < steps?.length ? (
                                 <Button
                                     type="button"
                                     onClick={handleNext}

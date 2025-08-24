@@ -302,7 +302,7 @@ export default function MyProjectsPage() {
                 throw new Error('Failed to delete auction');
             }
 
-            setAuctions(auctions.filter(auction => auction.auction_id !== auctionToDelete.auction_id));
+            setAuctions(auctions?.filter(auction => auction.auction_id !== auctionToDelete.auction_id));
             
             toast({
                 title: "Auction Deleted",
@@ -339,7 +339,7 @@ export default function MyProjectsPage() {
                 throw new Error('Failed to delete auction');
             }
 
-            setClosedAuctions(closedAuctions.filter(auction => auction.auction_id !== closedAuctionToDelete.auction_id));
+            setClosedAuctions(closedAuctions?.filter(auction => auction.auction_id !== closedAuctionToDelete.auction_id));
             
             toast({
                 title: "Auction Deleted",

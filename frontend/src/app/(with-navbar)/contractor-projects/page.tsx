@@ -105,14 +105,14 @@ const ContractorProjectsPage = () => {
                 </Button>
             </div>
 
-            {projects.length === 0 ? (
+            {projects?.length === 0 ? (
                 <div className="text-center py-12">
                     <p className="text-lg text-vendle-navy/70">No active projects available at the moment.</p>
                     <p className="text-sm text-vendle-navy/50 mt-2">Check back later for new opportunities.</p>
                 </div>
             ) : (
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                    {projects.map((project) => (
+                    {projects?.map((project) => (
                         <Card key={project.id} className="p-6 hover:shadow-lg transition-shadow">
                             <div className="flex justify-between items-start mb-4">
                                 <Badge className={getStatusColor(project.status)}>
