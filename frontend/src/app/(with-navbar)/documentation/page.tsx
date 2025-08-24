@@ -132,7 +132,7 @@ export default function DocumentationPage() {
                   <div className="mt-4">
                     <h4 className="font-semibold text-sm mb-2">Specialties:</h4>
                     <div className="flex flex-wrap gap-2">
-                      {assignedArchitect.specialties.map(specialty => (
+                      {assignedArchitect.specialties?.map(specialty => (
                         <Badge key={specialty} variant="secondary" className="text-xs text-white bg-blue-600">
                           {specialty}
                         </Badge>
@@ -183,7 +183,7 @@ export default function DocumentationPage() {
                   <div className="mt-4">
                     <h4 className="font-semibold text-sm mb-2">Specialties:</h4>
                     <div className="flex flex-wrap gap-2">
-                      {assignedLegalConsultant.specialties.map(specialty => (
+                      {assignedLegalConsultant.specialties?.map(specialty => (
                         <Badge key={specialty} variant="secondary" className="text-xs text-white bg-green-600">
                           {specialty}
                         </Badge>
@@ -211,7 +211,7 @@ export default function DocumentationPage() {
                 </CardHeader>
                 <CardContent>
                   <div className="space-y-4">
-                    {architectDocuments.map((doc) => (
+                    {architectDocuments?.map((doc) => (
                       <div key={doc.id} className="flex items-center justify-between p-4 border rounded-lg">
                         <div className="flex-1">
                           <h4 className="font-semibold">{doc.name}</h4>
@@ -266,7 +266,7 @@ export default function DocumentationPage() {
                 </CardHeader>
                 <CardContent>
                   <div className="space-y-4">
-                    {legalDocuments.map((doc) => (
+                    {legalDocuments?.map((doc) => (
                       <div key={doc.id} className="flex items-center justify-between p-4 border rounded-lg">
                         <div className="flex-1">
                           <h4 className="font-semibold">{doc.name}</h4>

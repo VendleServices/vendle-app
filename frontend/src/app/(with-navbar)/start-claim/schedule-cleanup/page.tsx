@@ -101,7 +101,7 @@ export default function ScheduleCleanupPage() {
                     <div className="space-y-4">
                         <h3 className="text-lg font-semibold">Select a Contractor</h3>
                         <div className="grid gap-4">
-                            {mockContractors.map((contractor) => (
+                            {mockContractors?.map((contractor) => (
                                 <Card
                                     key={contractor.id}
                                     className={cn(
@@ -115,7 +115,7 @@ export default function ScheduleCleanupPage() {
                                     <div className="flex items-start space-x-4">
                                         <Avatar className="w-12 h-12">
                                             <AvatarImage src={contractor.avatar} />
-                                            <AvatarFallback>{contractor.name.split(' ').map(n => n[0]).join('')}</AvatarFallback>
+                                            <AvatarFallback>{contractor.name.split(' ')?.map(n => n[0]).join('')}</AvatarFallback>
                                         </Avatar>
                                         <div className="flex-1">
                                             <h4 className="font-semibold">{contractor.name}</h4>
@@ -125,7 +125,7 @@ export default function ScheduleCleanupPage() {
                                                 <span className="text-sm ml-1">{contractor.rating} ({contractor.reviews} reviews)</span>
                                             </div>
                                             <div className="flex flex-wrap gap-2 mt-2">
-                                                {contractor.specialties.map((specialty, index) => (
+                                                {contractor.specialties?.map((specialty, index) => (
                                                     <Badge key={index} variant="secondary" className="text-xs">
                                                         {specialty}
                                                     </Badge>
@@ -178,7 +178,7 @@ export default function ScheduleCleanupPage() {
                                                         );
                                                     }
 
-                                                    return availableSlots.timeSlots.map((time) => (
+                                                    return availableSlots.timeSlots?.map((time) => (
                                                         <Button
                                                             key={time}
                                                             variant={selectedTime === time ? "default" : "outline"}

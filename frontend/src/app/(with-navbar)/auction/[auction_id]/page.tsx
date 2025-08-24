@@ -60,13 +60,13 @@ export default function AuctionDetailsPage() {
             .then(res => res.json())
             .then((data) => {
                 if (Array.isArray(data)) {
-                    setBids(data.map(bid => ({
+                    setBids(data?.map(bid => ({
                         ...bid,
                         contractor_name: bid.contractor_name || bid.name || bid.username || 'Unknown',
                     })));
                 } else if (Array.isArray(data.bids)) {
                     // @ts-ignore
-                    setBids(data.bids.map(bid => ({
+                    setBids(data.bids?.map(bid => ({
                         ...bid,
                         contractor_name: bid.contractor_name || bid.name || bid.username || 'Unknown',
                     })));
@@ -212,11 +212,11 @@ export default function AuctionDetailsPage() {
                         <div className="flex items-center justify-center py-8">
                             <Loader2 className="h-6 w-6 animate-spin text-vendle-blue" />
                         </div>
-                    ) : bids.length === 0 ? (
+                    ) : bids?.length === 0 ? (
                         <div className="text-gray-500 py-8">No bids yet.</div>
                     ) : (
                         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                            {bids.map((bid) => (
+                            {bids?.map((bid) => (
                                 <Card key={bid.bid_id} className="p-4 hover:shadow-lg transition-shadow">
                                     <div className="space-y-4">
                                         {/* Company Info */}
@@ -236,7 +236,7 @@ export default function AuctionDetailsPage() {
                                         {bid.bidder_rating && (
                                             <div className="flex items-center gap-2">
                                                 <div className="flex items-center">
-                                                    {[...Array(5)].map((_, i) => (
+                                                    {[...Array(5)]?.map((_, i) => (
                                                         <Star
                                                             key={i}
                                                             className={`h-4 w-4 ${

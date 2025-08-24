@@ -53,8 +53,8 @@ router.post('/', async (req, res) => {
       'auction_end_date'
     ];
     
-    const missingFields = requiredFields.filter(field => !auctionData[field]);
-    if (missingFields.length > 0) {
+    const missingFields = requiredFields?.filter(field => !auctionData[field]);
+    if (missingFields?.length > 0) {
       return res.status(400).json({
         status: 'error', 
         message: `Missing required fields: ${missingFields.join(', ')}`

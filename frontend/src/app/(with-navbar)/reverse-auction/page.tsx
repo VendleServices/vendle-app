@@ -46,7 +46,7 @@ export default function ReverseAuction() {
             const data = await response.json();
             
             // Filter for active auctions (status is 'open' and end date is in the future)
-            const activeAuctions = data.filter((auction: Auction) => {
+            const activeAuctions = data?.filter((auction: Auction) => {
                 const endDate = new Date(auction.end_date);
                 return auction.status === 'open' && endDate > new Date();
             });
@@ -172,12 +172,12 @@ export default function ReverseAuction() {
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {auctions.length === 0 ? (
+                {auctions?.length === 0 ? (
                     <div className="col-span-full text-center py-8">
                         <p className="text-gray-500">No active auctions available at the moment</p>
                     </div>
                 ) : (
-                    auctions.map((auction) => (
+                    auctions?.map((auction) => (
                         <Card key={auction.auction_id} className="hover:shadow-md transition-shadow">
             <CardHeader>
               <div className="flex justify-between items-start">

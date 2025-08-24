@@ -37,7 +37,7 @@ const SmartBidComparison = () => {
       <h1 className="text-3xl font-bold mb-6 text-foreground">Smart Bid Comparison</h1>
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-        {bids.map((bid, index) => (
+        {bids?.map((bid, index) => (
           <div key={index} className="bg-card p-6 rounded-lg shadow-md flex flex-col items-center">
             <div className="relative w-32 h-32 rounded-full overflow-hidden mb-4">
               <Image 

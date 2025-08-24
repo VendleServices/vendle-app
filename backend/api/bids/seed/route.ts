@@ -63,7 +63,7 @@ export async function POST(request: Request) {
         [auction_id]
       );
 
-      if (auctionResult.rows.length === 0) {
+      if (auctionResult.rows?.length === 0) {
         throw new Error('Auction not found');
       }
 

@@ -97,28 +97,28 @@ export default function HomePage() {
       }
     }
 
-    const activeClaims = claims.filter((claim: any) => 
+    const activeClaims = claims?.filter((claim: any) => 
       claim.status !== 'completed' && claim.status !== 'closed'
-    ).length
+    )?.length
     
-    const completedClaims = claims.filter((claim: any) => 
+    const completedClaims = claims?.filter((claim: any) => 
       claim.status === 'completed' || claim.status === 'closed'
-    ).length
+    )?.length
 
-    const activeAuctions = auctions.filter((auction: any) => {
+    const activeAuctions = auctions?.filter((auction: any) => {
       const endDate = new Date(auction.end_date)
       return auction.status === 'open' && endDate > new Date()
-    }).length
+    })?.length
 
     const totalValue = claims.reduce((sum: number, claim: any) => 
       sum + (claim.insuranceEstimate || 0), 0
     )
 
     return {
-      totalClaims: claims.length,
+      totalClaims: claims?.length,
       activeClaims,
       completedClaims,
-      totalAuctions: auctions.length,
+      totalAuctions: auctions?.length,
       activeAuctions,
       totalValue
     }
@@ -230,9 +230,9 @@ export default function HomePage() {
               </CardTitle>
             </CardHeader>
             <CardContent>
-              {recentClaims.length > 0 ? (
+              {recentClaims?.length > 0 ? (
                 <div className="space-y-4">
-                  {recentClaims.map((claim: any) => (
+                  {recentClaims?.map((claim: any) => (
                     <div key={claim.id} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
                       <div className="flex items-center gap-3">
                         <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
@@ -279,9 +279,9 @@ export default function HomePage() {
               </CardTitle>
             </CardHeader>
             <CardContent>
-              {recentAuctions.length > 0 ? (
+              {recentAuctions?.length > 0 ? (
                 <div className="space-y-4">
-                  {recentAuctions.map((auction: any) => (
+                  {recentAuctions?.map((auction: any) => (
                     <div key={auction.auction_id} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
                       <div className="flex items-center gap-3">
                         <div className="w-2 h-2 bg-green-500 rounded-full"></div>

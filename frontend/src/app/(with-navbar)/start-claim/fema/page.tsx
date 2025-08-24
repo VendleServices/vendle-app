@@ -43,7 +43,7 @@ export default function FemaAssistancePage() {
 
     useEffect(() => {
         const interval = setInterval(() => {
-            setCurrentImage((prev) => (prev + 1) % images.length);
+            setCurrentImage((prev) => (prev + 1) % images?.length);
         }, 5000);
 
         return () => clearInterval(interval);
