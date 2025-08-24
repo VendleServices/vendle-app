@@ -131,11 +131,8 @@ export default function DashboardPage() {
     const fetchAuctions = async () => {
         setAuctionLoading(true);
         try {
-            const response = await fetch('http://localhost:3001/api/auctions');
-            if (!response.ok) {
-                throw new Error('Failed to fetch auctions');
-            }
-            const data = await response.json();
+            const response:any = await apiService.get(`/api/auctions`);
+            const data = response?.data;
             console.log('Fetched auctions:', data);
             
             const activeAuctions = data?.filter((auction: Auction) => {
