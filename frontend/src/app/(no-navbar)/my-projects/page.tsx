@@ -23,6 +23,7 @@ import {
     AlertDialogHeader,
     AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
+import { useApiService } from "@/services/api";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -90,6 +91,7 @@ interface Review {
 
 export default function MyProjectsPage() {
     const router = useRouter();
+    const apiService = useApiService();
     const searchParams = useSearchParams();
     const queryClient = useQueryClient();
     const { user, isLoggedIn, isLoading: authLoading, logout } = useAuth();
@@ -120,30 +122,18 @@ export default function MyProjectsPage() {
     const [closedAuctionToDelete, setClosedAuctionToDelete] = useState<Auction | null>(null);
 
     const fetchClaims = async () => {
-        console.log('fetchClaims called, user:', user);
-        // Try different possible user ID fields
-        const id = user?.user_id || user?.id || user?.user_id;
-        console.log('Using user ID:', id);
-        if (!id) {
-            console.log('No user_id available');
-            return [];
+        try {
+            const response: any = await apiService.get("/api/claim");
+            return response?.claims;
+        } catch (error) {
+            console.log(error);
         }
-        console.log('Making API call to:', `http://localhost:3001/api/claim?user_id=${id}`);
-        const response = await fetch(`http://localhost:3001/api/claim?user_id=${id}`);
-        if (!response.ok) {
-            console.error('Failed to fetch claims, status:', response.status);
-            throw new Error('Failed to fetch claims');
-        }
-        const data = await response.json();
-        console.log('Fetched claims:', data);
-        return data || [];
     }
 
     const deleteClaim = async (claim: Claim) => {
         try {
-            const response = await fetch(`/api/claim/${claim.id}`, {
-                method: "DELETE",
-            });
+            const response = await apiService.delete(`/api/claim/${claim.id}`);
+            return response;
         } catch (error) {
             console.log(error);
         }
@@ -152,19 +142,17 @@ export default function MyProjectsPage() {
     const fetchAuctions = async () => {
         setAuctionLoading(true);
         try {
-            const response = await fetch('http://localhost:3001/api/auctions');
-            if (!response.ok) {
-                throw new Error('Failed to fetch auctions');
-            }
-            const data = await response.json();
-            console.log('Fetched auctions:', data);
+            const response: any = await apiService.get("/api/auctions");
+
+            const data = response?.data?.data;
+            console.log('Fetched auctions data:', data);
             
-            const activeAuctions = data.filter((auction: Auction) => {
+            const activeAuctions = data?.filter((auction: Auction) => {
                 const endDate = new Date(auction.end_date);
                 return auction.status === 'open' && endDate > new Date();
             });
             
-            const closedAuctions = data.filter((auction: Auction) => {
+            const closedAuctions = data?.filter((auction: Auction) => {
                 const endDate = new Date(auction.end_date);
                 return auction.status === 'closed' || endDate <= new Date();
             });
@@ -189,9 +177,6 @@ export default function MyProjectsPage() {
         queryFn: fetchClaims,
         enabled: !!user?.id,
         retry: 1,
-        onError: (error) => {
-            console.error('Error fetching claims:', error);
-        }
     });
 
     console.log('Claims query state:', { claims, isLoading, isError, error, userId: user?.id });
@@ -486,15 +471,15 @@ export default function MyProjectsPage() {
                                     <div className="space-y-1">
                                         <div className="flex justify-between text-white text-xs">
                                             <span>Active Claims</span>
-                                            <span>{claims.filter((c: Claim) => c.id === 'in-progress').length}</span>
+                                            <span>{claims?.filter((c: Claim) => c.id === 'in-progress')?.length}</span>
                                         </div>
                                         <div className="flex justify-between text-white text-xs">
                                             <span>Active Auctions</span>
-                                            <span>{auctions.length}</span>
+                                            <span>{auctions?.length}</span>
                                         </div>
                                         <div className="flex justify-between text-white text-xs">
                                             <span>Completed</span>
-                                            <span>{claims.filter((c: Claim)=> c.id === 'completed').length}</span>
+                                            <span>{claims?.filter((c: Claim)=> c.id === 'completed')?.length}</span>
                                         </div>
                                     </div>
                                 </div>
@@ -674,7 +659,7 @@ export default function MyProjectsPage() {
                                                     <div className="flex justify-center items-center h-64">
                                                         <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-[#0f172a]"></div>
                                                     </div>
-                                                ) : auctions.length === 0 ? (
+                                                ) : auctions?.length === 0 ? (
                                                     <div className="text-center py-12">
                                                         <Users className="w-12 h-12 mx-auto text-gray-400 mb-4" />
                                                         <h3 className="text-lg font-medium text-gray-900 mb-2">No Active Auctions</h3>
@@ -682,7 +667,7 @@ export default function MyProjectsPage() {
                                                     </div>
                                                 ) : (
                                                     <div className="grid gap-4">
-                                                        {auctions.map((auction) => (
+                                                        {auctions?.map((auction) => (
                                                             <Card key={auction.auction_id} className="hover:shadow-md transition-shadow duration-200 border border-gray-200 bg-white rounded-lg">
                                                                 <CardContent className="p-6">
                                                                     <div className="flex justify-between items-start mb-4">
@@ -777,7 +762,7 @@ export default function MyProjectsPage() {
                                                     <div className="flex justify-center items-center h-64">
                                                         <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-[#0f172a]"></div>
                                                     </div>
-                                                ) : closedAuctions.length === 0 ? (
+                                                ) : closedAuctions?.length === 0 ? (
                                                     <div className="text-center py-12">
                                                         <Archive className="w-12 h-12 mx-auto text-gray-400 mb-4" />
                                                         <h3 className="text-lg font-medium text-gray-900 mb-2">No Closed Auctions</h3>
@@ -785,7 +770,7 @@ export default function MyProjectsPage() {
                                                     </div>
                                                 ) : (
                                                     <div className="space-y-4">
-                                                        {closedAuctions.map((auction) => (
+                                                        {closedAuctions?.map((auction) => (
                                                             <Card key={auction.auction_id} className="hover:shadow-md transition-shadow duration-200 border border-gray-200 bg-white rounded-lg">
                                                                 <CardContent className="p-6">
                                                                     <div className="flex justify-between items-start mb-4">
@@ -854,7 +839,7 @@ export default function MyProjectsPage() {
                                                     <div className="flex justify-center items-center h-64">
                                                         <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-[#0f172a]"></div>
                                                     </div>
-                                                ) : claims.length === 0 ? (
+                                                ) : claims?.length === 0 ? (
                                                     <div className="text-center py-12">
                                                         <FileText className="w-12 h-12 mx-auto text-gray-400 mb-4" />
                                                         <h3 className="text-lg font-medium text-gray-900 mb-2">No Claims Found</h3>
@@ -868,7 +853,7 @@ export default function MyProjectsPage() {
                                                     </div>
                                                 ) : (
                                                     <div className="grid gap-4">
-                                                        {claims.map((claim: Claim) => (
+                                                        {claims?.map((claim: Claim) => (
                                                             <Card key={claim.id} className="hover:shadow-md transition-shadow duration-200 border border-gray-200 bg-white rounded-lg">
                                                                 <CardContent className="p-6">
                                                                     <div className="flex justify-between items-start mb-4">
@@ -946,7 +931,7 @@ export default function MyProjectsPage() {
                                         ) : (
                                             <>
                                                 <div className="grid gap-4">
-                                                    {reviews.map((review) => (
+                                                    {reviews?.map((review) => (
                                                         <Card key={review.id} className="hover:shadow-md transition-shadow duration-200 border border-gray-200 bg-white rounded-lg">
                                                             <CardContent className="p-6">
                                                                 <div className="flex justify-between items-start mb-4">
@@ -955,7 +940,7 @@ export default function MyProjectsPage() {
                                                                         <p className="text-sm text-gray-500 mt-1">{review.project_address}</p>
                                                                     </div>
                                                                     <div className="flex items-center">
-                                                                        {[...Array(5)].map((_, i) => (
+                                                                        {[...Array(5)]?.map((_, i) => (
                                                                             <Star
                                                                                 key={i}
                                                                                 className={`w-5 h-5 ${

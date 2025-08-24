@@ -3,7 +3,6 @@ import { prisma } from '../../db/prisma.js';
 
 const router = Router();
 
-// GET /api/auctions - Get all auctions
 router.get('/', async (req, res) => {
   try {
     const auctions = await prisma.auction.findMany({
@@ -17,8 +16,7 @@ router.get('/', async (req, res) => {
     });
     
     console.log('Database query result:', auctions);
-    
-    // Transform the data to match frontend expectations
+
     const transformedAuctions = auctions.map(auction => ({
       auction_id: auction.id,
       claim_id: auction.claimId,
@@ -34,7 +32,7 @@ router.get('/', async (req, res) => {
       description: auction.description || ''
     }));
     
-    res.json(transformedAuctions);
+    res.status(200).json({ data: transformedAuctions });
   } catch (error) {
     console.error('Error fetching auctions:', error);
     res.status(500).json({ status: 'error', message: 'Failed to fetch auctions' });
@@ -96,7 +94,6 @@ router.post('/', async (req, res) => {
   }
 });
 
-// PATCH /api/auctions/:id - Update auction
 router.patch('/:id', async (req, res) => {
   try {
     const auctionId = req.params.id;
@@ -129,7 +126,6 @@ router.patch('/:id', async (req, res) => {
   }
 });
 
-// DELETE /api/auctions/:id - Delete auction
 router.delete('/:id', async (req, res) => {
   try {
     const auctionId = req.params.id;

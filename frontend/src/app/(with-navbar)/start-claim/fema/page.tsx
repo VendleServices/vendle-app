@@ -11,10 +11,12 @@ import { useMutation } from "@tanstack/react-query";
 import { motion, AnimatePresence } from "framer-motion";
 import { Inter } from 'next/font/google';
 import { Building2, Mail, Phone, MapPin, Home, Shield, User } from 'lucide-react';
+import { useApiService } from "@/services/api";
 
 const inter = Inter({ subsets: ['latin'] });
 
 export default function FemaAssistancePage() {
+    const apiService = useApiService();
     const router = useRouter();
     const [currentImage, setCurrentImage] = useState(0);
     const [imageError, setImageError] = useState(false);
@@ -62,13 +64,8 @@ export default function FemaAssistancePage() {
 
     const submitFemaForm = async () => {
         try {
-            await fetch("/api/start-claim/fema", {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                },
-                body: JSON.stringify(formData),
-            })
+            const response = await apiService.post("/api/fema", formData);
+            return response;
         } catch (error) {
             console.log(error);
         }
@@ -77,7 +74,7 @@ export default function FemaAssistancePage() {
     const femaMutation = useMutation({
         mutationFn: submitFemaForm,
         onSuccess: () => {
-            router.push("/start-claim/inspection");
+            router.push("/dashboard");
         },
         onError: (error) => {
             console.log(error);

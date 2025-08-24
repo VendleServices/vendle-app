@@ -91,7 +91,7 @@ export default function ClaimPage({ params }: PageProps) {
                     <h1 className="text-3xl font-bold text-gray-900">Claim Not Found</h1>
                     <p className="mt-2 text-gray-600">The claim you're looking for doesn't exist or you don't have permission to view it.</p>
                     <Button
-                        onClick={() => router.push("/my-projects")}
+                        onClick={() => router.push("/dashboard")}
                         className="mt-4"
                     >
                         Back to My Projects
@@ -107,7 +107,7 @@ export default function ClaimPage({ params }: PageProps) {
                 <div className="flex flex-col justify-center mb-6">
                     <Button
                         variant="ghost"
-                        onClick={() => router.push("/my-projects")}
+                        onClick={() => router.push("/dashboard")}
                         className="mr-4 w-fit mb-6"
                     >
                         <ArrowLeft className="h-4 w-4" />
