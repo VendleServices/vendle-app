@@ -6,6 +6,7 @@ import { useAuth } from "@/contexts/AuthContext"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
+import { useApiService } from "@/services/api";
 import { 
   Building2, 
   FileText, 
@@ -54,6 +55,7 @@ interface RecentAuction {
 export default function HomePage() {
   const { user, isLoggedIn, isLoading: authLoading } = useAuth()
   const router = useRouter()
+  const apiService = useApiService();
 
   // Redirect if not authenticated
   useEffect(() => {
@@ -67,9 +69,8 @@ export default function HomePage() {
     queryKey: ["getClaims"],
     queryFn: async () => {
       if (!user?.id) return []
-      const response = await fetch(`http://localhost:3001/api/claim?user_id=${user.id}`)
-      if (!response.ok) throw new Error('Failed to fetch claims')
-      return response.json()
+      const response: any = await apiService.get('/api/claim');
+      return response?.claims;
     },
     enabled: !!user?.id
   })
@@ -77,9 +78,8 @@ export default function HomePage() {
   const { data: auctions = [], isLoading: auctionsLoading } = useQuery({
     queryKey: ["getAuctions"],
     queryFn: async () => {
-      const response = await fetch('http://localhost:3001/api/auctions')
-      if (!response.ok) throw new Error('Failed to fetch auctions')
-      return response.json()
+      const response: any = await apiService.get('/api/auctions');
+      return response?.data;
     },
     enabled: !!user?.id
   })

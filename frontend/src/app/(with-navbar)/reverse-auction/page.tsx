@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from 'react';
+import { useApiService } from "@/services/api";
 import { motion } from 'framer-motion';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -26,7 +27,8 @@ interface Auction {
 }
 
 export default function ReverseAuction() {
-  const { user } = useAuth();
+    const { user } = useAuth();
+    const apiService = useApiService();
     const { toast } = useToast();
     const [auctions, setAuctions] = useState<Auction[]>([]);
     const [loading, setLoading] = useState(true);
@@ -39,11 +41,8 @@ export default function ReverseAuction() {
 
     const fetchAuctions = async () => {
         try {
-            const response = await fetch('http://localhost:3001/api/auctions');
-            if (!response.ok) {
-                throw new Error('Failed to fetch auctions');
-            }
-            const data = await response.json();
+            const response: any = await apiService.get(`/api/auctions`);
+            const data = response?.data;
             
             // Filter for active auctions (status is 'open' and end date is in the future)
             const activeAuctions = data?.filter((auction: Auction) => {
