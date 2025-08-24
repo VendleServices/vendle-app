@@ -40,59 +40,73 @@ router.get('/', async (req, res) => {
 });
 
 // POST /api/auctions - Create new auction
-router.post('/', async (req, res) => {
+router.post('/', async (req: any, res) => {
   try {
+    const user = req?.user;
+
+    if (!user) {
+      return res.status(401).json({ error: "Not authorized "});
+    }
+
     const auctionData = req.body;
     console.log('Received auction data:', JSON.stringify(auctionData, null, 2));
-    
-    // Required fields validation
-    const requiredFields = [
-      'claim_id',
-      'title',
-      'starting_bid',
-      'auction_end_date'
-    ];
-    
-    const missingFields = requiredFields?.filter(field => !auctionData[field]);
-    if (missingFields?.length > 0) {
-      return res.status(400).json({
-        status: 'error', 
-        message: `Missing required fields: ${missingFields.join(', ')}`
-      });
-    }
 
     const auction = await prisma.auction.create({
       data: {
-        claimId: auctionData.claim_id,
-        title: auctionData.title,
-        description: auctionData.description || '',
-        startingBid: auctionData.starting_bid,
-        currentBid: auctionData.starting_bid,
         auctionEndDate: new Date(auctionData.auction_end_date),
-        totalJobValue: auctionData.total_job_value || null,
-        overheadAndProfit: auctionData.overhead_and_profit || null,
+        claimId: auctionData.claim_id,
         costBasis: auctionData.cost_basis || null,
-        materials: auctionData.materials || null,
-        salesTaxes: auctionData.sales_taxes || null,
+        currentBid: auctionData.starting_bid,
         depreciation: auctionData.depreciation || null,
-        reconstructionType: auctionData.reconstruction_type || null,
-        needs3rdPartyAdjuster: auctionData.needs_3rd_party_adjuster || false,
-        hasDeductibleFunds: auctionData.has_deductible_funds || false,
+        description: auctionData.description || '',
         fundingSource: auctionData.funding_source || null,
+        hasDeductibleFunds: auctionData.has_deductible_funds || false,
+        insuranceEstimatePdf: auctionData.insuranceEstimatePdf || '',
+        materials: auctionData.materials || null,
+        needs3rdPartyAdjuster: auctionData.needs_3rd_party_adjuster || false,
+        overheadAndProfit: auctionData.overhead_and_profit || null,
+        reconstructionType: auctionData.reconstruction_type || null,
+        salesTaxes: auctionData.sales_taxes || null,
+        startingBid: auctionData.starting_bid,
         status: 'open',
-        userId: auctionData.userId, // <-- use userId
+        title: auctionData.title,
+        totalJobValue: auctionData.total_job_value || null,
+        userId: user.id,
       }
     });
     
-    res.json({ 
-      status: 'success', 
-      auction 
-    });
+    return res.status(201).json({ auction});
   } catch (error) {
     console.error('Error creating auction:', error);
-    res.status(500).json({ status: 'error', message: 'Failed to create auction' });
+    return res.status(500).json({ status: 'error', message: 'Failed to create auction' });
   }
 });
+
+router.get('/:auctionId', async (req: any, res) => {
+  try {
+    const user = req?.user;
+    if (!user) {
+      return res.status(401).json({ error: "Not authorized "});
+    }
+
+    const { auctionId } = req.params;
+
+    const auction = await prisma.auction.findUnique({
+      where: {
+        id: auctionId,
+      }
+    });
+
+    if (!auction) {
+      return res.status(404).json({ error: "Auction Not Found" });
+    }
+
+    return res.status(200).json({ auction });
+  } catch (error) {
+    console.log(error);
+    return res.status(500).json({ error: "Error retrieving auction" });
+  }
+})
 
 router.patch('/:id', async (req, res) => {
   try {

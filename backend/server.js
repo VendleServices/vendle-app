@@ -77,8 +77,8 @@ import setupDbRoutes from './api/setup-db/route.ts';
 
 // API Routes
 app.use('/api/signup', signUpRoute);
-app.use('/api/auctions', auctionsRoutes);
-app.use('/api/bids', bidsRoutes);
+app.use('/api/auctions', verifyToken, auctionsRoutes);
+app.use('/api/bids', verifyToken, bidsRoutes);
 app.use('/api/claim', verifyToken, claimRoutes);
 app.use('/api/onboarding', onboardingRoutes);
 app.use('/api/projects', projectsRoutes);
@@ -86,7 +86,6 @@ app.use('/api/fema', verifyToken, femaRoutes);
 app.use('/api/add-contractor', addContractorRoutes);
 app.use('/api/setup-db', setupDbRoutes);
 
-// Health check endpoint
 app.get('/api/health', (req, res) => {
   res.json({ status: 'OK', timestamp: new Date().toISOString() });
 });

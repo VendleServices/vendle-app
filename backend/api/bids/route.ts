@@ -1,41 +1,52 @@
 import { Router } from 'express';
-import { pool } from '../../lib/db.js';
+import { prisma } from "../../db/prisma";
 
 const router = Router();
 
-// GET /api/bids - Get all bids
-router.get('/', async (req, res) => {
-  let client;
+// POST /api/bids - Create new bid
+router.post('/', async (req: any, res) => {
   try {
-    client = await pool.connect();
-    const result = await client.query('SELECT * FROM bids ORDER BY created_at DESC');
-    res.json(result.rows);
+    const user = req?.user;
+
+    if (!user) {
+      return res.status(401).json({ error: "User not authorized" });
+    }
+
+    const bidData = req.body;
+
+    const bid = await prisma.bid.create({
+      data: {
+        ...bidData,
+        userId: user.id,
+      }
+    });
+
+    return res.status(201).json({ bid });
   } catch (error) {
-    console.error('Error fetching bids:', error);
-    res.status(500).json({ status: 'error', message: 'Failed to fetch bids' });
-  } finally {
-    if (client) client.release();
+    console.log(error);
+    return res.status(500).json({ error: "Error creating bid" });
   }
 });
 
-// POST /api/bids - Create new bid
-router.post('/', async (req, res) => {
-  let client;
+router.get('/:auctionId', async (req: any, res) => {
   try {
-    const bidData = req.body;
-    client = await pool.connect();
-    
-    const result = await client.query(
-      'INSERT INTO bids (auction_id, contractor_id, amount, description) VALUES ($1, $2, $3, $4) RETURNING *',
-      [bidData.auction_id, bidData.contractor_id, bidData.amount, bidData.description]
-    );
-    
-    res.json({ status: 'success', bid: result.rows[0] });
+    const user = req?.user;
+    if (!user) {
+      return res.status(401).json({ error: "User not authorized" });
+    }
+
+    const { auctionId } = req.params;
+
+    const bids = await prisma.bid.findMany({
+      where: {
+        auctionId,
+      }
+    }) || [];
+
+    return res.status(200).json({ bids });
   } catch (error) {
-    console.error('Error creating bid:', error);
-    res.status(500).json({ status: 'error', message: 'Failed to create bid' });
-  } finally {
-    if (client) client.release();
+    console.log(error);
+    return res.status(500).json({ error: "Error retrievings bids" });
   }
 });
 

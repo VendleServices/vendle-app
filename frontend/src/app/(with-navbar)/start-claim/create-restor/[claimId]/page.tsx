@@ -15,10 +15,11 @@ import { DollarSign, Calendar, FileText, Upload, CheckCircle, AlertCircle, Arrow
 import { useAuth } from '@/contexts/AuthContext';
 import { Progress } from "@/components/ui/progress";
 import { createClient } from "@/auth/client";
+import { useApiService } from "@/services/api";
 
 interface RestoreFormData {
   // Step 1: Insurance Estimate
-  insuranceEstimatePdf: File | null;
+  insuranceEstimatePdf: string | null | undefined;
   
   // Step 2: Insurance Claim Verification
   needs3rdPartyAdjuster: boolean;
@@ -43,6 +44,7 @@ interface RestoreFormData {
 }
 
 export default function CreateRestorPage() {
+  const apiService = useApiService();
   const router = useRouter();
   const params = useParams();
   const { toast } = useToast();
@@ -50,10 +52,11 @@ export default function CreateRestorPage() {
   const [claimId, setClaimId] = useState<string | null>(null);
   const [currentStep, setCurrentStep] = useState(1);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [uploadedFile, setUploadedFile] = useState<string | null>(null);
   const supabase = createClient();
 
   const [formData, setFormData] = useState<RestoreFormData>({
-    insuranceEstimatePdf: null,
+    insuranceEstimatePdf: '',
     needs3rdPartyAdjuster: false,
     costBasis: '',
     overheadAndProfit: '',
@@ -104,12 +107,9 @@ export default function CreateRestorPage() {
 
   const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
-      setFormData(prev => ({
-        ...prev,
-        insuranceEstimatePdf: e.target.files![0]
-      }));
-
       const file = e.target.files[0];
+      setUploadedFile(file.name);
+
       if (file.type !== 'application/pdf') {
         toast({
           title: "Invalid File Type",
@@ -141,13 +141,18 @@ export default function CreateRestorPage() {
           });
           return;
         }
+
+        setFormData(prev => ({
+          ...prev,
+          insuranceEstimatePdf: data?.fullPath
+        }));
       } catch (error) {
         console.log(error);
       }
     }
   };
 
-  const handleInputChange = (field: keyof RestoreFormData, value: never) => {
+  const handleInputChange = (field: keyof RestoreFormData, value: any) => {
     setFormData(prev => ({
       ...prev,
       [field]: value
@@ -175,34 +180,27 @@ export default function CreateRestorPage() {
          parseFloat(formData.salesTaxes || '0') - 
          parseFloat(formData.depreciation || '0')).toString();
 
-              const response = await fetch('http://localhost:3001/api/auctions', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          claim_id: claimId,
-          title: `Restoration Job - ${formData.reconstructionType}`,
-          description: formData.additionalNotes,
-          starting_bid: parseFloat(calculatedTotal),
-          total_job_value: parseFloat(calculatedTotal),
-          overhead_and_profit: parseFloat(formData.overheadAndProfit || '0'),
-          cost_basis: formData.costBasis,
-          materials: parseFloat(formData.materials || '0'),
-          sales_taxes: parseFloat(formData.salesTaxes || '0'),
-          depreciation: parseFloat(formData.depreciation || '0'),
-          reconstruction_type: formData.reconstructionType,
-          needs_3rd_party_adjuster: formData.needs3rdPartyAdjuster,
-          has_deductible_funds: formData.hasDeductibleFunds,
-          funding_source: formData.fundingSource,
-          auction_end_date: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(), // 7 days from now
-          userId: user?.id, // <-- add userId
-        }),
-      });
-
-      if (!response.ok) {
-        throw new Error('Failed to create restoration job');
+      const payload = {
+        claim_id: claimId,
+        title: `Restoration Job - ${formData.reconstructionType}`,
+        description: formData.additionalNotes,
+        starting_bid: parseFloat(calculatedTotal),
+        total_job_value: parseFloat(calculatedTotal),
+        overhead_and_profit: parseFloat(formData.overheadAndProfit || '0'),
+        cost_basis: formData.costBasis,
+        materials: parseFloat(formData.materials || '0'),
+        sales_taxes: parseFloat(formData.salesTaxes || '0'),
+        depreciation: parseFloat(formData.depreciation || '0'),
+        reconstruction_type: formData.reconstructionType,
+        needs_3rd_party_adjuster: formData.needs3rdPartyAdjuster,
+        has_deductible_funds: formData.hasDeductibleFunds,
+        funding_source: formData.fundingSource,
+        insuranceEstimatePdf: formData.insuranceEstimatePdf,
+        auction_end_date: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(),
+        userId: user?.id,
       }
+
+      const response = await apiService.post('/api/auctions', payload);
 
       toast({
         title: "Success",
@@ -282,10 +280,10 @@ export default function CreateRestorPage() {
                   </div>
                 </div>
               </div>
-              {formData.insuranceEstimatePdf && (
+              {uploadedFile && (
                 <div className="flex items-center space-x-2 text-green-600">
                   <CheckCircle className="w-5 h-5" />
-                  <span>{formData.insuranceEstimatePdf.name}</span>
+                  <span>{uploadedFile}</span>
                 </div>
               )}
             </div>
