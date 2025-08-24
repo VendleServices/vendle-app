@@ -70,9 +70,7 @@ import bidsRoutes from './api/bids/route.ts';
 import claimRoutes from './api/claim/route.ts';
 import signUpRoute from './api/signup/route.ts';
 import onboardingRoutes from './api/onboarding/route.ts';
-import projectsRoutes from './api/projects/available/route.ts';
 import femaRoutes from './api/fema/route.ts';
-import addContractorRoutes from './api/add-contractor/route.ts';
 import setupDbRoutes from './api/setup-db/route.ts';
 
 // API Routes
@@ -81,9 +79,7 @@ app.use('/api/auctions', verifyToken, auctionsRoutes);
 app.use('/api/bids', verifyToken, bidsRoutes);
 app.use('/api/claim', verifyToken, claimRoutes);
 app.use('/api/onboarding', onboardingRoutes);
-app.use('/api/projects', projectsRoutes);
 app.use('/api/fema', verifyToken, femaRoutes);
-app.use('/api/add-contractor', addContractorRoutes);
 app.use('/api/setup-db', setupDbRoutes);
 
 app.get('/api/health', (req, res) => {
