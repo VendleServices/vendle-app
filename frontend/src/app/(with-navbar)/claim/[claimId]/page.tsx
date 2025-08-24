@@ -8,6 +8,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { Building2, MapPin, Calendar, FileText, Clock, LayoutIcon, Trash2, ArrowLeft } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { use } from "react";
+import { useApiService } from "@/services/api";
 
 interface PageProps {
     params: Promise<{
@@ -32,13 +33,17 @@ interface Claim {
 
 export default function ClaimPage({ params }: PageProps) {
     const { claimId } = use(params);
+    const apiService = useApiService();
     const router = useRouter();
     const { user } = useAuth();
 
+    if (!user) {
+        router.push("/login");
+    }
+
     const fetchClaim = async () => {
-        const response = await fetch(`/api/claim/${claimId}`);
-        const { claim } = await response.json();
-        console.log(claim);
+        const response: any = await apiService.get(`/api/claim/${claimId}`);
+        const claim  = response?.claim;
         return claim ? claim : null
     }
 
@@ -86,7 +91,7 @@ export default function ClaimPage({ params }: PageProps) {
                     <h1 className="text-3xl font-bold text-gray-900">Claim Not Found</h1>
                     <p className="mt-2 text-gray-600">The claim you're looking for doesn't exist or you don't have permission to view it.</p>
                     <Button
-                        onClick={() => router.push("/my-projects")}
+                        onClick={() => router.push("/dashboard")}
                         className="mt-4"
                     >
                         Back to My Projects
@@ -102,7 +107,7 @@ export default function ClaimPage({ params }: PageProps) {
                 <div className="flex flex-col justify-center mb-6">
                     <Button
                         variant="ghost"
-                        onClick={() => router.push("/my-projects")}
+                        onClick={() => router.push("/dashboard")}
                         className="mr-4 w-fit mb-6"
                     >
                         <ArrowLeft className="h-4 w-4" />

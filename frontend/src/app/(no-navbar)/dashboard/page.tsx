@@ -3,16 +3,17 @@
 import { useState, useEffect } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Image from "next/image";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { motion } from "framer-motion";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Building2, MapPin, Calendar, FileText, Clock, LayoutIcon, Trash2, Filter, ArrowUpDown, DollarSign, Users, Folder, CheckCircle, Archive, Plus, Upload, Download, BarChart, HelpCircle, MessageCircle, Bell, Settings, Flag, LogOut, Star, Trophy, AlertCircle, Menu, ChevronLeft, Wrench } from "lucide-react";
+import { MapPin, Calendar, FileText, Clock, LayoutIcon, Trash2, DollarSign, Users, Folder, CheckCircle, Archive, Plus, Upload, Download, BarChart, HelpCircle, MessageCircle, Bell, Settings, Flag, LogOut, Star, Trophy, AlertCircle, Menu, ChevronLeft, Wrench } from "lucide-react";
 import { useToast } from "@/components/ui/use-toast";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useAuth } from "@/contexts/AuthContext";
 import { Inter } from "next/font/google";
+import { useApiService } from "@/services/api";
 import {
     AlertDialog,
     AlertDialogAction,
@@ -89,25 +90,14 @@ interface Review {
 }
 
 export default function DashboardPage() {
+    const apiService = useApiService();
     const router = useRouter();
     const searchParams = useSearchParams();
     const queryClient = useQueryClient();
     const { user, isLoggedIn, isLoading: authLoading, logout } = useAuth();
     const { toast } = useToast();
-    
-    const [loading, setLoading] = useState(false);
-    const [showConfirmation, setShowConfirmation] = useState(false);
-    const [selectedClaim, setSelectedClaim] = useState<Claim | null>(null);
-    const [showDeleteConfirmation, setShowDeleteConfirmation] = useState(false);
+
     const [deleteConfirmed, setDeleteConfirmed] = useState(false);
-    const [claimToDelete, setClaimToDelete] = useState<Claim | null>(null);
-    const [filters, setFilters] = useState({
-        status: [] as string[],
-        projectType: [] as string[],
-        dateRange: 'all',
-        searchQuery: '',
-    });
-    const [sortBy, setSortBy] = useState('date-desc');
     const [auctions, setAuctions] = useState<Auction[]>([]);
     const [auctionLoading, setAuctionLoading] = useState(false);
     const [activeSection, setActiveSection] = useState<'auctions' | 'claims' | 'reviews' | 'closed-auctions'>('claims');
@@ -120,30 +110,19 @@ export default function DashboardPage() {
     const [closedAuctionToDelete, setClosedAuctionToDelete] = useState<Auction | null>(null);
 
     const fetchClaims = async () => {
-        console.log('fetchClaims called, user:', user);
-        // Try different possible user ID fields
-        const id = user?.user_id || user?.id || user?.user_id;
-        console.log('Using user ID:', id);
-        if (!id) {
-            console.log('No user_id available');
-            return [];
+        try {
+            const response: any = await apiService.get(`/api/claim`);
+            return response?.claims;
+        } catch (error) {
+            console.log(error);
+            throw error;
         }
-        console.log('Making API call to:', `http://localhost:3001/api/claim?user_id=${id}`);
-        const response = await fetch(`http://localhost:3001/api/claim?user_id=${id}`);
-        if (!response.ok) {
-            console.error('Failed to fetch claims, status:', response.status);
-            throw new Error('Failed to fetch claims');
-        }
-        const data = await response.json();
-        console.log('Fetched claims:', data);
-        return data || [];
     }
 
     const deleteClaim = async (claim: Claim) => {
         try {
-            const response = await fetch(`/api/claim/${claim.id}`, {
-                method: "DELETE",
-            });
+            const response = await apiService.delete(`/api/claim/${claim.id}`);
+            return response;
         } catch (error) {
             console.log(error);
         }
@@ -189,9 +168,6 @@ export default function DashboardPage() {
         queryFn: fetchClaims,
         enabled: !!user?.id,
         retry: 1,
-        onError: (error) => {
-            console.error('Error fetching claims:', error);
-        }
     });
 
     console.log('Claims query state:', { claims, isLoading, isError, error, userId: user?.id });

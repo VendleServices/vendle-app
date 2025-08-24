@@ -1,43 +1,43 @@
-import { createServerClient } from '@supabase/ssr'
-import { cookies } from 'next/headers'
+import { createClient as createSupabaseClient } from '@supabase/supabase-js'
+import { Request } from 'express'
 
-export async function createClient() {
-    const cookieStore = await cookies()
-
-    const client = createServerClient(
+export function createClient() {
+    const client = createSupabaseClient(
         process.env.NEXT_PUBLIC_SUPABASE_URL!,
-        process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-        {
-            cookies: {
-                getAll() {
-                    return cookieStore.getAll()
-                },
-                setAll(cookiesToSet) {
-                    try {
-                        cookiesToSet.forEach(({ name, value, options }) =>
-                            cookieStore.set(name, value, options)
-                        )
-                    } catch {
-                        // The `setAll` method was called from a Server Component.
-                        // This can be ignored if you have middleware refreshing
-                        // user sessions.
-                    }
-                },
-            },
-        }
+        process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
     )
 
     return client
 }
 
-export async function getUser() {
-    const supabase = await createClient();
-    const userObject = await supabase.auth.getUser();
+export async function getUser(req: Request) {
+    const supabase = createClient();
 
-    if (userObject.error) {
-        console.error(userObject.error);
-        return null
+    // Try to get token from various sources
+    const token = req.cookies["sb-pivraqaqqwlrvbtuylvj-auth-token"];
+
+    if (!token) {
+        console.log('No auth token found');
+        return null;
     }
 
-    return { ...userObject.data.user, user_type: "homeowner" };
+    try {
+        // Use the token to get the user
+        const { data: { user }, error } = await supabase.auth.getUser(token);
+
+        if (error) {
+            console.error('Auth error:', error);
+            return null;
+        }
+
+        if (!user) {
+            console.log('No user found');
+            return null;
+        }
+
+        return { ...user, user_type: "homeowner" };
+    } catch (error) {
+        console.error('Error getting user:', error);
+        return null;
+    }
 }

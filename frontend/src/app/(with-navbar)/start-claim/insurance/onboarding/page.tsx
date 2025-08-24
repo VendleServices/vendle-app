@@ -10,10 +10,23 @@ import { createClient } from "@/auth/client";
 import { useMutation } from "@tanstack/react-query";
 import { motion } from 'framer-motion';
 import { useAuth } from '@/contexts/AuthContext';
+import { useApiService } from "@/services/api";
 
-const supabase = createClient();
+interface ClaimData {
+  userId: string;
+  street: string;
+  city: string;
+  state: string;
+  zipCode: string;
+  projectType: string;
+  designPlan: string;
+  insuranceEstimateFilePath: string;
+  needsAdjuster: boolean | null;
+}
 
 const Onboarding = () => {
+  const apiService = useApiService();
+  const supabase = createClient();
   const router = useRouter();
   const { toast } = useToast();
   const { user } = useAuth();
@@ -75,21 +88,10 @@ const Onboarding = () => {
     }
   };
 
-  const submitClaimData = async (claimData: any) => {
+  const submitClaimData = async (claimData: ClaimData) => {
     try {
-      const response = await fetch('http://localhost:3001/api/claim', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(claimData),
-      });
-      
-      if (!response.ok) {
-        throw new Error('Failed to create claim');
-      }
-      
-      return response.json();
+      const response = await apiService.post('/api/claim', claimData)
+      return response;
     } catch (error) {
       console.log(error);
       throw error;
@@ -130,7 +132,7 @@ const Onboarding = () => {
 
       // Prepare claim data
       const claimData = {
-        user_id: user.id,
+        userId: user.id,
         street: address.street,
         city: address.city,
         state: address.state,
@@ -138,8 +140,7 @@ const Onboarding = () => {
         projectType,
         designPlan,
         insuranceEstimateFilePath: uploadedFileName,
-        needsAdjuster,
-        insuranceProvider
+        needsAdjuster
       };
 
       submitClaimMutation.mutate(claimData);
