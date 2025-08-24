@@ -96,26 +96,10 @@ export default function MyProjectsPage() {
     const queryClient = useQueryClient();
     const { user, isLoggedIn, isLoading: authLoading, logout } = useAuth();
     const { toast } = useToast();
-    
-    const [loading, setLoading] = useState(false);
-    const [showConfirmation, setShowConfirmation] = useState(false);
-    const [selectedClaim, setSelectedClaim] = useState<Claim | null>(null);
-    const [showDeleteConfirmation, setShowDeleteConfirmation] = useState(false);
-    const [deleteConfirmed, setDeleteConfirmed] = useState(false);
-    const [claimToDelete, setClaimToDelete] = useState<Claim | null>(null);
-    const [filters, setFilters] = useState({
-        status: [] as string[],
-        projectType: [] as string[],
-        dateRange: 'all',
-        searchQuery: '',
-    });
-    const [sortBy, setSortBy] = useState('date-desc');
     const [auctions, setAuctions] = useState<Auction[]>([]);
     const [auctionLoading, setAuctionLoading] = useState(false);
     const [activeSection, setActiveSection] = useState<'auctions' | 'claims' | 'reviews' | 'closed-auctions'>('auctions');
     const [sidebarExpanded, setSidebarExpanded] = useState(true);
-    const [auctionToDelete, setAuctionToDelete] = useState<Auction | null>(null);
-    const [showAuctionDeleteConfirmation, setShowAuctionDeleteConfirmation] = useState(false);
     const [closedAuctions, setClosedAuctions] = useState<Auction[]>([]);
     const [closedAuctionLoading, setClosedAuctionLoading] = useState(false);
     const [showClosedAuctionDeleteConfirmation, setShowClosedAuctionDeleteConfirmation] = useState(false);
@@ -282,44 +266,6 @@ export default function MyProjectsPage() {
 
     const handleDeleteClick = (claim: Claim) => {
         deleteClaimMutation.mutate(claim);
-    };
-
-    const handleAuctionDeleteClick = (auction: Auction) => {
-        setAuctionToDelete(auction);
-        setShowAuctionDeleteConfirmation(true);
-        setDeleteConfirmed(false);
-    };
-
-    const handleAuctionDeleteConfirm = async () => {
-        if (!auctionToDelete || !deleteConfirmed) return;
-
-        try {
-            const response = await fetch(`/api/auctions/${auctionToDelete.auction_id}`, {
-                method: 'DELETE',
-            });
-
-            if (!response.ok) {
-                throw new Error('Failed to delete auction');
-            }
-
-            setAuctions(auctions?.filter(auction => auction.auction_id !== auctionToDelete.auction_id));
-            
-            toast({
-                title: "Auction Deleted",
-                description: "The auction has been successfully deleted.",
-            });
-        } catch (error) {
-            console.error('Error deleting auction:', error);
-            toast({
-                title: "Error",
-                description: "Failed to delete the auction. Please try again.",
-                variant: "destructive"
-            });
-        } finally {
-            setShowAuctionDeleteConfirmation(false);
-            setAuctionToDelete(null);
-            setDeleteConfirmed(false);
-        }
     };
 
     const handleClosedAuctionDelete = (auction: Auction) => {
