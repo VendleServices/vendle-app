@@ -5,6 +5,7 @@ import Image from 'next/image';
 import { Button } from "@/components/ui/button";
 import LogOutButton from "@/components/LogOutButton";
 import { useAuth } from "@/contexts/AuthContext";
+import vendleLogo from "../assets/vendle_logo.jpeg";
 
 const Navbar = () => {
   const { user, isLoggedIn, isLoading } = useAuth();
@@ -12,13 +13,11 @@ const Navbar = () => {
   // Show login buttons if user is not logged in or still loading
   const showLoginButtons = !isLoggedIn || isLoading;
 
-
-
   return (
     <nav className="fixed top-0 left-0 right-0 z-50 flex justify-center p-4">
       <div className="flex items-center justify-between w-full max-w-6xl h-16 px-6 bg-white border border-gray-200 rounded-2xl shadow-sm">
         <Link href={isLoggedIn ? "/home" : "/"} className="flex items-center space-x-2">
-          <Image src="/vendle_logo.jpg" alt="Vendle Logo" width={28} height={28} className="h-7 w-7" />
+          <Image src={vendleLogo} alt="Vendle Logo" width={28} height={28} className="h-7 w-7" />
           <span className="text-lg font-semibold text-black">Vendle</span>
         </Link>
 
