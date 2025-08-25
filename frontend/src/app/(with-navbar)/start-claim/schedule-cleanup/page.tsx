@@ -217,7 +217,7 @@ export default function ScheduleCleanupPage() {
                     <div className="flex justify-end space-x-4">
                         <Button
                             variant="outline"
-                            onClick={() => router.push("/my-projects")}
+                            onClick={() => router.push("/dashboard")}
                         >
                             Cancel
                         </Button>

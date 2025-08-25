@@ -79,15 +79,15 @@ export default function CreateRestorPage() {
         variant: "destructive",
         duration: 5000,
       });
-      router.push('/my-projects');
+      router.push('/dashboard');
       return;
     }
     setClaimId(id);
   }, [params.claimId, router, toast]);
 
   const getProjectsPath = () => {
-    if (!user) return '/my-projects';
-    return user.user_type === 'contractor' ? '/contractor-projects' : '/my-projects';
+    if (!user) return '/dashboard';
+    return user.user_type === 'contractor' ? '/contractor-projects' : '/dashboard';
   };
 
   const totalSteps = 6;
@@ -207,11 +207,10 @@ export default function CreateRestorPage() {
         description: "Restoration job created successfully! Contractors in your area will be notified.",
         duration: 5000,
       });
-      
-      // Trigger refresh of auctions when returning to my-projects
+
       localStorage.setItem('refreshAuctions', Date.now().toString());
       
-      router.push(getProjectsPath() + '?tab=auctions');
+      router.push('/dashboard');
     } catch (error) {
       console.error('Error creating restoration job:', error);
       toast({
