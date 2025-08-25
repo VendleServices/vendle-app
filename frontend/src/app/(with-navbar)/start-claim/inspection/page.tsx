@@ -55,7 +55,7 @@ export default function InspectionPreparationPage() {
 
                         <div className="flex justify-center pt-8">
                             <Button
-                                onClick={() => router.push("/my-projects?tab=claims")}
+                                onClick={() => router.push("/dashboard")}
                                 className="px-12 py-6 bg-vendle-navy text-white rounded-2xl text-xl font-semibold hover:bg-vendle-navy/90 transition-colors duration-300 shadow-xl hover:shadow-2xl"
                             >
                                 Go to Dashboard

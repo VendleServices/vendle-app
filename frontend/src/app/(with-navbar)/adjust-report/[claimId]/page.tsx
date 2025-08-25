@@ -91,7 +91,7 @@ export default function AdjustReportPage() {
                 description: "No claim ID provided.",
                 variant: "destructive",
             });
-            router.push('/my-projects');
+            router.push('/dashboard');
         }
     }, [params, router, toast]);
 
@@ -161,7 +161,7 @@ export default function AdjustReportPage() {
             title: "Upload Successful",
             description: "Your documents have been submitted.",
         });
-        router.push('/my-projects');
+        router.push('/dashboard');
     };
 
     const isNextDisabled = () => {

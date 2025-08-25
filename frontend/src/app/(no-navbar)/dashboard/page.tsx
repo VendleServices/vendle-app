@@ -24,6 +24,7 @@ import {
     AlertDialogHeader,
     AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
+import vendleLogo from "../../../assets/vendle_logo.jpeg";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -371,7 +372,7 @@ export default function DashboardPage() {
                                 >
                                     <div className={`${sidebarExpanded ? 'w-auto' : 'w-8'} flex justify-center`}>
                                         <Image
-                                            src="/vendle_logo.jpg"
+                                            src={vendleLogo}
                                             alt="Logo"
                                             width={sidebarExpanded ? 120 : 32}
                                             height={sidebarExpanded ? 40 : 32}
