@@ -5,8 +5,7 @@ import OnboardingCard from '@/components/OnboardingCard';
 import ProgressBar from '@/components/ProgressBar';
 import { useToast } from '@/hooks/use-toast';
 import { FadeTransition, SlideUpTransition } from '@/lib/transitions';
-import { CheckCircle, Upload, AlertCircle, ArrowRight, Building2, MapPin, FileText, Users, DollarSign } from 'lucide-react';
-import { createClient } from "@/auth/client";
+import { ArrowRight, Building2, MapPin, FileText, Users, DollarSign } from 'lucide-react';
 import { useMutation } from "@tanstack/react-query";
 import { motion } from 'framer-motion';
 import { useAuth } from '@/contexts/AuthContext';
@@ -20,20 +19,18 @@ interface ClaimData {
   zipCode: string;
   projectType: string;
   designPlan: string;
-  insuranceEstimateFilePath: string;
   needsAdjuster: boolean | null;
 }
 
 const Onboarding = () => {
   const apiService = useApiService();
-  const supabase = createClient();
   const router = useRouter();
   const { toast } = useToast();
   const { user } = useAuth();
   
   // Onboarding state
   const [currentStep, setCurrentStep] = useState(1);
-  const totalSteps = 5;
+  const totalSteps = 4;
   
   // Form state for each step
   const [address, setAddress] = useState({
@@ -45,12 +42,9 @@ const Onboarding = () => {
   
   const [projectType, setProjectType] = useState('');
   const [designPlan, setDesignPlan] = useState('');
-  const [hasUploaded, setHasUploaded] = useState(false);
-  const [skipUpload, setSkipUpload] = useState(false);
   const [needsAdjuster, setNeedsAdjuster] = useState<boolean | null>(null);
   const [insuranceProvider, setInsuranceProvider] = useState('');
   const [paymentMethod, setPaymentMethod] = useState('');
-  const [uploadedFileName, setUploadedFileName] = useState('');
   
   // Validate current step
   const isCurrentStepValid = () => {
@@ -61,9 +55,7 @@ const Onboarding = () => {
         return !!projectType;
       case 3: // Design Plan
         return !!designPlan;
-      case 4: // File Upload
-        return hasUploaded || skipUpload;
-      case 5: // Adjuster Need
+      case 4: // Adjuster Need
         return needsAdjuster !== null;
       default:
         return true;
@@ -139,7 +131,6 @@ const Onboarding = () => {
         zipCode: address.zip,
         projectType,
         designPlan,
-        insuranceEstimateFilePath: uploadedFileName,
         needsAdjuster
       };
 
@@ -153,55 +144,7 @@ const Onboarding = () => {
       });
     }
   };
-  
-  // Handle file upload
-  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const files = e.target.files;
-    
-    if (files && files?.length > 0) {
-      const file = files[0];
-      
-      // Basic validation
-      if (file.type !== 'application/pdf') {
-        toast({
-          title: "Invalid File Type",
-          description: "Please upload a PDF file.",
-          variant: "destructive"
-        });
-        return;
-      }
-      
-      if (file.size > 10 * 1024 * 1024) { // 10MB max
-        toast({
-          title: "File Too Large",
-          description: "File size should be less than 10MB.",
-          variant: "destructive"
-        });
-        return;
-      }
-      try {
-        const timestamp = Date.now();
-        const { data, error } = await supabase.storage.from("vendle-estimates").upload(`public/${timestamp}-${file.name}`, file);
 
-        if (error) {
-          console.error('Upload error:', error);
-          toast({
-            title: "Upload Failed",
-            description: error.message || "There was an error uploading your file.",
-            variant: "destructive"
-          });
-          return;
-        }
-
-        setUploadedFileName(data?.path)
-        setHasUploaded(true);
-        setSkipUpload(false);
-      } catch (error) {
-        console.log(error);
-      }
-    }
-  };
-  
   return (
     <motion.div 
       initial={{ opacity: 0 }}
@@ -523,74 +466,11 @@ const Onboarding = () => {
             </FadeTransition>
           </OnboardingCard>
 
-          {/* Step 4: File Upload */}
-          <OnboardingCard
-            title="Upload Insurance Estimate"
-            subtitle="Upload your insurance estimate document (PDF only)"
-            isActive={currentStep === 4}
-            onNext={nextStep}
-            onBack={prevStep}
-            isNextDisabled={!isCurrentStepValid()}
-          >
-            <FadeTransition>
-              <div className="space-y-4">
-                <motion.div
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: 0.1 }}
-                  className="border-2 border-dashed border-gray-300 rounded-xl p-8 text-center hover:border-vendle-blue/50 transition-colors"
-                >
-                  <input
-                    type="file"
-                    accept=".pdf"
-                    onChange={handleFileUpload}
-                    className="hidden"
-                    id="file-upload"
-                  />
-                  <label
-                    htmlFor="file-upload"
-                    className="cursor-pointer"
-                  >
-                    <div className="space-y-4">
-                      <div className="mx-auto w-12 h-12 rounded-full bg-vendle-blue/10 flex items-center justify-center">
-                        <Upload className="w-6 h-6 text-vendle-blue" />
-                      </div>
-                      <div>
-                        <p className="text-vendle-navy font-medium">
-                          {hasUploaded ? 'File Uploaded Successfully!' : 'Click to upload or drag and drop'}
-                        </p>
-                        <p className="text-sm text-vendle-navy/70 mt-1">
-                          PDF files only, up to 10MB
-                        </p>
-                      </div>
-                    </div>
-                  </label>
-                </motion.div>
-
-                <motion.button
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: 0.2 }}
-                  onClick={() => setSkipUpload(true)}
-                  className={`w-full p-4 rounded-xl border-2 transition-all ${
-                    skipUpload
-                      ? 'border-vendle-blue bg-vendle-blue/5'
-                      : 'border-gray-200 hover:border-vendle-blue/50'
-                  }`}
-                >
-                  <div className="flex items-center justify-center gap-3">
-                    <span className="font-medium text-vendle-navy">Skip Upload</span>
-                  </div>
-                </motion.button>
-              </div>
-            </FadeTransition>
-          </OnboardingCard>
-
-          {/* Step 5: Adjuster Need */}
+          {/* Step 4: Adjuster Need */}
           <OnboardingCard
             title="Would you like assistance with your claim?"
             subtitle="Our certified adjusters can review your insurance estimate"
-            isActive={currentStep === 5}
+            isActive={currentStep === 4}
             onNext={nextStep}
             onBack={prevStep}
             isNextDisabled={!isCurrentStepValid()}

@@ -28,7 +28,6 @@ const Navbar = () => {
           {isLoggedIn && (
             <Link href="/dashboard" className="text-gray-700 hover:text-black transition-colors">Dashboard</Link>
           )}
-          <Link href="/reverse-auction" className="text-gray-700 hover:text-black transition-colors">Auctions</Link>
           {user?.user_type === "contractor" && (
             <Link href="/reviews" className="text-gray-700 hover:text-black transition-colors">My Reviews</Link>
           )}

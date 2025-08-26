@@ -23,6 +23,7 @@ import {
   Wrench
 } from "lucide-react"
 import { useQuery } from "@tanstack/react-query"
+import Link from "next/link";
 
 interface DashboardStats {
   totalClaims: number
@@ -237,7 +238,7 @@ export default function HomePage() {
                       <div className="flex items-center gap-3">
                         <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
                         <div>
-                          <p className="font-medium text-sm">{claim.street}</p>
+                          <Link href={`/claim/${claim.id}`} className="font-medium text-sm hover:text-blue-500">{claim.street}</Link>
                           <p className="text-xs text-gray-500">{claim.city}, {claim.state}</p>
                         </div>
                       </div>
@@ -246,14 +247,6 @@ export default function HomePage() {
                       </Badge>
                     </div>
                   ))}
-                  <Button 
-                    onClick={() => router.push('/dashboard')}
-                    variant="outline" 
-                    className="w-full"
-                  >
-                    View All Claims
-                    <ArrowRight className="w-4 h-4 ml-2" />
-                  </Button>
                 </div>
               ) : (
                 <div className="text-center py-8">
@@ -286,7 +279,7 @@ export default function HomePage() {
                       <div className="flex items-center gap-3">
                         <div className="w-2 h-2 bg-green-500 rounded-full"></div>
                         <div>
-                          <p className="font-medium text-sm">{auction.title}</p>
+                          <Link href={`/auction/${auction.auction_id}`} className="font-medium text-sm hover:text-blue-500">{auction.title}</Link>
                           <p className="text-xs text-gray-500">${auction.current_bid?.toLocaleString()}</p>
                         </div>
                       </div>
@@ -295,25 +288,11 @@ export default function HomePage() {
                       </Badge>
                     </div>
                   ))}
-                  <Button 
-                    onClick={() => router.push('/reverse-auction')}
-                    variant="outline" 
-                    className="w-full"
-                  >
-                    View All Auctions
-                    <ArrowRight className="w-4 h-4 ml-2" />
-                  </Button>
                 </div>
               ) : (
                 <div className="text-center py-8">
                   <DollarSign className="h-12 w-12 text-gray-400 mx-auto mb-4" />
                   <p className="text-gray-500">No auctions yet</p>
-                  <Button 
-                    onClick={() => router.push('/reverse-auction')}
-                    className="mt-4"
-                  >
-                    Browse Auctions
-                  </Button>
                 </div>
               )}
             </CardContent>
