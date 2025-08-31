@@ -108,7 +108,6 @@ export default function CreateRestorPage() {
   const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
       const file = e.target.files[0];
-      setUploadedFile(file.name);
 
       if (file.type !== 'application/pdf') {
         toast({
@@ -127,6 +126,8 @@ export default function CreateRestorPage() {
         });
         return;
       }
+
+      setUploadedFile(file.name);
 
       try {
         const timestamp = Date.now();
