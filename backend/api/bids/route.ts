@@ -4,7 +4,7 @@ import { prisma } from "../../db/prisma";
 const router = Router();
 
 // POST /api/bids - Create new bid
-router.post('/', async (req: any, res) => {
+router.post('/:auctionId', async (req: any, res) => {
   try {
     const user = req?.user;
 
@@ -12,11 +12,17 @@ router.post('/', async (req: any, res) => {
       return res.status(401).json({ error: "User not authorized" });
     }
 
+    const { auctionId } = req.params;
+    if (!auctionId) {
+        return res.status(404).json({ error: "Auction not found "});
+    }
+
     const bidData = req.body;
 
     const bid = await prisma.bid.create({
       data: {
         ...bidData,
+        auctionId,
         userId: user.id,
       }
     });
