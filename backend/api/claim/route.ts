@@ -83,7 +83,8 @@ router.post('/', async (req: any, res) => {
     await prisma.claim.create({
       data: {
         ...claimData,
-        userId: user.id
+        userId: user.id,
+        imageUrls: [""]
       }
     });
 

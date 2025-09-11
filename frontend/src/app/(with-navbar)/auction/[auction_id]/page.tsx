@@ -288,7 +288,7 @@ export default function AuctionDetailsPage() {
                                     <div className="grid grid-cols-2 gap-3">
                                         <div className="space-y-2">
                                             <Label htmlFor="budgetTotal" className="text-xs font-medium text-gray-600">
-                                                Total Budget
+                                                Materials
                                             </Label>
                                             <Input
                                                 id="budgetTotal"
@@ -315,7 +315,7 @@ export default function AuctionDetailsPage() {
                                     <div className="grid grid-cols-2 gap-3">
                                         <div className="space-y-2">
                                             <Label htmlFor="subContractorExpenses" className="text-xs font-medium text-gray-600">
-                                                Subcontractor
+                                                Subcontractor Expenses
                                             </Label>
                                             <Input
                                                 id="subContractorExpenses"
@@ -366,14 +366,17 @@ export default function AuctionDetailsPage() {
                                         </div>
                                     </div>
                                     {!uploadedFile ? (
-                                        <div className="w-full h-[60px] bg-gray-100 rounded-lg p-4 flex flex-col items-center justify-center">
-                                            <p className="text-vendle-navy text-sm text-center flex items-center gap-x-2 justify-center"><Upload className="h-4 w-4" />Click here to upload a file.</p>
-                                            <Input
-                                                type="file"
-                                                accept=".pdf"
-                                                onChange={handleFileUpload}
-                                                className="w-full opacity-0 cursor-pointer h-full"
-                                            />
+                                        <div className="w-full h-[60px] bg-gray-100 rounded-lg px-8 py-4 flex items-center justify-center">
+                                            <div className="h-full flex flex-col items-center gap-y-8">
+                                                <span className="text-vendle-navy text-sm text-center flex items-center gap-x-2 justify-center cursor-pointer hover:text-blue-500"><Upload className="h-4 w-4" />Click here to upload a file.</span>
+                                                <Input
+                                                    type="file"
+                                                    accept=".pdf"
+                                                    onChange={handleFileUpload}
+                                                    className="w-full opacity-0 cursor-pointer h-full"
+                                                    hidden
+                                                />
+                                            </div>
                                         </div>
                                     ): (
                                         <div className="w-full h-[60px] bg-gray-100 rounded-lg p-4 flex flex-col items-center justify-center">

@@ -18,7 +18,7 @@ type UserAuth = {
     isLoading: boolean;
     token: string | null; // JWT token for API calls
     login: (email: string, password: string) => Promise<string | null>;
-    signup: (email: string, password: string) => Promise<string | null>;
+    signup: (email: string, password: string, userType?: string, companyName?: string, phoneNumber?: string, companyWebsite?: string) => Promise<string | null>;
     logout: () => Promise<void>;
     // Helper function to get current token
     getAccessToken: () => Promise<string | null>;
@@ -50,7 +50,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
                 const { data: { session } } = await supabase.auth.getSession();
                 const { data: { user: supabaseUser } } = await supabase.auth.getUser();
 
-                console.log('Supabase user:', supabaseUser); // Debug log
+                console.log('Supabase user:', supabaseUser);
 
                 if (supabaseUser && session) {
                     const userData: User = {
