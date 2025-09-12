@@ -3,14 +3,13 @@ import { useState, useTransition } from 'react';
 import Button from '@/components/Button';
 import { FadeTransition } from '@/lib/transitions';
 import { useToast } from '@/hooks/use-toast';
-import { Mail, Lock, Eye, EyeOff } from 'lucide-react';
+import { Mail, Lock, Eye, EyeOff, Phone, Building2, Computer } from 'lucide-react';
 import { useRouter } from 'next/navigation';
-import { loginAction, signUpAction } from "@/actions/users";
 import { useAuth } from '@/contexts/AuthContext';
 import Link from "next/link";
 
 type Props = {
-    type: "login" | "signup"
+    type: "login" | "signup" | "contractorsignup" | "contractorlogin"
 }
 
 const AuthForm = ({ type }: Props) => {
@@ -30,6 +29,9 @@ const AuthForm = ({ type }: Props) => {
         e.preventDefault();
         
         const formData = new FormData(e.currentTarget);
+        const companyName = formData.get("companyName") as string;
+        const companyWebsite = formData.get("companyWebsite") as string;
+        const phoneNumber = formData.get("phoneNumber") as string;
         const email = formData.get('email') as string;
         const password = formData.get('password') as string;
         const confirmPassword = formData.get('confirmPassword');
@@ -69,9 +71,11 @@ const AuthForm = ({ type }: Props) => {
             if (type === 'login') {
                 errorMessage = await login(email, password);
                 description = !errorMessage ? 'Successfully logged in!' : "Failed to log in";
-            } else {
-                errorMessage = await signup(email, password);
+            } else if (type === 'signup') {
+                errorMessage = await signup(email, password, "homeowner");
                 description = !errorMessage ? "Account Created" : "Error creating account";
+            } else if (type === 'contractorsignup') {
+                errorMessage = await signup(email, password, "contractor", companyName, companyWebsite, phoneNumber);
             }
 
             if (!errorMessage) {
@@ -116,16 +120,16 @@ const AuthForm = ({ type }: Props) => {
     return (
         <FadeTransition>
             <div className="w-full max-w-md bg-white rounded-2xl shadow-medium p-8">
-                                    <div className="mb-8 text-center">
-                    <h1 className="text-2xl font-bold text-vendle-navy">
-                        {type === 'login' ? 'Welcome Back' : 'Create Your Account'}
-                    </h1>
-                    <p className="text-vendle-navy/70 mt-2">
-                        {type === 'login'
-                            ? 'Sign in to continue your recovery journey'
-                            : 'Join thousands rebuilding with confidence'}
-                    </p>
-                </div>
+                    <div className="mb-8 text-center">
+                        <h1 className="text-2xl font-bold text-vendle-navy">
+                            {type === 'login' ? 'Welcome Back' : 'Create Your Account'}
+                        </h1>
+                        <p className="text-vendle-navy/70 mt-2">
+                            {type === 'login'
+                                ? 'Sign in to continue your recovery journey'
+                                : 'Join thousands rebuilding with confidence'}
+                        </p>
+                    </div>
 
                     <div className="space-y-4 mb-6">
                         <button
@@ -192,14 +196,74 @@ const AuthForm = ({ type }: Props) => {
                     </div>
 
                     <form onSubmit={handleSubmit} className="space-y-5">
+                        {type === 'contractorsignup' ? (
+                            <div>
+                                <label htmlFor="companyName" className="block text-sm font-medium text-vendle-navy mb-1">
+                                    Company Name
+                                </label>
+                                <div className="relative">
+                                <span className="absolute inset-y-0 left-0 flex items-center pl-3 text-vendle-navy/50">
+                                  <Building2 className="h-5 w-5" />
+                                </span>
+                                    <input
+                                        id="companyName"
+                                        type="companyName"
+                                        name="companyName"
+                                        className="w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-vendle-blue/20 focus:border-vendle-blue transition-colors"
+                                        placeholder="Enter Company Name"
+                                        disabled={isPending}
+                                    />
+                                </div>
+                            </div>
+                        ) : null}
+                        {type === 'contractorsignup' ? (
+                            <div>
+                                <label htmlFor="companyWebsite" className="block text-sm font-medium text-vendle-navy mb-1">
+                                    Company Website
+                                </label>
+                                <div className="relative">
+                                <span className="absolute inset-y-0 left-0 flex items-center pl-3 text-vendle-navy/50">
+                                  <Computer className="h-5 w-5" />
+                                </span>
+                                    <input
+                                        id="companyWebsite"
+                                        type="companyWebsite"
+                                        name="companyWebsite"
+                                        className="w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-vendle-blue/20 focus:border-vendle-blue transition-colors"
+                                        placeholder="Enter Company Website"
+                                        disabled={isPending}
+                                    />
+                                </div>
+                            </div>
+                        ) : null}
+                        {type === 'contractorsignup' ? (
+                            <div>
+                                <label htmlFor="phoneNumber" className="block text-sm font-medium text-vendle-navy mb-1">
+                                    Phone Number
+                                </label>
+                                <div className="relative">
+                                <span className="absolute inset-y-0 left-0 flex items-center pl-3 text-vendle-navy/50">
+                                  <Phone className="h-5 w-5" />
+                                </span>
+                                    <input
+                                        id="phoneNumber"
+                                        type="phoneNumber"
+                                        name="phoneNumber"
+                                        className="w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-vendle-blue/20 focus:border-vendle-blue transition-colors"
+                                        placeholder="Enter Phone Number"
+                                        disabled={isPending}
+                                    />
+                                </div>
+                            </div>
+                        ) : null}
                         <div>
                             <label htmlFor="email" className="block text-sm font-medium text-vendle-navy mb-1">
                                 Email
                             </label>
                             <div className="relative">
-                <span className="absolute inset-y-0 left-0 flex items-center pl-3 text-vendle-navy/50">
-                  <Mail className="h-5 w-5" />
-                </span>
+                                <span className="absolute inset-y-0 left-0 flex items-center pl-3 text-vendle-navy/50">
+                                  <Mail className="h-5 w-5" />
+                                </span>
                                 <input
                                     id="email"
                                     type="email"
@@ -216,9 +280,9 @@ const AuthForm = ({ type }: Props) => {
                                 Password
                             </label>
                             <div className="relative">
-                <span className="absolute inset-y-0 left-0 flex items-center pl-3 text-vendle-navy/50">
-                  <Lock className="h-5 w-5" />
-                </span>
+                                <span className="absolute inset-y-0 left-0 flex items-center pl-3 text-vendle-navy/50">
+                                  <Lock className="h-5 w-5" />
+                                </span>
                                 <input
                                     id="password"
                                     type={showPassword ? "text" : "password"}
@@ -243,9 +307,9 @@ const AuthForm = ({ type }: Props) => {
                                     Confirm Password
                                 </label>
                                 <div className="relative">
-                  <span className="absolute inset-y-0 left-0 flex items-center pl-3 text-vendle-navy/50">
-                    <Lock className="h-5 w-5" />
-                  </span>
+                                      <span className="absolute inset-y-0 left-0 flex items-center pl-3 text-vendle-navy/50">
+                                        <Lock className="h-5 w-5" />
+                                      </span>
                                     <input
                                         id="confirmPassword"
                                         type={showPassword ? "text" : "password"}
@@ -296,10 +360,10 @@ const AuthForm = ({ type }: Props) => {
                             <p className="text-sm text-vendle-navy/70">
                                 Are you a contractor?{' '}
                                 <Link 
-                                    href="/contractor-auth?mode=login" 
+                                    href="/contractor-signup"
                                     className="text-vendle-blue hover:text-vendle-blue/80 font-medium"
                                 >
-                                    Login here
+                                    Sign Up As Contractor
                                 </Link>
                             </p>
                         </div>
