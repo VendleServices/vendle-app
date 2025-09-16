@@ -89,12 +89,12 @@ const Contractors = () => {
               Contractors are the backbone of America's infrastructure and resilience, ensuring communities recover swiftly and safely after unforeseen disasters. At Vendle, we deeply value your expertise, dedication, and commitment to excellence.
             </p>
             <div className="flex flex-col sm:flex-row gap-4">
-              <Link href="/contractor-auth?mode=login">
+              <Link href="/login">
                 <Button size="lg" className="min-w-44">
                   Login to Get Started
                 </Button>
               </Link>
-              <Link href="/contractor-auth?mode=signup">
+              <Link href="/contractor-signup">
                 <Button variant="outline" size="lg" className="min-w-44">
                   Sign Up Now
                 </Button>
@@ -165,12 +165,12 @@ const Contractors = () => {
                 Login to your existing account or create a new one to get started with Vendle.
               </p>
               <div className="flex flex-col sm:flex-row gap-4">
-                <Link href="/contractor-auth?mode=login">
+                <Link href="/login">
                   <Button className="min-w-36">
                     Login
                   </Button>
                 </Link>
-                <Link href="/contractor-auth?mode=signup">
+                <Link href="/contractor-signup">
                   <Button variant="outline" className="min-w-36">
                     Sign Up Here
                   </Button>
@@ -224,7 +224,7 @@ const Contractors = () => {
                   Our intelligent verification system provides real-time feedback and helps you
                   complete your application quickly and accurately.
                 </p>
-                <Link href="/contractor-auth">
+                <Link href="/login">
                   <Button>
                     Start Document Upload
                   </Button>
@@ -246,7 +246,7 @@ const Contractors = () => {
             <p className="text-lg text-vendle-navy/80 mb-8">
               Together, we will continue to strengthen and protect American communities, one restoration at a time. We're excited to welcome you aboard and look forward to achieving great things together.
             </p>
-            <Link href="/contractor-auth">
+            <Link href="/contractor-signup">
               <Button size="lg" className="min-w-48">
                 Login to Get Started
               </Button>

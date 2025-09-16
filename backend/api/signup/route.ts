@@ -5,7 +5,7 @@ const router = Router();
 
 router.post('/', async (req, res) => {
     try {
-        const { id, email } = req.body;
+        const { id, email, userType, companyName, companyWebsite, phoneNumber } = req.body;
 
         if (!id || !email) {
             return res.status(400).json({ message: 'Missing required fields: id and email' });
@@ -18,7 +18,12 @@ router.post('/', async (req, res) => {
         if (!existingUser) {
             await prisma.user.create({
                 data: {
-                    id, email
+                    id,
+                    email,
+                    userType,
+                    companyName,
+                    companyWebsite,
+                    phoneNumber,
                 }
             });
         }

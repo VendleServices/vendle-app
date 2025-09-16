@@ -73,7 +73,7 @@ export async function updateSession(request: NextRequest) {
     )
     
     // Define public routes that should redirect to dashboard if user is logged in
-    const authRoutes = ['/login', '/signup', '/contractor-auth']
+    const authRoutes = ['/login', '/signup', '/contractor-signup']
     const isAuthRoute = authRoutes.some(route => 
       request.nextUrl.pathname.startsWith(route)
     )
