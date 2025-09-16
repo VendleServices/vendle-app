@@ -14,18 +14,8 @@ const inter = Inter({ subsets: ['latin'] });
 export default function StartClaimPage() {
     const router = useRouter();
     const { user } = useAuth();
-    const { toast } = useToast();
 
     const handleSelection = (hasInsurance: boolean) => {
-        if (user?.user_type === 'contractor') {
-            toast({
-                title: "Access Denied",
-                description: "Contractors cannot start claims. Please use your regular user account.",
-                variant: "destructive"
-            });
-            return;
-        }
-
         if (hasInsurance) {
             router.push("/start-claim/insurance/onboarding");
         } else {

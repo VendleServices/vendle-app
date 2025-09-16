@@ -10,6 +10,9 @@ type User = {
     user_id?: number;
     name: string;
     picture?: string;
+    companyName?: string;
+    companyWebsite?: string;
+    phoneNumber?: string;
 }
 
 type UserAuth = {
@@ -59,7 +62,10 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
                         name: supabaseUser.user_metadata?.name || supabaseUser.email?.split('@')[0] || "User",
                         user_type: supabaseUser.user_metadata?.user_type || "homeowner",
                         user_id: supabaseUser.user_metadata?.user_id, // keep for compatibility
-                        picture: supabaseUser.user_metadata?.picture
+                        picture: supabaseUser.user_metadata?.picture,
+                        companyName: supabaseUser.user_metadata?.companyName,
+                        phoneNumber: supabaseUser.user_metadata?.phoneNumber,
+                        companyWebsite: supabaseUser.user_metadata?.companyWebsite,
                     };
                     console.log('Setting user data:', userData); // Debug log
                     setUser(userData);
@@ -97,6 +103,10 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
                                 body: JSON.stringify({
                                     id: session?.user?.id,
                                     email: session?.user?.email,
+                                    userType: session?.user?.user_metadata?.user_type,
+                                    companyName: session?.user?.user_metadata?.companyName,
+                                    phoneNumber: session?.user?.user_metadata?.phoneNumber,
+                                    companyWebsite: session?.user?.user_metadata?.companyWebsite,
                                 })
                             });
                         }
@@ -106,7 +116,10 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
                             name: session.user.user_metadata?.name || session.user.email?.split('@')[0] || "User",
                             user_type: session.user.user_metadata?.user_type || "homeowner",
                             user_id: session.user.user_metadata?.user_id, // keep for compatibility
-                            picture: session.user.user_metadata?.picture
+                            picture: session.user.user_metadata?.picture,
+                            companyName: session?.user?.user_metadata?.companyName,
+                            phoneNumber: session?.user?.user_metadata?.phoneNumber,
+                            companyWebsite: session?.user?.user_metadata?.companyWebsite,
                         };
                         setUser(userData);
                         setToken(session.access_token);
@@ -134,8 +147,8 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         return result.errorMessage;
     };
 
-    const signup = async (email: string, password: string): Promise<string | null> => {
-        const { id, errorMessage } = await signUpAction(email, password);
+    const signup = async (email: string, password: string, userType: string | undefined, companyName: string | undefined, phoneNumber: string | undefined, companyWebsite: string | undefined): Promise<string | null> => {
+        const { id, errorMessage } = await signUpAction(email, password, userType, companyName, phoneNumber, companyWebsite);
         return errorMessage;
     };
 

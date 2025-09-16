@@ -28,13 +28,12 @@ const Navbar = () => {
           {isLoggedIn && (
             <Link href="/dashboard" className="text-gray-700 hover:text-black transition-colors">Dashboard</Link>
           )}
-          {user?.user_type === "contractor" && (
+          {user?.user_type === "contractor" ? (
             <Link href="/reviews" className="text-gray-700 hover:text-black transition-colors">My Reviews</Link>
-          )}
-          {!user && (
-            <Link href="/contractors" className="text-gray-700 hover:text-black transition-colors">Contractors</Link>
-          )}
-          <Link href="/start-claim" className="text-gray-700 hover:text-black transition-colors">Start Claim</Link>
+          ) : null}
+          {user?.user_type === "homeowner" ? (
+              <Link href="/start-claim" className="text-gray-700 hover:text-black transition-colors">Start Claim</Link>
+          ) : null}
         </div>
 
         <div className="flex items-center space-x-4">
