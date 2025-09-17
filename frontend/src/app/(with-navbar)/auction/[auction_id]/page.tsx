@@ -1,5 +1,5 @@
 "use client"
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -17,10 +17,10 @@ interface Auction {
     id: string;
     title: string;
     description: string;
-    starting_bid: number;
-    current_bid: number;
+    startingBid: number;
+    currentBid: number;
     bid_count: number;
-    end_date: string;
+    auctionEndDate: string;
     status: string;
     property_address?: string;
     project_type?: string;
@@ -60,6 +60,11 @@ export default function AuctionDetailsPage() {
     const [uploadedFile, setUploadedFile] = useState<File | null>();
     const { toast } = useToast();
     const { user } = useAuth();
+    const fileInputRef = useRef<HTMLInputElement>(null);
+
+    const handleClick = () => {
+        fileInputRef.current?.click();
+    };
 
     const isContractor = user?.user_type === "contractor";
 
@@ -136,7 +141,7 @@ export default function AuctionDetailsPage() {
             }
 
             const timestamp = Date.now();
-            const { data, error } = await supabase.storage.from("vendle-estimates").upload(`public/bids/bid_${uploadedFile.name}_${timestamp}`, uploadedFile);
+            const { data, error } = await supabase.storage.from("vendle-estimates").upload(`public/bid_${uploadedFile.name}_${timestamp}`, uploadedFile);
 
             if (error) {
                 console.log("error uploading file");
@@ -171,6 +176,11 @@ export default function AuctionDetailsPage() {
             console.log("error");
         }
     });
+
+    const onSubmit = (event: any) => {
+        event.preventDefault();
+        submitBidDataMutation.mutate(auction_id);
+    }
 
     if (loading) {
         return (
@@ -226,7 +236,7 @@ export default function AuctionDetailsPage() {
                                             </Badge>
                                             <Badge className="bg-vendle-navy text-white px-3 py-1 text-sm font-medium">
                                                 <DollarSign className="w-4 h-4 mr-1" />
-                                                ${auction?.current_bid?.toLocaleString()}
+                                                ${auction?.currentBid}
                                             </Badge>
                                             <Badge className="bg-green-100 text-green-800 px-3 py-1 text-sm font-medium">
                                                 {auction?.status}
@@ -249,14 +259,14 @@ export default function AuctionDetailsPage() {
                                                     <DollarSign className="w-5 h-5 mr-3 text-green-600" />
                                                     <div>
                                                         <span className="text-sm text-gray-600">Starting Bid</span>
-                                                        <div className="font-semibold text-lg">${auction?.starting_bid?.toLocaleString()}</div>
+                                                        <div className="font-semibold text-lg">${auction?.startingBid}</div>
                                                     </div>
                                                 </div>
                                                 <div className="flex items-center p-3 bg-gray-100 rounded-lg">
                                                     <Clock className="w-5 h-5 mr-3 text-red-600" />
                                                     <div>
                                                         <span className="text-sm text-gray-600">Auction Ends</span>
-                                                        <div className="font-semibold">{new Date(auction?.end_date).toLocaleString()}</div>
+                                                        <div className="font-semibold">{new Date(auction?.auctionEndDate).toLocaleString()}</div>
                                                     </div>
                                                 </div>
                                             </div>
@@ -276,7 +286,7 @@ export default function AuctionDetailsPage() {
                                     </CardTitle>
                                 </CardHeader>
                                 <CardContent className="p-6">
-                                    <form className="space-y-4">
+                                    <form className="space-y-4" onSubmit={onSubmit}>
                                         <div className="space-y-2">
                                             <Label htmlFor="amount" className="text-sm font-medium text-gray-700">
                                                 Bid Amount *
@@ -374,8 +384,11 @@ export default function AuctionDetailsPage() {
                                         {!uploadedFile ? (
                                             <div className="w-full h-[60px] bg-gray-100 rounded-lg px-8 py-4 flex items-center justify-center">
                                                 <div className="h-full flex flex-col items-center gap-y-8">
-                                                    <span className="text-vendle-navy text-sm text-center flex items-center gap-x-2 justify-center cursor-pointer hover:text-blue-500"><Upload className="h-4 w-4" />Click here to upload a file.</span>
+                                                    <span className="text-vendle-navy text-sm text-center flex items-center gap-x-2 justify-center cursor-pointer hover:text-blue-500" onClick={handleClick}>
+                                                        <Upload className="h-4 w-4" />Click here to upload a file.
+                                                    </span>
                                                     <Input
+                                                        ref={fileInputRef}
                                                         type="file"
                                                         accept=".pdf"
                                                         onChange={handleFileUpload}
@@ -396,7 +409,6 @@ export default function AuctionDetailsPage() {
                                         <Button
                                             type="submit"
                                             className="w-full h-12 text-lg font-semibold bg-vendle-navy hover:bg-vendle-navy/90 transition-all duration-200 shadow-lg hover:shadow-xl"
-                                            onClick={() => submitBidDataMutation.mutate(auction_id)}
                                         >
                                             Submit Bid
                                         </Button>
@@ -422,7 +434,7 @@ export default function AuctionDetailsPage() {
                                         </Badge>
                                         <Badge className="bg-white text-vendle-navy px-3 py-1 text-sm font-medium">
                                             <DollarSign className="w-4 h-4 mr-1" />
-                                            ${auction?.current_bid?.toLocaleString()}
+                                            ${auction?.currentBid}
                                         </Badge>
                                         <Badge className="bg-green-500 text-white px-3 py-1 text-sm font-medium">
                                             {auction?.status}
@@ -451,14 +463,14 @@ export default function AuctionDetailsPage() {
                                                 <DollarSign className="w-6 h-6 mr-4 text-green-600" />
                                                 <div>
                                                     <span className="text-sm text-green-700 font-medium">Starting Bid</span>
-                                                    <div className="font-bold text-xl text-green-800">${auction?.starting_bid?.toLocaleString()}</div>
+                                                    <div className="font-bold text-xl text-green-800">${auction?.startingBid}</div>
                                                 </div>
                                             </div>
                                             <div className="flex items-center p-4 bg-gradient-to-r from-red-50 to-red-100 rounded-lg">
                                                 <Clock className="w-6 h-6 mr-4 text-red-600" />
                                                 <div>
                                                     <span className="text-sm text-red-700 font-medium">Auction Ends</span>
-                                                    <div className="font-bold text-lg text-red-800">{new Date(auction?.end_date).toLocaleString()}</div>
+                                                    <div className="font-bold text-lg text-red-800">{new Date(auction?.auctionEndDate).toLocaleString()}</div>
                                                 </div>
                                             </div>
                                         </div>

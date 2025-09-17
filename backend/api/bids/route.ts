@@ -21,7 +21,14 @@ router.post('/:auctionId', async (req: any, res) => {
 
     const bid = await prisma.bid.create({
       data: {
-        ...bidData,
+        allowance: Number(bidData?.allowance) || 0,
+        amount: Number(bidData?.amount) || 0,
+        budgetTotal: Number(bidData?.budgetTotal) || 0,
+        laborCosts: Number(bidData?.laborCosts) || 0,
+        overhead: Number(bidData?.overhead) || 0,
+        profit: Number(bidData?.profit) || 0,
+        subContractorExpenses: Number(bidData?.subContractorExpenses) || 0,
+        bidPdfPath: bidData?.bidPdfPath || '',
         auctionId,
         userId: user.id,
       }
