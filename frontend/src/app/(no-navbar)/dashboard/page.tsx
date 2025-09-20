@@ -14,6 +14,11 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useAuth } from "@/contexts/AuthContext";
 import { Inter } from "next/font/google";
 import { useApiService } from "@/services/api";
+import { AuctionCard } from "@/components/AuctionCard";
+import { ClaimCard } from "@/components/ClaimCard";
+import { EmptyState } from "@/components/EmptyState";
+import { LoadingSkeleton } from "@/components/LoadingSkeleton";
+import { formatCurrency, formatDate } from "@/lib/formatting";
 import {
     AlertDialog,
     AlertDialogAction,
@@ -107,12 +112,90 @@ export default function DashboardPage() {
 
     const fetchClaims = async () => {
         try {
+            console.log('Fetching claims for user:', user?.id);
             const response: any = await apiService.get(`/api/claim`);
+            console.log('Claims API response:', response);
             return response?.claims;
         } catch (error) {
-            console.log(error);
+            console.log('Error fetching claims:', error);
             throw error;
         }
+    }
+
+    // Mock data for testing the UI
+    const getMockClaims = () => {
+        return [
+            {
+                id: "mock-claim-1",
+                street: "123 Oak Street",
+                city: "Austin",
+                state: "TX",
+                zipCode: "78701",
+                projectType: "water damage",
+                designPlan: "Full restoration",
+                needsAdjuster: true,
+                insuranceProvider: "State Farm",
+                insuranceEstimateFilePath: "/uploads/estimate-1.pdf",
+                createdAt: new Date("2025-01-15"),
+                updatedAt: new Date("2025-01-20"),
+            },
+            {
+                id: "mock-claim-2", 
+                street: "456 Pine Avenue",
+                city: "Houston",
+                state: "TX",
+                zipCode: "77001",
+                projectType: "fire damage",
+                designPlan: "Partial restoration",
+                needsAdjuster: false,
+                insuranceProvider: "Allstate",
+                insuranceEstimateFilePath: "/uploads/estimate-2.pdf",
+                createdAt: new Date("2025-01-10"),
+                updatedAt: new Date("2025-01-18"),
+            },
+            {
+                id: "mock-claim-3",
+                street: "789 Elm Drive",
+                city: "Dallas", 
+                state: "TX",
+                zipCode: "75201",
+                projectType: "storm damage",
+                designPlan: "Roof repair",
+                needsAdjuster: true,
+                insuranceProvider: "Farmers",
+                insuranceEstimateFilePath: "/uploads/estimate-3.pdf",
+                createdAt: new Date("2025-01-05"),
+                updatedAt: new Date("2025-01-12"),
+            },
+            {
+                id: "mock-claim-4",
+                street: "321 Maple Lane",
+                city: "San Antonio",
+                state: "TX", 
+                zipCode: "78201",
+                projectType: "mold remediation",
+                designPlan: "Basement cleanup",
+                needsAdjuster: false,
+                insuranceProvider: "Progressive",
+                insuranceEstimateFilePath: "/uploads/estimate-4.pdf",
+                createdAt: new Date("2025-01-01"),
+                updatedAt: new Date("2025-01-08"),
+            },
+            {
+                id: "mock-claim-5",
+                street: "654 Cedar Court",
+                city: "Fort Worth",
+                state: "TX",
+                zipCode: "76101", 
+                projectType: "full",
+                designPlan: "Complete renovation",
+                needsAdjuster: true,
+                insuranceProvider: "Liberty Mutual",
+                insuranceEstimateFilePath: "/uploads/estimate-5.pdf",
+                createdAt: new Date("2024-12-28"),
+                updatedAt: new Date("2025-01-05"),
+            }
+        ];
     }
 
     const deleteClaim = async (claim: Claim) => {
@@ -124,22 +207,88 @@ export default function DashboardPage() {
         }
     }
 
+    // Mock auction data for testing
+    const getMockAuctions = () => {
+        return [
+            {
+                auction_id: "mock-auction-1",
+                claim_id: "mock-claim-1",
+                title: "Restoration Job - Water Damage",
+                project_type: "water damage",
+                starting_bid: 5000,
+                current_bid: 8500,
+                bid_count: 3,
+                end_date: "2025-02-15",
+                status: "open",
+                property_address: "123 Oak Street, Austin, TX",
+                design_plan: "Full restoration"
+            },
+            {
+                auction_id: "mock-auction-2", 
+                claim_id: "mock-claim-2",
+                title: "Fire Damage Restoration",
+                project_type: "fire damage",
+                starting_bid: 8000,
+                current_bid: 12500,
+                bid_count: 0,
+                end_date: "2025-02-20",
+                status: "open",
+                property_address: "456 Pine Avenue, Houston, TX",
+                design_plan: "Partial restoration"
+            },
+            {
+                auction_id: "mock-auction-3",
+                claim_id: "mock-claim-3",
+                title: "Storm Damage Repair",
+                project_type: "storm damage",
+                starting_bid: 4000,
+                current_bid: 6200,
+                bid_count: 2,
+                end_date: "2025-02-10",
+                status: "open",
+                property_address: "789 Elm Drive, Dallas, TX",
+                design_plan: "Roof repair"
+            }
+        ];
+    }
+
+    const getMockClosedAuctions = () => {
+        return [
+            {
+                auction_id: "mock-closed-1",
+                claim_id: "mock-claim-4",
+                title: "Mold Remediation Project",
+                project_type: "mold remediation",
+                starting_bid: 3000,
+                current_bid: 4800,
+                bid_count: 1,
+                end_date: "2025-01-15",
+                status: "closed",
+                property_address: "321 Maple Lane, San Antonio, TX",
+                design_plan: "Basement cleanup"
+            },
+            {
+                auction_id: "mock-closed-2",
+                claim_id: "mock-claim-5",
+                title: "Full Home Restoration",
+                project_type: "full",
+                starting_bid: 15000,
+                current_bid: 25000,
+                bid_count: 4,
+                end_date: "2025-01-10",
+                status: "closed",
+                property_address: "654 Cedar Court, Fort Worth, TX",
+                design_plan: "Complete renovation"
+            }
+        ];
+    }
+
     const fetchAuctions = async () => {
         setAuctionLoading(true);
         try {
-            const response:any = await apiService.get(`/api/auctions`);
-            const data = response?.data;
-            console.log('Fetched auctions:', data);
-            
-            const activeAuctions = data?.filter((auction: Auction) => {
-                const endDate = new Date(auction.end_date);
-                return auction.status === 'open' && endDate > new Date();
-            });
-            
-            const closedAuctions = data?.filter((auction: Auction) => {
-                const endDate = new Date(auction.end_date);
-                return auction.status === 'closed' || endDate <= new Date();
-            });
+            // Use mock data instead of API call for testing
+            const activeAuctions = getMockAuctions();
+            const closedAuctions = getMockClosedAuctions();
             
             setAuctions(activeAuctions);
             setClosedAuctions(closedAuctions);
@@ -156,12 +305,20 @@ export default function DashboardPage() {
 
     const { data: claims = [], isLoading, isError, error } = useQuery({
         queryKey: ["getClaims"],
-        queryFn: fetchClaims,
+        queryFn: () => Promise.resolve(getMockClaims()), // Use mock data instead of API call
         enabled: !!user?.id,
         retry: 1,
     });
 
-    console.log('Claims query state:', { claims, isLoading, isError, error, userId: user?.id });
+    console.log('Claims query state:', { 
+        claims: claims?.length || 0, 
+        isLoading, 
+        isError, 
+        error, 
+        userId: user?.id,
+        isLoggedIn,
+        authLoading
+    });
 
     const deleteClaimMutation = useMutation({
         mutationFn: deleteClaim,
@@ -555,126 +712,61 @@ export default function DashboardPage() {
 
                     {/* Main Content */}
                     <div className="flex-1 bg-gray-50 border-l border-gray-200">
-                        <div className="p-8">
-                            <div className="max-w-7xl mx-auto">
-                                <div className="flex justify-between items-center mb-8">
+                        <div className="p-6 sm:p-8 lg:p-12">
+                            <div className="mx-auto w-full max-w-[1200px]">
+                                <motion.div
+                                    initial={{ opacity: 0, y: 20 }}
+                                    animate={{ opacity: 1, y: 0 }}
+                                    transition={{ duration: 0.3 }}
+                                    className="mb-12 flex flex-col gap-6 sm:flex-row sm:items-center sm:justify-between"
+                                >
                                     <div>
-                                        <h1 className="text-2xl font-semibold text-gray-900">
+                                        <h1 className="text-2xl font-bold tracking-tight text-foreground sm:text-3xl">
                                             {activeSection === 'auctions' ? 'Active Auctions' : activeSection === 'claims' ? 'My Claims' : activeSection === 'closed-auctions' ? 'Closed Auctions' : 'My Reviews'}
                                         </h1>
-                                        <p className="mt-1 text-sm text-gray-600">
+                                        <p className="mt-3 text-sm text-muted-foreground sm:text-base">
                                             {activeSection === 'auctions' ? 'Browse and manage your active auctions' : activeSection === 'claims' ? 'View and manage your insurance claims' : activeSection === 'closed-auctions' ? 'View and manage your closed auctions' : 'View and manage your reviews'}
                                         </p>
                                     </div>
                                     <Button
                                         onClick={() => router.push("/start-claim")}
-                                        className="bg-[#0f172a] hover:bg-[#1e293b] text-white h-9 px-4 text-sm font-medium rounded-lg shadow-sm"
+                                        className="gap-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
                                     >
+                                        <Plus className="h-4 w-4" />
                                         Start New Claim
                                     </Button>
-                                </div>
+                                </motion.div>
 
-                                <Card className="shadow-sm border-gray-200 bg-white rounded-lg">
-                                    <CardContent className="p-6">
-                                        {activeSection === 'auctions' ? (
+                                <motion.div
+                                    initial={{ opacity: 0 }}
+                                    animate={{ opacity: 1 }}
+                                    transition={{ duration: 0.3, delay: 0.1 }}
+                                >
+                                    {activeSection === 'auctions' ? (
                                             <>
                                                 {auctionLoading ? (
-                                                    <div className="flex justify-center items-center h-64">
-                                                        <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-[#0f172a]"></div>
-                                                    </div>
+                                                    <LoadingSkeleton />
                                                 ) : auctions?.length === 0 ? (
-                                                    <div className="text-center py-12">
-                                                        <Users className="w-12 h-12 mx-auto text-gray-400 mb-4" />
-                                                        <h3 className="text-lg font-medium text-gray-900 mb-2">No Active Auctions</h3>
-                                                        <p className="text-gray-500 mb-4">There are currently no active auctions to display.</p>
-                                                    </div>
+                                                    <EmptyState
+                                                        icon={Users}
+                                                        title="No Active Auctions"
+                                                        description="There are currently no active auctions to display. Start a new claim to create an auction."
+                                                        actionLabel="Start New Claim"
+                                                        onAction={() => router.push("/start-claim")}
+                                                    />
                                                 ) : (
-                                                    <div className="grid gap-4">
+                                                    <div className="grid gap-6 sm:gap-8 grid-cols-1 md:grid-cols-2 xl:grid-cols-3">
                                                         {auctions?.map((auction) => (
-                                                            <Card key={auction.auction_id} className="hover:shadow-md transition-shadow duration-200 border border-gray-200 bg-white rounded-lg">
-                                                                <CardContent className="p-6">
-                                                                    <div className="flex justify-between items-start mb-4">
-                                                                        <div>
-                                                                            <h3 className="text-lg font-semibold text-gray-900">{auction.title}</h3>
-                                                                            <p className="text-sm text-gray-500 mt-1">{auction.property_address}</p>
-                                                                        </div>
-                                                                        <Badge variant={auction.status === 'open' ? 'default' : 'secondary'} className="bg-green-100 text-green-800">
-                                                                            {auction.status}
-                                                                        </Badge>
-                                                                    </div>
-
-                                                                    {/* Teaser Information for Contractors */}
-                                                                    <div className="bg-blue-50 p-4 rounded-lg mb-4">
-                                                                        <h4 className="font-medium text-blue-900 mb-3">Job Details for Contractors</h4>
-                                                                        <div className="grid grid-cols-2 gap-4">
-                                                                            <div className="space-y-2">
-                                                                                <div className="flex items-center text-sm">
-                                                                                    <DollarSign className="w-4 h-4 mr-2 text-blue-600" />
-                                                                                    <span className="text-blue-800">Total Job Value: <span className="font-semibold">${auction.total_job_value?.toFixed(2) || auction.starting_bid.toFixed(2)}</span></span>
-                                                                                </div>
-                                                                                <div className="flex items-center text-sm">
-                                                                                    <DollarSign className="w-4 h-4 mr-2 text-blue-600" />
-                                                                                    <span className="text-blue-800">O&P: <span className="font-semibold">${auction.overhead_and_profit?.toFixed(2) || 'N/A'}</span></span>
-                                                                                </div>
-                                                                            </div>
-                                                                            <div className="space-y-2">
-                                                                                <div className="flex items-center text-sm">
-                                                                                    <MapPin className="w-4 h-4 mr-2 text-blue-600" />
-                                                                                    <span className="text-blue-800">Area: <span className="font-semibold">{auction.property_address || 'Address not specified'}</span></span>
-                                                                                </div>
-                                                                                <div className="flex items-center text-sm">
-                                                                                    <Wrench className="w-4 h-4 mr-2 text-blue-600" />
-                                                                                    <span className="text-blue-800">Type: <span className="font-semibold">{auction.reconstruction_type || auction.project_type || 'General Restoration'}</span></span>
-                                                                                </div>
-                                                                            </div>
-                                                                        </div>
-                                                                    </div>
-
-                                                                    {/* Additional Information */}
-                                                                    <div className="grid grid-cols-2 gap-4 mb-4">
-                                                                        <div className="space-y-2">
-                                                                            <div className="flex items-center text-sm">
-                                                                                <DollarSign className="w-4 h-4 mr-2 text-gray-500" />
-                                                                                <span className="text-gray-600">Current Bid: <span className="font-medium">${auction.current_bid.toFixed(2)}</span></span>
-                                                                            </div>
-                                                                            <div className="flex items-center text-sm">
-                                                                                <Users className="w-4 h-4 mr-2 text-gray-500" />
-                                                                                <span className="text-gray-600">{auction.bid_count} bids</span>
-                                                                            </div>
-                                                                        </div>
-                                                                        <div className="space-y-2">
-                                                                            <div className="flex items-center text-sm">
-                                                                                <Clock className="w-4 h-4 mr-2 text-gray-500" />
-                                                                                <span className="text-gray-600">Ends: {new Date(auction.end_date).toLocaleDateString()}</span>
-                                                                            </div>
-                                                                            {auction.cost_basis && (
-                                                                                <div className="flex items-center text-sm">
-                                                                                    <FileText className="w-4 h-4 mr-2 text-gray-500" />
-                                                                                    <span className="text-gray-600">Basis: <span className="font-medium">{auction.cost_basis}</span></span>
-                                                                                </div>
-                                                                            )}
-                                                                        </div>
-                                                                    </div>
-
-                                                                    {/* Description if available */}
-                                                                    {auction.description && (
-                                                                        <div className="mb-4">
-                                                                            <p className="text-sm text-gray-600 bg-gray-50 p-3 rounded-lg">
-                                                                                {auction.description}
-                                                                            </p>
-                                                                        </div>
-                                                                    )}
-
-                                                                    <div className="flex justify-end space-x-3">
-                                                                        <Button
-                                                                            onClick={() => router.push(`/auction/${auction.auction_id}`)}
-                                                                            className="w-full bg-[#0f172a] text-white hover:bg-[#1e293b] transition-colors duration-200 rounded-lg"
-                                                                        >
-                                                                            View Details
-                                                                        </Button>
-                                                                    </div>
-                                                                </CardContent>
-                                                            </Card>
+                                                            <AuctionCard
+                                                                key={auction.auction_id}
+                                                                title={auction.title}
+                                                                scope={auction.project_type}
+                                                                finalBid={auction.current_bid}
+                                                                totalBids={auction.bid_count}
+                                                                endedAt={auction.end_date}
+                                                                status="open"
+                                                                onViewDetails={() => router.push(`/auction/${auction.auction_id}`)}
+                                                            />
                                                         ))}
                                                     </div>
                                                 )}
@@ -682,76 +774,29 @@ export default function DashboardPage() {
                                         ) : activeSection === 'closed-auctions' ? (
                                             <>
                                                 {closedAuctionLoading ? (
-                                                    <div className="flex justify-center items-center h-64">
-                                                        <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-[#0f172a]"></div>
-                                                    </div>
+                                                    <LoadingSkeleton />
                                                 ) : closedAuctions?.length === 0 ? (
-                                                    <div className="text-center py-12">
-                                                        <Archive className="w-12 h-12 mx-auto text-gray-400 mb-4" />
-                                                        <h3 className="text-lg font-medium text-gray-900 mb-2">No Closed Auctions</h3>
-                                                        <p className="text-gray-500 mb-4">There are no closed auctions to display.</p>
-                                                    </div>
+                                                    <EmptyState
+                                                        icon={Archive}
+                                                        title="No Closed Auctions"
+                                                        description="There are no closed auctions to display."
+                                                        actionLabel="Start New Claim"
+                                                        onAction={() => router.push("/start-claim")}
+                                                    />
                                                 ) : (
-                                                    <div className="space-y-4">
+                                                    <div className="grid gap-6 sm:gap-8 grid-cols-1 md:grid-cols-2 xl:grid-cols-3">
                                                         {closedAuctions?.map((auction) => (
-                                                            <Card key={auction.auction_id} className="hover:shadow-md transition-shadow duration-200 border border-gray-200 bg-white rounded-lg">
-                                                                <CardContent className="p-6">
-                                                                    <div className="flex justify-between items-start mb-4">
-                                                                        <div>
-                                                                            <h3 className="text-lg font-semibold text-gray-900">{auction.title}</h3>
-                                                                            <p className="text-sm text-gray-500">{auction.project_type}</p>
-                                                                        </div>
-                                                                        <Badge variant="secondary">Closed</Badge>
-                                                                    </div>
-
-                                                                    <div className="grid grid-cols-2 gap-4 mb-4">
-                                                                        <div className="space-y-2">
-                                                                            <div className="flex items-center text-sm">
-                                                                                <DollarSign className="w-4 h-4 mr-2 text-gray-500" />
-                                                                                <span className="text-gray-600">Final Bid: <span className="font-medium">${auction.current_bid.toFixed(2)}</span></span>
-                                                                            </div>
-                                                                            <div className="flex items-center text-sm">
-                                                                                <Users className="w-4 h-4 mr-2 text-gray-500" />
-                                                                                <span className="text-gray-600">{auction.bid_count} total bids</span>
-                                                                            </div>
-                                                                        </div>
-                                                                        <div className="space-y-2">
-                                                                            <div className="flex items-center text-sm">
-                                                                                <Calendar className="w-4 h-4 mr-2 text-gray-500" />
-                                                                                <span className="text-gray-600">Ended: {new Date(auction.end_date).toLocaleDateString()}</span>
-                                                                            </div>
-                                                                            {auction.bid_count > 0 ? (
-                                                                                <div className="flex items-center text-sm">
-                                                                                    <Trophy className="w-4 h-4 mr-2 text-gray-500" />
-                                                                                    <span className="text-gray-600">Winning Bidder: {auction.winning_bidder || 'Processing...'}</span>
-                                                                                </div>
-                                                                            ) : (
-                                                                                <div className="flex items-center text-sm text-red-600">
-                                                                                    <AlertCircle className="w-4 h-4 mr-2" />
-                                                                                    <span>No bids received</span>
-                                                                                </div>
-                                                                            )}
-                                                                        </div>
-                                                                    </div>
-
-                                                                    <div className="flex justify-end space-x-3">
-                                                                        <Button
-                                                                            onClick={() => router.push(`/auction/${auction.auction_id}`)}
-                                                                            className="w-full bg-[#0f172a] text-white hover:bg-[#1e293b] transition-colors duration-200 rounded-lg"
-                                                                        >
-                                                                            View Details
-                                                                        </Button>
-                                                                        <Button
-                                                                            onClick={() => handleClosedAuctionDelete(auction)}
-                                                                            variant="ghost"
-                                                                            size="icon"
-                                                                            className="text-gray-400 hover:text-red-500 hover:bg-red-50 transition-all duration-200 rounded-full"
-                                                                        >
-                                                                            <Trash2 className="h-4 w-4" />
-                                                                        </Button>
-                                                                    </div>
-                                                                </CardContent>
-                                                            </Card>
+                                                            <AuctionCard
+                                                                key={auction.auction_id}
+                                                                title={auction.title}
+                                                                scope={auction.project_type}
+                                                                finalBid={auction.current_bid}
+                                                                totalBids={auction.bid_count}
+                                                                endedAt={auction.end_date}
+                                                                status="closed"
+                                                                onViewDetails={() => router.push(`/auction/${auction.auction_id}`)}
+                                                                onDelete={() => handleClosedAuctionDelete(auction)}
+                                                            />
                                                         ))}
                                                     </div>
                                                 )}
@@ -759,94 +804,35 @@ export default function DashboardPage() {
                                         ) : activeSection === 'claims' ? (
                                             <>
                                                 {isLoading ? (
-                                                    <div className="flex justify-center items-center h-64">
-                                                        <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-[#0f172a]"></div>
-                                                    </div>
+                                                    <LoadingSkeleton />
                                                 ) : claims?.length === 0 ? (
-                                                    <div className="text-center py-12">
-                                                        <FileText className="w-12 h-12 mx-auto text-gray-400 mb-4" />
-                                                        <h3 className="text-lg font-medium text-gray-900 mb-2">No Claims Found</h3>
-                                                        <p className="text-gray-500 mb-4">You haven't filed any claims yet.</p>
-                                                        <Button
-                                                            onClick={() => router.push("/start-claim")}
-                                                            className="bg-[#0f172a] hover:bg-[#1e293b] text-white"
-                                                        >
-                                                            Start New Claim
-                                                        </Button>
-                                                    </div>
+                                                    <EmptyState
+                                                        icon={FileText}
+                                                        title="No Claims Found"
+                                                        description="You haven't filed any claims yet. Start a new claim to get started with your recovery process."
+                                                        actionLabel="Start New Claim"
+                                                        onAction={() => router.push("/start-claim")}
+                                                    />
                                                 ) : (
-                                                    <div className="grid gap-4">
+                                                    <div className="grid gap-4 sm:gap-6 grid-cols-1 sm:grid-cols-2 md:grid-cols-3">
                                                         {claims?.map((claim: Claim) => (
-                                                            <Card key={claim.id} className="hover:shadow-md transition-shadow duration-200 border border-gray-200 bg-white rounded-lg">
-                                                                <CardContent className="p-6">
-                                                                    <div className="flex justify-between items-start mb-4">
-                                                                        <div>
-                                                                            <h3 className="text-lg font-semibold text-gray-900">{claim.street}</h3>
-                                                                            <p className="text-sm text-gray-500 mt-1">
-                                                                                {claim.insuranceProvider === 'statefarm' ? 'State Farm' : claim.insuranceProvider || 'No provider specified'}
-                                                                            </p>
-                                                                        </div>
-                                                                        <Badge variant="secondary" className={getStatusColor(claim.projectType)}>
-                                                                            {claim.projectType}
-                                                                        </Badge>
-                                                                    </div>
-
-                                                                    <div className="grid grid-cols-2 gap-4 mb-4">
-                                                                        <div className="space-y-2">
-                                                                            <div className="flex items-center text-sm">
-                                                                                <Calendar className="w-4 h-4 mr-2 text-gray-500" />
-                                                                                <span className="text-gray-600">Filed: {new Date(claim.createdAt).toLocaleDateString()}</span>
-                                                                            </div>
-                                                                            {claim.updatedAt && (
-                                                                                <div className="flex items-center text-sm">
-                                                                                    <FileText className="w-4 h-4 mr-2 text-gray-500" />
-                                                                                    <span className="text-gray-600">Last Updated: {new Date(claim.updatedAt).toLocaleDateString()}</span>
-                                                                                </div>
-                                                                            )}
-                                                                        </div>
-                                                                        <div className="space-y-2">
-                                                                            {claim.needsAdjuster && (
-                                                                                <div className="flex items-center text-sm">
-                                                                                    <LayoutIcon className="w-4 h-4 mr-2 text-gray-500" />
-                                                                                    <span className="text-gray-600">Needs Adjuster: {claim.needsAdjuster}</span>
-                                                                                </div>
-                                                                            )}
-                                                                            {claim.designPlan && (
-                                                                                <div className="flex items-center text-sm">
-                                                                                    <FileText className="w-4 h-4 mr-2 text-gray-500" />
-                                                                                    <span className="text-gray-600">Design Plan: {claim.designPlan}</span>
-                                                                                </div>
-                                                                            )}
-                                                                        </div>
-                                                                    </div>
-
-                                                                    <div className="flex justify-end space-x-3">
-                                                                        {claim.id && (
-                                                                            <Button
-                                                                                variant="default"
-                                                                                onClick={() => router.push(`/start-claim/create-restor/${claim.id}`)}
-                                                                                className="bg-[#0f172a] hover:bg-[#1e293b] text-white"
-                                                                            >
-                                                                                Create Restoration
-                                                                            </Button>
-                                                                        )}
-                                                                        <Button
-                                                                            onClick={() => router.push(`/claim/${claim.id}`)}
-                                                                            className="w-full bg-[#0f172a] text-white hover:bg-[#1e293b] transition-colors duration-200 rounded-lg"
-                                                                        >
-                                                                            View Details
-                                                                        </Button>
-                                                                        <Button
-                                                                            onClick={() => handleDeleteClick(claim)}
-                                                                            variant="ghost"
-                                                                            size="icon"
-                                                                            className="text-gray-400 hover:text-red-500 hover:bg-red-50 transition-all duration-200 rounded-full"
-                                                                        >
-                                                                            Delete
-                                                                        </Button>
-                                                                    </div>
-                                                                </CardContent>
-                                                            </Card>
+                                                            <ClaimCard
+                                                                key={claim.id}
+                                                                id={claim.id}
+                                                                street={claim.street}
+                                                                city={claim.city}
+                                                                state={claim.state}
+                                                                zipCode={claim.zipCode}
+                                                                projectType={claim.projectType}
+                                                                designPlan={claim.designPlan}
+                                                                needsAdjuster={claim.needsAdjuster}
+                                                                insuranceProvider={claim.insuranceProvider === 'statefarm' ? 'State Farm' : claim.insuranceProvider}
+                                                                createdAt={claim.createdAt}
+                                                                updatedAt={claim.updatedAt}
+                                                                onViewDetails={() => router.push(`/claim/${claim.id}`)}
+                                                                onCreateRestoration={() => router.push(`/start-claim/create-restor/${claim.id}`)}
+                                                                onDelete={() => handleDeleteClick(claim)}
+                                                            />
                                                         ))}
                                                     </div>
                                                 )}
@@ -900,8 +886,7 @@ export default function DashboardPage() {
                                                 </div>
                                             </>
                                         )}
-                                    </CardContent>
-                                </Card>
+                                </motion.div>
                             </div>
                         </div>
                     </div>
