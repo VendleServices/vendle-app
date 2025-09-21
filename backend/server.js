@@ -6,6 +6,7 @@ import { dirname, join } from 'path';
 import cookieParser from 'cookie-parser';
 import { createClient } from "@supabase/supabase-js";
 import jwt from 'jsonwebtoken';
+import { createProxyMiddleware } from "http-proxy-middleware";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -14,6 +15,20 @@ dotenv.config();
 
 const app = express();
 const PORT = process.env.PORT || 3001;
+const CONTRACTOR_ANALYSIS_URL = 'http://localhost:8001'
+
+const contractorAnalysisProxy = createProxyMiddleware({
+  target: CONTRACTOR_ANALYSIS_URL,
+  changeOrigin: true,
+  timeout: 60000,
+  onError: (err, req, res) => {
+    console.error('Contractor analysis proxy error:', err.message);
+    res.status(500).json({
+      error: 'Contractor analysis service unavailable',
+      message: 'Please try again later'
+    });
+  }
+})
 
 // Middleware
 app.use(cors({
@@ -81,6 +96,7 @@ app.use('/api/claim', verifyToken, claimRoutes);
 app.use('/api/onboarding', onboardingRoutes);
 app.use('/api/fema', verifyToken, femaRoutes);
 app.use('/api/setup-db', setupDbRoutes);
+app.use('/api/analyze_contractors', verifyToken, contractorAnalysisProxy);
 
 app.get('/api/health', (req, res) => {
   res.json({ status: 'OK', timestamp: new Date().toISOString() });
