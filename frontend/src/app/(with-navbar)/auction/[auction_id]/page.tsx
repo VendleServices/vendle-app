@@ -25,18 +25,20 @@ interface Auction {
     property_address?: string;
     project_type?: string;
     design_plan?: string;
+    reconstructionType?: string;
 }
 
 interface Bid {
-    id: string;
-    amount: number;
-    contractor_name?: string;
-    createdAt: string;
-    bidder_rating?: number;
-    bidder_reviews?: number;
-    bidder_company?: string;
-    bidder_email?: string;
-    bidder_phone?: string;
+    contractor_id: string;
+    contractor_name: string;
+    bid_amount: number;
+    bid_description?: string;
+    phone_number?: string;
+    email?: string;
+    company_name?: string;
+    company_website?: string;
+    license_number?: string;
+    years_experience?: number;
 }
 
 const initialBidDefaults = {
@@ -114,7 +116,7 @@ export default function AuctionDetailsPage() {
     const fetchBids = async (auctionId: string) => {
         try {
             const response: any = await apiService.get(`/api/bids/${auctionId}`);
-            return response?.bids as unknown as Bid[];
+            return response?.bids as unknown as Bid[] || [];
         } catch (error) {
             console.log(error);
         }
@@ -131,6 +133,12 @@ export default function AuctionDetailsPage() {
         queryFn: () => fetchBids(auction_id),
         enabled: !!auction_id,
     });
+
+    const project_details = {
+        project_type: auction?.reconstructionType,
+        project_description: auction?.description,
+        location: "Miami, Florida",
+    }
 
     const handleSubmitBid = async (auctionId: string) => {
         try {
@@ -428,6 +436,9 @@ export default function AuctionDetailsPage() {
                                         {auction?.title}
                                     </CardTitle>
                                     <div className="flex flex-wrap gap-3">
+                                        <Button>
+                                            Ask Vendle!
+                                        </Button>
                                         <Badge className="bg-white/20 text-white px-3 py-1 text-sm font-medium">
                                             <Users className="w-4 h-4 mr-1" />
                                             {auction?.bid_count} Bids
@@ -523,58 +534,58 @@ export default function AuctionDetailsPage() {
                                 ) : (
                                     <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
                                         {bids?.map((bid) => (
-                                            <Card key={bid.id} className="group hover:shadow-2xl transition-all duration-300 border-0 bg-white shadow-lg hover:scale-[1.02] hover:bg-gradient-to-br hover:from-white hover:to-blue-50">
+                                            <Card key={bid.contractor_id} className="group hover:shadow-2xl transition-all duration-300 border-0 bg-white shadow-lg hover:scale-[1.02] hover:bg-gradient-to-br hover:from-white hover:to-blue-50">
                                                 <CardContent className="p-6">
                                                     <div className="space-y-5">
                                                         {/* Company Header */}
                                                         <div className="flex items-start gap-4">
                                                             <div className="h-14 w-14 rounded-xl bg-gradient-to-br from-vendle-navy to-blue-600 flex items-center justify-center shadow-lg">
                                                                 <span className="text-xl font-bold text-white">
-                                                                    {bid?.bidder_company?.[0] || bid?.contractor_name?.[0]}
+                                                                    {bid?.company_name || bid?.contractor_name}
                                                                 </span>
                                                             </div>
                                                             <div className="flex-1 min-w-0">
                                                                 <h3 className="font-bold text-lg text-gray-900 truncate">
-                                                                    {bid?.bidder_company || 'Independent Contractor'}
+                                                                    {bid?.company_name || 'Independent Contractor'}
                                                                 </h3>
                                                                 <p className="text-sm text-gray-600 truncate">{bid?.contractor_name}</p>
                                                             </div>
                                                         </div>
 
-                                                        {/* Rating */}
-                                                        {bid?.bidder_rating && (
-                                                            <div className="flex items-center gap-2 p-3 bg-yellow-50 rounded-lg">
-                                                                <div className="flex items-center">
-                                                                    {[...Array(5)]?.map((_, i) => (
-                                                                        <Star
-                                                                            key={i}
-                                                                            className={`h-4 w-4 ${
-                                                                                i < (bid?.bidder_rating || 0)
-                                                                                    ? 'fill-yellow-400 text-yellow-400'
-                                                                                    : 'text-gray-300'
-                                                                            }`}
-                                                                        />
-                                                                    ))}
-                                                                </div>
-                                                                <span className="font-semibold text-yellow-700">
-                                                                    {bid?.bidder_rating?.toFixed(1)}
-                                                                </span>
-                                                                <span className="text-sm text-yellow-600">
-                                                                    ({bid?.bidder_reviews} reviews)
-                                                                </span>
-                                                            </div>
-                                                        )}
+                                                        {/*/!* Rating *!/*/}
+                                                        {/*{bid?.bidder_rating && (*/}
+                                                        {/*    <div className="flex items-center gap-2 p-3 bg-yellow-50 rounded-lg">*/}
+                                                        {/*        <div className="flex items-center">*/}
+                                                        {/*            {[...Array(5)]?.map((_, i) => (*/}
+                                                        {/*                <Star*/}
+                                                        {/*                    key={i}*/}
+                                                        {/*                    className={`h-4 w-4 ${*/}
+                                                        {/*                        i < (bid?.bidder_rating || 0)*/}
+                                                        {/*                            ? 'fill-yellow-400 text-yellow-400'*/}
+                                                        {/*                            : 'text-gray-300'*/}
+                                                        {/*                    }`}*/}
+                                                        {/*                />*/}
+                                                        {/*            ))}*/}
+                                                        {/*        </div>*/}
+                                                        {/*        <span className="font-semibold text-yellow-700">*/}
+                                                        {/*            {bid?.bidder_rating?.toFixed(1)}*/}
+                                                        {/*        </span>*/}
+                                                        {/*        <span className="text-sm text-yellow-600">*/}
+                                                        {/*            ({bid?.bidder_reviews} reviews)*/}
+                                                        {/*        </span>*/}
+                                                        {/*    </div>*/}
+                                                        {/*)}*/}
 
                                                         {/* Contact Info */}
                                                         <div className="space-y-2">
                                                             <div className="flex items-center gap-3 text-sm text-gray-600 hover:text-gray-800 transition-colors">
                                                                 <Mail className="h-4 w-4 text-blue-500" />
-                                                                <span className="truncate">{bid?.bidder_email}</span>
+                                                                <span className="truncate">{bid?.email}</span>
                                                             </div>
-                                                            {bid?.bidder_phone && (
+                                                            {bid?.phone_number && (
                                                                 <div className="flex items-center gap-3 text-sm text-gray-600 hover:text-gray-800 transition-colors">
                                                                     <Phone className="h-4 w-4 text-green-500" />
-                                                                    <span>{bid?.bidder_phone}</span>
+                                                                    <span>{bid?.phone_number}</span>
                                                                 </div>
                                                             )}
                                                         </div>
@@ -585,7 +596,7 @@ export default function AuctionDetailsPage() {
                                                                 <div>
                                                                     <p className="text-sm text-gray-500 mb-1">Bid Amount</p>
                                                                     <p className="text-3xl font-bold text-vendle-navy">
-                                                                        ${bid?.amount?.toLocaleString()}
+                                                                        ${bid?.bid_amount?.toLocaleString()}
                                                                     </p>
                                                                 </div>
                                                             </div>

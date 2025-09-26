@@ -53,10 +53,26 @@ router.get('/:auctionId', async (req: any, res) => {
     const bids = await prisma.bid.findMany({
       where: {
         auctionId,
-      }
+      },
+      include: {
+        user: true,
+      },
     }) || [];
 
-    return res.status(200).json({ bids });
+    const expandedBidInfo = bids?.map((bid) => ({
+      contractor_id: bid?.userId,
+      contractor_name: '',
+      bid_amount: bid?.amount,
+      bid_description: '',
+      phone_number: bid?.user?.phoneNumber,
+      email: bid?.user?.email,
+      company_name: bid?.user?.companyName,
+      company_website: bid?.user.companyWebsite,
+      license_number: null,
+      years_experience: null,
+    }));
+
+    return res.status(200).json({ expandedBidInfo });
   } catch (error) {
     console.log(error);
     return res.status(500).json({ error: "Error retrievings bids" });
