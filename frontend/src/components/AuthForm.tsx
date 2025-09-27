@@ -2,18 +2,17 @@
 import { useState, useTransition } from 'react';
 import Button from '@/components/Button';
 import { FadeTransition } from '@/lib/transitions';
-import { useToast } from '@/hooks/use-toast';
 import { Mail, Lock, Eye, EyeOff, Phone, Building2, Computer } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/contexts/AuthContext';
 import Link from "next/link";
+import { toast } from "sonner";
 
 type Props = {
     type: "login" | "signup" | "contractorsignup" | "contractorlogin"
 }
 
 const AuthForm = ({ type }: Props) => {
-    const { toast } = useToast();
     const router = useRouter();
     const { login, signup } = useAuth();
     const [isPending, startTransition] = useTransition()
@@ -38,28 +37,22 @@ const AuthForm = ({ type }: Props) => {
 
         // Basic form validation
         if (!email) {
-            toast({
-                title: "Email Required",
+            toast("Email Required", {
                 description: "Please enter your email address",
-                variant: "destructive"
             });
             return;
         }
 
         if (!password) {
-            toast({
-                title: "Password Required",
+            toast("Password Required", {
                 description: "Please enter your password",
-                variant: "destructive"
             });
             return;
         }
 
         if (type === 'signup' && password !== confirmPassword) {
-            toast({
-                title: "Passwords Don't Match",
+            toast("Passwords don't match", {
                 description: "Please make sure your passwords match",
-                variant: "destructive"
             });
             return;
         }
@@ -79,10 +72,8 @@ const AuthForm = ({ type }: Props) => {
             }
 
             if (!errorMessage) {
-                toast({
-                    title: "Success",
+                toast("Success", {
                     description,
-                    variant: "default"
                 });
                 
                 // Wait longer for the auth state and cookies to sync properly, then redirect
@@ -91,11 +82,9 @@ const AuthForm = ({ type }: Props) => {
                     window.location.href = '/home';
                 }, 500);
             } else {
-                toast({
-                    title: "Error",
+                toast("Error", {
                     description: errorMessage,
-                    variant: "destructive"
-                })
+                });
             }
         });
     };
@@ -107,12 +96,6 @@ const AuthForm = ({ type }: Props) => {
         // TODO: Implement actual social auth with Supabase
         // For now, just show a message that it's not implemented
         setTimeout(() => {
-            toast({
-                title: `${provider} Authentication`,
-                description: "Social authentication is not yet implemented. Please use email/password login.",
-                variant: "destructive"
-            });
-
             setIsLoading(false);
         }, 1000);
     };

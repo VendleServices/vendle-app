@@ -4,7 +4,7 @@ import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Building2, FileText, Users, CheckCircle, Download, Eye, Clock, Shield, Award, Gavel } from 'lucide-react';
-import { useToast } from '@/components/ui/use-toast';
+import { toast } from "sonner";
 import { motion, AnimatePresence } from 'framer-motion';
 import { Badge } from '@/components/ui/badge';
 
@@ -52,23 +52,19 @@ export default function DocumentationPage() {
   ]);
 
   const [selectedDocument, setSelectedDocument] = useState<any>(null);
-  const { toast } = useToast();
 
   const handleDocumentAction = (document: any, action: string) => {
     if (action === 'view') {
       setSelectedDocument(document);
-      toast({
-        title: "Document Preview",
+      toast("Document Preview", {
         description: `Opening ${document.name} for review.`,
       });
     } else if (action === 'approve') {
-      toast({
-        title: "Document Approved",
+      toast("Document Approved", {
         description: `${document.name} has been approved and will be finalized.`,
       });
     } else if (action === 'download') {
-      toast({
-        title: "Download Started",
+      toast("Download Started", {
         description: `${document.name} is being downloaded.`,
       });
     }

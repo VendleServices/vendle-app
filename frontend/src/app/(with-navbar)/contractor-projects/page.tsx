@@ -6,8 +6,8 @@ import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { motion } from "framer-motion";
+import { toast } from "sonner";
 import { Building2, MapPin, Calendar, FileText, Clock, DollarSign, Users, Loader2, Hammer } from "lucide-react";
-import { useToast } from "@/components/ui/use-toast";
 
 interface Project {
     id: number;
@@ -26,7 +26,6 @@ const ContractorProjectsPage = () => {
     const [loading, setLoading] = useState(true);
     const router = useRouter();
     const user = "";
-    const { toast } = useToast();
 
     useEffect(() => {
         const fetchProjects = async () => {
@@ -39,10 +38,8 @@ const ContractorProjectsPage = () => {
                 setProjects(data);
             } catch (error) {
                 console.error('Error fetching projects:', error);
-                toast({
-                    title: "Error",
+                toast("Error", {
                     description: "Failed to load available projects. Please try again later.",
-                    variant: "destructive"
                 });
             } finally {
                 setLoading(false);
@@ -50,7 +47,7 @@ const ContractorProjectsPage = () => {
         };
 
         fetchProjects();
-    }, [toast]);
+    }, []);
 
     const getStatusColor = (status: string) => {
         switch (status.toLowerCase()) {

@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useRouter, useParams } from 'next/navigation';
-import { useToast } from "@/hooks/use-toast";
+import { toast } from "sonner";
 import { useEffect, useState, ChangeEvent, FormEvent } from 'react';
 import { CheckCircle, UploadCloud, FileText, Image as ImageIcon, Folder, X, Receipt, ArrowLeft } from 'lucide-react';
 
@@ -71,7 +71,6 @@ const FileUploadArea = ({ id, label, icon, multiple, accept, files, setFiles, on
 export default function AdjustReportPage() {
     const router = useRouter();
     const params = useParams();
-    const { toast } = useToast();
     const [claimId, setClaimId] = useState<string | null>(null);
 
     const [currentStep, setCurrentStep] = useState(0);
@@ -86,14 +85,12 @@ export default function AdjustReportPage() {
             const id = Array.isArray(params.claimId) ? params.claimId[0] : params.claimId;
             setClaimId(id);
         } else {
-            toast({
-                title: "Error",
+            toast("Error", {
                 description: "No claim ID provided.",
-                variant: "destructive",
             });
             router.push('/dashboard');
         }
-    }, [params, router, toast]);
+    }, [params, router]);
 
     const handleFileChange = (e: ChangeEvent<HTMLInputElement>, setFiles: Function) => {
         if (e.target.files) {
@@ -157,8 +154,7 @@ export default function AdjustReportPage() {
     const handleSubmit = (e: FormEvent) => {
         e.preventDefault();
         // TODO: Add actual upload logic
-        toast({
-            title: "Upload Successful",
+        toast("Upload Successful", {
             description: "Your documents have been submitted.",
         });
         router.push('/dashboard');

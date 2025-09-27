@@ -10,7 +10,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import { useToast } from "@/hooks/use-toast";
+import { toast } from "sonner";
 import { DollarSign, Calendar, FileText, Upload, CheckCircle, AlertCircle, ArrowRight, ArrowLeft, Building, MapPin, Wrench } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { Progress } from "@/components/ui/progress";
@@ -47,7 +47,6 @@ export default function CreateRestorPage() {
   const apiService = useApiService();
   const router = useRouter();
   const params = useParams();
-  const { toast } = useToast();
   const { user } = useAuth();
   const [claimId, setClaimId] = useState<string | null>(null);
   const [currentStep, setCurrentStep] = useState(1);
@@ -73,17 +72,14 @@ export default function CreateRestorPage() {
   useEffect(() => {
     const id = params.claimId as string;
     if (!id) {
-      toast({
-        title: "Error",
+      toast("Error", {
         description: "No claim ID provided",
-        variant: "destructive",
-        duration: 5000,
       });
       router.push('/dashboard');
       return;
     }
     setClaimId(id);
-  }, [params.claimId, router, toast]);
+  }, [params.claimId, router]);
 
   const getProjectsPath = () => {
     if (!user) return '/dashboard';
@@ -110,19 +106,15 @@ export default function CreateRestorPage() {
       const file = e.target.files[0];
 
       if (file.type !== 'application/pdf') {
-        toast({
-          title: "Invalid File Type",
-          description: "Please upload a PDF file.",
-          variant: "destructive"
+        toast("Invalid File Type", {
+          description: "Please upload a PDF file",
         });
         return;
       }
 
       if (file.size > 10 * 1024 * 1024) { // 10MB max
-        toast({
-          title: "File Too Large",
-          description: "File size should be less than 10MB.",
-          variant: "destructive"
+        toast("Maximum File Size Exceeded", {
+          description: "File Size should be less than 10 MB",
         });
         return;
       }
@@ -135,10 +127,8 @@ export default function CreateRestorPage() {
 
         if (error) {
           console.error('Upload error:', error);
-          toast({
-            title: "Upload Failed",
-            description: error.message || "There was an error uploading your file.",
-            variant: "destructive"
+          toast("Upload Failed", {
+            description: error?.message || "There was an error uploading your file",
           });
           return;
         }
@@ -162,11 +152,8 @@ export default function CreateRestorPage() {
 
   const handleSubmit = async () => {
     if (!claimId) {
-      toast({
-        title: "Error",
-        description: "No claim ID available",
-        variant: "destructive",
-        duration: 5000,
+      toast("Error", {
+        description: "No claim ID provided",
       });
       return;
     }
@@ -203,10 +190,8 @@ export default function CreateRestorPage() {
 
       const response = await apiService.post('/api/auctions', payload);
 
-      toast({
-        title: "Success",
-        description: "Restoration job created successfully! Contractors in your area will be notified.",
-        duration: 5000,
+      toast('Success', {
+        description: "Restoration job created successfully! Contractors in you are will be notified.",
       });
 
       localStorage.setItem('refreshAuctions', Date.now().toString());
@@ -214,10 +199,8 @@ export default function CreateRestorPage() {
       router.push('/dashboard');
     } catch (error) {
       console.error('Error creating restoration job:', error);
-      toast({
-        title: "Error",
+      toast("Error", {
         description: "Failed to create restoration job",
-        variant: "destructive",
       });
     } finally {
       setIsSubmitting(false);

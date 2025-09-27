@@ -13,7 +13,7 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Avatar } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
-import { useToast } from '@/hooks/use-toast';
+import { toast } from "sonner";
 
 // Mock data for contractors
 const CONTRACTORS = [
@@ -321,7 +321,6 @@ const ContractorBrowser = ({ onSelect }: ContractorBrowserProps) => {
   const [isOpen, setIsOpen] = useState(false);
   const [selectedContractors, setSelectedContractors] = useState<string[]>([]);
   const [viewingContractor, setViewingContractor] = useState<string | null>(null);
-  const { toast } = useToast();
 
   useEffect(() => {
     const savedContractors = localStorage.getItem("selectedContractors");
@@ -341,15 +340,13 @@ const ContractorBrowser = ({ onSelect }: ContractorBrowserProps) => {
     if (selected) {
       newSelected = [...selectedContractors, id];
       setSelectedContractors(newSelected);
-      toast({
-        title: "Contractor Selected",
+      toast("Contractor Selected", {
         description: `Notification sent to ${CONTRACTORS.find(c => c.id === id)?.name}`,
       });
     } else {
       newSelected = selectedContractors?.filter(contractorId => contractorId !== id);
       setSelectedContractors(newSelected);
-      toast({
-        title: "Contractor Removed",
+      toast("Contractor Removed", {
         description: `${CONTRACTORS.find(c => c.id === id)?.name} has been removed from selection`,
       });
     }

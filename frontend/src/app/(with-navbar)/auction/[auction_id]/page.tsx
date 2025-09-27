@@ -10,7 +10,7 @@ import { useApiService } from "@/services/api";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { createClient } from "@/auth/client";
-import { useToast } from "@/hooks/use-toast";
+import { toast } from "sonner";
 import { useAuth } from "@/contexts/AuthContext";
 
 interface Auction {
@@ -60,7 +60,6 @@ export default function AuctionDetailsPage() {
     const supabase = createClient();
     const [bidData, setBidData] = useState(initialBidDefaults);
     const [uploadedFile, setUploadedFile] = useState<File | null>();
-    const { toast } = useToast();
     const { user } = useAuth();
     const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -75,19 +74,15 @@ export default function AuctionDetailsPage() {
             const file = event.target.files[0];
 
             if (file?.type !== "application/pdf") {
-                toast({
-                    title: "Invalid File Type",
-                    description: "Please upload a pdf",
-                    variant: "destructive",
+                toast("Invalid file type", {
+                    description: "Only PDF files can be uploaded",
                 });
                 return;
             }
 
             if (file.size > 10*1024*1024) {
-                toast({
-                    title: "Maximum File Size Exceeded",
+                toast("Maximum File Size Exceeded", {
                     description: "Please upload a smaller file",
-                    variant: "destructive",
                 });
                 return;
             }
@@ -209,6 +204,10 @@ export default function AuctionDetailsPage() {
         onSuccess: () => {
             queryClient.invalidateQueries({
                 queryKey: ["getBids"]
+            });
+            setBidData(initialBidDefaults);
+            toast("Successfully submitted bid", {
+                description: "Your bid has been sent to the homeowner. You shall be contacted if your bid is accepted"
             });
         },
         onError: () => {

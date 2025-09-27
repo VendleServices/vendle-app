@@ -3,13 +3,13 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import OnboardingCard from '@/components/OnboardingCard';
 import ProgressBar from '@/components/ProgressBar';
-import { useToast } from '@/hooks/use-toast';
 import { FadeTransition, SlideUpTransition } from '@/lib/transitions';
 import { ArrowRight, Building2, MapPin, FileText, Users, DollarSign } from 'lucide-react';
 import { useMutation } from "@tanstack/react-query";
 import { motion } from 'framer-motion';
 import { useAuth } from '@/contexts/AuthContext';
 import { useApiService } from "@/services/api";
+import { toast } from "sonner";
 
 interface ClaimData {
   userId: string;
@@ -25,7 +25,6 @@ interface ClaimData {
 const Onboarding = () => {
   const apiService = useApiService();
   const router = useRouter();
-  const { toast } = useToast();
   const { user } = useAuth();
   
   // Onboarding state
@@ -93,20 +92,15 @@ const Onboarding = () => {
   const submitClaimMutation = useMutation({
     mutationFn: submitClaimData,
     onSuccess: () => {
-      toast({
-        title: "Claim Created Successfully",
+      toast("Successfully created claim", {
         description: "Your claim has been saved and is ready for processing.",
-        duration: 5000,
       });
-
       router.push('/dashboard');
     },
     onError: (error) => {
       console.error('Error creating claim:', error);
-      toast({
-        title: "Error",
+      toast("Error", {
         description: "Failed to create claim. Please try again.",
-        variant: "destructive"
       });
     }
   })
@@ -114,10 +108,8 @@ const Onboarding = () => {
   const completeOnboarding = () => {
     try {
       if (!user?.id) {
-        toast({
-          title: "Error",
+        toast("Error", {
           description: "You must be logged in to create a claim.",
-          variant: "destructive"
         });
         return;
       }
@@ -137,10 +129,8 @@ const Onboarding = () => {
       submitClaimMutation.mutate(claimData);
     } catch (error) {
       console.error('Error completing onboarding:', error);
-      toast({
-        title: "Error",
-        description: error instanceof Error ? error.message : "Failed to save your claim. Please try again.",
-        variant: "destructive"
+      toast("Error", {
+        description: "Failed to save your claim. Please try again."
       });
     }
   };
