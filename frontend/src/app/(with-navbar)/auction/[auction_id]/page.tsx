@@ -116,7 +116,7 @@ export default function AuctionDetailsPage() {
     const fetchBids = async (auctionId: string) => {
         try {
             const response: any = await apiService.get(`/api/bids/${auctionId}`);
-            return response?.bids as unknown as Bid[] || [];
+            return response?.expandedBidInfo as unknown as Bid[] || [];
         } catch (error) {
             console.log(error);
         }
@@ -134,11 +134,42 @@ export default function AuctionDetailsPage() {
         enabled: !!auction_id,
     });
 
-    const project_details = {
-        project_type: auction?.reconstructionType,
-        project_description: auction?.description,
-        location: "Miami, Florida",
+    const handleAskVendleAI = async () => {
+        try {
+            const project_details = {
+                project_type: auction?.reconstructionType,
+                project_description: auction?.description,
+                location: "Miami, Florida",
+            }
+
+            const analysisRequest = {
+                project_details,
+                contractor_bids: bids,
+            }
+
+            const response = await fetch('http://localhost:8001/api/analyze_contractors', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(analysisRequest)
+            });
+
+            return response;
+        } catch (error) {
+            console.log(error);
+        }
     }
+
+    const askVendleAIMutation = useMutation({
+        mutationFn: handleAskVendleAI,
+        onSuccess: () => {
+            console.log("Successfully asked ai");
+        },
+        onError: () => {
+            console.log("error asking ai");
+        }
+    });
 
     const handleSubmitBid = async (auctionId: string) => {
         try {
@@ -436,7 +467,7 @@ export default function AuctionDetailsPage() {
                                         {auction?.title}
                                     </CardTitle>
                                     <div className="flex flex-wrap gap-3">
-                                        <Button>
+                                        <Button onClick={() => askVendleAIMutation.mutate()}>
                                             Ask Vendle!
                                         </Button>
                                         <Badge className="bg-white/20 text-white px-3 py-1 text-sm font-medium">
@@ -456,13 +487,12 @@ export default function AuctionDetailsPage() {
                             <CardContent className="p-8">
                                 <div className="grid md:grid-cols-2 gap-8">
                                     <div className="space-y-6">
-                                        <div>
-                                            <h3 className="text-lg font-semibold text-vendle-navy border-b border-gray-200 pb-2 mb-4">
-                                                Project Description
-                                            </h3>
-                                            <div className="prose max-w-none">
-                                                <p className="text-gray-700 text-lg leading-relaxed">{auction?.description}</p>
-                                            </div>
+                                        <h3 className="text-lg font-semibold text-vendle-navy border-b border-gray-200 pb-2 mb-4">
+                                            Project Description
+                                        </h3>
+                                        <div className="flex flex-col items-start justify-center bg-gray-50 rounded-lg p-4 gap-y-1">
+                                            <span className="font-semibold text-md text-vendle-navy">Project Description:{" "}<span className="font-normal text-md text-vendle-navy">{auction?.description || "N/A"}</span></span>
+                                            <span className="font-semibold text-md text-vendle-navy">Project Type:{" "}<span className="font-normal text-md text-vendle-navy">{auction?.reconstructionType || "N/A"}</span></span>
                                         </div>
                                     </div>
                                     <div className="space-y-6">

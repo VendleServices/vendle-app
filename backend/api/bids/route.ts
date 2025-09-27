@@ -64,10 +64,10 @@ router.get('/:auctionId', async (req: any, res) => {
       contractor_name: '',
       bid_amount: bid?.amount,
       bid_description: '',
-      phone_number: bid?.user?.phoneNumber,
+      phone_number: bid?.user?.companyWebsite,
       email: bid?.user?.email,
       company_name: bid?.user?.companyName,
-      company_website: bid?.user.companyWebsite,
+      company_website: bid?.user.phoneNumber,
       license_number: null,
       years_experience: null,
     }));

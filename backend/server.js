@@ -21,6 +21,13 @@ const contractorAnalysisProxy = createProxyMiddleware({
   target: CONTRACTOR_ANALYSIS_URL,
   changeOrigin: true,
   timeout: 60000,
+  pathRewrite: {
+    '^/api/analyze_contractors': '/api/analyze_contractors'
+  },
+  logLevel: 'debug',
+  onProxyReq: (proxyReq, req, res) => {
+    console.log('Proxying request to:', proxyReq.path);
+  },
   onError: (err, req, res) => {
     console.error('Contractor analysis proxy error:', err.message);
     res.status(500).json({
@@ -28,7 +35,7 @@ const contractorAnalysisProxy = createProxyMiddleware({
       message: 'Please try again later'
     });
   }
-})
+});
 
 // Middleware
 app.use(cors({
