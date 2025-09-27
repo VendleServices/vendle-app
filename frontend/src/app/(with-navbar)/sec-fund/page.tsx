@@ -4,7 +4,7 @@ import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { DollarSign, Landmark, Banknote, ShieldCheck, TrendingUp, Info, CheckCircle } from 'lucide-react';
-import { useToast } from '@/components/ui/use-toast';
+import { toast } from "sonner";
 import { motion, AnimatePresence } from 'framer-motion';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -13,7 +13,6 @@ import { useRouter } from 'next/navigation';
 export default function SecFundPage() {
   const [selectedOption, setSelectedOption] = useState<string | null>(null);
   const [fundingCompleted, setFundingCompleted] = useState(false);
-  const { toast } = useToast();
   const router = useRouter();
 
   const handleSelectOption = (option: string) => {
@@ -22,9 +21,8 @@ export default function SecFundPage() {
   
   const handleLoanSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    toast({
-        title: "Loan Application Submitted",
-        description: "Your application is being processed. We will notify you upon approval."
+    toast("Loan Application Submitted", {
+        description: "Your application is being processed. We will notify you upon approval.",
     });
     setFundingCompleted(true);
     // Navigate to inspection page after 3 seconds
@@ -34,9 +32,8 @@ export default function SecFundPage() {
   }
   
   const handleFundTransfer = () => {
-      toast({
-          title: "Awaiting Transfer",
-          description: "Please follow the instructions to complete the bank transfer."
+      toast("Awaiting Transfer", {
+          description: "Please follow the instructions to complete the bank transfer.",
       });
       setFundingCompleted(true);
       // Navigate to inspection page after 3 seconds

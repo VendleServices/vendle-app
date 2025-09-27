@@ -17,7 +17,7 @@ import {
     DialogHeader,
     DialogTitle,
 } from "@/components/ui/dialog";
-import { useToast } from "@/components/ui/use-toast";
+import { toast } from "sonner";
 import { useAuth } from "@/contexts/AuthContext";
 
 interface Review {
@@ -36,7 +36,6 @@ interface Review {
 export default function Reviews() {
     const router = useRouter();
     const { user } = useAuth();
-    const { toast } = useToast();
     const [sortBy, setSortBy] = useState('date-desc');
     const [filterBy, setFilterBy] = useState('all');
     const [selectedReview, setSelectedReview] = useState<Review | null>(null);
@@ -110,8 +109,7 @@ export default function Reviews() {
 
         setReviews(updatedReviews);
         setIsDialogOpen(false);
-        toast({
-            title: "Response Submitted",
+        toast("Response submitted", {
             description: "Your response has been successfully added to the review.",
         });
     };

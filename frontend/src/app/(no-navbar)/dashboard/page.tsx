@@ -9,7 +9,7 @@ import { Badge } from "@/components/ui/badge";
 import { motion } from "framer-motion";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { MapPin, Calendar, FileText, Clock, LayoutIcon, Trash2, DollarSign, Users, Folder, CheckCircle, Archive, Plus, Upload, Download, BarChart, HelpCircle, MessageCircle, Bell, Settings, Flag, LogOut, Star, Trophy, AlertCircle, Menu, ChevronLeft, Wrench } from "lucide-react";
-import { useToast } from "@/components/ui/use-toast";
+import { toast } from "sonner";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useAuth } from "@/contexts/AuthContext";
 import { Inter } from "next/font/google";
@@ -96,7 +96,6 @@ export default function DashboardPage() {
     const searchParams = useSearchParams();
     const queryClient = useQueryClient();
     const { user, isLoggedIn, isLoading: authLoading, logout } = useAuth();
-    const { toast } = useToast();
     const [auctions, setAuctions] = useState<Auction[]>([]);
     const [auctionLoading, setAuctionLoading] = useState(false);
     const [activeSection, setActiveSection] = useState<'auctions' | 'claims' | 'reviews' | 'closed-auctions'>('claims');
@@ -146,10 +145,8 @@ export default function DashboardPage() {
             setClosedAuctions(closedAuctions);
         } catch (error) {
             console.error('Error fetching auctions:', error);
-            toast({
-                title: "Error",
+            toast("Error", {
                 description: "Failed to load auctions. Please try again later.",
-                variant: "destructive",
             });
         } finally {
             setAuctionLoading(false);
@@ -171,6 +168,9 @@ export default function DashboardPage() {
         onSuccess: () => {
             queryClient.invalidateQueries({
                 queryKey: ["getClaims"]
+            });
+            toast("Success", {
+                description: "Successfully deleted claim",
             });
         },
         onError: error => { console.log(error); }
@@ -287,17 +287,13 @@ export default function DashboardPage() {
             }
 
             setClosedAuctions(closedAuctions?.filter(auction => auction.auction_id !== closedAuctionToDelete.auction_id));
-            
-            toast({
-                title: "Auction Deleted",
-                description: "The closed auction has been successfully deleted.",
+            toast("Auction Deleted", {
+                description: "The closed auction has been deleted successfully.",
             });
         } catch (error) {
             console.error('Error deleting closed auction:', error);
-            toast({
-                title: "Error",
-                description: "Failed to delete the closed auction. Please try again.",
-                variant: "destructive"
+            toast("Error", {
+                description: "Failed to delete closed auction. Please try again",
             });
         } finally {
             setShowClosedAuctionDeleteConfirmation(false);

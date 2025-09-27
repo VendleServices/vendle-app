@@ -5,9 +5,9 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Star, MapPin, Calendar, ShieldCheck, Mail } from 'lucide-react';
-import { useToast } from '@/components/ui/use-toast';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useRouter } from 'next/navigation';
+import { toast } from "sonner";
 
 interface Adjuster {
   id: string;
@@ -66,13 +66,11 @@ const publicAdjusters: Adjuster[] = [
 export default function PubAdjustOptPage() {
   const [showAdjusters, setShowAdjusters] = useState(false);
   const [selectedAdjuster, setSelectedAdjuster] = useState<Adjuster | null>(null);
-  const { toast } = useToast();
   const router = useRouter();
 
   const handleSelectAdjuster = (adjuster: Adjuster) => {
     setSelectedAdjuster(adjuster);
-    toast({
-      title: 'Adjuster Selected',
+    toast("Adjuster Selected", {
       description: `You have selected ${adjuster.name}. Proceed to schedule.`,
     });
   };
@@ -83,8 +81,7 @@ export default function PubAdjustOptPage() {
       // 1. Open a scheduling modal/calendar
       // 2. Send a notification to the adjuster (API call)
       // For now, we just show a toast.
-      toast({
-        title: 'Scheduling Request Sent',
+      toast("Scheduling Request Sent", {
         description: `A notification has been sent to ${selectedAdjuster.name} to review your documents.`,
       });
       // After scheduling, you might want to redirect or update UI
