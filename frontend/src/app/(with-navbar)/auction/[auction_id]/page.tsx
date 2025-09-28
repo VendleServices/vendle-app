@@ -12,6 +12,14 @@ import { Label } from "@/components/ui/label";
 import { createClient } from "@/auth/client";
 import { toast } from "sonner";
 import { useAuth } from "@/contexts/AuthContext";
+import {
+    Dialog,
+    DialogContent,
+    DialogDescription,
+    DialogFooter,
+    DialogHeader,
+    DialogTitle,
+} from "@/components/ui/dialog";
 
 interface Auction {
     id: string;
@@ -60,8 +68,15 @@ export default function AuctionDetailsPage() {
     const supabase = createClient();
     const [bidData, setBidData] = useState(initialBidDefaults);
     const [uploadedFile, setUploadedFile] = useState<File | null>();
+    const [aiRecommendation, setAiRecommendation] = useState<string>('');
+    const [openAiDialog, setOpenAiDialog] = useState(false);
     const { user } = useAuth();
     const fileInputRef = useRef<HTMLInputElement>(null);
+
+    const handleCloseDialog = () => {
+        setAiRecommendation('');
+        setOpenAiDialog(false);
+    }
 
     const handleClick = () => {
         fileInputRef.current?.click();
@@ -142,7 +157,9 @@ export default function AuctionDetailsPage() {
                 contractor_bids: bids,
             }
 
-            const response = await fetch('http://localhost:8001/api/analyze_contractors', {
+            setOpenAiDialog(true);
+
+            const response: any = await fetch('http://localhost:8001/api/analyze_contractors', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -150,6 +167,8 @@ export default function AuctionDetailsPage() {
                 body: JSON.stringify(analysisRequest)
             });
 
+            const data = await response.json();
+            setAiRecommendation(data?.recommendation);
             return response;
         } catch (error) {
             console.log(error);
@@ -656,6 +675,26 @@ export default function AuctionDetailsPage() {
                     </div>
                 )}
             </div>
+            <Dialog open={openAiDialog} onOpenChange={setOpenAiDialog}>
+                <DialogContent className="flex flex-col gap-x-4 items-center">
+                    <DialogHeader>
+                        <DialogTitle>
+                            AI Suggestion
+                        </DialogTitle>
+                    </DialogHeader>
+                    {!aiRecommendation ? (
+                        <div className="flex flex-col items-center gap-y-4 justify-center">
+                            <Loader2 className="h-12 w-12 animate-spin text-vendle-blue mx-auto" />
+                            <p className="text-lg text-gray-600">Loading AI recommendation...</p>
+                        </div>
+                    ) : aiRecommendation}
+                    <DialogFooter>
+                        <Button variant="outline" onClick={handleCloseDialog}>
+                            Close
+                        </Button>
+                    </DialogFooter>
+                </DialogContent>
+            </Dialog>
         </div>
     );
 }
