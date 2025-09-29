@@ -8,7 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { motion } from "framer-motion";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { MapPin, Calendar, FileText, Clock, LayoutIcon, Trash2, DollarSign, Users, Folder, CheckCircle, Archive, Plus, Upload, Download, BarChart, HelpCircle, MessageCircle, Bell, Settings, Flag, LogOut, Star, Trophy, AlertCircle, Menu, ChevronLeft, Wrench, Home, CalendarCheck, TrendingUp } from "lucide-react";
+import { MapPin, Calendar, FileText, Clock, LayoutIcon, Trash2, DollarSign, Users, Folder, CheckCircle, Archive, Plus, Upload, Download, BarChart, HelpCircle, MessageCircle, Bell, Settings, Flag, LogOut, Star, Trophy, AlertCircle, Menu, ChevronLeft, Wrench, Home, CalendarCheck, TrendingUp, List, Grid, BarChart3 } from "lucide-react";
 import { toast } from "sonner";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useAuth } from "@/contexts/AuthContext";
@@ -105,6 +105,7 @@ export default function DashboardPage() {
     const [auctionLoading, setAuctionLoading] = useState(false);
     
     const [activeSection, setActiveSection] = useState<'home' | 'schedule' | 'analytics' | 'reviews' | 'auctions' | 'closed-auctions' | 'claims'>('claims');
+    const [scheduleTab, setScheduleTab] = useState<'upcoming' | 'deadlines' | 'visits' | 'milestones'>('upcoming');
     const [sidebarExpanded, setSidebarExpanded] = useState(true);
     const [closedAuctions, setClosedAuctions] = useState<Auction[]>([]);
     const [closedAuctionLoading, setClosedAuctionLoading] = useState(false);
@@ -872,19 +873,382 @@ export default function DashboardPage() {
                                     
                                     {/* NEW CONTRACTOR SECTIONS */}
                                     {activeSection === 'home' ? (
-                                        <div className="space-y-6">
-                                            <div className="text-center py-12">
-                                                <Home className="h-16 w-16 text-gray-400 mx-auto mb-4" />
-                                                <h3 className="text-lg font-medium text-gray-900 mb-2">Contractor Dashboard Home</h3>
-                                                <p className="text-gray-500">Welcome to your contractor dashboard. Overview content will be added here.</p>
+                                        <div className="space-y-8">
+                                            {/* Contract Metrics */}
+                                            <div>
+                                                <h2 className="text-xl font-semibold text-gray-900 mb-6">Contract Metrics</h2>
+                                                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+                                                    {/* Available to Bid */}
+                                                    <Card className="p-6 bg-white border border-gray-200">
+                                                        <div className="flex items-center justify-between mb-4">
+                                                            <div className="p-2 bg-gray-100 rounded-lg">
+                                                                <FileText className="h-6 w-6 text-gray-600" />
+                                                            </div>
+                                                            <span className="text-2xl font-bold text-gray-900">0</span>
+                                                        </div>
+                                                        <div className="text-center">
+                                                            <p className="text-sm text-gray-600 mb-1">Contracts</p>
+                                                            <p className="text-sm font-medium text-gray-900">Available to Bid</p>
+                                                            <p className="text-lg font-bold text-blue-600">$0</p>
+                                                        </div>
+                                                    </Card>
+
+                                                    {/* IOI Phase */}
+                                                    <Card className="p-6 bg-white border border-gray-200">
+                                                        <div className="flex items-center justify-between mb-4">
+                                                            <div className="p-2 bg-orange-100 rounded-lg">
+                                                                <FileText className="h-6 w-6 text-orange-600" />
+                                                            </div>
+                                                            <span className="text-2xl font-bold text-gray-900">1</span>
+                                                        </div>
+                                                        <div className="text-center">
+                                                            <p className="text-sm text-gray-600 mb-1">Contracts</p>
+                                                            <p className="text-sm font-medium text-gray-900">IOI Phase</p>
+                                                            <p className="text-lg font-bold text-blue-600">$18,000</p>
+                                                        </div>
+                                                    </Card>
+
+                                                    {/* LOI Phase */}
+                                                    <Card className="p-6 bg-white border border-gray-200">
+                                                        <div className="flex items-center justify-between mb-4">
+                                                            <div className="p-2 bg-green-100 rounded-lg">
+                                                                <CheckCircle className="h-6 w-6 text-green-600" />
+                                                            </div>
+                                                            <span className="text-2xl font-bold text-gray-900">1</span>
+                                                        </div>
+                                                        <div className="text-center">
+                                                            <p className="text-sm text-gray-600 mb-1">Contracts</p>
+                                                            <p className="text-sm font-medium text-gray-900">LOI Phase</p>
+                                                            <p className="text-lg font-bold text-blue-600">$28,000</p>
+                                                        </div>
+                                                    </Card>
+
+                                                    {/* Active Work */}
+                                                    <Card className="p-6 bg-white border border-blue-200 border-2">
+                                                        <div className="flex items-center justify-between mb-4">
+                                                            <div className="p-2 bg-blue-100 rounded-lg">
+                                                                <Wrench className="h-6 w-6 text-blue-600" />
+                                                            </div>
+                                                            <span className="text-2xl font-bold text-gray-900">2</span>
+                                                        </div>
+                                                        <div className="text-center">
+                                                            <p className="text-sm text-gray-600 mb-1">Contracts</p>
+                                                            <p className="text-sm font-medium text-gray-900">Active Work</p>
+                                                            <p className="text-lg font-bold text-blue-600">$77,000</p>
+                                                        </div>
+                                                    </Card>
+                                                </div>
+                                            </div>
+
+                                            {/* Active Contracts */}
+                                            <div>
+                                                <h2 className="text-xl font-semibold text-gray-900 mb-6">Active Contracts(2)</h2>
+                                                
+                                                {/* Check if we have actual auction/contract data */}
+                                                {auctions?.length > 0 ? (
+                                                    <div className="space-y-4">
+                                                        {auctions.slice(0, 5).map((auction: any, index: number) => (
+                                                            <Card key={auction.auction_id || index} className="p-6 bg-white border border-gray-200">
+                                                                <div className="flex items-center justify-between">
+                                                                    <div className="flex-1">
+                                                                        <h3 className="text-lg font-medium text-gray-900 mb-2">
+                                                                            {auction.title || `Contract ${index + 1}`}
+                                                                        </h3>
+                                                                        <div className="flex items-center text-sm text-gray-600 space-x-4">
+                                                                            <div className="flex items-center">
+                                                                                <MapPin className="h-4 w-4 mr-1" />
+                                                                                <span>{auction.property_address || 'Project Location'}</span>
+                                                                            </div>
+                                                                            <div className="flex items-center">
+                                                                                <Clock className="h-4 w-4 mr-1" />
+                                                                                <span>End Date: {new Date(auction.end_date || Date.now()).toLocaleDateString()}</span>
+                                                                            </div>
+                                                                        </div>
+                                                                    </div>
+                                                                    <div className="text-right">
+                                                                        <div className="flex items-center mb-2">
+                                                                            <Badge variant="outline" className="text-purple-600 border-purple-200 bg-purple-50">
+                                                                                {auction.status || 'Active'}
+                                                                            </Badge>
+                                                                        </div>
+                                                                        <div>
+                                                                            <p className="text-lg font-bold text-blue-600">${auction.current_bid?.toLocaleString() || auction.starting_bid?.toLocaleString() || '0'}</p>
+                                                                            <p className="text-sm text-gray-600">{auction.bid_count || 0} bids</p>
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                            </Card>
+                                                        ))}
+                                                    </div>
+                                                ) : (
+                                                    /* Hardcoded sample data when no API data */
+                                                    <div className="space-y-4">
+                                                        <Card className="p-6 bg-white border border-gray-200">
+                                                            <div className="flex items-center justify-between">
+                                                                <div className="flex-1">
+                                                                    <h3 className="text-lg font-medium text-gray-900 mb-2">
+                                                                        Roof Repair - Storm Damage
+                                                                    </h3>
+                                                                    <div className="flex items-center text-sm text-gray-600 space-x-4">
+                                                                        <div className="flex items-center">
+                                                                            <MapPin className="h-4 w-4 mr-1" />
+                                                                            <span>123 Oak Street, Austin, TX 78701</span>
+                                                                        </div>
+                                                                        <div className="flex items-center">
+                                                                            <Clock className="h-4 w-4 mr-1" />
+                                                                            <span>Started 2 weeks ago, 75% complete</span>
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                                <div className="text-right">
+                                                                    <div className="flex items-center mb-2">
+                                                                        <Badge variant="outline" className="text-purple-600 border-purple-200 bg-purple-50">
+                                                                            Active Work
+                                                                        </Badge>
+                                                                    </div>
+                                                                    <div>
+                                                                        <p className="text-lg font-bold text-blue-600">$45,000</p>
+                                                                        <p className="text-sm text-gray-600">75% Complete</p>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        </Card>
+
+                                                        <Card className="p-6 bg-white border border-gray-200">
+                                                            <div className="flex items-center justify-between">
+                                                                <div className="flex-1">
+                                                                    <h3 className="text-lg font-medium text-gray-900 mb-2">
+                                                                        Kitchen Renovation - Water Damage
+                                                                    </h3>
+                                                                    <div className="flex items-center text-sm text-gray-600 space-x-4">
+                                                                        <div className="flex items-center">
+                                                                            <MapPin className="h-4 w-4 mr-1" />
+                                                                            <span>456 Pine Avenue, Austin, TX 78702</span>
+                                                                        </div>
+                                                                        <div className="flex items-center">
+                                                                            <Clock className="h-4 w-4 mr-1" />
+                                                                            <span>Started 1 week ago, 45% complete</span>
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                                <div className="text-right">
+                                                                    <div className="flex items-center mb-2">
+                                                                        <Badge variant="outline" className="text-purple-600 border-purple-200 bg-purple-50">
+                                                                            Active Work
+                                                                        </Badge>
+                                                                    </div>
+                                                                    <div>
+                                                                        <p className="text-lg font-bold text-blue-600">$32,000</p>
+                                                                        <p className="text-sm text-gray-600">45% Complete</p>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        </Card>
+                                                    </div>
+                                                )}
                                             </div>
                                         </div>
                                     ) : activeSection === 'schedule' ? (
                                         <div className="space-y-6">
-                                            <div className="text-center py-12">
-                                                <CalendarCheck className="h-16 w-16 text-gray-400 mx-auto mb-4" />
-                                                <h3 className="text-lg font-medium text-gray-900 mb-2">Schedule Management</h3>
-                                                <p className="text-gray-500">Project scheduling and appointment management will be implemented here.</p>
+                                            {/* Schedule Header with View Toggle */}
+                                            <div className="flex items-center justify-between">
+                                                <div>
+                                                    <h1 className="text-2xl font-bold text-gray-900">Schedule & Calendar</h1>
+                                                    <p className="text-gray-600 mt-1">Manage all deadlines, visits, and milestones</p>
+                                                </div>
+                                                <div className="flex items-center space-x-2">
+                                                    <Button variant="default" size="sm" className="bg-blue-600 hover:bg-blue-700">
+                                                        <List className="h-4 w-4 mr-2" />
+                                                        List
+                                                    </Button>
+                                                    <Button variant="outline" size="sm">
+                                                        <Calendar className="h-4 w-4 mr-2" />
+                                                        Calendar
+                                                    </Button>
+                                                    <Button variant="outline" size="sm">
+                                                        <BarChart3 className="h-4 w-4 mr-2" />
+                                                        Gantt
+                                                    </Button>
+                                                </div>
+                                            </div>
+
+                                            {/* Critical Deadlines Alert */}
+                                            <Card className="bg-red-50 border-red-200">
+                                                <CardContent className="p-4">
+                                                    <div className="flex items-start space-x-3">
+                                                        <div className="flex-shrink-0">
+                                                            <div className="w-6 h-6 bg-red-100 rounded-full flex items-center justify-center">
+                                                                <AlertCircle className="h-4 w-4 text-red-600" />
+                                                            </div>
+                                                        </div>
+                                                        <div>
+                                                            <h3 className="text-sm font-medium text-red-800">Critical Deadlines</h3>
+                                                            <p className="text-sm text-red-700 mt-1">
+                                                                IOI deadline for Bathroom Remodel project due tomorrow at 5:00 PM
+                                                            </p>
+                                                        </div>
+                                                    </div>
+                                                </CardContent>
+                                            </Card>
+
+                                            {/* Tab Navigation */}
+                                            <div className="border-b border-gray-200">
+                                                <nav className="-mb-px flex space-x-8">
+                                                    <button 
+                                                        onClick={() => setScheduleTab('upcoming')}
+                                                        className={`border-b-2 py-2 px-1 text-sm font-medium ${
+                                                            scheduleTab === 'upcoming' 
+                                                                ? 'border-blue-500 text-blue-600' 
+                                                                : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                                                        }`}
+                                                    >
+                                                        Upcoming Events
+                                                    </button>
+                                                    <button 
+                                                        onClick={() => setScheduleTab('deadlines')}
+                                                        className={`border-b-2 py-2 px-1 text-sm font-medium ${
+                                                            scheduleTab === 'deadlines' 
+                                                                ? 'border-blue-500 text-blue-600' 
+                                                                : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                                                        }`}
+                                                    >
+                                                        Deadlines
+                                                    </button>
+                                                    <button 
+                                                        onClick={() => setScheduleTab('visits')}
+                                                        className={`border-b-2 py-2 px-1 text-sm font-medium ${
+                                                            scheduleTab === 'visits' 
+                                                                ? 'border-blue-500 text-blue-600' 
+                                                                : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                                                        }`}
+                                                    >
+                                                        Site Visits
+                                                    </button>
+                                                    <button 
+                                                        onClick={() => setScheduleTab('milestones')}
+                                                        className={`border-b-2 py-2 px-1 text-sm font-medium ${
+                                                            scheduleTab === 'milestones' 
+                                                                ? 'border-blue-500 text-blue-600' 
+                                                                : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                                                        }`}
+                                                    >
+                                                        Milestones
+                                                    </button>
+                                                </nav>
+                                            </div>
+
+                                            {/* Tab Content */}
+                                            <div>
+                                                {scheduleTab === 'upcoming' && (
+                                                    <>
+                                                        <h2 className="text-xl font-semibold text-gray-900 mb-4">Next 7 Days</h2>
+                                                        {/* Upcoming Events Content */}
+                                                        <div className="space-y-4">
+                                                            <Card className="p-4 bg-white border border-gray-200">
+                                                                <div className="flex items-center justify-between">
+                                                                    <div className="flex items-center space-x-4">
+                                                                        <div className="w-2 h-2 bg-red-500 rounded-full"></div>
+                                                                        <div>
+                                                                            <h3 className="text-sm font-medium text-gray-900">IOI Deadline - Bathroom Remodel</h3>
+                                                                            <p className="text-xs text-gray-500 mt-1">Tomorrow at 5:00 PM</p>
+                                                                        </div>
+                                                                    </div>
+                                                                    <Badge variant="outline" className="text-red-600 border-red-200 bg-red-50 text-xs">Critical</Badge>
+                                                                </div>
+                                                            </Card>
+                                                            <Card className="p-4 bg-white border border-gray-200">
+                                                                <div className="flex items-center justify-between">
+                                                                    <div className="flex items-center space-x-4">
+                                                                        <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
+                                                                        <div>
+                                                                            <h3 className="text-sm font-medium text-gray-900">Site Visit - Kitchen Renovation</h3>
+                                                                            <p className="text-xs text-gray-500 mt-1">Friday at 10:00 AM</p>
+                                                                        </div>
+                                                                    </div>
+                                                                    <Badge variant="outline" className="text-blue-600 border-blue-200 bg-blue-50 text-xs">Scheduled</Badge>
+                                                                </div>
+                                                            </Card>
+                                                        </div>
+                                                    </>
+                                                )}
+
+                                                {scheduleTab === 'deadlines' && (
+                                                    <>
+                                                        <h2 className="text-xl font-semibold text-gray-900 mb-4">Critical Deadlines</h2>
+                                                        {/* Deadlines Content */}
+                                                        <div className="space-y-6">
+                                                            {/* IOI Submission Deadline */}
+                                                            <Card className="p-6 bg-white border border-gray-200 shadow-sm">
+                                                                <div className="flex items-start justify-between">
+                                                                    <div className="flex-1">
+                                                                        <div className="flex items-center justify-between mb-2">
+                                                                            <h3 className="text-lg font-semibold text-gray-900">IOI Submission Deadline</h3>
+                                                                            <div className="text-right">
+                                                                                <p className="text-sm font-medium text-gray-900">2/19/2024</p>
+                                                                                <p className="text-sm text-gray-500">5:00 PM</p>
+                                                                            </div>
+                                                                        </div>
+                                                                        <p className="text-gray-600 mb-3">Bathroom Remodel - Flood Damage</p>
+                                                                        <div className="flex items-center space-x-3 mb-4">
+                                                                            <Badge className="bg-red-100 text-red-800 border-red-200">HIGH</Badge>
+                                                                            <span className="text-sm text-gray-600">IOI Deadline</span>
+                                                                        </div>
+                                                                        <p className="text-gray-700 mb-4">Submit Intent of Interest for bathroom renovation project</p>
+                                                                        <div className="flex space-x-3">
+                                                                            <Button variant="outline" size="sm">View Details</Button>
+                                                                            <Button size="sm" className="bg-blue-600 hover:bg-blue-700">Reschedule</Button>
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                            </Card>
+
+                                                            {/* LOI Response Due */}
+                                                            <Card className="p-6 bg-white border border-gray-200 shadow-sm">
+                                                                <div className="flex items-start justify-between">
+                                                                    <div className="flex-1">
+                                                                        <div className="flex items-center justify-between mb-2">
+                                                                            <h3 className="text-lg font-semibold text-gray-900">LOI Response Due</h3>
+                                                                            <div className="text-right">
+                                                                                <p className="text-sm font-medium text-gray-900">2/27/2024</p>
+                                                                                <p className="text-sm text-gray-500">11:59 PM</p>
+                                                                            </div>
+                                                                        </div>
+                                                                        <p className="text-gray-600 mb-3">Siding Replacement - Wind Damage</p>
+                                                                        <div className="flex items-center space-x-3 mb-4">
+                                                                            <Badge className="bg-orange-100 text-orange-800 border-orange-200">MEDIUM</Badge>
+                                                                            <span className="text-sm text-gray-600">LOI Deadline</span>
+                                                                        </div>
+                                                                        <p className="text-gray-700 mb-4">Letter of Intent response deadline</p>
+                                                                        <div className="flex space-x-3">
+                                                                            <Button variant="outline" size="sm">View Details</Button>
+                                                                            <Button size="sm" className="bg-blue-600 hover:bg-blue-700">Reschedule</Button>
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                            </Card>
+                                                        </div>
+                                                    </>
+                                                )}
+
+                                                {scheduleTab === 'visits' && (
+                                                    <>
+                                                        <h2 className="text-xl font-semibold text-gray-900 mb-4">Site Visits</h2>
+                                                        <div className="text-center py-8">
+                                                            <MapPin className="h-16 w-16 text-gray-400 mx-auto mb-4" />
+                                                            <p className="text-gray-500">No site visits scheduled</p>
+                                                        </div>
+                                                    </>
+                                                )}
+
+                                                {scheduleTab === 'milestones' && (
+                                                    <>
+                                                        <h2 className="text-xl font-semibold text-gray-900 mb-4">Project Milestones</h2>
+                                                        <div className="text-center py-8">
+                                                            <CheckCircle className="h-16 w-16 text-gray-400 mx-auto mb-4" />
+                                                            <p className="text-gray-500">No milestones scheduled</p>
+                                                        </div>
+                                                    </>
+                                                )}
                                             </div>
                                         </div>
                                     ) : activeSection === 'analytics' ? (
