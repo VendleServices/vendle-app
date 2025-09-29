@@ -22,18 +22,27 @@ const Navbar = () => {
         </Link>
 
         <div className="hidden md:flex items-center space-x-8">
-          {isLoggedIn && (
-            <Link href="/home" className="text-gray-700 hover:text-black transition-colors">Home</Link>
-          )}
-          {isLoggedIn && (
+          {isLoggedIn && user?.user_type === "contractor" && (
             <Link href="/dashboard" className="text-gray-700 hover:text-black transition-colors">Dashboard</Link>
           )}
-          {user?.user_type === "contractor" ? (
-            <Link href="/reviews" className="text-gray-700 hover:text-black transition-colors">My Reviews</Link>
-          ) : null}
-          {user?.user_type === "homeowner" ? (
+          {isLoggedIn && user?.user_type === "contractor" && (
+            <Link href="/contractor-projects" className="text-gray-700 hover:text-black transition-colors">Projects</Link>
+          )}
+          {isLoggedIn && user?.user_type === "contractor" && (
+            <Link href="/reviews" className="text-gray-700 hover:text-black transition-colors">Reviews</Link>
+          )}
+          {isLoggedIn && user?.user_type === "homeowner" && (
+            <Link href="/home" className="text-gray-700 hover:text-black transition-colors">Home</Link>
+          )}
+          {isLoggedIn && user?.user_type === "homeowner" && (
+            <Link href="/dashboard" className="text-gray-700 hover:text-black transition-colors">Dashboard</Link>
+          )}
+          {isLoggedIn && user?.user_type === "homeowner" && (
               <Link href="/start-claim" className="text-gray-700 hover:text-black transition-colors">Start Claim</Link>
-          ) : null}
+          )}
+          {isLoggedIn && user?.user_type === "homeowner" && (
+              <Link href="/test" className="text-gray-700 hover:text-black transition-colors">Test</Link>
+          )}
         </div>
 
         <div className="flex items-center space-x-4">

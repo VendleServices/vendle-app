@@ -103,6 +103,7 @@ export default function DashboardPage() {
     const { user, isLoggedIn, isLoading: authLoading, logout } = useAuth();
     const [auctions, setAuctions] = useState<Auction[]>([]);
     const [auctionLoading, setAuctionLoading] = useState(false);
+    
     const [activeSection, setActiveSection] = useState<'auctions' | 'claims' | 'reviews' | 'closed-auctions'>('claims');
     const [sidebarExpanded, setSidebarExpanded] = useState(true);
     const [closedAuctions, setClosedAuctions] = useState<Auction[]>([]);
@@ -593,27 +594,21 @@ export default function DashboardPage() {
                                     {sidebarExpanded && "Closed Auctions"}
                                 </Button>
 
-                                {(() => {
-                                    console.log('User type check:', {
-                                        user,
-                                        userType: user?.user_type,
-                                        isContractor: user?.user_type === "contractor"
-                                    });
-                                    return user?.user_type === "contractor" && (
-                                        <Button
-                                            variant="ghost"
-                                            className={`w-full ${sidebarExpanded ? 'justify-start' : 'justify-center'} h-9 text-xs ${
-                                                activeSection === 'reviews' 
-                                                    ? 'bg-[#1e293b] text-white hover:bg-[#1e293b]' 
-                                                    : 'text-gray-200 hover:bg-[#1e293b] hover:text-white'
-                                            }`}
-                                            onClick={() => setActiveSection('reviews')}
-                                        >
-                                            <Star className={`w-3 h-3 ${sidebarExpanded ? 'mr-2' : ''}`} />
-                                            {sidebarExpanded && "My Reviews"}
-                                        </Button>
-                                    );
-                                })()}
+                                {/* CONTRACTOR-ONLY SECTION: My Reviews */}
+                                {user?.user_type === "contractor" && (
+                                    <Button
+                                        variant="ghost"
+                                        className={`w-full ${sidebarExpanded ? 'justify-start' : 'justify-center'} h-9 text-xs ${
+                                            activeSection === 'reviews' 
+                                                ? 'bg-[#1e293b] text-white hover:bg-[#1e293b]' 
+                                                : 'text-gray-200 hover:bg-[#1e293b] hover:text-white'
+                                        }`}
+                                        onClick={() => setActiveSection('reviews')}
+                                    >
+                                        <Star className={`w-3 h-3 ${sidebarExpanded ? 'mr-2' : ''}`} />
+                                        {sidebarExpanded && "My Reviews"}
+                                    </Button>
+                                )}
 
                                 <Button
                                     variant="ghost"
@@ -627,6 +622,28 @@ export default function DashboardPage() {
                                     <FileText className={`w-3 h-3 ${sidebarExpanded ? 'mr-2' : ''}`} />
                                     {sidebarExpanded && "Claims"}
                                 </Button>
+
+                                {/* 
+                                    TEMPLATE FOR FUTURE USER-TYPE SPECIFIC SECTIONS:
+                                    
+                                    Copy this pattern to add new contractor-only or client-only sections:
+                                    
+                                    // FOR CONTRACTOR-ONLY FEATURES:
+                                    {user?.user_type === "contractor" && (
+                                        <Button variant="ghost" onClick={() => setActiveSection('new-contractor-section')}>
+                                            <Icon className="w-3 h-3" />
+                                            {sidebarExpanded && "Contractor Feature"}
+                                        </Button>
+                                    )}
+                                    
+                                    // FOR CLIENT-ONLY FEATURES:
+                                    {user?.user_type === "homeowner" && (
+                                        <Button variant="ghost" onClick={() => setActiveSection('new-client-section')}>
+                                            <Icon className="w-3 h-3" />
+                                            {sidebarExpanded && "Client Feature"}
+                                        </Button>
+                                    )}
+                                */}
 
                                 {/* Project Categories */}
                                 <div className="pt-2">
@@ -728,13 +745,24 @@ export default function DashboardPage() {
                                             {activeSection === 'auctions' ? 'Browse and manage your active auctions' : activeSection === 'claims' ? 'View and manage your insurance claims' : activeSection === 'closed-auctions' ? 'View and manage your closed auctions' : 'View and manage your reviews'}
                                         </p>
                                     </div>
-                                    <Button
-                                        onClick={() => router.push("/start-claim")}
-                                        className="gap-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
-                                    >
-                                        <Plus className="h-4 w-4" />
-                                        Start New Claim
-                                    </Button>
+                                    {/* CONDITIONAL BUTTON BASED ON USER TYPE */}
+                                    {user?.user_type === 'contractor' ? (
+                                        <Button
+                                            onClick={() => router.push("/contractor-projects")}
+                                            className="gap-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+                                        >
+                                            <Plus className="h-4 w-4" />
+                                            Browse Projects
+                                        </Button>
+                                    ) : (
+                                        <Button
+                                            onClick={() => router.push("/start-claim")}
+                                            className="gap-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+                                        >
+                                            <Plus className="h-4 w-4" />
+                                            Start New Claim
+                                        </Button>
+                                    )}
                                 </motion.div>
 
                                 <motion.div
@@ -742,6 +770,18 @@ export default function DashboardPage() {
                                     animate={{ opacity: 1 }}
                                     transition={{ duration: 0.3, delay: 0.1 }}
                                 >
+                                    {/* 
+                                        CONDITIONAL CONTENT SECTIONS BASED ON USER TYPE
+                                        
+                                        Easy to modify for contractors vs clients:
+                                        - user?.user_type === 'contractor' : Show contractor-specific content
+                                        - user?.user_type === 'homeowner' : Show client-specific content
+                                        
+                                        Examples:
+                                        - Contractors: Available projects, bid history, reviews received
+                                        - Clients: Claims, auctions for their projects, contractor browsing
+                                    */}
+                                    
                                     {activeSection === 'auctions' ? (
                                             <>
                                                 {auctionLoading ? (

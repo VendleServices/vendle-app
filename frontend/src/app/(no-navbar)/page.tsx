@@ -25,7 +25,7 @@ export default function HomePage() {
 
   useEffect(() => {
     if (!isLoading && user) {
-      // Redirect to home page when user is logged in
+      // Everyone goes to /home when logged in, regardless of user type
       router.push('/home')
     }
   }, [user, isLoading, router])
