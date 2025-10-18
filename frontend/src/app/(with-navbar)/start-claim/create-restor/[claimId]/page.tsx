@@ -51,7 +51,8 @@ export default function CreateRestorPage() {
   const [claimId, setClaimId] = useState<string | null>(null);
   const [currentStep, setCurrentStep] = useState(1);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [uploadedFile, setUploadedFile] = useState<string | null>(null);
+  const [uploadedFile, setUploadedFile] = useState<File | null>(null);
+
   const supabase = createClient();
 
   const [formData, setFormData] = useState<RestoreFormData>({
@@ -119,7 +120,7 @@ export default function CreateRestorPage() {
         return;
       }
 
-      setUploadedFile(file.name);
+      setUploadedFile(file);
 
       try {
         const timestamp = Date.now();
@@ -188,7 +189,7 @@ export default function CreateRestorPage() {
         userId: user?.id,
       }
 
-      const response = await apiService.post('/api/auctions', payload);
+      const response = await apiService.postWithFile('/api/auctions', payload, uploadedFile);
 
       toast('Success', {
         description: "Restoration job created successfully! Contractors in you are will be notified.",
@@ -266,7 +267,7 @@ export default function CreateRestorPage() {
               {uploadedFile && (
                 <div className="flex items-center space-x-2 text-green-600">
                   <CheckCircle className="w-5 h-5" />
-                  <span>{uploadedFile}</span>
+                  <span>{uploadedFile?.name}</span>
                 </div>
               )}
             </div>
