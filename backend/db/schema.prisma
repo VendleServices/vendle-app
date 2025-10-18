@@ -105,6 +105,7 @@ model Auction {
   userId                String
   claim                 Claim    @relation(fields: [claimId], references: [id])
   bids                  Bid[]
+  aiSummary             String?
 }
 
 model Restoration {
