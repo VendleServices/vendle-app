@@ -2,10 +2,15 @@ import { Router } from 'express';
 import { prisma } from '../../db/prisma.js';
 import multer from 'multer';
 import { processClaimDocument } from "../../utils/processClaimDocument";
+import OpenAI from "openai";
 
 // configure multer to store uploaded files in memory as a buffer
 const storage = multer.memoryStorage();
 const upload = multer({ storage });
+
+const openai = new OpenAI({
+  apiKey: process.env.OPENAI_API_KEY,
+});
 
 const router = Router();
 
@@ -61,6 +66,13 @@ router.post('/', upload.single('file'), async (req: any, res) => {
     if (file) {
       aiClaimSummary = await processClaimDocument(file);
       aiClaimSummary = typeof aiClaimSummary === "object" ? aiClaimSummary?.document?.text : aiClaimSummary;
+
+      const response = await openai.responses.create({
+        model: "gpt-5",
+        input: `Summarize the following information into a short paragraph of 120 words or less: ${aiClaimSummary}`,
+      });
+
+      aiClaimSummary = response?.output_text;
     }
 
     const auctionData = req.body;
