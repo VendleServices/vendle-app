@@ -34,6 +34,7 @@ interface Auction {
     project_type?: string;
     design_plan?: string;
     reconstructionType?: string;
+    aiSummary?: string;
 }
 
 interface Bid {
@@ -148,7 +149,7 @@ export default function AuctionDetailsPage() {
         try {
             const project_details = {
                 project_type: auction?.reconstructionType,
-                project_description: auction?.description,
+                project_description: auction?.aiSummary || auction?.description,
                 location: "Miami, Florida",
             }
 
@@ -303,7 +304,7 @@ export default function AuctionDetailsPage() {
                                 </CardHeader>
                                 <CardContent className="space-y-6">
                                     <div className="prose max-w-none">
-                                        <p className="text-gray-700 text-lg leading-relaxed">{auction?.description}</p>
+                                        <p className="text-gray-700 text-lg leading-relaxed">{auction?.aiSummary || auction?.description}</p>
                                     </div>
 
                                     <div className="flex items-center gap-x-2">
@@ -509,7 +510,7 @@ export default function AuctionDetailsPage() {
                                             Project Description
                                         </h3>
                                         <div className="flex flex-col items-start justify-center bg-gray-50 rounded-lg p-4 gap-y-1">
-                                            <span className="font-semibold text-md text-vendle-navy">Project Description:{" "}<span className="font-normal text-md text-vendle-navy">{auction?.description || "N/A"}</span></span>
+                                            <span className="font-semibold text-md text-vendle-navy">Project Description:{" "}<span className="font-normal text-md text-vendle-navy">{auction?.aiSummary || auction?.description || "N/A"}</span></span>
                                             <span className="font-semibold text-md text-vendle-navy">Project Type:{" "}<span className="font-normal text-md text-vendle-navy">{auction?.reconstructionType || "N/A"}</span></span>
                                         </div>
                                     </div>
