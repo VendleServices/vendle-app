@@ -8,7 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { motion } from "framer-motion";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { MapPin, Calendar, FileText, Clock, LayoutIcon, Trash2, DollarSign, Users, Folder, CheckCircle, Archive, Plus, Upload, Download, BarChart, HelpCircle, MessageCircle, Bell, Settings, Flag, LogOut, Star, Trophy, AlertCircle, Menu, ChevronLeft, Wrench, Home, CalendarCheck, TrendingUp, List, Grid, BarChart3 } from "lucide-react";
+import { MapPin, Calendar, FileText, Clock, LayoutIcon, Trash2, DollarSign, Users, Folder, CheckCircle, Archive, Plus, Upload, Download, BarChart, HelpCircle, MessageCircle, Bell, Settings, Flag, LogOut, Star, Trophy, AlertCircle, Menu, ChevronLeft, Wrench, Home, CalendarCheck, TrendingUp, List, Grid, BarChart3, Compass } from "lucide-react";
 import { toast } from "sonner";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useAuth } from "@/contexts/AuthContext";
@@ -104,7 +104,7 @@ export default function DashboardPage() {
     const [auctions, setAuctions] = useState<Auction[]>([]);
     const [auctionLoading, setAuctionLoading] = useState(false);
     
-    const [activeSection, setActiveSection] = useState<'home' | 'schedule' | 'analytics' | 'reviews' | 'auctions' | 'closed-auctions' | 'claims'>('claims');
+    const [activeSection, setActiveSection] = useState<'home' | 'schedule' | 'analytics' | 'reviews' | 'auctions' | 'closed-auctions' | 'claims' | 'explore'>('claims');
     const [scheduleTab, setScheduleTab] = useState<'upcoming' | 'deadlines' | 'visits' | 'milestones'>('upcoming');
     const [sidebarExpanded, setSidebarExpanded] = useState(true);
     const [closedAuctions, setClosedAuctions] = useState<Auction[]>([]);
@@ -614,14 +614,27 @@ export default function DashboardPage() {
                                         <Button
                                             variant="ghost"
                                             className={`w-full ${sidebarExpanded ? 'justify-start' : 'justify-center'} h-9 text-xs ${
-                                                activeSection === 'reviews' 
-                                                    ? 'bg-[#1e293b] text-white hover:bg-[#1e293b]' 
+                                                activeSection === 'reviews'
+                                                    ? 'bg-[#1e293b] text-white hover:bg-[#1e293b]'
                                                     : 'text-gray-200 hover:bg-[#1e293b] hover:text-white'
                                             }`}
                                             onClick={() => setActiveSection('reviews')}
                                         >
                                             <Star className={`w-3 h-3 ${sidebarExpanded ? 'mr-2' : ''}`} />
                                             {sidebarExpanded && "Reviews"}
+                                        </Button>
+
+                                        <Button
+                                            variant="ghost"
+                                            className={`w-full ${sidebarExpanded ? 'justify-start' : 'justify-center'} h-9 text-xs ${
+                                                activeSection === 'explore'
+                                                    ? 'bg-[#1e293b] text-white hover:bg-[#1e293b]'
+                                                    : 'text-gray-200 hover:bg-[#1e293b] hover:text-white'
+                                            }`}
+                                            onClick={() => setActiveSection('explore')}
+                                        >
+                                            <Compass className={`w-3 h-3 ${sidebarExpanded ? 'mr-2' : ''}`} />
+                                            {sidebarExpanded && "Explore"}
                                         </Button>
 
                                         {/* Keep Active Auctions & Closed Auctions */}
@@ -816,12 +829,13 @@ export default function DashboardPage() {
                                 >
                                     <div>
                                         <h1 className="text-2xl font-bold tracking-tight text-foreground sm:text-3xl">
-                                            {activeSection === 'home' ? 'Dashboard Home' : 
+                                            {activeSection === 'home' ? 'Dashboard Home' :
                                              activeSection === 'schedule' ? 'Schedule' :
                                              activeSection === 'analytics' ? 'Analytics' :
                                              activeSection === 'reviews' ? 'My Reviews' :
-                                             activeSection === 'auctions' ? 'Active Auctions' : 
-                                             activeSection === 'claims' ? 'My Claims' : 
+                                             activeSection === 'explore' ? 'Explore Opportunities' :
+                                             activeSection === 'auctions' ? 'Active Auctions' :
+                                             activeSection === 'claims' ? 'My Claims' :
                                              activeSection === 'closed-auctions' ? 'Closed Auctions' : 'Dashboard'}
                                         </h1>
                                         <p className="mt-3 text-sm text-muted-foreground sm:text-base">
@@ -829,8 +843,9 @@ export default function DashboardPage() {
                                              activeSection === 'schedule' ? 'Manage your project schedule and appointments' :
                                              activeSection === 'analytics' ? 'View performance metrics and insights' :
                                              activeSection === 'reviews' ? 'View and manage your reviews' :
-                                             activeSection === 'auctions' ? 'Browse and manage your active auctions' : 
-                                             activeSection === 'claims' ? 'View and manage your insurance claims' : 
+                                             activeSection === 'explore' ? 'Discover new project opportunities and contracts' :
+                                             activeSection === 'auctions' ? 'Browse and manage your active auctions' :
+                                             activeSection === 'claims' ? 'View and manage your insurance claims' :
                                              activeSection === 'closed-auctions' ? 'View and manage your closed auctions' : 'Dashboard overview'}
                                         </p>
                                     </div>
@@ -1257,6 +1272,52 @@ export default function DashboardPage() {
                                                 <TrendingUp className="h-16 w-16 text-gray-400 mx-auto mb-4" />
                                                 <h3 className="text-lg font-medium text-gray-900 mb-2">Analytics & Insights</h3>
                                                 <p className="text-gray-500">Performance metrics, earnings reports, and business insights will be displayed here.</p>
+                                            </div>
+                                        </div>
+                                    ) : activeSection === 'explore' ? (
+                                        <div className="space-y-6">
+                                            <div className="min-h-screen bg-gray-50 p-8">
+                                                {/* Explore page content placeholder */}
+                                                <div className="max-w-7xl mx-auto">
+                                                    <div className="flex items-center justify-between mb-6">
+                                                        <div className="flex-1">
+                                                            <input
+                                                                type="text"
+                                                                placeholder="Type to search"
+                                                                className="w-full max-w-md px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                                            />
+                                                        </div>
+                                                        <div className="flex gap-2">
+                                                            <Button variant="outline" size="sm">
+                                                                <Users className="h-4 w-4 mr-2" />
+                                                                Job fit
+                                                            </Button>
+                                                            <Button variant="outline" size="sm">
+                                                                <TrendingUp className="h-4 w-4 mr-2" />
+                                                                Trending
+                                                            </Button>
+                                                            <Button variant="outline" size="sm">
+                                                                <Clock className="h-4 w-4 mr-2" />
+                                                                Newest
+                                                            </Button>
+                                                            <Button variant="outline" size="sm">
+                                                                <DollarSign className="h-4 w-4 mr-2" />
+                                                                Most pay
+                                                            </Button>
+                                                            <Button variant="default" size="sm" className="bg-blue-600 hover:bg-blue-700">
+                                                                <Star className="h-4 w-4 mr-2" />
+                                                                Refer & earn
+                                                            </Button>
+                                                        </div>
+                                                    </div>
+
+                                                    {/* Empty state */}
+                                                    <div className="text-center py-16">
+                                                        <Compass className="h-24 w-24 text-gray-300 mx-auto mb-6" />
+                                                        <h3 className="text-2xl font-semibold text-gray-700 mb-3">Explore Opportunities</h3>
+                                                        <p className="text-gray-500 text-lg">New project listings will appear here</p>
+                                                    </div>
+                                                </div>
                                             </div>
                                         </div>
                                     ) : activeSection === 'auctions' ? (
