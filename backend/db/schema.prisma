@@ -86,7 +86,7 @@ model Auction {
   description           String?
   startingBid           Float
   currentBid            Float?
-  status                String   @default("open")
+  status                String   @default("NDA Required")
   auctionEndDate        DateTime
   totalJobValue         Float?
   overheadAndProfit     Float?
