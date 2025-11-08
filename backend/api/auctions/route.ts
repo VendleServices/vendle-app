@@ -14,8 +14,14 @@ const openai = new OpenAI({
 
 const router = Router();
 
-router.get('/', async (req, res) => {
+router.get('/', async (req: any, res) => {
   try {
+    const user = req?.user;
+
+    if (!user) {
+      return res.status(401).json({ error: "Not authorized "});
+    }
+
     const auctions = await prisma.auction.findMany({
       include: {
         user: true,
