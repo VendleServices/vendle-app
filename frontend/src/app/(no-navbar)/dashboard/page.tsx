@@ -8,12 +8,17 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { motion } from "framer-motion";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { MapPin, Calendar, FileText, Clock, LayoutIcon, Trash2, DollarSign, Users, Folder, CheckCircle, Archive, Plus, Upload, Download, BarChart, HelpCircle, MessageCircle, Bell, Settings, Flag, LogOut, Star, Trophy, AlertCircle, Menu, ChevronLeft, Wrench } from "lucide-react";
+import { MapPin, Calendar, FileText, Clock, LayoutIcon, Trash2, DollarSign, Users, Folder, CheckCircle, Archive, Plus, Upload, Download, BarChart, HelpCircle, MessageCircle, Bell, Settings, Flag, LogOut, Star, Trophy, AlertCircle, Menu, ChevronLeft, Wrench, Home, CalendarCheck, TrendingUp, List, Grid, BarChart3, Compass } from "lucide-react";
 import { toast } from "sonner";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useAuth } from "@/contexts/AuthContext";
 import { Inter } from "next/font/google";
 import { useApiService } from "@/services/api";
+import { AuctionCard } from "@/components/AuctionCard";
+import { ClaimCard } from "@/components/ClaimCard";
+import { EmptyState } from "@/components/EmptyState";
+import { LoadingSkeleton } from "@/components/LoadingSkeleton";
+import { formatCurrency, formatDate } from "@/lib/formatting";
 import {
     AlertDialog,
     AlertDialogAction,
@@ -98,7 +103,9 @@ export default function DashboardPage() {
     const { user, isLoggedIn, isLoading: authLoading, logout } = useAuth();
     const [auctions, setAuctions] = useState<Auction[]>([]);
     const [auctionLoading, setAuctionLoading] = useState(false);
-    const [activeSection, setActiveSection] = useState<'auctions' | 'claims' | 'reviews' | 'closed-auctions'>('claims');
+    
+    const [activeSection, setActiveSection] = useState<'home' | 'schedule' | 'analytics' | 'reviews' | 'auctions' | 'closed-auctions' | 'claims' | 'explore'>('claims');
+    const [scheduleTab, setScheduleTab] = useState<'upcoming' | 'deadlines' | 'visits' | 'milestones'>('upcoming');
     const [sidebarExpanded, setSidebarExpanded] = useState(true);
     const [closedAuctions, setClosedAuctions] = useState<Auction[]>([]);
     const [closedAuctionLoading, setClosedAuctionLoading] = useState(false);
@@ -107,12 +114,90 @@ export default function DashboardPage() {
 
     const fetchClaims = async () => {
         try {
+            console.log('Fetching claims for user:', user?.id);
             const response: any = await apiService.get(`/api/claim`);
+            console.log('Claims API response:', response);
             return response?.claims;
         } catch (error) {
-            console.log(error);
+            console.log('Error fetching claims:', error);
             throw error;
         }
+    }
+
+    // Mock data for testing the UI
+    const getMockClaims = () => {
+        return [
+            {
+                id: "mock-claim-1",
+                street: "123 Oak Street",
+                city: "Austin",
+                state: "TX",
+                zipCode: "78701",
+                projectType: "water damage",
+                designPlan: "Full restoration",
+                needsAdjuster: true,
+                insuranceProvider: "State Farm",
+                insuranceEstimateFilePath: "/uploads/estimate-1.pdf",
+                createdAt: new Date("2025-01-15"),
+                updatedAt: new Date("2025-01-20"),
+            },
+            {
+                id: "mock-claim-2", 
+                street: "456 Pine Avenue",
+                city: "Houston",
+                state: "TX",
+                zipCode: "77001",
+                projectType: "fire damage",
+                designPlan: "Partial restoration",
+                needsAdjuster: false,
+                insuranceProvider: "Allstate",
+                insuranceEstimateFilePath: "/uploads/estimate-2.pdf",
+                createdAt: new Date("2025-01-10"),
+                updatedAt: new Date("2025-01-18"),
+            },
+            {
+                id: "mock-claim-3",
+                street: "789 Elm Drive",
+                city: "Dallas", 
+                state: "TX",
+                zipCode: "75201",
+                projectType: "storm damage",
+                designPlan: "Roof repair",
+                needsAdjuster: true,
+                insuranceProvider: "Farmers",
+                insuranceEstimateFilePath: "/uploads/estimate-3.pdf",
+                createdAt: new Date("2025-01-05"),
+                updatedAt: new Date("2025-01-12"),
+            },
+            {
+                id: "mock-claim-4",
+                street: "321 Maple Lane",
+                city: "San Antonio",
+                state: "TX", 
+                zipCode: "78201",
+                projectType: "mold remediation",
+                designPlan: "Basement cleanup",
+                needsAdjuster: false,
+                insuranceProvider: "Progressive",
+                insuranceEstimateFilePath: "/uploads/estimate-4.pdf",
+                createdAt: new Date("2025-01-01"),
+                updatedAt: new Date("2025-01-08"),
+            },
+            {
+                id: "mock-claim-5",
+                street: "654 Cedar Court",
+                city: "Fort Worth",
+                state: "TX",
+                zipCode: "76101", 
+                projectType: "full",
+                designPlan: "Complete renovation",
+                needsAdjuster: true,
+                insuranceProvider: "Liberty Mutual",
+                insuranceEstimateFilePath: "/uploads/estimate-5.pdf",
+                createdAt: new Date("2024-12-28"),
+                updatedAt: new Date("2025-01-05"),
+            }
+        ];
     }
 
     const deleteClaim = async (claim: Claim) => {
@@ -124,22 +209,88 @@ export default function DashboardPage() {
         }
     }
 
+    // Mock auction data for testing
+    const getMockAuctions = () => {
+        return [
+            {
+                auction_id: "mock-auction-1",
+                claim_id: "mock-claim-1",
+                title: "Restoration Job - Water Damage",
+                project_type: "water damage",
+                starting_bid: 5000,
+                current_bid: 8500,
+                bid_count: 3,
+                end_date: "2025-02-15",
+                status: "open",
+                property_address: "123 Oak Street, Austin, TX",
+                design_plan: "Full restoration"
+            },
+            {
+                auction_id: "mock-auction-2", 
+                claim_id: "mock-claim-2",
+                title: "Fire Damage Restoration",
+                project_type: "fire damage",
+                starting_bid: 8000,
+                current_bid: 12500,
+                bid_count: 0,
+                end_date: "2025-02-20",
+                status: "open",
+                property_address: "456 Pine Avenue, Houston, TX",
+                design_plan: "Partial restoration"
+            },
+            {
+                auction_id: "mock-auction-3",
+                claim_id: "mock-claim-3",
+                title: "Storm Damage Repair",
+                project_type: "storm damage",
+                starting_bid: 4000,
+                current_bid: 6200,
+                bid_count: 2,
+                end_date: "2025-02-10",
+                status: "open",
+                property_address: "789 Elm Drive, Dallas, TX",
+                design_plan: "Roof repair"
+            }
+        ];
+    }
+
+    const getMockClosedAuctions = () => {
+        return [
+            {
+                auction_id: "mock-closed-1",
+                claim_id: "mock-claim-4",
+                title: "Mold Remediation Project",
+                project_type: "mold remediation",
+                starting_bid: 3000,
+                current_bid: 4800,
+                bid_count: 1,
+                end_date: "2025-01-15",
+                status: "closed",
+                property_address: "321 Maple Lane, San Antonio, TX",
+                design_plan: "Basement cleanup"
+            },
+            {
+                auction_id: "mock-closed-2",
+                claim_id: "mock-claim-5",
+                title: "Full Home Restoration",
+                project_type: "full",
+                starting_bid: 15000,
+                current_bid: 25000,
+                bid_count: 4,
+                end_date: "2025-01-10",
+                status: "closed",
+                property_address: "654 Cedar Court, Fort Worth, TX",
+                design_plan: "Complete renovation"
+            }
+        ];
+    }
+
     const fetchAuctions = async () => {
         setAuctionLoading(true);
         try {
-            const response:any = await apiService.get(`/api/auctions`);
-            const data = response?.data;
-            console.log('Fetched auctions:', data);
-            
-            const activeAuctions = data?.filter((auction: Auction) => {
-                const endDate = new Date(auction.end_date);
-                return auction.status === 'open' && endDate > new Date();
-            });
-            
-            const closedAuctions = data?.filter((auction: Auction) => {
-                const endDate = new Date(auction.end_date);
-                return auction.status === 'closed' || endDate <= new Date();
-            });
+            // Use mock data instead of API call for testing
+            const activeAuctions = getMockAuctions();
+            const closedAuctions = getMockClosedAuctions();
             
             setAuctions(activeAuctions);
             setClosedAuctions(closedAuctions);
@@ -156,12 +307,20 @@ export default function DashboardPage() {
 
     const { data: claims = [], isLoading, isError, error } = useQuery({
         queryKey: ["getClaims"],
-        queryFn: fetchClaims,
+        queryFn: () => Promise.resolve(getMockClaims()), // Use mock data instead of API call
         enabled: !!user?.id,
         retry: 1,
     });
 
-    console.log('Claims query state:', { claims, isLoading, isError, error, userId: user?.id });
+    console.log('Claims query state:', { 
+        claims: claims?.length || 0, 
+        isLoading, 
+        isError, 
+        error, 
+        userId: user?.id,
+        isLoggedIn,
+        authLoading
+    });
 
     const deleteClaimMutation = useMutation({
         mutationFn: deleteClaim,
@@ -409,113 +568,218 @@ export default function DashboardPage() {
                             )}
 
                             <div className="space-y-1 mb-8">
-                                {/* Main Navigation */}
-                                <Button
-                                    variant="ghost"
-                                    className={`w-full ${sidebarExpanded ? 'justify-start' : 'justify-center'} h-9 text-xs ${
-                                        activeSection === 'auctions' 
-                                            ? 'bg-[#1e293b] text-white hover:bg-[#1e293b]' 
-                                            : 'text-gray-200 hover:bg-[#1e293b] hover:text-white'
-                                    }`}
-                                    onClick={() => setActiveSection('auctions')}
-                                >
-                                    <Users className={`w-3 h-3 ${sidebarExpanded ? 'mr-2' : ''}`} />
-                                    {sidebarExpanded && "Active Auctions"}
-                                </Button>
-
-                                <Button
-                                    variant="ghost"
-                                    className={`w-full ${sidebarExpanded ? 'justify-start' : 'justify-center'} h-9 text-xs ${
-                                        activeSection === 'closed-auctions' 
-                                            ? 'bg-[#1e293b] text-white hover:bg-[#1e293b]' 
-                                            : 'text-gray-200 hover:bg-[#1e293b] hover:text-white'
-                                    }`}
-                                    onClick={() => setActiveSection('closed-auctions')}
-                                >
-                                    <Archive className={`w-3 h-3 ${sidebarExpanded ? 'mr-2' : ''}`} />
-                                    {sidebarExpanded && "Closed Auctions"}
-                                </Button>
-
-                                {(() => {
-                                    console.log('User type check:', {
-                                        user,
-                                        userType: user?.user_type,
-                                        isContractor: user?.user_type === "contractor"
-                                    });
-                                    return user?.user_type === "contractor" && (
+                                {/* CONTRACTOR DASHBOARD - Custom Navigation */}
+                                {user?.user_type === "contractor" ? (
+                                    <>
+                                        {/* Contractor-specific tabs */}
                                         <Button
                                             variant="ghost"
                                             className={`w-full ${sidebarExpanded ? 'justify-start' : 'justify-center'} h-9 text-xs ${
-                                                activeSection === 'reviews' 
+                                                activeSection === 'home' 
                                                     ? 'bg-[#1e293b] text-white hover:bg-[#1e293b]' 
+                                                    : 'text-gray-200 hover:bg-[#1e293b] hover:text-white'
+                                            }`}
+                                            onClick={() => setActiveSection('home')}
+                                        >
+                                            <Home className={`w-3 h-3 ${sidebarExpanded ? 'mr-2' : ''}`} />
+                                            {sidebarExpanded && "Home"}
+                                        </Button>
+
+                                        <Button
+                                            variant="ghost"
+                                            className={`w-full ${sidebarExpanded ? 'justify-start' : 'justify-center'} h-9 text-xs ${
+                                                activeSection === 'schedule' 
+                                                    ? 'bg-[#1e293b] text-white hover:bg-[#1e293b]' 
+                                                    : 'text-gray-200 hover:bg-[#1e293b] hover:text-white'
+                                            }`}
+                                            onClick={() => setActiveSection('schedule')}
+                                        >
+                                            <CalendarCheck className={`w-3 h-3 ${sidebarExpanded ? 'mr-2' : ''}`} />
+                                            {sidebarExpanded && "Schedule"}
+                                        </Button>
+
+                                        <Button
+                                            variant="ghost"
+                                            className={`w-full ${sidebarExpanded ? 'justify-start' : 'justify-center'} h-9 text-xs ${
+                                                activeSection === 'analytics' 
+                                                    ? 'bg-[#1e293b] text-white hover:bg-[#1e293b]' 
+                                                    : 'text-gray-200 hover:bg-[#1e293b] hover:text-white'
+                                            }`}
+                                            onClick={() => setActiveSection('analytics')}
+                                        >
+                                            <TrendingUp className={`w-3 h-3 ${sidebarExpanded ? 'mr-2' : ''}`} />
+                                            {sidebarExpanded && "Analytics"}
+                                        </Button>
+
+                                        <Button
+                                            variant="ghost"
+                                            className={`w-full ${sidebarExpanded ? 'justify-start' : 'justify-center'} h-9 text-xs ${
+                                                activeSection === 'reviews'
+                                                    ? 'bg-[#1e293b] text-white hover:bg-[#1e293b]'
                                                     : 'text-gray-200 hover:bg-[#1e293b] hover:text-white'
                                             }`}
                                             onClick={() => setActiveSection('reviews')}
                                         >
                                             <Star className={`w-3 h-3 ${sidebarExpanded ? 'mr-2' : ''}`} />
-                                            {sidebarExpanded && "My Reviews"}
+                                            {sidebarExpanded && "Reviews"}
                                         </Button>
-                                    );
-                                })()}
 
-                                <Button
-                                    variant="ghost"
-                                    className={`w-full ${sidebarExpanded ? 'justify-start' : 'justify-center'} h-9 text-xs ${
-                                        activeSection === 'claims' 
-                                            ? 'bg-[#1e293b] text-white hover:bg-[#1e293b]' 
-                                            : 'text-gray-200 hover:bg-[#1e293b] hover:text-white'
-                                    }`}
-                                    onClick={() => setActiveSection('claims')}
-                                >
-                                    <FileText className={`w-3 h-3 ${sidebarExpanded ? 'mr-2' : ''}`} />
-                                    {sidebarExpanded && "Claims"}
-                                </Button>
+                                        <Button
+                                            variant="ghost"
+                                            className={`w-full ${sidebarExpanded ? 'justify-start' : 'justify-center'} h-9 text-xs ${
+                                                activeSection === 'explore'
+                                                    ? 'bg-[#1e293b] text-white hover:bg-[#1e293b]'
+                                                    : 'text-gray-200 hover:bg-[#1e293b] hover:text-white'
+                                            }`}
+                                            onClick={() => setActiveSection('explore')}
+                                        >
+                                            <Compass className={`w-3 h-3 ${sidebarExpanded ? 'mr-2' : ''}`} />
+                                            {sidebarExpanded && "Explore"}
+                                        </Button>
 
-                                {/* Project Categories */}
-                                <div className="pt-2">
-                                    {sidebarExpanded && <h4 className="text-gray-400 text-xs font-semibold px-4 mb-1">PROJECT CATEGORIES</h4>}
-                                    <Button
-                                        variant="ghost"
-                                        className={`w-full ${sidebarExpanded ? 'justify-start' : 'justify-center'} h-8 text-xs text-gray-200 hover:bg-[#1e293b] hover:text-white`}
-                                    >
-                                        <Folder className={`w-3 h-3 ${sidebarExpanded ? 'mr-2' : ''}`} />
-                                        {sidebarExpanded && "Active Projects"}
-                                    </Button>
-                                    <Button
-                                        variant="ghost"
-                                        className={`w-full ${sidebarExpanded ? 'justify-start' : 'justify-center'} h-8 text-xs text-gray-200 hover:bg-[#1e293b] hover:text-white`}
-                                    >
-                                        <CheckCircle className={`w-3 h-3 ${sidebarExpanded ? 'mr-2' : ''}`} />
-                                        {sidebarExpanded && "Completed Projects"}
-                                    </Button>
-                                </div>
+                                        {/* Keep Active Auctions & Closed Auctions */}
+                                        <Button
+                                            variant="ghost"
+                                            className={`w-full ${sidebarExpanded ? 'justify-start' : 'justify-center'} h-9 text-xs ${
+                                                activeSection === 'auctions' 
+                                                    ? 'bg-[#1e293b] text-white hover:bg-[#1e293b]' 
+                                                    : 'text-gray-200 hover:bg-[#1e293b] hover:text-white'
+                                            }`}
+                                            onClick={() => setActiveSection('auctions')}
+                                        >
+                                            <Users className={`w-3 h-3 ${sidebarExpanded ? 'mr-2' : ''}`} />
+                                            {sidebarExpanded && "Active Auctions"}
+                                        </Button>
 
-                                {/* Quick Actions */}
-                                <div className="pt-2">
-                                    {sidebarExpanded && <h4 className="text-gray-400 text-xs font-semibold px-4 mb-1">QUICK ACTIONS</h4>}
-                                    <Button
-                                        variant="ghost"
-                                        className={`w-full ${sidebarExpanded ? 'justify-start' : 'justify-center'} h-8 text-xs text-gray-200 hover:bg-[#1e293b] hover:text-white`}
-                                        onClick={() => router.push("/start-claim")}
-                                    >
-                                        <Plus className={`w-3 h-3 ${sidebarExpanded ? 'mr-2' : ''}`} />
-                                        {sidebarExpanded && "Create New Claim"}
-                                    </Button>
-                                    <Button
-                                        variant="ghost"
-                                        className={`w-full ${sidebarExpanded ? 'justify-start' : 'justify-center'} h-8 text-xs text-gray-200 hover:bg-[#1e293b] hover:text-white`}
-                                    >
-                                        <BarChart className={`w-3 h-3 ${sidebarExpanded ? 'mr-2' : ''}`} />
-                                        {sidebarExpanded && "Project Statistics"}
-                                    </Button>
-                                    <Button
-                                        variant="ghost"
-                                        className={`w-full ${sidebarExpanded ? 'justify-start' : 'justify-center'} h-8 text-xs text-gray-200 hover:bg-[#1e293b] hover:text-white`}
-                                    >
-                                        <Settings className={`w-3 h-3 ${sidebarExpanded ? 'mr-2' : ''}`} />
-                                        {sidebarExpanded && "Settings"}
-                                    </Button>
-                                </div>
+                                        <Button
+                                            variant="ghost"
+                                            className={`w-full ${sidebarExpanded ? 'justify-start' : 'justify-center'} h-9 text-xs ${
+                                                activeSection === 'closed-auctions' 
+                                                    ? 'bg-[#1e293b] text-white hover:bg-[#1e293b]' 
+                                                    : 'text-gray-200 hover:bg-[#1e293b] hover:text-white'
+                                            }`}
+                                            onClick={() => setActiveSection('closed-auctions')}
+                                        >
+                                            <Archive className={`w-3 h-3 ${sidebarExpanded ? 'mr-2' : ''}`} />
+                                            {sidebarExpanded && "Closed Auctions"}
+                                        </Button>
+                                    </>
+                                ) : (
+                                    <>
+                                        {/* HOMEOWNER/CLIENT DASHBOARD - Original Navigation */}
+                                        <Button
+                                            variant="ghost"
+                                            className={`w-full ${sidebarExpanded ? 'justify-start' : 'justify-center'} h-9 text-xs ${
+                                                activeSection === 'auctions' 
+                                                    ? 'bg-[#1e293b] text-white hover:bg-[#1e293b]' 
+                                                    : 'text-gray-200 hover:bg-[#1e293b] hover:text-white'
+                                            }`}
+                                            onClick={() => setActiveSection('auctions')}
+                                        >
+                                            <Users className={`w-3 h-3 ${sidebarExpanded ? 'mr-2' : ''}`} />
+                                            {sidebarExpanded && "Active Auctions"}
+                                        </Button>
+
+                                        <Button
+                                            variant="ghost"
+                                            className={`w-full ${sidebarExpanded ? 'justify-start' : 'justify-center'} h-9 text-xs ${
+                                                activeSection === 'closed-auctions' 
+                                                    ? 'bg-[#1e293b] text-white hover:bg-[#1e293b]' 
+                                                    : 'text-gray-200 hover:bg-[#1e293b] hover:text-white'
+                                            }`}
+                                            onClick={() => setActiveSection('closed-auctions')}
+                                        >
+                                            <Archive className={`w-3 h-3 ${sidebarExpanded ? 'mr-2' : ''}`} />
+                                            {sidebarExpanded && "Closed Auctions"}
+                                        </Button>
+
+                                        <Button
+                                            variant="ghost"
+                                            className={`w-full ${sidebarExpanded ? 'justify-start' : 'justify-center'} h-9 text-xs ${
+                                                activeSection === 'claims' 
+                                                    ? 'bg-[#1e293b] text-white hover:bg-[#1e293b]' 
+                                                    : 'text-gray-200 hover:bg-[#1e293b] hover:text-white'
+                                            }`}
+                                            onClick={() => setActiveSection('claims')}
+                                        >
+                                            <FileText className={`w-3 h-3 ${sidebarExpanded ? 'mr-2' : ''}`} />
+                                            {sidebarExpanded && "Claims"}
+                                        </Button>
+                                    </>
+                                )}
+
+                                {/* 
+                                    TEMPLATE FOR FUTURE USER-TYPE SPECIFIC SECTIONS:
+                                    
+                                    Copy this pattern to add new contractor-only or client-only sections:
+                                    
+                                    // FOR CONTRACTOR-ONLY FEATURES:
+                                    {user?.user_type === "contractor" && (
+                                        <Button variant="ghost" onClick={() => setActiveSection('new-contractor-section')}>
+                                            <Icon className="w-3 h-3" />
+                                            {sidebarExpanded && "Contractor Feature"}
+                                        </Button>
+                                    )}
+                                    
+                                    // FOR CLIENT-ONLY FEATURES:
+                                    {user?.user_type === "homeowner" && (
+                                        <Button variant="ghost" onClick={() => setActiveSection('new-client-section')}>
+                                            <Icon className="w-3 h-3" />
+                                            {sidebarExpanded && "Client Feature"}
+                                        </Button>
+                                    )}
+                                */}
+
+                                {/* PROJECT CATEGORIES & QUICK ACTIONS - Only for Homeowners/Clients */}
+                                {user?.user_type !== "contractor" && (
+                                    <>
+                                        {/* Project Categories */}
+                                        <div className="pt-2">
+                                            {sidebarExpanded && <h4 className="text-gray-400 text-xs font-semibold px-4 mb-1">PROJECT CATEGORIES</h4>}
+                                            <Button
+                                                variant="ghost"
+                                                className={`w-full ${sidebarExpanded ? 'justify-start' : 'justify-center'} h-8 text-xs text-gray-200 hover:bg-[#1e293b] hover:text-white`}
+                                            >
+                                                <Folder className={`w-3 h-3 ${sidebarExpanded ? 'mr-2' : ''}`} />
+                                                {sidebarExpanded && "Active Projects"}
+                                            </Button>
+                                            <Button
+                                                variant="ghost"
+                                                className={`w-full ${sidebarExpanded ? 'justify-start' : 'justify-center'} h-8 text-xs text-gray-200 hover:bg-[#1e293b] hover:text-white`}
+                                            >
+                                                <CheckCircle className={`w-3 h-3 ${sidebarExpanded ? 'mr-2' : ''}`} />
+                                                {sidebarExpanded && "Completed Projects"}
+                                            </Button>
+                                        </div>
+
+                                        {/* Quick Actions */}
+                                        <div className="pt-2">
+                                            {sidebarExpanded && <h4 className="text-gray-400 text-xs font-semibold px-4 mb-1">QUICK ACTIONS</h4>}
+                                            <Button
+                                                variant="ghost"
+                                                className={`w-full ${sidebarExpanded ? 'justify-start' : 'justify-center'} h-8 text-xs text-gray-200 hover:bg-[#1e293b] hover:text-white`}
+                                                onClick={() => router.push("/start-claim")}
+                                            >
+                                                <Plus className={`w-3 h-3 ${sidebarExpanded ? 'mr-2' : ''}`} />
+                                                {sidebarExpanded && "Create New Claim"}
+                                            </Button>
+                                            <Button
+                                                variant="ghost"
+                                                className={`w-full ${sidebarExpanded ? 'justify-start' : 'justify-center'} h-8 text-xs text-gray-200 hover:bg-[#1e293b] hover:text-white`}
+                                            >
+                                                <BarChart className={`w-3 h-3 ${sidebarExpanded ? 'mr-2' : ''}`} />
+                                                {sidebarExpanded && "Project Statistics"}
+                                            </Button>
+                                            <Button
+                                                variant="ghost"
+                                                className={`w-full ${sidebarExpanded ? 'justify-start' : 'justify-center'} h-8 text-xs text-gray-200 hover:bg-[#1e293b] hover:text-white`}
+                                            >
+                                                <Settings className={`w-3 h-3 ${sidebarExpanded ? 'mr-2' : ''}`} />
+                                                {sidebarExpanded && "Settings"}
+                                            </Button>
+                                        </div>
+                                    </>
+                                )}
                             </div>
                         </div>
 
@@ -555,126 +819,532 @@ export default function DashboardPage() {
 
                     {/* Main Content */}
                     <div className="flex-1 bg-gray-50 border-l border-gray-200">
-                        <div className="p-8">
-                            <div className="max-w-7xl mx-auto">
-                                <div className="flex justify-between items-center mb-8">
+                        <div className="p-6 sm:p-8 lg:p-12">
+                            <div className="mx-auto w-full max-w-[1200px]">
+                                <motion.div
+                                    initial={{ opacity: 0, y: 20 }}
+                                    animate={{ opacity: 1, y: 0 }}
+                                    transition={{ duration: 0.3 }}
+                                    className="mb-12 flex flex-col gap-6 sm:flex-row sm:items-center sm:justify-between"
+                                >
                                     <div>
-                                        <h1 className="text-2xl font-semibold text-gray-900">
-                                            {activeSection === 'auctions' ? 'Active Auctions' : activeSection === 'claims' ? 'My Claims' : activeSection === 'closed-auctions' ? 'Closed Auctions' : 'My Reviews'}
+                                        <h1 className="text-2xl font-bold tracking-tight text-foreground sm:text-3xl">
+                                            {activeSection === 'home' ? 'Dashboard Home' :
+                                             activeSection === 'schedule' ? 'Schedule' :
+                                             activeSection === 'analytics' ? 'Analytics' :
+                                             activeSection === 'reviews' ? 'My Reviews' :
+                                             activeSection === 'explore' ? 'Explore Opportunities' :
+                                             activeSection === 'auctions' ? 'Active Auctions' :
+                                             activeSection === 'claims' ? 'My Claims' :
+                                             activeSection === 'closed-auctions' ? 'Closed Auctions' : 'Dashboard'}
                                         </h1>
-                                        <p className="mt-1 text-sm text-gray-600">
-                                            {activeSection === 'auctions' ? 'Browse and manage your active auctions' : activeSection === 'claims' ? 'View and manage your insurance claims' : activeSection === 'closed-auctions' ? 'View and manage your closed auctions' : 'View and manage your reviews'}
+                                        <p className="mt-3 text-sm text-muted-foreground sm:text-base">
+                                            {activeSection === 'home' ? 'Overview of your contractor dashboard and recent activity' :
+                                             activeSection === 'schedule' ? 'Manage your project schedule and appointments' :
+                                             activeSection === 'analytics' ? 'View performance metrics and insights' :
+                                             activeSection === 'reviews' ? 'View and manage your reviews' :
+                                             activeSection === 'explore' ? 'Discover new project opportunities and contracts' :
+                                             activeSection === 'auctions' ? 'Browse and manage your active auctions' :
+                                             activeSection === 'claims' ? 'View and manage your insurance claims' :
+                                             activeSection === 'closed-auctions' ? 'View and manage your closed auctions' : 'Dashboard overview'}
                                         </p>
                                     </div>
-                                    <Button
-                                        onClick={() => router.push("/start-claim")}
-                                        className="bg-[#0f172a] hover:bg-[#1e293b] text-white h-9 px-4 text-sm font-medium rounded-lg shadow-sm"
-                                    >
-                                        Start New Claim
-                                    </Button>
-                                </div>
+                                    {/* CONDITIONAL BUTTON BASED ON USER TYPE */}
+                                    {user?.user_type === 'contractor' ? (
+                                        <Button
+                                            onClick={() => router.push("/contractor-projects")}
+                                            className="gap-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+                                        >
+                                            <Plus className="h-4 w-4" />
+                                            Browse Projects
+                                        </Button>
+                                    ) : (
+                                        <Button
+                                            onClick={() => router.push("/start-claim")}
+                                            className="gap-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+                                        >
+                                            <Plus className="h-4 w-4" />
+                                            Start New Claim
+                                        </Button>
+                                    )}
+                                </motion.div>
 
-                                <Card className="shadow-sm border-gray-200 bg-white rounded-lg">
-                                    <CardContent className="p-6">
-                                        {activeSection === 'auctions' ? (
-                                            <>
-                                                {auctionLoading ? (
-                                                    <div className="flex justify-center items-center h-64">
-                                                        <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-[#0f172a]"></div>
-                                                    </div>
-                                                ) : auctions?.length === 0 ? (
-                                                    <div className="text-center py-12">
-                                                        <Users className="w-12 h-12 mx-auto text-gray-400 mb-4" />
-                                                        <h3 className="text-lg font-medium text-gray-900 mb-2">No Active Auctions</h3>
-                                                        <p className="text-gray-500 mb-4">There are currently no active auctions to display.</p>
+                                <motion.div
+                                    initial={{ opacity: 0 }}
+                                    animate={{ opacity: 1 }}
+                                    transition={{ duration: 0.3, delay: 0.1 }}
+                                >
+                                    {/* 
+                                        CONDITIONAL CONTENT SECTIONS BASED ON USER TYPE
+                                        
+                                        Easy to modify for contractors vs clients:
+                                        - user?.user_type === 'contractor' : Show contractor-specific content
+                                        - user?.user_type === 'homeowner' : Show client-specific content
+                                        
+                                        Examples:
+                                        - Contractors: Available projects, bid history, reviews received
+                                        - Clients: Claims, auctions for their projects, contractor browsing
+                                    */}
+                                    
+                                    {/* NEW CONTRACTOR SECTIONS */}
+                                    {activeSection === 'home' ? (
+                                        <div className="space-y-8">
+                                            {/* Contract Metrics */}
+                                            <div>
+                                                <h2 className="text-xl font-semibold text-gray-900 mb-6">Contract Metrics</h2>
+                                                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+                                                    {/* Available to Bid */}
+                                                    <Card className="p-6 bg-white border border-gray-200">
+                                                        <div className="flex items-center justify-between mb-4">
+                                                            <div className="p-2 bg-gray-100 rounded-lg">
+                                                                <FileText className="h-6 w-6 text-gray-600" />
+                                                            </div>
+                                                            <span className="text-2xl font-bold text-gray-900">0</span>
+                                                        </div>
+                                                        <div className="text-center">
+                                                            <p className="text-sm text-gray-600 mb-1">Contracts</p>
+                                                            <p className="text-sm font-medium text-gray-900">Available to Bid</p>
+                                                            <p className="text-lg font-bold text-blue-600">$0</p>
+                                                        </div>
+                                                    </Card>
+
+                                                    {/* IOI Phase */}
+                                                    <Card className="p-6 bg-white border border-gray-200">
+                                                        <div className="flex items-center justify-between mb-4">
+                                                            <div className="p-2 bg-orange-100 rounded-lg">
+                                                                <FileText className="h-6 w-6 text-orange-600" />
+                                                            </div>
+                                                            <span className="text-2xl font-bold text-gray-900">1</span>
+                                                        </div>
+                                                        <div className="text-center">
+                                                            <p className="text-sm text-gray-600 mb-1">Contracts</p>
+                                                            <p className="text-sm font-medium text-gray-900">IOI Phase</p>
+                                                            <p className="text-lg font-bold text-blue-600">$18,000</p>
+                                                        </div>
+                                                    </Card>
+
+                                                    {/* LOI Phase */}
+                                                    <Card className="p-6 bg-white border border-gray-200">
+                                                        <div className="flex items-center justify-between mb-4">
+                                                            <div className="p-2 bg-green-100 rounded-lg">
+                                                                <CheckCircle className="h-6 w-6 text-green-600" />
+                                                            </div>
+                                                            <span className="text-2xl font-bold text-gray-900">1</span>
+                                                        </div>
+                                                        <div className="text-center">
+                                                            <p className="text-sm text-gray-600 mb-1">Contracts</p>
+                                                            <p className="text-sm font-medium text-gray-900">LOI Phase</p>
+                                                            <p className="text-lg font-bold text-blue-600">$28,000</p>
+                                                        </div>
+                                                    </Card>
+
+                                                    {/* Active Work */}
+                                                    <Card className="p-6 bg-white border border-blue-200 border-2">
+                                                        <div className="flex items-center justify-between mb-4">
+                                                            <div className="p-2 bg-blue-100 rounded-lg">
+                                                                <Wrench className="h-6 w-6 text-blue-600" />
+                                                            </div>
+                                                            <span className="text-2xl font-bold text-gray-900">2</span>
+                                                        </div>
+                                                        <div className="text-center">
+                                                            <p className="text-sm text-gray-600 mb-1">Contracts</p>
+                                                            <p className="text-sm font-medium text-gray-900">Active Work</p>
+                                                            <p className="text-lg font-bold text-blue-600">$77,000</p>
+                                                        </div>
+                                                    </Card>
+                                                </div>
+                                            </div>
+
+                                            {/* Active Contracts */}
+                                            <div>
+                                                <h2 className="text-xl font-semibold text-gray-900 mb-6">Active Contracts(2)</h2>
+                                                
+                                                {/* Check if we have actual auction/contract data */}
+                                                {auctions?.length > 0 ? (
+                                                    <div className="space-y-4">
+                                                        {auctions.slice(0, 5).map((auction: any, index: number) => (
+                                                            <Card key={auction.auction_id || index} className="p-6 bg-white border border-gray-200">
+                                                                <div className="flex items-center justify-between">
+                                                                    <div className="flex-1">
+                                                                        <h3 className="text-lg font-medium text-gray-900 mb-2">
+                                                                            {auction.title || `Contract ${index + 1}`}
+                                                                        </h3>
+                                                                        <div className="flex items-center text-sm text-gray-600 space-x-4">
+                                                                            <div className="flex items-center">
+                                                                                <MapPin className="h-4 w-4 mr-1" />
+                                                                                <span>{auction.property_address || 'Project Location'}</span>
+                                                                            </div>
+                                                                            <div className="flex items-center">
+                                                                                <Clock className="h-4 w-4 mr-1" />
+                                                                                <span>End Date: {new Date(auction.end_date || Date.now()).toLocaleDateString()}</span>
+                                                                            </div>
+                                                                        </div>
+                                                                    </div>
+                                                                    <div className="text-right">
+                                                                        <div className="flex items-center mb-2">
+                                                                            <Badge variant="outline" className="text-purple-600 border-purple-200 bg-purple-50">
+                                                                                {auction.status || 'Active'}
+                                                                            </Badge>
+                                                                        </div>
+                                                                        <div>
+                                                                            <p className="text-lg font-bold text-blue-600">${auction.current_bid?.toLocaleString() || auction.starting_bid?.toLocaleString() || '0'}</p>
+                                                                            <p className="text-sm text-gray-600">{auction.bid_count || 0} bids</p>
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                            </Card>
+                                                        ))}
                                                     </div>
                                                 ) : (
-                                                    <div className="grid gap-4">
-                                                        {auctions?.map((auction) => (
-                                                            <Card key={auction.auction_id} className="hover:shadow-md transition-shadow duration-200 border border-gray-200 bg-white rounded-lg">
-                                                                <CardContent className="p-6">
-                                                                    <div className="flex justify-between items-start mb-4">
-                                                                        <div>
-                                                                            <h3 className="text-lg font-semibold text-gray-900">{auction.title}</h3>
-                                                                            <p className="text-sm text-gray-500 mt-1">{auction.property_address}</p>
+                                                    /* Hardcoded sample data when no API data */
+                                                    <div className="space-y-4">
+                                                        <Card className="p-6 bg-white border border-gray-200">
+                                                            <div className="flex items-center justify-between">
+                                                                <div className="flex-1">
+                                                                    <h3 className="text-lg font-medium text-gray-900 mb-2">
+                                                                        Roof Repair - Storm Damage
+                                                                    </h3>
+                                                                    <div className="flex items-center text-sm text-gray-600 space-x-4">
+                                                                        <div className="flex items-center">
+                                                                            <MapPin className="h-4 w-4 mr-1" />
+                                                                            <span>123 Oak Street, Austin, TX 78701</span>
                                                                         </div>
-                                                                        <Badge variant={auction.status === 'open' ? 'default' : 'secondary'} className="bg-green-100 text-green-800">
-                                                                            {auction.status}
+                                                                        <div className="flex items-center">
+                                                                            <Clock className="h-4 w-4 mr-1" />
+                                                                            <span>Started 2 weeks ago, 75% complete</span>
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                                <div className="text-right">
+                                                                    <div className="flex items-center mb-2">
+                                                                        <Badge variant="outline" className="text-purple-600 border-purple-200 bg-purple-50">
+                                                                            Active Work
                                                                         </Badge>
                                                                     </div>
+                                                                    <div>
+                                                                        <p className="text-lg font-bold text-blue-600">$45,000</p>
+                                                                        <p className="text-sm text-gray-600">75% Complete</p>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        </Card>
 
-                                                                    {/* Teaser Information for Contractors */}
-                                                                    <div className="bg-blue-50 p-4 rounded-lg mb-4">
-                                                                        <h4 className="font-medium text-blue-900 mb-3">Job Details for Contractors</h4>
-                                                                        <div className="grid grid-cols-2 gap-4">
-                                                                            <div className="space-y-2">
-                                                                                <div className="flex items-center text-sm">
-                                                                                    <DollarSign className="w-4 h-4 mr-2 text-blue-600" />
-                                                                                    <span className="text-blue-800">Total Job Value: <span className="font-semibold">${auction.total_job_value?.toFixed(2) || auction.starting_bid.toFixed(2)}</span></span>
-                                                                                </div>
-                                                                                <div className="flex items-center text-sm">
-                                                                                    <DollarSign className="w-4 h-4 mr-2 text-blue-600" />
-                                                                                    <span className="text-blue-800">O&P: <span className="font-semibold">${auction.overhead_and_profit?.toFixed(2) || 'N/A'}</span></span>
-                                                                                </div>
-                                                                            </div>
-                                                                            <div className="space-y-2">
-                                                                                <div className="flex items-center text-sm">
-                                                                                    <MapPin className="w-4 h-4 mr-2 text-blue-600" />
-                                                                                    <span className="text-blue-800">Area: <span className="font-semibold">{auction.property_address || 'Address not specified'}</span></span>
-                                                                                </div>
-                                                                                <div className="flex items-center text-sm">
-                                                                                    <Wrench className="w-4 h-4 mr-2 text-blue-600" />
-                                                                                    <span className="text-blue-800">Type: <span className="font-semibold">{auction.reconstruction_type || auction.project_type || 'General Restoration'}</span></span>
-                                                                                </div>
-                                                                            </div>
+                                                        <Card className="p-6 bg-white border border-gray-200">
+                                                            <div className="flex items-center justify-between">
+                                                                <div className="flex-1">
+                                                                    <h3 className="text-lg font-medium text-gray-900 mb-2">
+                                                                        Kitchen Renovation - Water Damage
+                                                                    </h3>
+                                                                    <div className="flex items-center text-sm text-gray-600 space-x-4">
+                                                                        <div className="flex items-center">
+                                                                            <MapPin className="h-4 w-4 mr-1" />
+                                                                            <span>456 Pine Avenue, Austin, TX 78702</span>
+                                                                        </div>
+                                                                        <div className="flex items-center">
+                                                                            <Clock className="h-4 w-4 mr-1" />
+                                                                            <span>Started 1 week ago, 45% complete</span>
                                                                         </div>
                                                                     </div>
+                                                                </div>
+                                                                <div className="text-right">
+                                                                    <div className="flex items-center mb-2">
+                                                                        <Badge variant="outline" className="text-purple-600 border-purple-200 bg-purple-50">
+                                                                            Active Work
+                                                                        </Badge>
+                                                                    </div>
+                                                                    <div>
+                                                                        <p className="text-lg font-bold text-blue-600">$32,000</p>
+                                                                        <p className="text-sm text-gray-600">45% Complete</p>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        </Card>
+                                                    </div>
+                                                )}
+                                            </div>
+                                        </div>
+                                    ) : activeSection === 'schedule' ? (
+                                        <div className="space-y-6">
+                                            {/* Schedule Header with View Toggle */}
+                                            <div className="flex items-center justify-between">
+                                                <div>
+                                                    <h1 className="text-2xl font-bold text-gray-900">Schedule & Calendar</h1>
+                                                    <p className="text-gray-600 mt-1">Manage all deadlines, visits, and milestones</p>
+                                                </div>
+                                                <div className="flex items-center space-x-2">
+                                                    <Button variant="default" size="sm" className="bg-blue-600 hover:bg-blue-700">
+                                                        <List className="h-4 w-4 mr-2" />
+                                                        List
+                                                    </Button>
+                                                    <Button variant="outline" size="sm">
+                                                        <Calendar className="h-4 w-4 mr-2" />
+                                                        Calendar
+                                                    </Button>
+                                                    <Button variant="outline" size="sm">
+                                                        <BarChart3 className="h-4 w-4 mr-2" />
+                                                        Gantt
+                                                    </Button>
+                                                </div>
+                                            </div>
 
-                                                                    {/* Additional Information */}
-                                                                    <div className="grid grid-cols-2 gap-4 mb-4">
-                                                                        <div className="space-y-2">
-                                                                            <div className="flex items-center text-sm">
-                                                                                <DollarSign className="w-4 h-4 mr-2 text-gray-500" />
-                                                                                <span className="text-gray-600">Current Bid: <span className="font-medium">${auction.current_bid.toFixed(2)}</span></span>
-                                                                            </div>
-                                                                            <div className="flex items-center text-sm">
-                                                                                <Users className="w-4 h-4 mr-2 text-gray-500" />
-                                                                                <span className="text-gray-600">{auction.bid_count} bids</span>
-                                                                            </div>
-                                                                        </div>
-                                                                        <div className="space-y-2">
-                                                                            <div className="flex items-center text-sm">
-                                                                                <Clock className="w-4 h-4 mr-2 text-gray-500" />
-                                                                                <span className="text-gray-600">Ends: {new Date(auction.end_date).toLocaleDateString()}</span>
-                                                                            </div>
-                                                                            {auction.cost_basis && (
-                                                                                <div className="flex items-center text-sm">
-                                                                                    <FileText className="w-4 h-4 mr-2 text-gray-500" />
-                                                                                    <span className="text-gray-600">Basis: <span className="font-medium">{auction.cost_basis}</span></span>
-                                                                                </div>
-                                                                            )}
+                                            {/* Critical Deadlines Alert */}
+                                            <Card className="bg-red-50 border-red-200">
+                                                <CardContent className="p-4">
+                                                    <div className="flex items-start space-x-3">
+                                                        <div className="flex-shrink-0">
+                                                            <div className="w-6 h-6 bg-red-100 rounded-full flex items-center justify-center">
+                                                                <AlertCircle className="h-4 w-4 text-red-600" />
+                                                            </div>
+                                                        </div>
+                                                        <div>
+                                                            <h3 className="text-sm font-medium text-red-800">Critical Deadlines</h3>
+                                                            <p className="text-sm text-red-700 mt-1">
+                                                                IOI deadline for Bathroom Remodel project due tomorrow at 5:00 PM
+                                                            </p>
+                                                        </div>
+                                                    </div>
+                                                </CardContent>
+                                            </Card>
+
+                                            {/* Tab Navigation */}
+                                            <div className="border-b border-gray-200">
+                                                <nav className="-mb-px flex space-x-8">
+                                                    <button 
+                                                        onClick={() => setScheduleTab('upcoming')}
+                                                        className={`border-b-2 py-2 px-1 text-sm font-medium ${
+                                                            scheduleTab === 'upcoming' 
+                                                                ? 'border-blue-500 text-blue-600' 
+                                                                : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                                                        }`}
+                                                    >
+                                                        Upcoming Events
+                                                    </button>
+                                                    <button 
+                                                        onClick={() => setScheduleTab('deadlines')}
+                                                        className={`border-b-2 py-2 px-1 text-sm font-medium ${
+                                                            scheduleTab === 'deadlines' 
+                                                                ? 'border-blue-500 text-blue-600' 
+                                                                : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                                                        }`}
+                                                    >
+                                                        Deadlines
+                                                    </button>
+                                                    <button 
+                                                        onClick={() => setScheduleTab('visits')}
+                                                        className={`border-b-2 py-2 px-1 text-sm font-medium ${
+                                                            scheduleTab === 'visits' 
+                                                                ? 'border-blue-500 text-blue-600' 
+                                                                : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                                                        }`}
+                                                    >
+                                                        Site Visits
+                                                    </button>
+                                                    <button 
+                                                        onClick={() => setScheduleTab('milestones')}
+                                                        className={`border-b-2 py-2 px-1 text-sm font-medium ${
+                                                            scheduleTab === 'milestones' 
+                                                                ? 'border-blue-500 text-blue-600' 
+                                                                : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                                                        }`}
+                                                    >
+                                                        Milestones
+                                                    </button>
+                                                </nav>
+                                            </div>
+
+                                            {/* Tab Content */}
+                                            <div>
+                                                {scheduleTab === 'upcoming' && (
+                                                    <>
+                                                        <h2 className="text-xl font-semibold text-gray-900 mb-4">Next 7 Days</h2>
+                                                        {/* Upcoming Events Content */}
+                                                        <div className="space-y-4">
+                                                            <Card className="p-4 bg-white border border-gray-200">
+                                                                <div className="flex items-center justify-between">
+                                                                    <div className="flex items-center space-x-4">
+                                                                        <div className="w-2 h-2 bg-red-500 rounded-full"></div>
+                                                                        <div>
+                                                                            <h3 className="text-sm font-medium text-gray-900">IOI Deadline - Bathroom Remodel</h3>
+                                                                            <p className="text-xs text-gray-500 mt-1">Tomorrow at 5:00 PM</p>
                                                                         </div>
                                                                     </div>
-
-                                                                    {/* Description if available */}
-                                                                    {auction.description && (
-                                                                        <div className="mb-4">
-                                                                            <p className="text-sm text-gray-600 bg-gray-50 p-3 rounded-lg">
-                                                                                {auction.description}
-                                                                            </p>
-                                                                        </div>
-                                                                    )}
-
-                                                                    <div className="flex justify-end space-x-3">
-                                                                        <Button
-                                                                            onClick={() => router.push(`/auction/${auction.auction_id}`)}
-                                                                            className="w-full bg-[#0f172a] text-white hover:bg-[#1e293b] transition-colors duration-200 rounded-lg"
-                                                                        >
-                                                                            View Details
-                                                                        </Button>
-                                                                    </div>
-                                                                </CardContent>
+                                                                    <Badge variant="outline" className="text-red-600 border-red-200 bg-red-50 text-xs">Critical</Badge>
+                                                                </div>
                                                             </Card>
+                                                            <Card className="p-4 bg-white border border-gray-200">
+                                                                <div className="flex items-center justify-between">
+                                                                    <div className="flex items-center space-x-4">
+                                                                        <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
+                                                                        <div>
+                                                                            <h3 className="text-sm font-medium text-gray-900">Site Visit - Kitchen Renovation</h3>
+                                                                            <p className="text-xs text-gray-500 mt-1">Friday at 10:00 AM</p>
+                                                                        </div>
+                                                                    </div>
+                                                                    <Badge variant="outline" className="text-blue-600 border-blue-200 bg-blue-50 text-xs">Scheduled</Badge>
+                                                                </div>
+                                                            </Card>
+                                                        </div>
+                                                    </>
+                                                )}
+
+                                                {scheduleTab === 'deadlines' && (
+                                                    <>
+                                                        <h2 className="text-xl font-semibold text-gray-900 mb-4">Critical Deadlines</h2>
+                                                        {/* Deadlines Content */}
+                                                        <div className="space-y-6">
+                                                            {/* IOI Submission Deadline */}
+                                                            <Card className="p-6 bg-white border border-gray-200 shadow-sm">
+                                                                <div className="flex items-start justify-between">
+                                                                    <div className="flex-1">
+                                                                        <div className="flex items-center justify-between mb-2">
+                                                                            <h3 className="text-lg font-semibold text-gray-900">IOI Submission Deadline</h3>
+                                                                            <div className="text-right">
+                                                                                <p className="text-sm font-medium text-gray-900">2/19/2024</p>
+                                                                                <p className="text-sm text-gray-500">5:00 PM</p>
+                                                                            </div>
+                                                                        </div>
+                                                                        <p className="text-gray-600 mb-3">Bathroom Remodel - Flood Damage</p>
+                                                                        <div className="flex items-center space-x-3 mb-4">
+                                                                            <Badge className="bg-red-100 text-red-800 border-red-200">HIGH</Badge>
+                                                                            <span className="text-sm text-gray-600">IOI Deadline</span>
+                                                                        </div>
+                                                                        <p className="text-gray-700 mb-4">Submit Intent of Interest for bathroom renovation project</p>
+                                                                        <div className="flex space-x-3">
+                                                                            <Button variant="outline" size="sm">View Details</Button>
+                                                                            <Button size="sm" className="bg-blue-600 hover:bg-blue-700">Reschedule</Button>
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                            </Card>
+
+                                                            {/* LOI Response Due */}
+                                                            <Card className="p-6 bg-white border border-gray-200 shadow-sm">
+                                                                <div className="flex items-start justify-between">
+                                                                    <div className="flex-1">
+                                                                        <div className="flex items-center justify-between mb-2">
+                                                                            <h3 className="text-lg font-semibold text-gray-900">LOI Response Due</h3>
+                                                                            <div className="text-right">
+                                                                                <p className="text-sm font-medium text-gray-900">2/27/2024</p>
+                                                                                <p className="text-sm text-gray-500">11:59 PM</p>
+                                                                            </div>
+                                                                        </div>
+                                                                        <p className="text-gray-600 mb-3">Siding Replacement - Wind Damage</p>
+                                                                        <div className="flex items-center space-x-3 mb-4">
+                                                                            <Badge className="bg-orange-100 text-orange-800 border-orange-200">MEDIUM</Badge>
+                                                                            <span className="text-sm text-gray-600">LOI Deadline</span>
+                                                                        </div>
+                                                                        <p className="text-gray-700 mb-4">Letter of Intent response deadline</p>
+                                                                        <div className="flex space-x-3">
+                                                                            <Button variant="outline" size="sm">View Details</Button>
+                                                                            <Button size="sm" className="bg-blue-600 hover:bg-blue-700">Reschedule</Button>
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                            </Card>
+                                                        </div>
+                                                    </>
+                                                )}
+
+                                                {scheduleTab === 'visits' && (
+                                                    <>
+                                                        <h2 className="text-xl font-semibold text-gray-900 mb-4">Site Visits</h2>
+                                                        <div className="text-center py-8">
+                                                            <MapPin className="h-16 w-16 text-gray-400 mx-auto mb-4" />
+                                                            <p className="text-gray-500">No site visits scheduled</p>
+                                                        </div>
+                                                    </>
+                                                )}
+
+                                                {scheduleTab === 'milestones' && (
+                                                    <>
+                                                        <h2 className="text-xl font-semibold text-gray-900 mb-4">Project Milestones</h2>
+                                                        <div className="text-center py-8">
+                                                            <CheckCircle className="h-16 w-16 text-gray-400 mx-auto mb-4" />
+                                                            <p className="text-gray-500">No milestones scheduled</p>
+                                                        </div>
+                                                    </>
+                                                )}
+                                            </div>
+                                        </div>
+                                    ) : activeSection === 'analytics' ? (
+                                        <div className="space-y-6">
+                                            <div className="text-center py-12">
+                                                <TrendingUp className="h-16 w-16 text-gray-400 mx-auto mb-4" />
+                                                <h3 className="text-lg font-medium text-gray-900 mb-2">Analytics & Insights</h3>
+                                                <p className="text-gray-500">Performance metrics, earnings reports, and business insights will be displayed here.</p>
+                                            </div>
+                                        </div>
+                                    ) : activeSection === 'explore' ? (
+                                        <div className="space-y-6">
+                                            <div className="min-h-screen bg-gray-50 p-8">
+                                                {/* Explore page content placeholder */}
+                                                <div className="max-w-7xl mx-auto">
+                                                    <div className="flex items-center justify-between mb-6">
+                                                        <div className="flex-1">
+                                                            <input
+                                                                type="text"
+                                                                placeholder="Type to search"
+                                                                className="w-full max-w-md px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                                            />
+                                                        </div>
+                                                        <div className="flex gap-2">
+                                                            <Button variant="outline" size="sm">
+                                                                <Users className="h-4 w-4 mr-2" />
+                                                                Job fit
+                                                            </Button>
+                                                            <Button variant="outline" size="sm">
+                                                                <TrendingUp className="h-4 w-4 mr-2" />
+                                                                Trending
+                                                            </Button>
+                                                            <Button variant="outline" size="sm">
+                                                                <Clock className="h-4 w-4 mr-2" />
+                                                                Newest
+                                                            </Button>
+                                                            <Button variant="outline" size="sm">
+                                                                <DollarSign className="h-4 w-4 mr-2" />
+                                                                Most pay
+                                                            </Button>
+                                                            <Button variant="default" size="sm" className="bg-blue-600 hover:bg-blue-700">
+                                                                <Star className="h-4 w-4 mr-2" />
+                                                                Refer & earn
+                                                            </Button>
+                                                        </div>
+                                                    </div>
+
+                                                    {/* Empty state */}
+                                                    <div className="text-center py-16">
+                                                        <Compass className="h-24 w-24 text-gray-300 mx-auto mb-6" />
+                                                        <h3 className="text-2xl font-semibold text-gray-700 mb-3">Explore Opportunities</h3>
+                                                        <p className="text-gray-500 text-lg">New project listings will appear here</p>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    ) : activeSection === 'auctions' ? (
+                                            <>
+                                                {auctionLoading ? (
+                                                    <LoadingSkeleton />
+                                                ) : auctions?.length === 0 ? (
+                                                    <EmptyState
+                                                        icon={Users}
+                                                        title="No Active Auctions"
+                                                        description="There are currently no active auctions to display. Start a new claim to create an auction."
+                                                        actionLabel="Start New Claim"
+                                                        onAction={() => router.push("/start-claim")}
+                                                    />
+                                                ) : (
+                                                    <div className="grid gap-6 sm:gap-8 grid-cols-1 md:grid-cols-2 xl:grid-cols-3">
+                                                        {auctions?.map((auction) => (
+                                                            <AuctionCard
+                                                                key={auction.auction_id}
+                                                                title={auction.title}
+                                                                scope={auction.project_type}
+                                                                finalBid={auction.current_bid}
+                                                                totalBids={auction.bid_count}
+                                                                endedAt={auction.end_date}
+                                                                status="open"
+                                                                onViewDetails={() => router.push(`/auction/${auction.auction_id}`)}
+                                                            />
                                                         ))}
                                                     </div>
                                                 )}
@@ -682,76 +1352,29 @@ export default function DashboardPage() {
                                         ) : activeSection === 'closed-auctions' ? (
                                             <>
                                                 {closedAuctionLoading ? (
-                                                    <div className="flex justify-center items-center h-64">
-                                                        <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-[#0f172a]"></div>
-                                                    </div>
+                                                    <LoadingSkeleton />
                                                 ) : closedAuctions?.length === 0 ? (
-                                                    <div className="text-center py-12">
-                                                        <Archive className="w-12 h-12 mx-auto text-gray-400 mb-4" />
-                                                        <h3 className="text-lg font-medium text-gray-900 mb-2">No Closed Auctions</h3>
-                                                        <p className="text-gray-500 mb-4">There are no closed auctions to display.</p>
-                                                    </div>
+                                                    <EmptyState
+                                                        icon={Archive}
+                                                        title="No Closed Auctions"
+                                                        description="There are no closed auctions to display."
+                                                        actionLabel="Start New Claim"
+                                                        onAction={() => router.push("/start-claim")}
+                                                    />
                                                 ) : (
-                                                    <div className="space-y-4">
+                                                    <div className="grid gap-6 sm:gap-8 grid-cols-1 md:grid-cols-2 xl:grid-cols-3">
                                                         {closedAuctions?.map((auction) => (
-                                                            <Card key={auction.auction_id} className="hover:shadow-md transition-shadow duration-200 border border-gray-200 bg-white rounded-lg">
-                                                                <CardContent className="p-6">
-                                                                    <div className="flex justify-between items-start mb-4">
-                                                                        <div>
-                                                                            <h3 className="text-lg font-semibold text-gray-900">{auction.title}</h3>
-                                                                            <p className="text-sm text-gray-500">{auction.project_type}</p>
-                                                                        </div>
-                                                                        <Badge variant="secondary">Closed</Badge>
-                                                                    </div>
-
-                                                                    <div className="grid grid-cols-2 gap-4 mb-4">
-                                                                        <div className="space-y-2">
-                                                                            <div className="flex items-center text-sm">
-                                                                                <DollarSign className="w-4 h-4 mr-2 text-gray-500" />
-                                                                                <span className="text-gray-600">Final Bid: <span className="font-medium">${auction.current_bid.toFixed(2)}</span></span>
-                                                                            </div>
-                                                                            <div className="flex items-center text-sm">
-                                                                                <Users className="w-4 h-4 mr-2 text-gray-500" />
-                                                                                <span className="text-gray-600">{auction.bid_count} total bids</span>
-                                                                            </div>
-                                                                        </div>
-                                                                        <div className="space-y-2">
-                                                                            <div className="flex items-center text-sm">
-                                                                                <Calendar className="w-4 h-4 mr-2 text-gray-500" />
-                                                                                <span className="text-gray-600">Ended: {new Date(auction.end_date).toLocaleDateString()}</span>
-                                                                            </div>
-                                                                            {auction.bid_count > 0 ? (
-                                                                                <div className="flex items-center text-sm">
-                                                                                    <Trophy className="w-4 h-4 mr-2 text-gray-500" />
-                                                                                    <span className="text-gray-600">Winning Bidder: {auction.winning_bidder || 'Processing...'}</span>
-                                                                                </div>
-                                                                            ) : (
-                                                                                <div className="flex items-center text-sm text-red-600">
-                                                                                    <AlertCircle className="w-4 h-4 mr-2" />
-                                                                                    <span>No bids received</span>
-                                                                                </div>
-                                                                            )}
-                                                                        </div>
-                                                                    </div>
-
-                                                                    <div className="flex justify-end space-x-3">
-                                                                        <Button
-                                                                            onClick={() => router.push(`/auction/${auction.auction_id}`)}
-                                                                            className="w-full bg-[#0f172a] text-white hover:bg-[#1e293b] transition-colors duration-200 rounded-lg"
-                                                                        >
-                                                                            View Details
-                                                                        </Button>
-                                                                        <Button
-                                                                            onClick={() => handleClosedAuctionDelete(auction)}
-                                                                            variant="ghost"
-                                                                            size="icon"
-                                                                            className="text-gray-400 hover:text-red-500 hover:bg-red-50 transition-all duration-200 rounded-full"
-                                                                        >
-                                                                            <Trash2 className="h-4 w-4" />
-                                                                        </Button>
-                                                                    </div>
-                                                                </CardContent>
-                                                            </Card>
+                                                            <AuctionCard
+                                                                key={auction.auction_id}
+                                                                title={auction.title}
+                                                                scope={auction.project_type}
+                                                                finalBid={auction.current_bid}
+                                                                totalBids={auction.bid_count}
+                                                                endedAt={auction.end_date}
+                                                                status="closed"
+                                                                onViewDetails={() => router.push(`/auction/${auction.auction_id}`)}
+                                                                onDelete={() => handleClosedAuctionDelete(auction)}
+                                                            />
                                                         ))}
                                                     </div>
                                                 )}
@@ -759,94 +1382,35 @@ export default function DashboardPage() {
                                         ) : activeSection === 'claims' ? (
                                             <>
                                                 {isLoading ? (
-                                                    <div className="flex justify-center items-center h-64">
-                                                        <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-[#0f172a]"></div>
-                                                    </div>
+                                                    <LoadingSkeleton />
                                                 ) : claims?.length === 0 ? (
-                                                    <div className="text-center py-12">
-                                                        <FileText className="w-12 h-12 mx-auto text-gray-400 mb-4" />
-                                                        <h3 className="text-lg font-medium text-gray-900 mb-2">No Claims Found</h3>
-                                                        <p className="text-gray-500 mb-4">You haven't filed any claims yet.</p>
-                                                        <Button
-                                                            onClick={() => router.push("/start-claim")}
-                                                            className="bg-[#0f172a] hover:bg-[#1e293b] text-white"
-                                                        >
-                                                            Start New Claim
-                                                        </Button>
-                                                    </div>
+                                                    <EmptyState
+                                                        icon={FileText}
+                                                        title="No Claims Found"
+                                                        description="You haven't filed any claims yet. Start a new claim to get started with your recovery process."
+                                                        actionLabel="Start New Claim"
+                                                        onAction={() => router.push("/start-claim")}
+                                                    />
                                                 ) : (
-                                                    <div className="grid gap-4">
+                                                    <div className="grid gap-4 sm:gap-6 grid-cols-1 sm:grid-cols-2 md:grid-cols-3">
                                                         {claims?.map((claim: Claim) => (
-                                                            <Card key={claim.id} className="hover:shadow-md transition-shadow duration-200 border border-gray-200 bg-white rounded-lg">
-                                                                <CardContent className="p-6">
-                                                                    <div className="flex justify-between items-start mb-4">
-                                                                        <div>
-                                                                            <h3 className="text-lg font-semibold text-gray-900">{claim.street}</h3>
-                                                                            <p className="text-sm text-gray-500 mt-1">
-                                                                                {claim.insuranceProvider === 'statefarm' ? 'State Farm' : claim.insuranceProvider || 'No provider specified'}
-                                                                            </p>
-                                                                        </div>
-                                                                        <Badge variant="secondary" className={getStatusColor(claim.projectType)}>
-                                                                            {claim.projectType}
-                                                                        </Badge>
-                                                                    </div>
-
-                                                                    <div className="grid grid-cols-2 gap-4 mb-4">
-                                                                        <div className="space-y-2">
-                                                                            <div className="flex items-center text-sm">
-                                                                                <Calendar className="w-4 h-4 mr-2 text-gray-500" />
-                                                                                <span className="text-gray-600">Filed: {new Date(claim.createdAt).toLocaleDateString()}</span>
-                                                                            </div>
-                                                                            {claim.updatedAt && (
-                                                                                <div className="flex items-center text-sm">
-                                                                                    <FileText className="w-4 h-4 mr-2 text-gray-500" />
-                                                                                    <span className="text-gray-600">Last Updated: {new Date(claim.updatedAt).toLocaleDateString()}</span>
-                                                                                </div>
-                                                                            )}
-                                                                        </div>
-                                                                        <div className="space-y-2">
-                                                                            {claim.needsAdjuster && (
-                                                                                <div className="flex items-center text-sm">
-                                                                                    <LayoutIcon className="w-4 h-4 mr-2 text-gray-500" />
-                                                                                    <span className="text-gray-600">Needs Adjuster: {claim.needsAdjuster}</span>
-                                                                                </div>
-                                                                            )}
-                                                                            {claim.designPlan && (
-                                                                                <div className="flex items-center text-sm">
-                                                                                    <FileText className="w-4 h-4 mr-2 text-gray-500" />
-                                                                                    <span className="text-gray-600">Design Plan: {claim.designPlan}</span>
-                                                                                </div>
-                                                                            )}
-                                                                        </div>
-                                                                    </div>
-
-                                                                    <div className="flex justify-end space-x-3">
-                                                                        {claim.id && (
-                                                                            <Button
-                                                                                variant="default"
-                                                                                onClick={() => router.push(`/start-claim/create-restor/${claim.id}`)}
-                                                                                className="bg-[#0f172a] hover:bg-[#1e293b] text-white"
-                                                                            >
-                                                                                Create Restoration
-                                                                            </Button>
-                                                                        )}
-                                                                        <Button
-                                                                            onClick={() => router.push(`/claim/${claim.id}`)}
-                                                                            className="w-full bg-[#0f172a] text-white hover:bg-[#1e293b] transition-colors duration-200 rounded-lg"
-                                                                        >
-                                                                            View Details
-                                                                        </Button>
-                                                                        <Button
-                                                                            onClick={() => handleDeleteClick(claim)}
-                                                                            variant="ghost"
-                                                                            size="icon"
-                                                                            className="text-gray-400 hover:text-red-500 hover:bg-red-50 transition-all duration-200 rounded-full"
-                                                                        >
-                                                                            Delete
-                                                                        </Button>
-                                                                    </div>
-                                                                </CardContent>
-                                                            </Card>
+                                                            <ClaimCard
+                                                                key={claim.id}
+                                                                id={claim.id}
+                                                                street={claim.street}
+                                                                city={claim.city}
+                                                                state={claim.state}
+                                                                zipCode={claim.zipCode}
+                                                                projectType={claim.projectType}
+                                                                designPlan={claim.designPlan}
+                                                                needsAdjuster={claim.needsAdjuster}
+                                                                insuranceProvider={claim.insuranceProvider === 'statefarm' ? 'State Farm' : claim.insuranceProvider}
+                                                                createdAt={claim.createdAt}
+                                                                updatedAt={claim.updatedAt}
+                                                                onViewDetails={() => router.push(`/claim/${claim.id}`)}
+                                                                onCreateRestoration={() => router.push(`/start-claim/create-restor/${claim.id}`)}
+                                                                onDelete={() => handleDeleteClick(claim)}
+                                                            />
                                                         ))}
                                                     </div>
                                                 )}
@@ -900,8 +1464,7 @@ export default function DashboardPage() {
                                                 </div>
                                             </>
                                         )}
-                                    </CardContent>
-                                </Card>
+                                </motion.div>
                             </div>
                         </div>
                     </div>

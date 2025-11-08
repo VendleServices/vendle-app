@@ -10,8 +10,8 @@ export default function LoginPage() {
 
   useEffect(() => {
     if (!isLoading && user) {
-      // Redirect to dashboard if user is already logged in
-      router.push('/dashboard')
+      // Everyone goes to /home after login, regardless of user type
+      router.push('/home')
     }
   }, [user, isLoading, router])
 

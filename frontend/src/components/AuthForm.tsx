@@ -61,7 +61,7 @@ const AuthForm = ({ type }: Props) => {
             let errorMessage;
             let description;
 
-            if (type === 'login') {
+            if (type === 'login' || type === 'contractorlogin') {
                 errorMessage = await login(email, password);
                 description = !errorMessage ? 'Successfully logged in!' : "Failed to log in";
             } else if (type === 'signup') {
@@ -77,8 +77,9 @@ const AuthForm = ({ type }: Props) => {
                 });
                 
                 // Wait longer for the auth state and cookies to sync properly, then redirect
-                setTimeout(() => {
-                    // Use window.location.href as fallback to ensure navigation works
+                setTimeout(async () => {
+                    // Everyone goes to /home first, regardless of user type
+                    // The detailed dashboards are accessed via navbar
                     window.location.href = '/home';
                 }, 500);
             } else {

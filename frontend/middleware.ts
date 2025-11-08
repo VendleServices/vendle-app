@@ -64,7 +64,9 @@ export async function updateSession(request: NextRequest) {
       '/adjust-report',
       '/auction',
       '/start-claim/create-restor',
-      '/smart-bid-comparison'
+      '/smart-bid-comparison',
+      '/home',
+      '/test'
     ]
     
     // Check if the current path is a protected route
@@ -96,9 +98,9 @@ export async function updateSession(request: NextRequest) {
     
     // If user is logged in and trying to access auth routes
     if (user && isAuthRoute) {
-        // Redirect to dashboard
+        // Everyone goes to /home when logged in, regardless of user type
         const url = request.nextUrl.clone()
-        url.pathname = '/dashboard'
+        url.pathname = '/home'
         return NextResponse.redirect(url)
     }
 
