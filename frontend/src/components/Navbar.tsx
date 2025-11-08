@@ -6,65 +6,104 @@ import { Button } from "@/components/ui/button";
 import LogOutButton from "@/components/LogOutButton";
 import { useAuth } from "@/contexts/AuthContext";
 import vendleLogo from "../assets/vendle_logo.jpeg";
+import { Home, Search, User, Bell, LayoutDashboard, LogOut } from "lucide-react";
+import { usePathname } from "next/navigation";
 
-const Navbar = () => {
-  const { user, isLoggedIn, isLoading } = useAuth();
-  
-  // Show login buttons if user is not logged in or still loading
-  const showLoginButtons = !isLoggedIn || isLoading;
+interface NavbarProps {
+  onProtectedAction?: () => void;
+}
 
+const Navbar = ({ onProtectedAction }: NavbarProps = {}) => {
+  const { user, isLoggedIn, isLoading, logout } = useAuth();
+  const pathname = usePathname();
+
+  const handleProtectedClick = (e: React.MouseEvent, href: string) => {
+    if (!isLoggedIn && onProtectedAction) {
+      e.preventDefault();
+      onProtectedAction();
+    }
+  };
+
+  const handleLogout = async () => {
+    await logout();
+  };
+
+  // Always show left sidebar
   return (
-    <nav className="fixed top-0 left-0 right-0 z-50 flex justify-center p-4">
-      <div className="flex items-center justify-between w-full max-w-6xl h-16 px-6 bg-white border border-gray-200 rounded-2xl shadow-sm">
-        <Link href={isLoggedIn ? "/home" : "/"} className="flex items-center space-x-2">
-          <Image src={vendleLogo} alt="Vendle Logo" width={28} height={28} className="h-7 w-7" />
-          <span className="text-lg font-semibold text-black">Vendle</span>
+    <nav className="fixed left-0 top-0 h-screen w-24 bg-white border-r border-gray-200 flex flex-col items-center py-8 z-50">
+      {/* Logo */}
+      <Link href="/explore" className="mb-12">
+        <Image src={vendleLogo} alt="Vendle Logo" width={56} height={56} className="h-14 w-14 rounded-lg" />
+      </Link>
+
+      {/* Navigation Items - Centered vertically */}
+      <div className="flex-1 flex flex-col items-center justify-center space-y-8">
+        {/* Explore */}
+        <Link
+          href="/explore"
+          className={`flex flex-col items-center gap-2 p-3 rounded-xl transition-all ${
+            pathname === '/explore' ? 'bg-indigo-50 scale-105' : 'hover:bg-gray-50 hover:scale-105'
+          }`}
+        >
+          <Search className={`w-7 h-7 ${pathname === '/explore' ? 'text-indigo-600' : 'text-gray-600'}`} />
+          <span className={`text-xs font-medium ${pathname === '/explore' ? 'text-indigo-600' : 'text-gray-600'}`}>
+            Explore
+          </span>
         </Link>
 
-        <div className="hidden md:flex items-center space-x-8">
-          {isLoggedIn && user?.user_type === "contractor" && (
-            <Link href="/dashboard" className="text-gray-700 hover:text-black transition-colors">Dashboard</Link>
-          )}
-          {isLoggedIn && user?.user_type === "contractor" && (
-            <Link href="/contractor-projects" className="text-gray-700 hover:text-black transition-colors">Projects</Link>
-          )}
-          {isLoggedIn && user?.user_type === "contractor" && (
-            <Link href="/reviews" className="text-gray-700 hover:text-black transition-colors">Reviews</Link>
-          )}
-          {isLoggedIn && user?.user_type === "homeowner" && (
-            <Link href="/home" className="text-gray-700 hover:text-black transition-colors">Home</Link>
-          )}
-          {isLoggedIn && user?.user_type === "homeowner" && (
-            <Link href="/dashboard" className="text-gray-700 hover:text-black transition-colors">Dashboard</Link>
-          )}
-          {isLoggedIn && user?.user_type === "homeowner" && (
-              <Link href="/start-claim" className="text-gray-700 hover:text-black transition-colors">Start Claim</Link>
-          )}
-          {isLoggedIn && user?.user_type === "homeowner" && (
-              <Link href="/test" className="text-gray-700 hover:text-black transition-colors">Test</Link>
-          )}
-        </div>
+        {/* Home */}
+        <Link
+          href="/home"
+          onClick={(e) => handleProtectedClick(e, '/home')}
+          className={`flex flex-col items-center gap-2 p-3 rounded-xl transition-all ${
+            pathname === '/home' ? 'bg-indigo-50 scale-105' : 'hover:bg-gray-50 hover:scale-105'
+          }`}
+        >
+          <Home className={`w-7 h-7 ${pathname === '/home' ? 'text-indigo-600' : 'text-gray-600'}`} />
+          <span className={`text-xs font-medium ${pathname === '/home' ? 'text-indigo-600' : 'text-gray-600'}`}>
+            Home
+          </span>
+        </Link>
 
-        <div className="flex items-center space-x-4">
-          {showLoginButtons ? (
-            // ALWAYS show login buttons unless we're definitely logged in
-            <>
-              <Link href="/">
-                <Button variant="outline" className="text-gray-600 hover:text-gray-900 border-gray-200">
-                  Log In
-                </Button>
-              </Link>
-              <Link href="/signup">
-                <Button className="bg-[#1a365d] hover:bg-[#112240] text-white">
-                  Get Started
-                </Button>
-              </Link>
-            </>
-          ) : (
-            // Only show logout when definitely logged in
-            <LogOutButton />
-          )}
-        </div>
+        {/* Dashboard */}
+        <Link
+          href="/dashboard"
+          onClick={(e) => handleProtectedClick(e, '/dashboard')}
+          className={`flex flex-col items-center gap-2 p-3 rounded-xl transition-all ${
+            pathname === '/dashboard' ? 'bg-indigo-50 scale-105' : 'hover:bg-gray-50 hover:scale-105'
+          }`}
+        >
+          <LayoutDashboard className={`w-7 h-7 ${pathname === '/dashboard' ? 'text-indigo-600' : 'text-gray-600'}`} />
+          <span className={`text-xs font-medium ${pathname === '/dashboard' ? 'text-indigo-600' : 'text-gray-600'}`}>
+            Dashboard
+          </span>
+        </Link>
+
+        {/* Profile */}
+        <Link
+          href="/profile"
+          onClick={(e) => handleProtectedClick(e, '/profile')}
+          className={`flex flex-col items-center gap-2 p-3 rounded-xl transition-all ${
+            pathname === '/profile' ? 'bg-indigo-50 scale-105' : 'hover:bg-gray-50 hover:scale-105'
+          }`}
+        >
+          <User className={`w-7 h-7 ${pathname === '/profile' ? 'text-indigo-600' : 'text-gray-600'}`} />
+          <span className={`text-xs font-medium ${pathname === '/profile' ? 'text-indigo-600' : 'text-gray-600'}`}>
+            Profile
+          </span>
+        </Link>
+      </div>
+
+      {/* Bottom Section */}
+      <div className="flex flex-col items-center space-y-4 w-full px-3">
+        {/* Modern Logout Button */}
+        <button
+          onClick={handleLogout}
+          className="w-full p-3 flex flex-col items-center gap-1 rounded-xl bg-gradient-to-br from-red-50 to-red-100 hover:from-red-100 hover:to-red-200 transition-all hover:scale-105 group"
+        >
+          <LogOut className="w-5 h-5 text-red-600 group-hover:text-red-700" />
+          <span className="text-xs font-medium text-red-600 group-hover:text-red-700">Logout</span>
+        </button>
       </div>
     </nav>
   );
