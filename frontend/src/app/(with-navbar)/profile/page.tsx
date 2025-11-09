@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation"
 import { useAuth } from "@/contexts/AuthContext"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { User, Mail, Calendar, Shield } from "lucide-react"
+import SplashScreen from "@/components/SplashScreen"
 
 export default function ProfilePage() {
   const { user, isLoggedIn, isLoading } = useAuth()
@@ -17,14 +18,7 @@ export default function ProfilePage() {
   }, [isLoggedIn, isLoading, router])
 
   if (isLoading) {
-    return (
-      <div className="min-h-screen bg-gray-50 pl-24 flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600 mx-auto"></div>
-          <p className="mt-4 text-gray-600">Loading...</p>
-        </div>
-      </div>
-    )
+    return <SplashScreen />
   }
 
   if (!isLoggedIn) {
@@ -32,7 +26,7 @@ export default function ProfilePage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 pl-24">
+    <div className="min-h-screen bg-gray-50 pl-32">
       <div className="max-w-4xl mx-auto px-8 py-8">
         {/* Header */}
         <div className="mb-8">

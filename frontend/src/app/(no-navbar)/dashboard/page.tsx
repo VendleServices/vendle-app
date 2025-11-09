@@ -18,6 +18,7 @@ import { AuctionCard } from "@/components/AuctionCard";
 import { ClaimCard } from "@/components/ClaimCard";
 import { EmptyState } from "@/components/EmptyState";
 import { LoadingSkeleton } from "@/components/LoadingSkeleton";
+import SplashScreen from "@/components/SplashScreen";
 import { formatCurrency, formatDate } from "@/lib/formatting";
 import {
     AlertDialog,
@@ -496,14 +497,7 @@ export default function DashboardPage() {
     }, [isLoggedIn, authLoading, router]);
 
     if (authLoading) {
-        return (
-            <div className="min-h-screen flex items-center justify-center bg-gray-50">
-                <div className="text-center">
-                    <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
-                    <p className="mt-4 text-gray-600">Loading...</p>
-                </div>
-            </div>
-        );
+        return <SplashScreen />;
     }
 
     return (

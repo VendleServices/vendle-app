@@ -5,9 +5,14 @@ import QueryProvider from "@/app/QueryProvider";
 import { Toaster } from "@/components/ui/sonner";
 
 export const metadata: Metadata = {
-  title: "Vendle - Home Recovery Hub",
+  title: "Vendle",
   description: "Manage your home recovery projects with ease",
   authors: [{ name: "Vendle" }],
+  icons: {
+    icon: "/vendle_logo.jpg",
+    shortcut: "/vendle_logo.jpg",
+    apple: "/vendle_logo.jpg",
+  },
   openGraph: {
     images: ["/og-image.png"]
   }
