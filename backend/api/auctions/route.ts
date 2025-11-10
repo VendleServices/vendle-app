@@ -1,10 +1,27 @@
 import { Router } from 'express';
 import { prisma } from '../../db/prisma.js';
+import multer from 'multer';
+import { processClaimDocument } from "../../utils/processClaimDocument";
+import OpenAI from "openai";
+
+// configure multer to store uploaded files in memory as a buffer
+const storage = multer.memoryStorage();
+const upload = multer({ storage });
+
+const openai = new OpenAI({
+  apiKey: process.env.OPENAI_API_KEY,
+});
 
 const router = Router();
 
-router.get('/', async (req, res) => {
+router.get('/', async (req: any, res) => {
   try {
+    const user = req?.user;
+
+    if (!user) {
+      return res.status(401).json({ error: "Not authorized "});
+    }
+
     const auctions = await prisma.auction.findMany({
       include: {
         user: true,
@@ -40,12 +57,28 @@ router.get('/', async (req, res) => {
 });
 
 // POST /api/auctions - Create new auction
-router.post('/', async (req: any, res) => {
+router.post('/', upload.single('file'), async (req: any, res) => {
   try {
     const user = req?.user;
 
     if (!user) {
       return res.status(401).json({ error: "Not authorized "});
+    }
+
+    const file: File = req.file;
+
+    let aiClaimSummary: any = "";
+
+    if (file) {
+      aiClaimSummary = await processClaimDocument(file);
+      aiClaimSummary = typeof aiClaimSummary === "object" ? aiClaimSummary?.document?.text : aiClaimSummary;
+
+      const response = await openai.responses.create({
+        model: "gpt-5",
+        input: `Summarize the following information into a short paragraph of 120 words or less: ${aiClaimSummary}`,
+      });
+
+      aiClaimSummary = response?.output_text;
     }
 
     const auctionData = req.body;
@@ -56,26 +89,27 @@ router.post('/', async (req: any, res) => {
         auctionEndDate: new Date(auctionData.auction_end_date),
         claimId: auctionData.claim_id,
         costBasis: auctionData.cost_basis || null,
-        currentBid: auctionData.starting_bid,
-        depreciation: auctionData.depreciation || null,
+        currentBid: parseFloat(auctionData.starting_bid),
+        depreciation: parseFloat(auctionData.depreciation) || null,
         description: auctionData.description || '',
         fundingSource: auctionData.funding_source || null,
-        hasDeductibleFunds: auctionData.has_deductible_funds || false,
+        hasDeductibleFunds: auctionData?.has_deductible_funds === "true" || false,
         insuranceEstimatePdf: auctionData.insuranceEstimatePdf || '',
-        materials: auctionData.materials || null,
-        needs3rdPartyAdjuster: auctionData.needs_3rd_party_adjuster || false,
-        overheadAndProfit: auctionData.overhead_and_profit || null,
+        materials: parseFloat(auctionData.materials) || null,
+        needs3rdPartyAdjuster: auctionData?.needs_3rd_party_adjuster === "true" || false,
+        overheadAndProfit: parseFloat(auctionData.overhead_and_profit) || null,
         reconstructionType: auctionData.reconstruction_type || null,
-        salesTaxes: auctionData.sales_taxes || null,
-        startingBid: auctionData.starting_bid,
+        salesTaxes: parseFloat(auctionData.sales_taxes) || null,
+        startingBid: parseFloat(auctionData.starting_bid),
         status: 'open',
         title: auctionData.title,
-        totalJobValue: auctionData.total_job_value || null,
+        totalJobValue: parseFloat(auctionData.total_job_value) || null,
         userId: user.id,
+        aiSummary: aiClaimSummary as string,
       }
     });
     
-    return res.status(201).json({ auction});
+    return res.status(201).json({ auction });
   } catch (error) {
     console.error('Error creating auction:', error);
     return res.status(500).json({ status: 'error', message: 'Failed to create auction' });
