@@ -102,9 +102,13 @@ export default function DashboardPage() {
     const searchParams = useSearchParams();
     const queryClient = useQueryClient();
     const { user, isLoggedIn, isLoading: authLoading, logout } = useAuth();
+    const isContractor = user?.user_type === 'contractor';
+    const isHomeowner = user?.user_type === 'homeowner' || !isContractor;
+    
     const [auctions, setAuctions] = useState<Auction[]>([]);
     const [auctionLoading, setAuctionLoading] = useState(false);
     
+    // Default to 'auctions' for contractors, 'claims' for homeowners
     const [activeSection, setActiveSection] = useState<'home' | 'schedule' | 'analytics' | 'reviews' | 'auctions' | 'closed-auctions' | 'claims' | 'explore'>('claims');
     const [scheduleTab, setScheduleTab] = useState<'upcoming' | 'deadlines' | 'visits' | 'milestones'>('upcoming');
     const [sidebarExpanded, setSidebarExpanded] = useState(true);
@@ -461,6 +465,24 @@ export default function DashboardPage() {
         }
     };
 
+    // Set default section based on user type when user loads
+    useEffect(() => {
+        if (!authLoading && user && !searchParams.get('tab')) {
+            if (isContractor) {
+                setActiveSection('auctions');
+            } else {
+                setActiveSection('claims');
+            }
+        }
+    }, [authLoading, user, isContractor, searchParams]);
+
+    // Redirect contractors away from claims section
+    useEffect(() => {
+        if (!authLoading && isContractor && activeSection === 'claims') {
+            setActiveSection('auctions');
+        }
+    }, [authLoading, isContractor, activeSection]);
+
     useEffect(() => {
         const tab = searchParams.get('tab');
         if (tab && ['auctions', 'claims', 'reviews', 'closed-auctions'].includes(tab)) {
@@ -687,18 +709,21 @@ export default function DashboardPage() {
                                             {sidebarExpanded && "Closed Auctions"}
                                         </Button>
 
-                                        <Button
-                                            variant="ghost"
-                                            className={`w-full ${sidebarExpanded ? 'justify-start' : 'justify-center'} h-9 text-xs ${
-                                                activeSection === 'claims' 
-                                                    ? 'bg-[#1e293b] text-white hover:bg-[#1e293b]' 
-                                                    : 'text-gray-200 hover:bg-[#1e293b] hover:text-white'
-                                            }`}
-                                            onClick={() => setActiveSection('claims')}
-                                        >
-                                            <FileText className={`w-3 h-3 ${sidebarExpanded ? 'mr-2' : ''}`} />
-                                            {sidebarExpanded && "Claims"}
-                                        </Button>
+                                        {/* Only show Claims for homeowners */}
+                                        {!isContractor && (
+                                            <Button
+                                                variant="ghost"
+                                                className={`w-full ${sidebarExpanded ? 'justify-start' : 'justify-center'} h-9 text-xs ${
+                                                    activeSection === 'claims' 
+                                                        ? 'bg-[#1e293b] text-white hover:bg-[#1e293b]' 
+                                                        : 'text-gray-200 hover:bg-[#1e293b] hover:text-white'
+                                                }`}
+                                                onClick={() => setActiveSection('claims')}
+                                            >
+                                                <FileText className={`w-3 h-3 ${sidebarExpanded ? 'mr-2' : ''}`} />
+                                                {sidebarExpanded && "Claims"}
+                                            </Button>
+                                        )}
                                     </>
                                 )}
 

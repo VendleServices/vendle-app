@@ -58,11 +58,14 @@ export default function ContractSigningModal({
         description: 'You can now view the full job details'
       });
 
-      // Wait a moment before closing and showing job details
+      // Close modal and trigger success modal
       setTimeout(() => {
-        onContractSigned();
         onClose();
-      }, 1500);
+        // Small delay to allow modal close animation
+        setTimeout(() => {
+          onContractSigned();
+        }, 300);
+      }, 1000);
 
     } catch (error) {
       console.error('Error signing contract:', error);

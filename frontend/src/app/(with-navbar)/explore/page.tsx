@@ -1,6 +1,7 @@
 "use client"
 
 import { useState } from "react"
+import { useRouter } from "next/navigation"
 import { useAuth } from "@/contexts/AuthContext"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardFooter, CardHeader } from "@/components/ui/card"
@@ -15,6 +16,7 @@ import {
 } from "@/components/ui/select"
 import LoginModal from "@/components/LoginModal"
 import ContractSigningModal from "@/components/ContractSigningModal"
+import SuccessModal from "@/components/SuccessModal"
 import {
   Search,
   MapPin,
@@ -24,9 +26,11 @@ import {
 import { mockJobs, formatPrice, formatLocation, getTimeAgo, type JobPosting } from "@/data/mockJobs"
 
 export default function ExplorePage() {
+  const router = useRouter()
   const { isLoggedIn } = useAuth()
   const [showLoginModal, setShowLoginModal] = useState(false)
   const [showContractModal, setShowContractModal] = useState(false)
+  const [showSuccessModal, setShowSuccessModal] = useState(false)
   const [selectedJob, setSelectedJob] = useState<JobPosting | null>(null)
   const [searchQuery, setSearchQuery] = useState("")
   const [sortBy, setSortBy] = useState("newest")
@@ -41,7 +45,18 @@ export default function ExplorePage() {
   }
 
   const handleContractSigned = () => {
-    console.log('Contract signed for job:', selectedJob?.id)
+    // Show success modal after contract is signed
+    setShowSuccessModal(true)
+  }
+
+  const handleContinueToProject = () => {
+    if (selectedJob) {
+      // Redirect to project details page
+      router.push(`/project/${selectedJob.id}`)
+      // Reset state
+      setShowSuccessModal(false)
+      setSelectedJob(null)
+    }
   }
 
   return (
@@ -49,7 +64,7 @@ export default function ExplorePage() {
       {/* Main Layout */}
       <div className="flex min-h-screen bg-muted/30">
         {/* Main Content */}
-        <main className="flex-1 pl-24">
+        <main className="flex-1 pl-32">
           <div className="mx-auto max-w-7xl px-6 py-8 lg:px-8 lg:py-10">
             {/* Header */}
             <div className="mb-8 flex flex-col gap-6 sm:flex-row sm:items-start sm:justify-between">
@@ -63,7 +78,7 @@ export default function ExplorePage() {
               <div className="flex items-center gap-2">
                 <span className="text-sm text-muted-foreground">Sort by</span>
                 <Select value={sortBy} onValueChange={setSortBy}>
-                  <SelectTrigger className="w-[180px] rounded-lg border-border">
+                  <SelectTrigger className="w-[180px] rounded-lg border-border focus:ring-0 focus:ring-offset-0">
                     <SelectValue placeholder="Sort by" />
                   </SelectTrigger>
                   <SelectContent>
@@ -179,6 +194,15 @@ export default function ExplorePage() {
           jobId={selectedJob.id}
           jobTitle={selectedJob.title}
           onContractSigned={handleContractSigned}
+        />
+      )}
+
+      {/* Success Modal */}
+      {selectedJob && (
+        <SuccessModal
+          isOpen={showSuccessModal}
+          onContinue={handleContinueToProject}
+          projectTitle={selectedJob.title}
         />
       )}
     </>

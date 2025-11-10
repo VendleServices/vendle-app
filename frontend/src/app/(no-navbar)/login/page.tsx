@@ -3,6 +3,7 @@ import { useEffect } from "react"
 import { useRouter } from "next/navigation"
 import { useAuth } from "@/contexts/AuthContext"
 import AuthForm from "@/components/AuthForm"
+import SplashScreen from "@/components/SplashScreen"
 
 export default function LoginPage() {
   const { user, isLoading } = useAuth()
@@ -16,14 +17,7 @@ export default function LoginPage() {
   }, [user, isLoading, router])
 
   if (isLoading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-100">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
-          <p className="mt-4 text-gray-600">Loading...</p>
-        </div>
-      </div>
-    )
+    return <SplashScreen />
   }
 
   // If user is not logged in, show login page
