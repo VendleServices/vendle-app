@@ -377,27 +377,6 @@ export default function DashboardPage() {
                                     {sidebarExpanded ? <ChevronLeft className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
                                 </Button>
                             </div>
-                            
-                            {/* Quick Stats */}
-                            {sidebarExpanded && (
-                                <div className="mb-4 p-3 bg-[#1e293b] rounded-lg">
-                                    <h3 className="text-white text-xs font-medium mb-2">Quick Stats</h3>
-                                    <div className="space-y-1">
-                                        <div className="flex justify-between text-white text-xs">
-                                            <span>Active Claims</span>
-                                            <span>{claims?.filter((c: Claim) => c.id === 'in-progress')?.length}</span>
-                                        </div>
-                                        <div className="flex justify-between text-white text-xs">
-                                            <span>Active Auctions</span>
-                                            <span>{auctions?.length}</span>
-                                        </div>
-                                        <div className="flex justify-between text-white text-xs">
-                                            <span>Completed</span>
-                                            <span>{claims?.filter((c: Claim)=> c.id === 'completed')?.length}</span>
-                                        </div>
-                                    </div>
-                                </div>
-                            )}
 
                             <div className="space-y-1 mb-8">
                                 {/* CONTRACTOR DASHBOARD - Custom Navigation */}
