@@ -19,7 +19,6 @@ import { ClaimCard } from "@/components/ClaimCard";
 import { EmptyState } from "@/components/EmptyState";
 import { LoadingSkeleton } from "@/components/LoadingSkeleton";
 import SplashScreen from "@/components/SplashScreen";
-import { formatCurrency, formatDate } from "@/lib/formatting";
 import {
     AlertDialog,
     AlertDialogAction,
