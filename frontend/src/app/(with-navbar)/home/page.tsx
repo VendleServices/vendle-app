@@ -51,6 +51,25 @@ interface Auction {
   winning_bidder?: string;
 }
 
+interface HomeownerProject {
+  id: string;
+  claimId: string;
+  title: string;
+  address: string;
+  city: string;
+  state: string;
+  projectType: string;
+  contractValue: number;
+  status: 'active' | 'completed' | 'pending';
+  startDate: string;
+  expectedCompletion: string;
+  progress: number;
+  contractorName: string;
+  contractorCompany?: string;
+  milestonesCompleted: number;
+  totalMilestones: number;
+}
+
 interface Job {
   id: string;
   contractId: string;
@@ -83,6 +102,12 @@ export default function HomePage() {
   const [contractorClosedAuctionLoading, setContractorClosedAuctionLoading] = useState(false);
   const [myJobs, setMyJobs] = useState<Job[]>([]);
   const [jobsLoading, setJobsLoading] = useState(false);
+
+  // Homeowner tab state
+  const [homeownerTab, setHomeownerTab] = useState<'my-projects' | 'live-auctions' | 'schedule'>('my-projects');
+  const [homeownerScheduleTab, setHomeownerScheduleTab] = useState<'upcoming' | 'deadlines' | 'visits' | 'milestones'>('upcoming');
+  const [homeownerProjects, setHomeownerProjects] = useState<HomeownerProject[]>([]);
+  const [homeownerProjectsLoading, setHomeownerProjectsLoading] = useState(false);
 
   // Redirect if not authenticated
   useEffect(() => {
@@ -170,6 +195,65 @@ export default function HomePage() {
     ];
   }
 
+  const getMockHomeownerProjects = (): HomeownerProject[] => {
+    return [
+      {
+        id: "project-1",
+        claimId: "claim-1",
+        title: "Water Damage Restoration",
+        address: "123 Oak Street",
+        city: "Austin",
+        state: "TX",
+        projectType: "Water Damage",
+        contractValue: 18500,
+        status: "active",
+        startDate: "2025-01-20",
+        expectedCompletion: "2025-03-15",
+        progress: 45,
+        contractorName: "John Smith",
+        contractorCompany: "Smith Restoration Co.",
+        milestonesCompleted: 1,
+        totalMilestones: 3
+      },
+      {
+        id: "project-2",
+        claimId: "claim-2",
+        title: "Fire Damage Restoration",
+        address: "456 Pine Avenue",
+        city: "Houston",
+        state: "TX",
+        projectType: "Fire Damage",
+        contractValue: 32000,
+        status: "active",
+        startDate: "2025-01-15",
+        expectedCompletion: "2025-04-10",
+        progress: 25,
+        contractorName: "Maria Garcia",
+        contractorCompany: "Garcia Builders",
+        milestonesCompleted: 1,
+        totalMilestones: 3
+      },
+      {
+        id: "project-3",
+        claimId: "claim-3",
+        title: "Storm Damage Repair",
+        address: "789 Elm Drive",
+        city: "Dallas",
+        state: "TX",
+        projectType: "Storm Damage",
+        contractValue: 12500,
+        status: "pending",
+        startDate: "2025-02-01",
+        expectedCompletion: "2025-03-20",
+        progress: 0,
+        contractorName: "Robert Williams",
+        contractorCompany: "Williams Contracting",
+        milestonesCompleted: 0,
+        totalMilestones: 3
+      }
+    ];
+  }
+
   const getMockJobs = (): Job[] => {
     return [
       {
@@ -251,6 +335,18 @@ export default function HomePage() {
       fetchContractorAuctions();
     }
   }, [isContractor, authLoading, contractorTab]);
+
+  // Fetch homeowner projects when My Projects tab is selected
+  useEffect(() => {
+    if (isHomeowner && !authLoading && homeownerTab === 'my-projects') {
+      setHomeownerProjectsLoading(true);
+      // Simulate API call
+      setTimeout(() => {
+        setHomeownerProjects(getMockHomeownerProjects());
+        setHomeownerProjectsLoading(false);
+      }, 500);
+    }
+  }, [isHomeowner, authLoading, homeownerTab]);
 
   // Fetch jobs when My Jobs tab is selected
   useEffect(() => {
@@ -462,7 +558,7 @@ export default function HomePage() {
             </Card>
           </div>
         ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-sm font-medium">Total Claims</CardTitle>
@@ -485,19 +581,6 @@ export default function HomePage() {
                 <div className="text-2xl font-bold">{homeownerStats.activeAuctions}</div>
               <p className="text-xs text-muted-foreground">
                   {homeownerStats.totalAuctions} total auctions
-              </p>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Total Value</CardTitle>
-              <TrendingUp className="h-4 w-4 text-muted-foreground" />
-            </CardHeader>
-            <CardContent>
-                <div className="text-2xl font-bold">${homeownerStats.totalValue.toLocaleString()}</div>
-              <p className="text-xs text-muted-foreground">
-                Across all claims
               </p>
             </CardContent>
           </Card>
@@ -937,64 +1020,408 @@ export default function HomePage() {
             </div>
           </div>
         ) : (
-        <div className="grid grid-cols-1 gap-6">
-          {/* Live Auctions */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <DollarSign className="h-5 w-5" />
+        <div className="space-y-6">
+          {/* Homeowner Tab Navigation */}
+          <div className="border-b border-gray-200">
+            <nav className="-mb-px flex space-x-8">
+              <button
+                onClick={() => setHomeownerTab('my-projects')}
+                className={`border-b-2 py-4 px-1 text-sm font-medium transition-colors ${
+                  homeownerTab === 'my-projects'
+                    ? 'border-blue-600 text-blue-600'
+                    : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                }`}
+              >
+                <div className="flex items-center gap-2">
+                  <Building2 className="h-4 w-4" />
+                  My Projects
+                </div>
+              </button>
+              <button
+                onClick={() => setHomeownerTab('live-auctions')}
+                className={`border-b-2 py-4 px-1 text-sm font-medium transition-colors ${
+                  homeownerTab === 'live-auctions'
+                    ? 'border-blue-600 text-blue-600'
+                    : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                }`}
+              >
+                <div className="flex items-center gap-2">
+                  <DollarSign className="h-4 w-4" />
                   Live Auctions
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-                {auctionsLoading ? (
-                  <div className="text-center py-8">
-                    <Clock className="h-12 w-12 text-gray-400 mx-auto mb-4 animate-spin" />
-                    <p className="text-gray-500">Loading auctions...</p>
+                </div>
+              </button>
+              <button
+                onClick={() => setHomeownerTab('schedule')}
+                className={`border-b-2 py-4 px-1 text-sm font-medium transition-colors ${
+                  homeownerTab === 'schedule'
+                    ? 'border-blue-600 text-blue-600'
+                    : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                }`}
+              >
+                <div className="flex items-center gap-2">
+                  <Calendar className="h-4 w-4" />
+                  Schedule
+                </div>
+              </button>
+            </nav>
+          </div>
+
+          {/* Homeowner Tab Content */}
+          <div>
+            {homeownerTab === 'my-projects' ? (
+              <>
+                {homeownerProjectsLoading ? (
+                  <LoadingSkeleton />
+                ) : homeownerProjects?.length === 0 ? (
+                  <EmptyState
+                    icon={Building2}
+                    title="No Active Projects"
+                    description="You don't have any active projects yet. Projects will appear here once you accept a contractor's bid."
+                  />
+                ) : (
+                  <div className="grid gap-6 sm:gap-8 grid-cols-1 md:grid-cols-2 xl:grid-cols-3">
+                    {homeownerProjects?.map((project) => (
+                      <Card key={project.id} className="hover:shadow-lg transition-shadow">
+                        <CardHeader>
+                          <div className="flex items-start justify-between">
+                            <div className="flex-1">
+                              <CardTitle className="text-lg mb-1">{project.title}</CardTitle>
+                              <div className="flex items-center gap-2 text-sm text-gray-600 mt-1">
+                                <MapPin className="h-4 w-4" />
+                                <span>{project.address}, {project.city}, {project.state}</span>
+                              </div>
+                            </div>
+                            <Badge className={`${
+                              project.status === 'active' 
+                                ? 'bg-green-100 text-green-800 border-green-200' 
+                                : project.status === 'completed'
+                                ? 'bg-blue-100 text-blue-800 border-blue-200'
+                                : 'bg-yellow-100 text-yellow-800 border-yellow-200'
+                            }`}>
+                              {project.status === 'active' ? 'Active' : project.status === 'completed' ? 'Completed' : 'Pending'}
+                            </Badge>
+                          </div>
+                        </CardHeader>
+                        <CardContent>
+                          <div className="space-y-4">
+                            {/* Project Info */}
+                            <div className="space-y-2">
+                              <div className="flex items-center justify-between text-sm">
+                                <span className="text-gray-600">Project Type:</span>
+                                <span className="font-medium">{project.projectType}</span>
+                              </div>
+                              <div className="flex items-center justify-between text-sm">
+                                <span className="text-gray-600">Contract Value:</span>
+                                <span className="font-semibold text-blue-600">${project.contractValue.toLocaleString()}</span>
+                              </div>
+                              <div className="flex items-center justify-between text-sm">
+                                <span className="text-gray-600">Contractor:</span>
+                                <span className="font-medium">{project.contractorName}</span>
+                              </div>
+                              {project.contractorCompany && (
+                                <div className="flex items-center justify-between text-sm">
+                                  <span className="text-gray-600">Company:</span>
+                                  <span className="font-medium text-xs">{project.contractorCompany}</span>
+                                </div>
+                              )}
+                            </div>
+
+                            {/* Progress Bar */}
+                            <div className="space-y-2">
+                              <div className="flex items-center justify-between text-sm">
+                                <span className="text-gray-600">Progress</span>
+                                <span className="font-medium">{project.progress}%</span>
+                              </div>
+                              <div className="w-full bg-gray-200 rounded-full h-2.5">
+                                <div 
+                                  className="bg-blue-600 h-2.5 rounded-full transition-all"
+                                  style={{ width: `${project.progress}%` }}
+                                ></div>
+                              </div>
+                            </div>
+
+                            {/* Milestones */}
+                            <div className="flex items-center justify-between text-sm pt-2 border-t">
+                              <div className="flex items-center gap-2">
+                                <CheckCircle className="h-4 w-4 text-green-600" />
+                                <span className="text-gray-600">Milestones:</span>
+                              </div>
+                              <span className="font-medium">
+                                {project.milestonesCompleted} / {project.totalMilestones} completed
+                              </span>
+                            </div>
+
+                            {/* Dates */}
+                            <div className="space-y-1 text-xs text-gray-500 pt-2 border-t">
+                              <div className="flex items-center gap-2">
+                                <Calendar className="h-3 w-3" />
+                                <span>Started: {new Date(project.startDate).toLocaleDateString()}</span>
+                              </div>
+                              <div className="flex items-center gap-2">
+                                <Clock className="h-3 w-3" />
+                                <span>Expected Completion: {new Date(project.expectedCompletion).toLocaleDateString()}</span>
+                              </div>
+                            </div>
+
+                            {/* Actions */}
+                            <div className="flex gap-2 pt-2">
+                              <Button 
+                                variant="outline" 
+                                className="flex-1"
+                                onClick={() => router.push(`/claim/${project.claimId}`)}
+                              >
+                                View Details
+                              </Button>
+                              <Button 
+                                variant="default"
+                                className="flex-1 bg-blue-600 hover:bg-blue-700"
+                                onClick={() => router.push(`/projects/${project.id}`)}
+                              >
+                                <Activity className="h-4 w-4 mr-2" />
+                                Manage
+                              </Button>
+                            </div>
+                          </div>
+                        </CardContent>
+                      </Card>
+                    ))}
                   </div>
-                ) : homeownerLiveAuctions?.length > 0 ? (
-                <div className="space-y-4">
-                    {homeownerLiveAuctions.slice(0, 3).map((auction: any) => (
-                      <div key={auction.auction_id || auction.id} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
-                      <div className="flex items-center gap-3">
-                        <div className="w-2 h-2 bg-green-500 rounded-full"></div>
-                        <div>
-                            <Link 
-                              href={`/auction/${auction.auction_id || auction.id}`} 
-                              className="font-medium text-sm hover:text-blue-500"
-                            >
-                              {auction.title}
-                            </Link>
-                            <p className="text-xs text-gray-500">
-                              ${(auction.current_bid || auction.currentBid || 0).toLocaleString()}
-                            </p>
+                )}
+              </>
+            ) : homeownerTab === 'live-auctions' ? (
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <DollarSign className="h-5 w-5" />
+                    Live Auctions
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  {auctionsLoading ? (
+                    <div className="text-center py-8">
+                      <Clock className="h-12 w-12 text-gray-400 mx-auto mb-4 animate-spin" />
+                      <p className="text-gray-500">Loading auctions...</p>
+                    </div>
+                  ) : homeownerLiveAuctions?.length > 0 ? (
+                    <div className="space-y-4">
+                      {homeownerLiveAuctions.map((auction: any) => (
+                        <div key={auction.auction_id || auction.id} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                          <div className="flex items-center gap-3">
+                            <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+                            <div>
+                              <Link 
+                                href={`/auction/${auction.auction_id || auction.id}`} 
+                                className="font-medium text-sm hover:text-blue-500"
+                              >
+                                {auction.title}
+                              </Link>
+                              <p className="text-xs text-gray-500">
+                                ${(auction.current_bid || auction.currentBid || 0).toLocaleString()}
+                              </p>
+                            </div>
+                          </div>
+                          <Badge variant="secondary" className="text-xs">
+                            {auction.bid_count || auction.bidCount || 0} bids
+                          </Badge>
+                        </div>
+                      ))}
+                      {homeownerLiveAuctions.length > 3 && (
+                        <Button 
+                          onClick={() => router.push('/dashboard')}
+                          variant="outline"
+                          className="w-full mt-2"
+                          size="sm"
+                        >
+                          View All Live Auctions
+                        </Button>
+                      )}
+                    </div>
+                  ) : (
+                    <div className="text-center py-8">
+                      <DollarSign className="h-12 w-12 text-gray-400 mx-auto mb-4" />
+                      <p className="text-gray-500">No live auctions</p>
+                      <p className="text-xs text-gray-400 mt-2">Auctions will appear here when you create them from your claims</p>
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
+            ) : homeownerTab === 'schedule' ? (
+              <div className="space-y-6">
+                {/* Schedule Header */}
+                <div className="flex items-center justify-between">
+                  <div>
+                    <h2 className="text-2xl font-bold text-gray-900">Schedule & Calendar</h2>
+                    <p className="text-gray-600 mt-1">Manage all deadlines, visits, and milestones</p>
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <Button variant="default" size="sm" className="bg-blue-600 hover:bg-blue-700">
+                      <List className="h-4 w-4 mr-2" />
+                      List
+                    </Button>
+                    <Button variant="outline" size="sm">
+                      <Calendar className="h-4 w-4 mr-2" />
+                      Calendar
+                    </Button>
+                    <Button variant="outline" size="sm">
+                      <BarChart3 className="h-4 w-4 mr-2" />
+                      Gantt
+                    </Button>
+                  </div>
+                </div>
+
+                {/* Critical Deadlines Alert */}
+                <Card className="bg-red-50 border-red-200">
+                  <CardContent className="p-4">
+                    <div className="flex items-start space-x-3">
+                      <div className="flex-shrink-0">
+                        <div className="w-6 h-6 bg-red-100 rounded-full flex items-center justify-center">
+                          <AlertCircle className="h-4 w-4 text-red-600" />
                         </div>
                       </div>
-                      <Badge variant="secondary" className="text-xs">
-                          {auction.bid_count || auction.bidCount || 0} bids
-                      </Badge>
+                      <div>
+                        <h3 className="text-sm font-medium text-red-800">Critical Deadlines</h3>
+                        <p className="text-sm text-red-700 mt-1">
+                          Site visit scheduled for Water Damage Restoration project tomorrow at 10:00 AM
+                        </p>
+                      </div>
                     </div>
-                  ))}
-                    {homeownerLiveAuctions.length > 3 && (
-                      <Button 
-                        onClick={() => router.push('/dashboard')}
-                        variant="outline"
-                        className="w-full mt-2"
-                        size="sm"
-                      >
-                        View All Live Auctions
-                      </Button>
-                    )}
+                  </CardContent>
+                </Card>
+
+                {/* Schedule Tab Navigation */}
+                <div className="border-b border-gray-200">
+                  <nav className="-mb-px flex space-x-8">
+                    <button
+                      onClick={() => setHomeownerScheduleTab('upcoming')}
+                      className={`border-b-2 py-2 px-1 text-sm font-medium ${
+                        homeownerScheduleTab === 'upcoming'
+                          ? 'border-blue-500 text-blue-600'
+                          : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                      }`}
+                    >
+                      Upcoming Events
+                    </button>
+                    <button
+                      onClick={() => setHomeownerScheduleTab('deadlines')}
+                      className={`border-b-2 py-2 px-1 text-sm font-medium ${
+                        homeownerScheduleTab === 'deadlines'
+                          ? 'border-blue-500 text-blue-600'
+                          : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                      }`}
+                    >
+                      Deadlines
+                    </button>
+                    <button
+                      onClick={() => setHomeownerScheduleTab('visits')}
+                      className={`border-b-2 py-2 px-1 text-sm font-medium ${
+                        homeownerScheduleTab === 'visits'
+                          ? 'border-blue-500 text-blue-600'
+                          : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                      }`}
+                    >
+                      Site Visits
+                    </button>
+                    <button
+                      onClick={() => setHomeownerScheduleTab('milestones')}
+                      className={`border-b-2 py-2 px-1 text-sm font-medium ${
+                        homeownerScheduleTab === 'milestones'
+                          ? 'border-blue-500 text-blue-600'
+                          : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                      }`}
+                    >
+                      Milestones
+                    </button>
+                  </nav>
                 </div>
-              ) : (
-                <div className="text-center py-8">
-                  <DollarSign className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-                    <p className="text-gray-500">No live auctions</p>
-                    <p className="text-xs text-gray-400 mt-2">Auctions will appear here when you create them from your claims</p>
+
+                {/* Schedule Tab Content */}
+                <div>
+                  {homeownerScheduleTab === 'upcoming' && (
+                    <>
+                      <h3 className="text-xl font-semibold text-gray-900 mb-4">Next 7 Days</h3>
+                      <div className="space-y-4">
+                        <Card className="p-4 bg-white border border-gray-200">
+                          <div className="flex items-center justify-between">
+                            <div className="flex items-center space-x-4">
+                              <div className="w-2 h-2 bg-red-500 rounded-full"></div>
+                              <div>
+                                <h4 className="text-sm font-medium text-gray-900">Site Visit - Water Damage Restoration</h4>
+                                <p className="text-xs text-gray-500 mt-1">Tomorrow at 10:00 AM</p>
+                              </div>
+                            </div>
+                            <Badge variant="outline" className="text-red-600 border-red-200 bg-red-50 text-xs">Critical</Badge>
+                          </div>
+                        </Card>
+                        <Card className="p-4 bg-white border border-gray-200">
+                          <div className="flex items-center justify-between">
+                            <div className="flex items-center space-x-4">
+                              <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
+                              <div>
+                                <h4 className="text-sm font-medium text-gray-900">Milestone Review - Fire Damage Restoration</h4>
+                                <p className="text-xs text-gray-500 mt-1">Friday at 2:00 PM</p>
+                              </div>
+                            </div>
+                            <Badge variant="outline" className="text-blue-600 border-blue-200 bg-blue-50 text-xs">Scheduled</Badge>
+                          </div>
+                        </Card>
+                      </div>
+                    </>
+                  )}
+
+                  {homeownerScheduleTab === 'deadlines' && (
+                    <>
+                      <h3 className="text-xl font-semibold text-gray-900 mb-4">Important Deadlines</h3>
+                      <div className="space-y-6">
+                        <Card className="p-6 bg-white border border-gray-200 shadow-sm">
+                          <div className="flex items-start justify-between">
+                            <div className="flex-1">
+                              <div className="flex items-center justify-between mb-2">
+                                <h4 className="text-lg font-semibold text-gray-900">Site Visit Confirmation</h4>
+                                <div className="text-right">
+                                  <p className="text-sm font-medium text-gray-900">2/11/2025</p>
+                                  <p className="text-sm text-gray-500">10:00 AM</p>
+                                </div>
+                              </div>
+                              <p className="text-gray-600 mb-3">Water Damage Restoration - 123 Oak Street</p>
+                              <div className="flex items-center space-x-3 mb-4">
+                                <Badge className="bg-red-100 text-red-800 border-red-200">HIGH</Badge>
+                                <span className="text-sm text-gray-600">Site Visit</span>
+                              </div>
+                              <p className="text-gray-700 mb-4">Contractor will visit to assess progress and discuss next steps</p>
+                              <div className="flex space-x-3">
+                                <Button variant="outline" size="sm">View Details</Button>
+                                <Button size="sm" className="bg-blue-600 hover:bg-blue-700">Reschedule</Button>
+                              </div>
+                            </div>
+                          </div>
+                        </Card>
+                      </div>
+                    </>
+                  )}
+
+                  {homeownerScheduleTab === 'visits' && (
+                    <>
+                      <h3 className="text-xl font-semibold text-gray-900 mb-4">Site Visits</h3>
+                      <div className="text-center py-8">
+                        <MapPin className="h-16 w-16 text-gray-400 mx-auto mb-4" />
+                        <p className="text-gray-500">No site visits scheduled</p>
+                      </div>
+                    </>
+                  )}
+
+                  {homeownerScheduleTab === 'milestones' && (
+                    <>
+                      <h3 className="text-xl font-semibold text-gray-900 mb-4">Project Milestones</h3>
+                      <div className="text-center py-8">
+                        <CheckCircle className="h-16 w-16 text-gray-400 mx-auto mb-4" />
+                        <p className="text-gray-500">No milestones scheduled</p>
+                      </div>
+                    </>
+                  )}
                 </div>
-              )}
-            </CardContent>
-          </Card>
+              </div>
+            ) : null}
+          </div>
         </div>
         )}
       </div>

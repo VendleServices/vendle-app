@@ -2,11 +2,11 @@
 
 import Link from 'next/link';
 import Image from 'next/image';
-import { Button } from "@/components/ui/button";
-import LogOutButton from "@/components/LogOutButton";
+import { useState } from 'react';
+import LoginModal from "@/components/LoginModal";
 import { useAuth } from "@/contexts/AuthContext";
 import vendleLogo from "../assets/vendle_logo.jpeg";
-import { Home, Search, User, Bell, LayoutDashboard, LogOut } from "lucide-react";
+import { Home, Search, User, LayoutDashboard, LogOut, LogIn } from "lucide-react";
 import { usePathname } from "next/navigation";
 
 interface NavbarProps {
@@ -16,6 +16,7 @@ interface NavbarProps {
 const Navbar = ({ onProtectedAction }: NavbarProps = {}) => {
   const { user, isLoggedIn, isLoading, logout } = useAuth();
   const pathname = usePathname();
+  const [showLoginModal, setShowLoginModal] = useState(false);
 
   const handleProtectedClick = (e: React.MouseEvent, href: string) => {
     if (!isLoggedIn && onProtectedAction) {
@@ -28,9 +29,13 @@ const Navbar = ({ onProtectedAction }: NavbarProps = {}) => {
     await logout();
   };
 
+  const handleSignIn = () => {
+    setShowLoginModal(true);
+  };
+
   // Always show left sidebar
   return (
-    <nav className="fixed left-0 top-0 h-screen w-24 bg-white border-r border-gray-200 flex flex-col items-center py-8 z-50">
+    <nav className="fixed left-0 top-0 h-screen w-32 bg-white border-r border-gray-200 flex flex-col items-center py-8 z-50">
       {/* Logo */}
       <Link href="/explore" className="mb-12">
         <Image src={vendleLogo} alt="Vendle Logo" width={56} height={56} className="h-14 w-14 rounded-lg" />
@@ -45,7 +50,7 @@ const Navbar = ({ onProtectedAction }: NavbarProps = {}) => {
             pathname === '/explore' ? 'bg-indigo-50 scale-105' : 'hover:bg-gray-50 hover:scale-105'
           }`}
         >
-          <Search className={`w-7 h-7 ${pathname === '/explore' ? 'text-indigo-600' : 'text-gray-600'}`} />
+          <Search className={`w-7 h-7 flex-shrink-0 block ${pathname === '/explore' ? 'text-indigo-600' : 'text-gray-600'}`} strokeWidth={2} />
           <span className={`text-xs font-medium ${pathname === '/explore' ? 'text-indigo-600' : 'text-gray-600'}`}>
             Explore
           </span>
@@ -59,7 +64,7 @@ const Navbar = ({ onProtectedAction }: NavbarProps = {}) => {
             pathname === '/home' ? 'bg-indigo-50 scale-105' : 'hover:bg-gray-50 hover:scale-105'
           }`}
         >
-          <Home className={`w-7 h-7 ${pathname === '/home' ? 'text-indigo-600' : 'text-gray-600'}`} />
+          <Home className={`w-7 h-7 flex-shrink-0 block ${pathname === '/home' ? 'text-indigo-600' : 'text-gray-600'}`} strokeWidth={2} />
           <span className={`text-xs font-medium ${pathname === '/home' ? 'text-indigo-600' : 'text-gray-600'}`}>
             Home
           </span>
@@ -73,7 +78,7 @@ const Navbar = ({ onProtectedAction }: NavbarProps = {}) => {
             pathname === '/dashboard' ? 'bg-indigo-50 scale-105' : 'hover:bg-gray-50 hover:scale-105'
           }`}
         >
-          <LayoutDashboard className={`w-7 h-7 ${pathname === '/dashboard' ? 'text-indigo-600' : 'text-gray-600'}`} />
+          <LayoutDashboard className={`w-7 h-7 flex-shrink-0 block ${pathname === '/dashboard' ? 'text-indigo-600' : 'text-gray-600'}`} strokeWidth={2} />
           <span className={`text-xs font-medium ${pathname === '/dashboard' ? 'text-indigo-600' : 'text-gray-600'}`}>
             Dashboard
           </span>
@@ -87,7 +92,7 @@ const Navbar = ({ onProtectedAction }: NavbarProps = {}) => {
             pathname === '/profile' ? 'bg-indigo-50 scale-105' : 'hover:bg-gray-50 hover:scale-105'
           }`}
         >
-          <User className={`w-7 h-7 ${pathname === '/profile' ? 'text-indigo-600' : 'text-gray-600'}`} />
+          <User className={`w-7 h-7 flex-shrink-0 block ${pathname === '/profile' ? 'text-indigo-600' : 'text-gray-600'}`} strokeWidth={2} />
           <span className={`text-xs font-medium ${pathname === '/profile' ? 'text-indigo-600' : 'text-gray-600'}`}>
             Profile
           </span>
@@ -96,15 +101,31 @@ const Navbar = ({ onProtectedAction }: NavbarProps = {}) => {
 
       {/* Bottom Section */}
       <div className="flex flex-col items-center space-y-4 w-full px-3">
-        {/* Modern Logout Button */}
-        <button
-          onClick={handleLogout}
-          className="w-full p-3 flex flex-col items-center gap-1 rounded-xl bg-gradient-to-br from-red-50 to-red-100 hover:from-red-100 hover:to-red-200 transition-all hover:scale-105 group"
-        >
-          <LogOut className="w-5 h-5 text-red-600 group-hover:text-red-700" />
-          <span className="text-xs font-medium text-red-600 group-hover:text-red-700">Logout</span>
-        </button>
+        {/* Sign In / Logout Button */}
+        {isLoggedIn ? (
+          <button
+            onClick={handleLogout}
+            className="w-full p-3 flex flex-col items-center gap-1 rounded-xl bg-gradient-to-br from-red-50 to-red-100 hover:from-red-100 hover:to-red-200 transition-all hover:scale-105 group"
+          >
+            <LogOut className="w-5 h-5 text-red-600 group-hover:text-red-700 block" strokeWidth={2} />
+            <span className="text-xs font-medium text-red-600 group-hover:text-red-700">Logout</span>
+          </button>
+        ) : (
+          <button
+            onClick={handleSignIn}
+            className="w-full p-3 flex flex-col items-center gap-1 rounded-xl bg-gradient-to-br from-green-50 to-green-100 hover:from-green-100 hover:to-green-200 transition-all hover:scale-105 group"
+          >
+            <LogIn className="w-5 h-5 text-green-600 group-hover:text-green-700 block" strokeWidth={2} />
+            <span className="text-xs font-medium text-green-600 group-hover:text-green-700">Sign In</span>
+          </button>
+        )}
       </div>
+
+      {/* Login Modal */}
+      <LoginModal
+        isOpen={showLoginModal}
+        onClose={() => setShowLoginModal(false)}
+      />
     </nav>
   );
 };

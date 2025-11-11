@@ -8,6 +8,42 @@ datasource db {
   directUrl = env("DIRECT_URL")
 }
 
+enum ProjectStatus {
+  DRAFT
+  AUCTION_OPEN
+  AUCTION_CLOSED
+  IOI
+  LOI
+  ACTIVE
+  COMPLETED
+  REVIEWED
+}
+
+enum NegotiationPhase {
+  IOI
+  LOI
+}
+
+enum NegotiationStatus {
+  pending
+  accepted
+  declined
+}
+
+enum MilestoneStatus {
+  pending
+  submitted
+  approved
+  paid
+}
+
+enum ScheduleEventKind {
+  site_visit
+  ioi_deadline
+  loi_deadline
+  milestone_deadline
+}
+
 model User {
   id             String        @id
   email          String        @unique
