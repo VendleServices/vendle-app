@@ -211,7 +211,7 @@ export default function LoginModal({ isOpen, onClose }: LoginModalProps) {
           </Button>
         </form>
 
-        {/* Toggle Modse */}
+        {/* Toggle Mode */}
         <button
           onClick={() => {
             setMode(mode === 'login' ? 'signup' : 'login');
