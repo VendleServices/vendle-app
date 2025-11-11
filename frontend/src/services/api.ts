@@ -46,6 +46,40 @@ class ApiService {
         });
     }
 
+    async postWithFile(endpoint: string, data: any, file: File | null): Promise<Response> {
+        const token = await this.getToken();
+        const formData = new FormData();
+
+        if (file) {
+            formData.append("file", file);
+        }
+
+        Object.keys(data).forEach((key) => {
+            const value = data[key];
+
+            if (value !== null && value !== undefined) {
+                formData.append(key, typeof value === "object" ? JSON.stringify(value) : value);
+            }
+        });
+
+        const config: RequestInit = {
+            method: "POST",
+            headers: {
+                ...(token && { Authorization: `Bearer ${token}` }),
+            },
+            body: formData
+        };
+
+        const response = await fetch(`${API_BASE_URL}${endpoint}`, config);
+
+        if (!response.ok) {
+            const errorData = await response.json().catch(() => ({}));
+            throw new Error(errorData.message || "HTTP Error");
+        }
+
+        return response.json();
+    }
+
     async put(endpoint: string, data: any): Promise<Response> {
         return this.makeRequest(endpoint, {
             method: "PUT",

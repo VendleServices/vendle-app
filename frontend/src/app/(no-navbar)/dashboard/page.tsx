@@ -18,7 +18,6 @@ import { AuctionCard } from "@/components/AuctionCard";
 import { ClaimCard } from "@/components/ClaimCard";
 import { EmptyState } from "@/components/EmptyState";
 import { LoadingSkeleton } from "@/components/LoadingSkeleton";
-import SplashScreen from "@/components/SplashScreen";
 import {
     AlertDialog,
     AlertDialogAction,
@@ -128,82 +127,6 @@ export default function DashboardPage() {
         }
     }
 
-    // Mock data for testing the UI
-    const getMockClaims = () => {
-        return [
-            {
-                id: "mock-claim-1",
-                street: "123 Oak Street",
-                city: "Austin",
-                state: "TX",
-                zipCode: "78701",
-                projectType: "water damage",
-                designPlan: "Full restoration",
-                needsAdjuster: true,
-                insuranceProvider: "State Farm",
-                insuranceEstimateFilePath: "/uploads/estimate-1.pdf",
-                createdAt: new Date("2025-01-15"),
-                updatedAt: new Date("2025-01-20"),
-            },
-            {
-                id: "mock-claim-2", 
-                street: "456 Pine Avenue",
-                city: "Houston",
-                state: "TX",
-                zipCode: "77001",
-                projectType: "fire damage",
-                designPlan: "Partial restoration",
-                needsAdjuster: false,
-                insuranceProvider: "Allstate",
-                insuranceEstimateFilePath: "/uploads/estimate-2.pdf",
-                createdAt: new Date("2025-01-10"),
-                updatedAt: new Date("2025-01-18"),
-            },
-            {
-                id: "mock-claim-3",
-                street: "789 Elm Drive",
-                city: "Dallas", 
-                state: "TX",
-                zipCode: "75201",
-                projectType: "storm damage",
-                designPlan: "Roof repair",
-                needsAdjuster: true,
-                insuranceProvider: "Farmers",
-                insuranceEstimateFilePath: "/uploads/estimate-3.pdf",
-                createdAt: new Date("2025-01-05"),
-                updatedAt: new Date("2025-01-12"),
-            },
-            {
-                id: "mock-claim-4",
-                street: "321 Maple Lane",
-                city: "San Antonio",
-                state: "TX", 
-                zipCode: "78201",
-                projectType: "mold remediation",
-                designPlan: "Basement cleanup",
-                needsAdjuster: false,
-                insuranceProvider: "Progressive",
-                insuranceEstimateFilePath: "/uploads/estimate-4.pdf",
-                createdAt: new Date("2025-01-01"),
-                updatedAt: new Date("2025-01-08"),
-            },
-            {
-                id: "mock-claim-5",
-                street: "654 Cedar Court",
-                city: "Fort Worth",
-                state: "TX",
-                zipCode: "76101", 
-                projectType: "full",
-                designPlan: "Complete renovation",
-                needsAdjuster: true,
-                insuranceProvider: "Liberty Mutual",
-                insuranceEstimateFilePath: "/uploads/estimate-5.pdf",
-                createdAt: new Date("2024-12-28"),
-                updatedAt: new Date("2025-01-05"),
-            }
-        ];
-    }
-
     const deleteClaim = async (claim: Claim) => {
         try {
             const response = await apiService.delete(`/api/claim/${claim.id}`);
@@ -213,89 +136,23 @@ export default function DashboardPage() {
         }
     }
 
-    // Mock auction data for testing
-    const getMockAuctions = () => {
-        return [
-            {
-                auction_id: "mock-auction-1",
-                claim_id: "mock-claim-1",
-                title: "Restoration Job - Water Damage",
-                project_type: "water damage",
-                starting_bid: 5000,
-                current_bid: 8500,
-                bid_count: 3,
-                end_date: "2025-02-15",
-                status: "open",
-                property_address: "123 Oak Street, Austin, TX",
-                design_plan: "Full restoration"
-            },
-            {
-                auction_id: "mock-auction-2", 
-                claim_id: "mock-claim-2",
-                title: "Fire Damage Restoration",
-                project_type: "fire damage",
-                starting_bid: 8000,
-                current_bid: 12500,
-                bid_count: 0,
-                end_date: "2025-02-20",
-                status: "open",
-                property_address: "456 Pine Avenue, Houston, TX",
-                design_plan: "Partial restoration"
-            },
-            {
-                auction_id: "mock-auction-3",
-                claim_id: "mock-claim-3",
-                title: "Storm Damage Repair",
-                project_type: "storm damage",
-                starting_bid: 4000,
-                current_bid: 6200,
-                bid_count: 2,
-                end_date: "2025-02-10",
-                status: "open",
-                property_address: "789 Elm Drive, Dallas, TX",
-                design_plan: "Roof repair"
-            }
-        ];
-    }
-
-    const getMockClosedAuctions = () => {
-        return [
-            {
-                auction_id: "mock-closed-1",
-                claim_id: "mock-claim-4",
-                title: "Mold Remediation Project",
-                project_type: "mold remediation",
-                starting_bid: 3000,
-                current_bid: 4800,
-                bid_count: 1,
-                end_date: "2025-01-15",
-                status: "closed",
-                property_address: "321 Maple Lane, San Antonio, TX",
-                design_plan: "Basement cleanup"
-            },
-            {
-                auction_id: "mock-closed-2",
-                claim_id: "mock-claim-5",
-                title: "Full Home Restoration",
-                project_type: "full",
-                starting_bid: 15000,
-                current_bid: 25000,
-                bid_count: 4,
-                end_date: "2025-01-10",
-                status: "closed",
-                property_address: "654 Cedar Court, Fort Worth, TX",
-                design_plan: "Complete renovation"
-            }
-        ];
-    }
-
     const fetchAuctions = async () => {
         setAuctionLoading(true);
         try {
-            // Use mock data instead of API call for testing
-            const activeAuctions = getMockAuctions();
-            const closedAuctions = getMockClosedAuctions();
-            
+            const response:any = await apiService.get(`/api/auctions`);
+            const data = response?.data;
+            console.log('Fetched auctions:', data);
+
+            const activeAuctions = data?.filter((auction: Auction) => {
+                const endDate = new Date(auction.end_date);
+                return auction.status === 'open' && endDate > new Date();
+            });
+
+            const closedAuctions = data?.filter((auction: Auction) => {
+                const endDate = new Date(auction.end_date);
+                return auction.status === 'closed' || endDate <= new Date();
+            });
+
             setAuctions(activeAuctions);
             setClosedAuctions(closedAuctions);
         } catch (error) {
@@ -311,19 +168,9 @@ export default function DashboardPage() {
 
     const { data: claims = [], isLoading, isError, error } = useQuery({
         queryKey: ["getClaims"],
-        queryFn: () => Promise.resolve(getMockClaims()), // Use mock data instead of API call
+        queryFn: fetchClaims,
         enabled: !!user?.id,
         retry: 1,
-    });
-
-    console.log('Claims query state:', { 
-        claims: claims?.length || 0, 
-        isLoading, 
-        isError, 
-        error, 
-        userId: user?.id,
-        isLoggedIn,
-        authLoading
     });
 
     const deleteClaimMutation = useMutation({
@@ -410,21 +257,6 @@ export default function DashboardPage() {
                 return "bg-purple-500";
             default:
                 return "bg-gray-500";
-        }
-    };
-
-    const getNextStep = (status: Claim["id"]) => {
-        switch (status) {
-            case "pending":
-                return "Create Restoration Job";
-            case "in-progress":
-                return "Upload Documents";
-            case "cleanup-in-progress":
-                return "Confirm Cleanup";
-            case "completed":
-                return "Review Estimate";
-            default:
-                return "View Details";
         }
     };
 
@@ -560,27 +392,6 @@ export default function DashboardPage() {
                                     {sidebarExpanded ? <ChevronLeft className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
                                 </Button>
                             </div>
-                            
-                            {/* Quick Stats */}
-                            {sidebarExpanded && (
-                                <div className="mb-4 p-3 bg-[#1e293b] rounded-lg">
-                                    <h3 className="text-white text-xs font-medium mb-2">Quick Stats</h3>
-                                    <div className="space-y-1">
-                                        <div className="flex justify-between text-white text-xs">
-                                            <span>Active Claims</span>
-                                            <span>{claims?.filter((c: Claim) => c.id === 'in-progress')?.length}</span>
-                                        </div>
-                                        <div className="flex justify-between text-white text-xs">
-                                            <span>Active Auctions</span>
-                                            <span>{auctions?.length}</span>
-                                        </div>
-                                        <div className="flex justify-between text-white text-xs">
-                                            <span>Completed</span>
-                                            <span>{claims?.filter((c: Claim)=> c.id === 'completed')?.length}</span>
-                                        </div>
-                                    </div>
-                                </div>
-                            )}
 
                             <div className="space-y-1 mb-8">
                                 {/* CONTRACTOR DASHBOARD - Custom Navigation */}
