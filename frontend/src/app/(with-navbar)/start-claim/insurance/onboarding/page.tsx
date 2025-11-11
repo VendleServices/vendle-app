@@ -181,9 +181,9 @@ const Onboarding = () => {
             subtitle="Enter the address of the property you're rebuilding"
             isActive={currentStep === 1}
             onNext={nextStep}
-            onBack={() => router.push('/auth')}
+            onBack={() => router.push('/start-claim')}
             isNextDisabled={!isCurrentStepValid()}
-            backButtonLabel="Back to Login"
+            backButtonLabel="Back"
           >
             <FadeTransition>
               <div className="space-y-4">
