@@ -200,7 +200,7 @@ export default function HomePage() {
       {
         id: "project-1",
         claimId: "claim-1",
-        title: "Water Damage Restoration",
+        title: "Water Restoration",
         address: "123 Oak Street",
         city: "Austin",
         state: "TX",
