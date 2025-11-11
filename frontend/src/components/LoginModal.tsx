@@ -2,7 +2,7 @@
 
 import { useState, useTransition } from 'react';
 import { useRouter } from 'next/navigation';
-import { X, Mail, Lock, Eye, EyeOff } from 'lucide-react';
+import { X, Mail, Lock, Eye, EyeOff, User, Briefcase } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import Image from 'next/image';
 import vendleLogo from "../assets/vendle_logo.jpeg";
@@ -22,6 +22,7 @@ export default function LoginModal({ isOpen, onClose }: LoginModalProps) {
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [mode, setMode] = useState<'login' | 'signup'>('login');
+  const [userType, setUserType] = useState<'homeowner' | 'contractor'>('homeowner');
 
   if (!isOpen) return null;
 
@@ -48,7 +49,7 @@ export default function LoginModal({ isOpen, onClose }: LoginModalProps) {
       if (mode === 'login') {
         errorMessage = await login(email, password);
       } else {
-        errorMessage = await signup(email, password, "homeowner");
+        errorMessage = await signup(email, password, userType);
       }
 
       if (!errorMessage) {
@@ -160,6 +161,46 @@ export default function LoginModal({ isOpen, onClose }: LoginModalProps) {
             </div>
           </div>
 
+          {/* User Type Selection - Only show during signup */}
+          {mode === 'signup' && (
+            <div className="mb-6">
+              <label className="block text-sm font-medium text-gray-700 mb-3">
+                I am a...
+              </label>
+              <div className="grid grid-cols-2 gap-3">
+                {/* Homeowner Option */}
+                <button
+                  type="button"
+                  onClick={() => setUserType('homeowner')}
+                  className={`flex items-center justify-center gap-2 p-4 border-2 rounded-lg transition-all ${
+                    userType === 'homeowner'
+                      ? 'border-indigo-600 bg-indigo-50 text-indigo-700'
+                      : 'border-gray-300 bg-white text-gray-700 hover:border-gray-400'
+                  }`}
+                  disabled={isPending}
+                >
+                  <User className={`h-5 w-5 ${userType === 'homeowner' ? 'text-indigo-600' : 'text-gray-400'}`} />
+                  <span className="font-medium">Homeowner</span>
+                </button>
+
+                {/* Contractor Option */}
+                <button
+                  type="button"
+                  onClick={() => setUserType('contractor')}
+                  className={`flex items-center justify-center gap-2 p-4 border-2 rounded-lg transition-all ${
+                    userType === 'contractor'
+                      ? 'border-indigo-600 bg-indigo-50 text-indigo-700'
+                      : 'border-gray-300 bg-white text-gray-700 hover:border-gray-400'
+                  }`}
+                  disabled={isPending}
+                >
+                  <Briefcase className={`h-5 w-5 ${userType === 'contractor' ? 'text-indigo-600' : 'text-gray-400'}`} />
+                  <span className="font-medium">Contractor</span>
+                </button>
+              </div>
+            </div>
+          )}
+
           {/* Submit Button */}
           <Button
             type="submit"
@@ -172,7 +213,10 @@ export default function LoginModal({ isOpen, onClose }: LoginModalProps) {
 
         {/* Toggle Mode */}
         <button
-          onClick={() => setMode(mode === 'login' ? 'signup' : 'login')}
+          onClick={() => {
+            setMode(mode === 'login' ? 'signup' : 'login');
+            setUserType('homeowner'); // Reset to default when switching modes
+          }}
           className="w-full text-center text-sm text-gray-600 hover:text-gray-900 mb-6"
         >
           {mode === 'login' ? "Don't have an account? Sign up" : "Already have an account? Login"}
