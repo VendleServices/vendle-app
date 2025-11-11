@@ -78,20 +78,30 @@ router.post('/', async (req: any, res) => {
       return res.status(401).json({ error: 'Not authorized' });
     }
 
-    const claimData = req.body; // Assumes body-parser middleware is used
+    const claimData = req.body;
+    console.log('Creating claim with data:', claimData);
+    console.log('User ID:', user.id);
 
-    await prisma.claim.create({
+    const createdClaim = await prisma.claim.create({
       data: {
-        ...claimData,
+        street: claimData.street,
+        city: claimData.city,
+        state: claimData.state,
+        zipCode: claimData.zipCode,
+        projectType: claimData.projectType,
+        designPlan: claimData.designPlan,
+        needsAdjuster: claimData.needsAdjuster,
         userId: user.id,
-        imageUrls: [""]
+        imageUrls: []
       }
     });
 
-    return res.status(201).json({ data: claimData });
+    console.log('Claim created successfully:', createdClaim.id);
+
+    return res.status(201).json({ claim: createdClaim });
   } catch (error) {
     console.error('Error creating claim:', error);
-    return res.status(500).json({ error: 'Internal server error' });
+    return res.status(500).json({ error: 'Internal server error', message: error instanceof Error ? error.message : 'Unknown error' });
   }
 });
 

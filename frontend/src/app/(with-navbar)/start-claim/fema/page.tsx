@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -8,7 +8,7 @@ import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Checkbox } from "@/components/ui/checkbox";
 import { useMutation } from "@tanstack/react-query";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion } from "framer-motion";
 import { Inter } from 'next/font/google';
 import { Building2, Mail, Phone, MapPin, Home, Shield, User } from 'lucide-react';
 import { useApiService } from "@/services/api";
@@ -18,8 +18,6 @@ const inter = Inter({ subsets: ['latin'] });
 export default function FemaAssistancePage() {
     const apiService = useApiService();
     const router = useRouter();
-    const [currentImage, setCurrentImage] = useState(0);
-    const [imageError, setImageError] = useState(false);
     const [formData, setFormData] = useState({
         firstName: "",
         lastName: "",
@@ -34,25 +32,6 @@ export default function FemaAssistancePage() {
         hasInsurance: false,
         isUsCitizen: false,
     });
-
-    const images = [
-        "/Fema.jpg",
-        "/fema2.jpg",
-        "/fema3.jpeg.webp"
-    ];
-
-    useEffect(() => {
-        const interval = setInterval(() => {
-            setCurrentImage((prev) => (prev + 1) % images?.length);
-        }, 5000);
-
-        return () => clearInterval(interval);
-    }, []);
-
-    const handleImageError = () => {
-        console.error(`Failed to load image: ${images[currentImage]}`);
-        setImageError(true);
-    };
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const { name, value, type, checked } = e.target;
@@ -105,8 +84,8 @@ export default function FemaAssistancePage() {
                     className="max-w-7xl mx-auto"
                 >
                     <Card className="overflow-hidden border-none shadow-xl bg-white">
-                        <div className="grid grid-cols-1 lg:grid-cols-2">
-                            {/* Left side - Form */}
+                        <div className="max-w-3xl mx-auto">
+                            {/* Form */}
                             <div className="p-6 lg:p-8">
                                 <motion.div
                                     initial={{ opacity: 0, y: 20 }}
@@ -357,31 +336,6 @@ export default function FemaAssistancePage() {
                                         </motion.div>
                                     </form>
                                 </CardContent>
-                            </div>
-
-                            {/* Right side - Image */}
-                            <div className="relative h-[600px] lg:h-auto">
-                                <AnimatePresence mode="wait">
-                                    <motion.img
-                                        key={currentImage}
-                                        src={images[currentImage]}
-                                        alt="FEMA assistance illustration"
-                                        className={`w-full h-full object-cover ${
-                                            currentImage === 2 ? 'object-[5%_30%]' : 'object-[65%_30%]'
-                                        }`}
-                                        onError={handleImageError}
-                                        initial={{ opacity: 0, x: 100 }}
-                                        animate={{ opacity: 1, x: 0 }}
-                                        exit={{ opacity: 0, x: -100 }}
-                                        transition={{ duration: 0.5 }}
-                                    />
-                                </AnimatePresence>
-                                <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent" />
-                                {imageError && (
-                                    <div className="absolute inset-0 flex items-center justify-center bg-gray-100">
-                                        <p className="text-red-500">Failed to load image</p>
-                                    </div>
-                                )}
                             </div>
                         </div>
                     </Card>

@@ -32,6 +32,7 @@ import { useQuery } from "@tanstack/react-query"
 import Link from "next/link";
 import SplashScreen from "@/components/SplashScreen";
 import { AuctionCard } from "@/components/AuctionCard";
+import { ClaimCard } from "@/components/ClaimCard";
 import { EmptyState } from "@/components/EmptyState";
 import { LoadingSkeleton } from "@/components/LoadingSkeleton";
 import { toast } from "sonner";
@@ -104,8 +105,7 @@ export default function HomePage() {
   const [jobsLoading, setJobsLoading] = useState(false);
 
   // Homeowner tab state
-  const [homeownerTab, setHomeownerTab] = useState<'my-projects' | 'live-auctions' | 'schedule'>('my-projects');
-  const [homeownerScheduleTab, setHomeownerScheduleTab] = useState<'upcoming' | 'deadlines' | 'visits' | 'milestones'>('upcoming');
+  const [homeownerTab, setHomeownerTab] = useState<'my-projects' | 'active-auctions' | 'closed-auctions' | 'claims'>('my-projects');
   const [homeownerProjects, setHomeownerProjects] = useState<HomeownerProject[]>([]);
   const [homeownerProjectsLoading, setHomeownerProjectsLoading] = useState(false);
 
@@ -399,6 +399,71 @@ export default function HomePage() {
     enabled: !!user?.id && isContractor
   })
 
+  // Filter homeowner's active auctions (only auctions for their claims that are open)
+  const homeownerActiveAuctions = useMemo(() => {
+    console.log('Filtering active auctions - claims:', claims?.length, 'auctions:', auctions?.length);
+    if (!auctions || auctions.length === 0) {
+      console.log('No auctions available');
+      return []
+    }
+
+    // If no claims, return empty (or could show all auctions for testing)
+    if (!claims || claims.length === 0) {
+      console.log('No claims, returning empty array');
+      return []
+    }
+
+    // Get claim IDs for this homeowner
+    const claimIds = claims.map((claim: any) => claim.id)
+    console.log('Claim IDs:', claimIds);
+    console.log('All auctions sample:', auctions[0]);
+    
+    // Filter auctions to only those belonging to homeowner's claims and are active/open
+    const filtered = auctions.filter((auction: any) => {
+      const claimId = auction.claimId || auction.claim_id
+      const endDate = new Date(auction.end_date || auction.auctionEndDate)
+      const isActive = auction.status === 'open' && endDate > new Date()
+      const belongsToClaim = claimIds.includes(claimId)
+      
+      console.log('Auction:', auction.title || auction.id, 'claimId:', claimId, 'belongsToClaim:', belongsToClaim, 'isActive:', isActive, 'status:', auction.status, 'endDate:', endDate);
+      
+      return belongsToClaim && isActive
+    })
+    
+    console.log('Filtered active auctions:', filtered.length, filtered);
+    return filtered
+  }, [claims, auctions])
+
+  // Filter homeowner's closed auctions (only auctions for their claims that are closed)
+  const homeownerClosedAuctions = useMemo(() => {
+    console.log('Filtering closed auctions - claims:', claims?.length, 'auctions:', auctions?.length);
+    if (!auctions || auctions.length === 0) {
+      console.log('No auctions available');
+      return []
+    }
+
+    // If no claims, return empty
+    if (!claims || claims.length === 0) {
+      console.log('No claims, returning empty array');
+      return []
+    }
+
+    // Get claim IDs for this homeowner
+    const claimIds = claims.map((claim: any) => claim.id)
+    
+    // Filter auctions to only those belonging to homeowner's claims and are closed
+    const filtered = auctions.filter((auction: any) => {
+      const claimId = auction.claimId || auction.claim_id
+      const endDate = new Date(auction.end_date || auction.auctionEndDate)
+      const isClosed = auction.status === 'closed' || endDate <= new Date()
+      
+      return claimIds.includes(claimId) && isClosed
+    })
+    
+    console.log('Filtered closed auctions:', filtered.length, filtered);
+    return filtered
+  }, [claims, auctions])
+
   // Filter homeowner's live auctions (only auctions for their claims)
   const homeownerLiveAuctions = useMemo(() => {
     if (!claims || !auctions || claims.length === 0) {
@@ -440,7 +505,7 @@ export default function HomePage() {
     )?.length
 
     // Count only live auctions for homeowner's claims
-    const activeAuctions = homeownerLiveAuctions.length
+    const activeAuctions = homeownerActiveAuctions.length
 
     const totalValue = claims.reduce((sum: number, claim: any) => 
       sum + (claim.insuranceEstimate || 0), 0
@@ -1038,29 +1103,42 @@ export default function HomePage() {
                 </div>
               </button>
               <button
-                onClick={() => setHomeownerTab('live-auctions')}
+                onClick={() => setHomeownerTab('active-auctions')}
                 className={`border-b-2 py-4 px-1 text-sm font-medium transition-colors ${
-                  homeownerTab === 'live-auctions'
+                  homeownerTab === 'active-auctions'
                     ? 'border-blue-600 text-blue-600'
                     : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
                 }`}
               >
                 <div className="flex items-center gap-2">
                   <DollarSign className="h-4 w-4" />
-                  Live Auctions
+                  Active Auctions
                 </div>
               </button>
               <button
-                onClick={() => setHomeownerTab('schedule')}
+                onClick={() => setHomeownerTab('closed-auctions')}
                 className={`border-b-2 py-4 px-1 text-sm font-medium transition-colors ${
-                  homeownerTab === 'schedule'
+                  homeownerTab === 'closed-auctions'
                     ? 'border-blue-600 text-blue-600'
                     : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
                 }`}
               >
                 <div className="flex items-center gap-2">
-                  <Calendar className="h-4 w-4" />
-                  Schedule
+                  <Archive className="h-4 w-4" />
+                  Closed Auctions
+                </div>
+              </button>
+              <button
+                onClick={() => setHomeownerTab('claims')}
+                className={`border-b-2 py-4 px-1 text-sm font-medium transition-colors ${
+                  homeownerTab === 'claims'
+                    ? 'border-blue-600 text-blue-600'
+                    : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                }`}
+              >
+                <div className="flex items-center gap-2">
+                  <FileText className="h-4 w-4" />
+                  Claims
                 </div>
               </button>
             </nav>
@@ -1188,238 +1266,156 @@ export default function HomePage() {
                   </div>
                 )}
               </>
-            ) : homeownerTab === 'live-auctions' ? (
-              <Card>
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <DollarSign className="h-5 w-5" />
-                    Live Auctions
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  {auctionsLoading ? (
-                    <div className="text-center py-8">
-                      <Clock className="h-12 w-12 text-gray-400 mx-auto mb-4 animate-spin" />
-                      <p className="text-gray-500">Loading auctions...</p>
+            ) : homeownerTab === 'active-auctions' ? (
+              <>
+                {auctionsLoading ? (
+                  <LoadingSkeleton />
+                ) : (homeownerActiveAuctions?.length === 0 && auctions?.length > 0) ? (
+                  <div className="space-y-4">
+                    <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
+                      <p className="text-sm text-yellow-800">
+                        Found {auctions.length} auction(s) but none match your claims. Showing all auctions for debugging:
+                      </p>
                     </div>
-                  ) : homeownerLiveAuctions?.length > 0 ? (
-                    <div className="space-y-4">
-                      {homeownerLiveAuctions.map((auction: any) => (
-                        <div key={auction.auction_id || auction.id} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
-                          <div className="flex items-center gap-3">
-                            <div className="w-2 h-2 bg-green-500 rounded-full"></div>
-                            <div>
-                              <Link 
-                                href={`/auction/${auction.auction_id || auction.id}`} 
-                                className="font-medium text-sm hover:text-blue-500"
-                              >
-                                {auction.title}
-                              </Link>
-                              <p className="text-xs text-gray-500">
-                                ${(auction.current_bid || auction.currentBid || 0).toLocaleString()}
-                              </p>
-                            </div>
-                          </div>
-                          <Badge variant="secondary" className="text-xs">
-                            {auction.bid_count || auction.bidCount || 0} bids
-                          </Badge>
-                        </div>
-                      ))}
-                      {homeownerLiveAuctions.length > 3 && (
-                        <Button 
-                          onClick={() => router.push('/dashboard')}
-                          variant="outline"
-                          className="w-full mt-2"
-                          size="sm"
-                        >
-                          View All Live Auctions
-                        </Button>
-                      )}
+                    <div className="grid gap-6 sm:gap-8 grid-cols-1 md:grid-cols-2 xl:grid-cols-3">
+                      {auctions.slice(0, 6).map((auction: any) => {
+                        console.log('Rendering debug auction card:', auction);
+                        return (
+                          <AuctionCard
+                            key={auction.auction_id || auction.id}
+                            title={auction.title || 'Untitled Auction'}
+                            scope={auction.project_type || auction.scope || 'N/A'}
+                            finalBid={auction.current_bid || auction.currentBid || auction.finalBid || 0}
+                            totalBids={auction.bid_count || auction.bidCount || auction.totalBids || 0}
+                            endedAt={auction.end_date || auction.auctionEndDate || auction.endedAt}
+                            status={auction.status === 'closed' ? 'closed' : 'open'}
+                            onViewDetails={() => router.push(`/auction/${auction.auction_id || auction.id}`)}
+                          />
+                        );
+                      })}
                     </div>
-                  ) : (
-                    <div className="text-center py-8">
-                      <DollarSign className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-                      <p className="text-gray-500">No live auctions</p>
-                      <p className="text-xs text-gray-400 mt-2">Auctions will appear here when you create them from your claims</p>
-                    </div>
-                  )}
-                </CardContent>
-              </Card>
-            ) : homeownerTab === 'schedule' ? (
-              <div className="space-y-6">
-                {/* Schedule Header */}
-                <div className="flex items-center justify-between">
-                  <div>
-                    <h2 className="text-2xl font-bold text-gray-900">Schedule & Calendar</h2>
-                    <p className="text-gray-600 mt-1">Manage all deadlines, visits, and milestones</p>
                   </div>
-                  <div className="flex items-center space-x-2">
-                    <Button variant="default" size="sm" className="bg-blue-600 hover:bg-blue-700">
-                      <List className="h-4 w-4 mr-2" />
-                      List
-                    </Button>
-                    <Button variant="outline" size="sm">
-                      <Calendar className="h-4 w-4 mr-2" />
-                      Calendar
-                    </Button>
-                    <Button variant="outline" size="sm">
-                      <BarChart3 className="h-4 w-4 mr-2" />
-                      Gantt
-                    </Button>
+                ) : homeownerActiveAuctions?.length === 0 ? (
+                  <EmptyState
+                    icon={DollarSign}
+                    title="No Active Auctions"
+                    description="There are currently no active auctions for your claims. Create a restoration job from your claims to start an auction."
+                    actionLabel="View Claims"
+                    onAction={() => setHomeownerTab('claims')}
+                  />
+                ) : (
+                  <div className="grid gap-6 sm:gap-8 grid-cols-1 md:grid-cols-2 xl:grid-cols-3">
+                    {homeownerActiveAuctions?.map((auction: any) => {
+                      console.log('Rendering active auction card:', auction);
+                      return (
+                        <AuctionCard
+                          key={auction.auction_id || auction.id}
+                          title={auction.title || 'Untitled Auction'}
+                          scope={auction.project_type || auction.scope || 'N/A'}
+                          finalBid={auction.current_bid || auction.currentBid || auction.finalBid || 0}
+                          totalBids={auction.bid_count || auction.bidCount || auction.totalBids || 0}
+                          endedAt={auction.end_date || auction.auctionEndDate || auction.endedAt}
+                          status="open"
+                          onViewDetails={() => router.push(`/auction/${auction.auction_id || auction.id}`)}
+                        />
+                      );
+                    })}
                   </div>
-                </div>
-
-                {/* Critical Deadlines Alert */}
-                <Card className="bg-red-50 border-red-200">
-                  <CardContent className="p-4">
-                    <div className="flex items-start space-x-3">
-                      <div className="flex-shrink-0">
-                        <div className="w-6 h-6 bg-red-100 rounded-full flex items-center justify-center">
-                          <AlertCircle className="h-4 w-4 text-red-600" />
-                        </div>
-                      </div>
-                      <div>
-                        <h3 className="text-sm font-medium text-red-800">Critical Deadlines</h3>
-                        <p className="text-sm text-red-700 mt-1">
-                          Site visit scheduled for Water Damage Restoration project tomorrow at 10:00 AM
-                        </p>
-                      </div>
+                )}
+              </>
+            ) : homeownerTab === 'closed-auctions' ? (
+              <>
+                {auctionsLoading ? (
+                  <LoadingSkeleton />
+                ) : (homeownerClosedAuctions?.length === 0 && auctions?.length > 0) ? (
+                  <div className="space-y-4">
+                    <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
+                      <p className="text-sm text-yellow-800">
+                        Found {auctions.length} auction(s) but none match your claims. Showing all auctions for debugging:
+                      </p>
                     </div>
-                  </CardContent>
-                </Card>
-
-                {/* Schedule Tab Navigation */}
-                <div className="border-b border-gray-200">
-                  <nav className="-mb-px flex space-x-8">
-                    <button
-                      onClick={() => setHomeownerScheduleTab('upcoming')}
-                      className={`border-b-2 py-2 px-1 text-sm font-medium ${
-                        homeownerScheduleTab === 'upcoming'
-                          ? 'border-blue-500 text-blue-600'
-                          : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
-                      }`}
-                    >
-                      Upcoming Events
-                    </button>
-                    <button
-                      onClick={() => setHomeownerScheduleTab('deadlines')}
-                      className={`border-b-2 py-2 px-1 text-sm font-medium ${
-                        homeownerScheduleTab === 'deadlines'
-                          ? 'border-blue-500 text-blue-600'
-                          : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
-                      }`}
-                    >
-                      Deadlines
-                    </button>
-                    <button
-                      onClick={() => setHomeownerScheduleTab('visits')}
-                      className={`border-b-2 py-2 px-1 text-sm font-medium ${
-                        homeownerScheduleTab === 'visits'
-                          ? 'border-blue-500 text-blue-600'
-                          : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
-                      }`}
-                    >
-                      Site Visits
-                    </button>
-                    <button
-                      onClick={() => setHomeownerScheduleTab('milestones')}
-                      className={`border-b-2 py-2 px-1 text-sm font-medium ${
-                        homeownerScheduleTab === 'milestones'
-                          ? 'border-blue-500 text-blue-600'
-                          : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
-                      }`}
-                    >
-                      Milestones
-                    </button>
-                  </nav>
-                </div>
-
-                {/* Schedule Tab Content */}
-                <div>
-                  {homeownerScheduleTab === 'upcoming' && (
-                    <>
-                      <h3 className="text-xl font-semibold text-gray-900 mb-4">Next 7 Days</h3>
-                      <div className="space-y-4">
-                        <Card className="p-4 bg-white border border-gray-200">
-                          <div className="flex items-center justify-between">
-                            <div className="flex items-center space-x-4">
-                              <div className="w-2 h-2 bg-red-500 rounded-full"></div>
-                              <div>
-                                <h4 className="text-sm font-medium text-gray-900">Site Visit - Water Damage Restoration</h4>
-                                <p className="text-xs text-gray-500 mt-1">Tomorrow at 10:00 AM</p>
-                              </div>
-                            </div>
-                            <Badge variant="outline" className="text-red-600 border-red-200 bg-red-50 text-xs">Critical</Badge>
-                          </div>
-                        </Card>
-                        <Card className="p-4 bg-white border border-gray-200">
-                          <div className="flex items-center justify-between">
-                            <div className="flex items-center space-x-4">
-                              <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
-                              <div>
-                                <h4 className="text-sm font-medium text-gray-900">Milestone Review - Fire Damage Restoration</h4>
-                                <p className="text-xs text-gray-500 mt-1">Friday at 2:00 PM</p>
-                              </div>
-                            </div>
-                            <Badge variant="outline" className="text-blue-600 border-blue-200 bg-blue-50 text-xs">Scheduled</Badge>
-                          </div>
-                        </Card>
-                      </div>
-                    </>
-                  )}
-
-                  {homeownerScheduleTab === 'deadlines' && (
-                    <>
-                      <h3 className="text-xl font-semibold text-gray-900 mb-4">Important Deadlines</h3>
-                      <div className="space-y-6">
-                        <Card className="p-6 bg-white border border-gray-200 shadow-sm">
-                          <div className="flex items-start justify-between">
-                            <div className="flex-1">
-                              <div className="flex items-center justify-between mb-2">
-                                <h4 className="text-lg font-semibold text-gray-900">Site Visit Confirmation</h4>
-                                <div className="text-right">
-                                  <p className="text-sm font-medium text-gray-900">2/11/2025</p>
-                                  <p className="text-sm text-gray-500">10:00 AM</p>
-                                </div>
-                              </div>
-                              <p className="text-gray-600 mb-3">Water Damage Restoration - 123 Oak Street</p>
-                              <div className="flex items-center space-x-3 mb-4">
-                                <Badge className="bg-red-100 text-red-800 border-red-200">HIGH</Badge>
-                                <span className="text-sm text-gray-600">Site Visit</span>
-                              </div>
-                              <p className="text-gray-700 mb-4">Contractor will visit to assess progress and discuss next steps</p>
-                              <div className="flex space-x-3">
-                                <Button variant="outline" size="sm">View Details</Button>
-                                <Button size="sm" className="bg-blue-600 hover:bg-blue-700">Reschedule</Button>
-                              </div>
-                            </div>
-                          </div>
-                        </Card>
-                      </div>
-                    </>
-                  )}
-
-                  {homeownerScheduleTab === 'visits' && (
-                    <>
-                      <h3 className="text-xl font-semibold text-gray-900 mb-4">Site Visits</h3>
-                      <div className="text-center py-8">
-                        <MapPin className="h-16 w-16 text-gray-400 mx-auto mb-4" />
-                        <p className="text-gray-500">No site visits scheduled</p>
-                      </div>
-                    </>
-                  )}
-
-                  {homeownerScheduleTab === 'milestones' && (
-                    <>
-                      <h3 className="text-xl font-semibold text-gray-900 mb-4">Project Milestones</h3>
-                      <div className="text-center py-8">
-                        <CheckCircle className="h-16 w-16 text-gray-400 mx-auto mb-4" />
-                        <p className="text-gray-500">No milestones scheduled</p>
-                      </div>
-                    </>
-                  )}
-                </div>
-              </div>
+                    <div className="grid gap-6 sm:gap-8 grid-cols-1 md:grid-cols-2 xl:grid-cols-3">
+                      {auctions.slice(0, 6).map((auction: any) => {
+                        console.log('Rendering debug closed auction card:', auction);
+                        return (
+                          <AuctionCard
+                            key={auction.auction_id || auction.id}
+                            title={auction.title || 'Untitled Auction'}
+                            scope={auction.project_type || auction.scope || 'N/A'}
+                            finalBid={auction.current_bid || auction.currentBid || auction.finalBid || 0}
+                            totalBids={auction.bid_count || auction.bidCount || auction.totalBids || 0}
+                            endedAt={auction.end_date || auction.auctionEndDate || auction.endedAt}
+                            status="closed"
+                            onViewDetails={() => router.push(`/auction/${auction.auction_id || auction.id}`)}
+                          />
+                        );
+                      })}
+                    </div>
+                  </div>
+                ) : homeownerClosedAuctions?.length === 0 ? (
+                  <EmptyState
+                    icon={Archive}
+                    title="No Closed Auctions"
+                    description="You don't have any closed auctions yet. Closed auctions will appear here once they end."
+                  />
+                ) : (
+                  <div className="grid gap-6 sm:gap-8 grid-cols-1 md:grid-cols-2 xl:grid-cols-3">
+                    {homeownerClosedAuctions?.map((auction: any) => {
+                      console.log('Rendering closed auction card:', auction);
+                      return (
+                        <AuctionCard
+                          key={auction.auction_id || auction.id}
+                          title={auction.title || 'Untitled Auction'}
+                          scope={auction.project_type || auction.scope || 'N/A'}
+                          finalBid={auction.current_bid || auction.currentBid || auction.finalBid || 0}
+                          totalBids={auction.bid_count || auction.bidCount || auction.totalBids || 0}
+                          endedAt={auction.end_date || auction.auctionEndDate || auction.endedAt}
+                          status="closed"
+                          onViewDetails={() => router.push(`/auction/${auction.auction_id || auction.id}`)}
+                        />
+                      );
+                    })}
+                  </div>
+                )}
+              </>
+            ) : homeownerTab === 'claims' ? (
+              <>
+                {claimsLoading ? (
+                  <LoadingSkeleton />
+                ) : claims?.length === 0 ? (
+                  <EmptyState
+                    icon={FileText}
+                    title="No Claims Found"
+                    description="You haven't filed any claims yet. Start a new claim to get started with your recovery process."
+                    actionLabel="Start New Claim"
+                    onAction={() => router.push("/start-claim")}
+                  />
+                ) : (
+                  <div className="grid gap-4 sm:gap-6 grid-cols-1 sm:grid-cols-2 md:grid-cols-3">
+                    {claims?.map((claim: any) => (
+                      <ClaimCard
+                        key={claim.id}
+                        id={claim.id}
+                        street={claim.street}
+                        city={claim.city}
+                        state={claim.state}
+                        zipCode={claim.zipCode}
+                        projectType={claim.projectType}
+                        designPlan={claim.designPlan}
+                        needsAdjuster={claim.needsAdjuster}
+                        insuranceProvider={claim.insuranceProvider ? (claim.insuranceProvider === 'statefarm' ? 'State Farm' : claim.insuranceProvider) : 'Not specified'}
+                        createdAt={claim.createdAt}
+                        updatedAt={claim.updatedAt}
+                        onViewDetails={() => router.push(`/claim/${claim.id}`)}
+                        onCreateRestoration={() => router.push(`/start-claim/create-restor/${claim.id}`)}
+                        onDelete={() => {
+                          toast("Delete functionality coming soon");
+                        }}
+                      />
+                    ))}
+                  </div>
+                )}
+              </>
             ) : null}
           </div>
         </div>

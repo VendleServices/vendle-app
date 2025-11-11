@@ -18,6 +18,7 @@ import { AuctionCard } from "@/components/AuctionCard";
 import { ClaimCard } from "@/components/ClaimCard";
 import { EmptyState } from "@/components/EmptyState";
 import { LoadingSkeleton } from "@/components/LoadingSkeleton";
+import SplashScreen from "@/components/SplashScreen";
 import {
     AlertDialog,
     AlertDialogAction,
@@ -40,11 +41,11 @@ interface Claim {
     zipCode: string;
     projectType: string;
     designPlan: string;
-    insuranceEstimateFilePath: string;
     needsAdjuster: boolean;
-    insuranceProvider: string;
-    createdAt: Date;
-    updatedAt: Date;
+    insuranceEstimateFilePath?: string;
+    insuranceProvider?: string;
+    createdAt: Date | string;
+    updatedAt: Date | string;
 }
 
 interface Auction {
@@ -120,9 +121,11 @@ export default function DashboardPage() {
             console.log('Fetching claims for user:', user?.id);
             const response: any = await apiService.get(`/api/claim`);
             console.log('Claims API response:', response);
-            return response?.claims;
+            console.log('Claims array:', response?.claims);
+            console.log('Number of claims:', response?.claims?.length || 0);
+            return response?.claims || [];
         } catch (error) {
-            console.log('Error fetching claims:', error);
+            console.error('Error fetching claims:', error);
             throw error;
         }
     }
@@ -171,6 +174,9 @@ export default function DashboardPage() {
         queryFn: fetchClaims,
         enabled: !!user?.id,
         retry: 1,
+        refetchOnMount: true,
+        refetchOnWindowFocus: true,
+        staleTime: 0, // Always consider data stale to refetch
     });
 
     const deleteClaimMutation = useMutation({
@@ -295,6 +301,13 @@ export default function DashboardPage() {
             setClosedAuctionToDelete(null);
         }
     };
+
+    // Refetch claims when user loads or navigates to dashboard
+    useEffect(() => {
+        if (user?.id && !authLoading) {
+            queryClient.invalidateQueries({ queryKey: ["getClaims"] });
+        }
+    }, [user?.id, authLoading, queryClient]);
 
     // Set default section based on user type when user loads
     useEffect(() => {
@@ -1212,6 +1225,15 @@ export default function DashboardPage() {
                                             <>
                                                 {isLoading ? (
                                                     <LoadingSkeleton />
+                                                ) : isError ? (
+                                                    <div className="text-center py-12">
+                                                        <AlertCircle className="w-12 h-12 text-red-500 mx-auto mb-4" />
+                                                        <h3 className="text-lg font-semibold text-gray-900 mb-2">Error Loading Claims</h3>
+                                                        <p className="text-gray-600 mb-4">{error instanceof Error ? error.message : 'Failed to load claims'}</p>
+                                                        <Button onClick={() => queryClient.invalidateQueries({ queryKey: ["getClaims"] })}>
+                                                            Try Again
+                                                        </Button>
+                                                    </div>
                                                 ) : claims?.length === 0 ? (
                                                     <EmptyState
                                                         icon={FileText}
@@ -1233,7 +1255,7 @@ export default function DashboardPage() {
                                                                 projectType={claim.projectType}
                                                                 designPlan={claim.designPlan}
                                                                 needsAdjuster={claim.needsAdjuster}
-                                                                insuranceProvider={claim.insuranceProvider === 'statefarm' ? 'State Farm' : claim.insuranceProvider}
+                                                                insuranceProvider={claim.insuranceProvider ? (claim.insuranceProvider === 'statefarm' ? 'State Farm' : claim.insuranceProvider) : 'Not specified'}
                                                                 createdAt={claim.createdAt}
                                                                 updatedAt={claim.updatedAt}
                                                                 onViewDetails={() => router.push(`/claim/${claim.id}`)}
