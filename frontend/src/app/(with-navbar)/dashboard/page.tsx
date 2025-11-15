@@ -2,13 +2,12 @@
 
 import { useState, useEffect } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import Image from "next/image";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { motion } from "framer-motion";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { MapPin, Calendar, FileText, Clock, LayoutIcon, Trash2, DollarSign, Users, Folder, CheckCircle, Archive, Plus, Upload, Download, BarChart, HelpCircle, MessageCircle, Bell, Settings, Flag, LogOut, Star, Trophy, AlertCircle, Menu, ChevronLeft, Wrench, Home, CalendarCheck, TrendingUp, List, Grid, BarChart3, Compass } from "lucide-react";
+import { MapPin, Calendar, FileText, Clock, LayoutIcon, Trash2, DollarSign, Users, Folder, CheckCircle, Archive, Plus, Upload, Download, BarChart, HelpCircle, MessageCircle, Bell, Settings, Flag, LogOut, Star, Trophy, AlertCircle, Wrench, Home, CalendarCheck, TrendingUp, List, Grid, BarChart3, Compass } from "lucide-react";
 import { toast } from "sonner";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useAuth } from "@/contexts/AuthContext";
@@ -29,7 +28,6 @@ import {
     AlertDialogHeader,
     AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-import vendleLogo from "../../../assets/vendle_logo.jpeg";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -110,7 +108,6 @@ export default function DashboardPage() {
     // Default to 'auctions' for contractors, 'claims' for homeowners
     const [activeSection, setActiveSection] = useState<'home' | 'schedule' | 'analytics' | 'reviews' | 'auctions' | 'closed-auctions' | 'claims' | 'explore'>('claims');
     const [scheduleTab, setScheduleTab] = useState<'upcoming' | 'deadlines' | 'visits' | 'milestones'>('upcoming');
-    const [sidebarExpanded, setSidebarExpanded] = useState(true);
     const [closedAuctions, setClosedAuctions] = useState<Auction[]>([]);
     const [closedAuctionLoading, setClosedAuctionLoading] = useState(false);
     const [showClosedAuctionDeleteConfirmation, setShowClosedAuctionDeleteConfirmation] = useState(false);
@@ -375,292 +372,9 @@ export default function DashboardPage() {
                 exit={{ opacity: 0, y: -20 }}
                 transition={{ duration: 0.3 }}
             >
-                <div className="flex">
-                    {/* Sidebar */}
-                    <div className={`${sidebarExpanded ? 'w-64' : 'w-16'} bg-[#0f172a] min-h-screen transition-all duration-300 ease-in-out flex flex-col`}>
-                        <div className={`flex-1 ${sidebarExpanded ? 'p-4' : 'p-2'}`}>
-                            <div className="flex items-center justify-between mb-4">
-                                <Button
-                                    variant="ghost"
-                                    className={`${sidebarExpanded ? 'justify-start' : 'justify-center'} hover:bg-transparent hover:text-white transition-all duration-200 p-2 flex-shrink-0`}
-                                    onClick={() => router.push("/home")}
-                                >
-                                    <div className={`${sidebarExpanded ? 'w-auto' : 'w-8'} flex justify-center`}>
-                                        <Image
-                                            src={vendleLogo}
-                                            alt="Logo"
-                                            width={sidebarExpanded ? 120 : 32}
-                                            height={sidebarExpanded ? 40 : 32}
-                                            className={`${sidebarExpanded ? 'h-8 w-auto' : 'h-8 w-8 object-contain'}`}
-                                            priority
-                                        />
-                                    </div>
-                                </Button>
-                                <Button
-                                    variant="ghost"
-                                    size="icon"
-                                    className="text-white hover:bg-[#1e293b] hover:text-white flex-shrink-0"
-                                    onClick={() => setSidebarExpanded(!sidebarExpanded)}
-                                >
-                                    {sidebarExpanded ? <ChevronLeft className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
-                                </Button>
-                            </div>
-
-                            <div className="space-y-1 mb-8">
-                                {/* CONTRACTOR DASHBOARD - Custom Navigation */}
-                                {user?.user_type === "contractor" ? (
-                                    <>
-                                        {/* Contractor-specific tabs */}
-                                        <Button
-                                            variant="ghost"
-                                            className={`w-full ${sidebarExpanded ? 'justify-start' : 'justify-center'} h-9 text-xs ${
-                                                activeSection === 'home' 
-                                                    ? 'bg-[#1e293b] text-white hover:bg-[#1e293b]' 
-                                                    : 'text-gray-200 hover:bg-[#1e293b] hover:text-white'
-                                            }`}
-                                            onClick={() => setActiveSection('home')}
-                                        >
-                                            <Home className={`w-3 h-3 ${sidebarExpanded ? 'mr-2' : ''}`} />
-                                            {sidebarExpanded && "Home"}
-                                        </Button>
-
-                                        <Button
-                                            variant="ghost"
-                                            className={`w-full ${sidebarExpanded ? 'justify-start' : 'justify-center'} h-9 text-xs ${
-                                                activeSection === 'schedule' 
-                                                    ? 'bg-[#1e293b] text-white hover:bg-[#1e293b]' 
-                                                    : 'text-gray-200 hover:bg-[#1e293b] hover:text-white'
-                                            }`}
-                                            onClick={() => setActiveSection('schedule')}
-                                        >
-                                            <CalendarCheck className={`w-3 h-3 ${sidebarExpanded ? 'mr-2' : ''}`} />
-                                            {sidebarExpanded && "Schedule"}
-                                        </Button>
-
-                                        <Button
-                                            variant="ghost"
-                                            className={`w-full ${sidebarExpanded ? 'justify-start' : 'justify-center'} h-9 text-xs ${
-                                                activeSection === 'analytics' 
-                                                    ? 'bg-[#1e293b] text-white hover:bg-[#1e293b]' 
-                                                    : 'text-gray-200 hover:bg-[#1e293b] hover:text-white'
-                                            }`}
-                                            onClick={() => setActiveSection('analytics')}
-                                        >
-                                            <TrendingUp className={`w-3 h-3 ${sidebarExpanded ? 'mr-2' : ''}`} />
-                                            {sidebarExpanded && "Analytics"}
-                                        </Button>
-
-                                        <Button
-                                            variant="ghost"
-                                            className={`w-full ${sidebarExpanded ? 'justify-start' : 'justify-center'} h-9 text-xs ${
-                                                activeSection === 'reviews'
-                                                    ? 'bg-[#1e293b] text-white hover:bg-[#1e293b]'
-                                                    : 'text-gray-200 hover:bg-[#1e293b] hover:text-white'
-                                            }`}
-                                            onClick={() => setActiveSection('reviews')}
-                                        >
-                                            <Star className={`w-3 h-3 ${sidebarExpanded ? 'mr-2' : ''}`} />
-                                            {sidebarExpanded && "Reviews"}
-                                        </Button>
-
-                                        <Button
-                                            variant="ghost"
-                                            className={`w-full ${sidebarExpanded ? 'justify-start' : 'justify-center'} h-9 text-xs ${
-                                                activeSection === 'explore'
-                                                    ? 'bg-[#1e293b] text-white hover:bg-[#1e293b]'
-                                                    : 'text-gray-200 hover:bg-[#1e293b] hover:text-white'
-                                            }`}
-                                            onClick={() => setActiveSection('explore')}
-                                        >
-                                            <Compass className={`w-3 h-3 ${sidebarExpanded ? 'mr-2' : ''}`} />
-                                            {sidebarExpanded && "Explore"}
-                                        </Button>
-
-                                        {/* Keep Active Auctions & Closed Auctions */}
-                                        <Button
-                                            variant="ghost"
-                                            className={`w-full ${sidebarExpanded ? 'justify-start' : 'justify-center'} h-9 text-xs ${
-                                                activeSection === 'auctions' 
-                                                    ? 'bg-[#1e293b] text-white hover:bg-[#1e293b]' 
-                                                    : 'text-gray-200 hover:bg-[#1e293b] hover:text-white'
-                                            }`}
-                                            onClick={() => setActiveSection('auctions')}
-                                        >
-                                            <Users className={`w-3 h-3 ${sidebarExpanded ? 'mr-2' : ''}`} />
-                                            {sidebarExpanded && "Active Auctions"}
-                                        </Button>
-
-                                        <Button
-                                            variant="ghost"
-                                            className={`w-full ${sidebarExpanded ? 'justify-start' : 'justify-center'} h-9 text-xs ${
-                                                activeSection === 'closed-auctions' 
-                                                    ? 'bg-[#1e293b] text-white hover:bg-[#1e293b]' 
-                                                    : 'text-gray-200 hover:bg-[#1e293b] hover:text-white'
-                                            }`}
-                                            onClick={() => setActiveSection('closed-auctions')}
-                                        >
-                                            <Archive className={`w-3 h-3 ${sidebarExpanded ? 'mr-2' : ''}`} />
-                                            {sidebarExpanded && "Closed Auctions"}
-                                        </Button>
-                                    </>
-                                ) : (
-                                    <>
-                                        {/* HOMEOWNER/CLIENT DASHBOARD - Original Navigation */}
-                                        <Button
-                                            variant="ghost"
-                                            className={`w-full ${sidebarExpanded ? 'justify-start' : 'justify-center'} h-9 text-xs ${
-                                                activeSection === 'auctions' 
-                                                    ? 'bg-[#1e293b] text-white hover:bg-[#1e293b]' 
-                                                    : 'text-gray-200 hover:bg-[#1e293b] hover:text-white'
-                                            }`}
-                                            onClick={() => setActiveSection('auctions')}
-                                        >
-                                            <Users className={`w-3 h-3 ${sidebarExpanded ? 'mr-2' : ''}`} />
-                                            {sidebarExpanded && "Active Auctions"}
-                                        </Button>
-
-                                        <Button
-                                            variant="ghost"
-                                            className={`w-full ${sidebarExpanded ? 'justify-start' : 'justify-center'} h-9 text-xs ${
-                                                activeSection === 'closed-auctions' 
-                                                    ? 'bg-[#1e293b] text-white hover:bg-[#1e293b]' 
-                                                    : 'text-gray-200 hover:bg-[#1e293b] hover:text-white'
-                                            }`}
-                                            onClick={() => setActiveSection('closed-auctions')}
-                                        >
-                                            <Archive className={`w-3 h-3 ${sidebarExpanded ? 'mr-2' : ''}`} />
-                                            {sidebarExpanded && "Closed Auctions"}
-                                        </Button>
-
-                                        {/* Only show Claims for homeowners */}
-                                        {!isContractor && (
-                                            <Button
-                                                variant="ghost"
-                                                className={`w-full ${sidebarExpanded ? 'justify-start' : 'justify-center'} h-9 text-xs ${
-                                                    activeSection === 'claims' 
-                                                        ? 'bg-[#1e293b] text-white hover:bg-[#1e293b]' 
-                                                        : 'text-gray-200 hover:bg-[#1e293b] hover:text-white'
-                                                }`}
-                                                onClick={() => setActiveSection('claims')}
-                                            >
-                                                <FileText className={`w-3 h-3 ${sidebarExpanded ? 'mr-2' : ''}`} />
-                                                {sidebarExpanded && "Claims"}
-                                            </Button>
-                                        )}
-                                    </>
-                                )}
-
-                                {/* 
-                                    TEMPLATE FOR FUTURE USER-TYPE SPECIFIC SECTIONS:
-                                    
-                                    Copy this pattern to add new contractor-only or client-only sections:
-                                    
-                                    // FOR CONTRACTOR-ONLY FEATURES:
-                                    {user?.user_type === "contractor" && (
-                                        <Button variant="ghost" onClick={() => setActiveSection('new-contractor-section')}>
-                                            <Icon className="w-3 h-3" />
-                                            {sidebarExpanded && "Contractor Feature"}
-                                        </Button>
-                                    )}
-                                    
-                                    // FOR CLIENT-ONLY FEATURES:
-                                    {user?.user_type === "homeowner" && (
-                                        <Button variant="ghost" onClick={() => setActiveSection('new-client-section')}>
-                                            <Icon className="w-3 h-3" />
-                                            {sidebarExpanded && "Client Feature"}
-                                        </Button>
-                                    )}
-                                */}
-
-                                {/* PROJECT CATEGORIES & QUICK ACTIONS - Only for Homeowners/Clients */}
-                                {user?.user_type !== "contractor" && (
-                                    <>
-                                        {/* Project Categories */}
-                                        <div className="pt-2">
-                                            {sidebarExpanded && <h4 className="text-gray-400 text-xs font-semibold px-4 mb-1">PROJECT CATEGORIES</h4>}
-                                            <Button
-                                                variant="ghost"
-                                                className={`w-full ${sidebarExpanded ? 'justify-start' : 'justify-center'} h-8 text-xs text-gray-200 hover:bg-[#1e293b] hover:text-white`}
-                                            >
-                                                <Folder className={`w-3 h-3 ${sidebarExpanded ? 'mr-2' : ''}`} />
-                                                {sidebarExpanded && "Active Projects"}
-                                            </Button>
-                                            <Button
-                                                variant="ghost"
-                                                className={`w-full ${sidebarExpanded ? 'justify-start' : 'justify-center'} h-8 text-xs text-gray-200 hover:bg-[#1e293b] hover:text-white`}
-                                            >
-                                                <CheckCircle className={`w-3 h-3 ${sidebarExpanded ? 'mr-2' : ''}`} />
-                                                {sidebarExpanded && "Completed Projects"}
-                                            </Button>
-                                        </div>
-
-                                        {/* Quick Actions */}
-                                        <div className="pt-2">
-                                            {sidebarExpanded && <h4 className="text-gray-400 text-xs font-semibold px-4 mb-1">QUICK ACTIONS</h4>}
-                                            <Button
-                                                variant="ghost"
-                                                className={`w-full ${sidebarExpanded ? 'justify-start' : 'justify-center'} h-8 text-xs text-gray-200 hover:bg-[#1e293b] hover:text-white`}
-                                                onClick={() => router.push("/start-claim")}
-                                            >
-                                                <Plus className={`w-3 h-3 ${sidebarExpanded ? 'mr-2' : ''}`} />
-                                                {sidebarExpanded && "Create New Claim"}
-                                            </Button>
-                                            <Button
-                                                variant="ghost"
-                                                className={`w-full ${sidebarExpanded ? 'justify-start' : 'justify-center'} h-8 text-xs text-gray-200 hover:bg-[#1e293b] hover:text-white`}
-                                            >
-                                                <BarChart className={`w-3 h-3 ${sidebarExpanded ? 'mr-2' : ''}`} />
-                                                {sidebarExpanded && "Project Statistics"}
-                                            </Button>
-                                            <Button
-                                                variant="ghost"
-                                                className={`w-full ${sidebarExpanded ? 'justify-start' : 'justify-center'} h-8 text-xs text-gray-200 hover:bg-[#1e293b] hover:text-white`}
-                                            >
-                                                <Settings className={`w-3 h-3 ${sidebarExpanded ? 'mr-2' : ''}`} />
-                                                {sidebarExpanded && "Settings"}
-                                            </Button>
-                                        </div>
-                                    </>
-                                )}
-                            </div>
-                        </div>
-
-                        <div className="p-2 border-t border-[#1e293b] bg-[#0f172a]">
-                            <div className={`flex items-center ${sidebarExpanded ? 'space-x-2' : 'justify-center'}`}>
-                                <Avatar className="w-8 h-8">
-                                    <AvatarImage src={user?.picture || ""} />
-                                    <AvatarFallback>
-                                        {(user?.name?.charAt(0) || "U").toUpperCase()}
-                                    </AvatarFallback>
-                                </Avatar>
-                                {sidebarExpanded && (
-                                    <>
-                                        <div className="flex-1 min-w-0">
-                                            <p className="text-xs font-medium text-white truncate">
-                                                {user?.name || user?.email || "User"}
-                                            </p>
-                                            <p className="text-xs text-gray-400 truncate">
-                                                {user?.email || ""}
-                                            </p>
-                                        </div>
-                                        <Button
-                                            variant="ghost"
-                                            size="icon"
-                                            className="text-gray-400 hover:text-white hover:bg-[#1e293b] w-6 h-6"
-                                            onClick={async () => {
-                                                await logout();
-                                            }}
-                                        >
-                                            <LogOut className="w-3 h-3" />
-                                        </Button>
-                                    </>
-                                )}
-                            </div>
-                        </div>
-                    </div>
-
+                <div className="pl-32">
                     {/* Main Content */}
-                    <div className="flex-1 bg-gray-50 border-l border-gray-200">
+                    <div className="flex-1 bg-gray-50">
                         <div className="p-6 sm:p-8 lg:p-12">
                             <div className="mx-auto w-full max-w-[1200px]">
                                 <motion.div

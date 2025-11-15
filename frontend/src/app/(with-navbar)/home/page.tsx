@@ -26,7 +26,13 @@ import {
   List,
   BarChart3,
   Wrench,
-  Activity
+  Activity,
+  X,
+  Phone,
+  ChevronDown,
+  Download,
+  File,
+  Image as ImageIcon
 } from "lucide-react"
 import { useQuery } from "@tanstack/react-query"
 import Link from "next/link";
@@ -87,6 +93,15 @@ interface Job {
   milestonesCompleted: number;
   totalMilestones: number;
   homeownerName: string;
+  homeownerPhone?: string;
+  description?: string;
+  imageUrl?: string;
+  files?: Array<{
+    id: string;
+    name: string;
+    url: string;
+    type: 'pdf' | 'image' | 'document';
+  }>;
 }
 
 export default function HomePage() {
@@ -95,14 +110,14 @@ export default function HomePage() {
   const apiService = useApiService();
 
   // Contractor tab state
-  const [contractorTab, setContractorTab] = useState<'auctions' | 'closed-auctions' | 'schedule' | 'my-jobs'>('my-jobs');
+  const [contractorTab, setContractorTab] = useState<'auctions' | 'schedule' | 'my-jobs'>('my-jobs');
   const [scheduleTab, setScheduleTab] = useState<'upcoming' | 'deadlines' | 'visits' | 'milestones'>('upcoming');
   const [contractorAuctions, setContractorAuctions] = useState<Auction[]>([]);
   const [contractorAuctionLoading, setContractorAuctionLoading] = useState(false);
-  const [contractorClosedAuctions, setContractorClosedAuctions] = useState<Auction[]>([]);
-  const [contractorClosedAuctionLoading, setContractorClosedAuctionLoading] = useState(false);
   const [myJobs, setMyJobs] = useState<Job[]>([]);
   const [jobsLoading, setJobsLoading] = useState(false);
+  const [selectedJob, setSelectedJob] = useState<Job | null>(null);
+  const [showFilesDropdown, setShowFilesDropdown] = useState(false);
 
   // Homeowner tab state
   const [homeownerTab, setHomeownerTab] = useState<'my-projects' | 'active-auctions' | 'closed-auctions' | 'claims'>('my-projects');
@@ -164,36 +179,6 @@ export default function HomePage() {
     ];
   }
 
-  const getMockClosedAuctions = () => {
-    return [
-      {
-        auction_id: "mock-closed-1",
-        claim_id: "mock-claim-4",
-        title: "Mold Remediation Project",
-        project_type: "mold remediation",
-        starting_bid: 3000,
-        current_bid: 4800,
-        bid_count: 1,
-        end_date: "2025-01-15",
-        status: "closed",
-        property_address: "321 Maple Lane, San Antonio, TX",
-        design_plan: "Basement cleanup"
-      },
-      {
-        auction_id: "mock-closed-2",
-        claim_id: "mock-claim-5",
-        title: "Full Home Restoration",
-        project_type: "full",
-        starting_bid: 15000,
-        current_bid: 25000,
-        bid_count: 4,
-        end_date: "2025-01-10",
-        status: "closed",
-        property_address: "654 Cedar Court, Fort Worth, TX",
-        design_plan: "Complete renovation"
-      }
-    ];
-  }
 
   const getMockHomeownerProjects = (): HomeownerProject[] => {
     return [
@@ -271,7 +256,17 @@ export default function HomePage() {
         progress: 45,
         milestonesCompleted: 1,
         totalMilestones: 3,
-        homeownerName: "John Smith"
+        homeownerName: "John Smith",
+        homeownerPhone: "(555) 123-4567",
+        description: "Extensive water damage from burst pipe affecting kitchen and basement. Need immediate restoration work including drywall repair, flooring replacement, and mold remediation.",
+        imageUrl: "https://images.unsplash.com/photo-1581578731548-c64695cc6952?w=800",
+        files: [
+          { id: "file-1", name: "Contract_Agreement.pdf", url: "/files/contract.pdf", type: "pdf" },
+          { id: "file-2", name: "Insurance_Estimate.pdf", url: "/files/estimate.pdf", type: "pdf" },
+          { id: "file-3", name: "Damage_Photos.jpg", url: "/files/photos.jpg", type: "image" },
+          { id: "file-4", name: "Design_Plan.pdf", url: "/files/design.pdf", type: "pdf" },
+          { id: "file-5", name: "Inspection_Report.pdf", url: "/files/inspection.pdf", type: "pdf" }
+        ]
       },
       {
         id: "job-2",
@@ -288,7 +283,15 @@ export default function HomePage() {
         progress: 25,
         milestonesCompleted: 1,
         totalMilestones: 3,
-        homeownerName: "Maria Garcia"
+        homeownerName: "Maria Garcia",
+        homeownerPhone: "(555) 234-5678",
+        description: "Fire damage restoration needed for living room and attic area. Includes smoke damage cleanup, structural repairs, and complete interior restoration.",
+        imageUrl: "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=800",
+        files: [
+          { id: "file-6", name: "Contract_Agreement.pdf", url: "/files/contract2.pdf", type: "pdf" },
+          { id: "file-7", name: "Fire_Report.pdf", url: "/files/fire-report.pdf", type: "pdf" },
+          { id: "file-8", name: "Before_Photos.jpg", url: "/files/before.jpg", type: "image" }
+        ]
       },
       {
         id: "job-3",
@@ -305,36 +308,68 @@ export default function HomePage() {
         progress: 10,
         milestonesCompleted: 0,
         totalMilestones: 3,
-        homeownerName: "Robert Williams"
+        homeownerName: "Robert Williams",
+        homeownerPhone: "(555) 345-6789",
+        description: "Complete roof replacement needed after severe storm damage. Includes removal of old shingles, inspection of roof deck, and installation of new roofing system.",
+        imageUrl: "https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?w=800",
+        files: [
+          { id: "file-9", name: "Contract_Agreement.pdf", url: "/files/contract3.pdf", type: "pdf" },
+          { id: "file-10", name: "Roof_Assessment.pdf", url: "/files/roof-assessment.pdf", type: "pdf" }
+        ]
       }
     ];
   }
 
   const fetchContractorAuctions = async () => {
     setContractorAuctionLoading(true);
-    setContractorClosedAuctionLoading(true);
     try {
       // Use mock data (same as dashboard)
       const activeAuctions = getMockAuctions();
-      const closedAuctionsData = getMockClosedAuctions();
       
       setContractorAuctions(activeAuctions);
-      setContractorClosedAuctions(closedAuctionsData);
     } catch (error) {
       console.error('Error fetching auctions:', error);
       toast.error("Failed to load auctions. Please try again later.");
     } finally {
       setContractorAuctionLoading(false);
-      setContractorClosedAuctionLoading(false);
     }
   }
 
   // Fetch auctions when contractor tab changes
   useEffect(() => {
-    if (isContractor && !authLoading && (contractorTab === 'auctions' || contractorTab === 'closed-auctions')) {
+    if (isContractor && !authLoading && contractorTab === 'auctions') {
       fetchContractorAuctions();
     }
   }, [isContractor, authLoading, contractorTab]);
+
+  const handleManageJob = (job: Job) => {
+    setSelectedJob(job);
+  };
+
+  const handleClosePanel = () => {
+    setSelectedJob(null);
+    setShowFilesDropdown(false);
+  };
+
+  const handleFileClick = (file: Job['files'][0]) => {
+    if (file.type === 'pdf') {
+      // Open PDF in new tab
+      window.open(file.url, '_blank');
+    } else {
+      // Download other file types
+      const link = document.createElement('a');
+      link.href = file.url;
+      link.download = file.name;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    }
+  };
+
+  const getMapUrl = (address: string, city: string, state: string) => {
+    const query = `${address}, ${city}, ${state}`;
+    return `https://staticmap.openstreetmap.de/staticmap.php?center=${encodeURIComponent(query)}&zoom=13&size=400x300&maptype=mapnik`;
+  };
 
   // Fetch homeowner projects when My Projects tab is selected
   useEffect(() => {
@@ -554,6 +589,202 @@ export default function HomePage() {
 
   return (
     <div className="min-h-screen bg-gray-50 pl-32">
+      {/* Left Side Detail Panel */}
+      {selectedJob && (
+        <div className="fixed left-32 top-0 h-screen w-[480px] bg-white border-r border-gray-200 shadow-2xl z-50 flex flex-col">
+          {/* Scrollable Content */}
+          <div className="flex-1 overflow-y-auto">
+            {/* Header */}
+            <div className="sticky top-0 bg-white border-b border-gray-200 px-6 py-4 flex items-center justify-between z-10">
+              <h2 className="text-xl font-bold text-gray-900">Job Details</h2>
+              <button
+                onClick={handleClosePanel}
+                className="p-2 hover:bg-gray-100 rounded-full transition-colors"
+              >
+                <X className="h-5 w-5 text-gray-600" />
+              </button>
+            </div>
+
+            {/* Content */}
+            <div className="px-6 py-6 space-y-6">
+              {/* Title */}
+              <div>
+                <h3 className="text-2xl font-bold text-gray-900 mb-2">
+                  {selectedJob.title}
+                </h3>
+                <Badge className="bg-blue-100 text-blue-800 border-blue-200 rounded-full px-2.5 py-0.5 text-xs font-medium">
+                  {selectedJob.projectType}
+                </Badge>
+              </div>
+
+              {/* Contract Value */}
+              <div className="space-y-1">
+                <p className="text-sm text-gray-600">Contract Value</p>
+                <p className="text-3xl font-bold text-blue-600">
+                  ${selectedJob.contractValue.toLocaleString()}
+                </p>
+              </div>
+
+              {/* Location */}
+              <div className="space-y-1">
+                <p className="text-sm text-gray-600">Location</p>
+                <div className="flex items-center gap-2">
+                  <MapPin className="h-4 w-4 text-gray-600" />
+                  <p className="text-base font-medium text-gray-900">
+                    {selectedJob.address}, {selectedJob.city}, {selectedJob.state}
+                  </p>
+                </div>
+              </div>
+
+              {/* Job Image */}
+              {selectedJob.imageUrl && (
+                <div className="space-y-2">
+                  <p className="text-sm text-gray-600">Job Photos</p>
+                  <div className="relative rounded-lg overflow-hidden border border-gray-200">
+                    <img
+                      src={selectedJob.imageUrl}
+                      alt={selectedJob.title}
+                      className="w-full h-64 object-cover"
+                    />
+                  </div>
+                </div>
+              )}
+
+              {/* Map */}
+              <div className="space-y-2">
+                <p className="text-sm text-gray-600">Location Map</p>
+                <div className="relative rounded-lg overflow-hidden border border-gray-200">
+                  <img
+                    src={getMapUrl(selectedJob.address, selectedJob.city, selectedJob.state)}
+                    alt="Location map"
+                    className="w-full h-64 object-cover"
+                  />
+                </div>
+              </div>
+
+              {/* Contact Information */}
+              <div className="space-y-3 pt-4 border-t border-gray-200">
+                <p className="text-sm font-semibold text-gray-900">Contact Homeowner</p>
+                
+                {/* Phone Number */}
+                <div className="flex items-center gap-3 p-4 bg-gray-50 rounded-lg border border-gray-200">
+                  <div className="p-2 bg-gray-100 rounded-lg">
+                    <Phone className="h-5 w-5 text-gray-600" />
+                  </div>
+                  <div className="flex-1">
+                    <p className="text-xs text-gray-600 mb-1">Phone Number</p>
+                    <p className="text-base font-medium text-gray-900">
+                      {selectedJob.homeownerPhone || '(555) ***-****'}
+                    </p>
+                  </div>
+                </div>
+
+                {/* Chat */}
+                <div className="flex items-center gap-3 p-4 bg-gray-50 rounded-lg border border-gray-200">
+                  <div className="p-2 bg-gray-100 rounded-lg">
+                    <MessageSquare className="h-5 w-5 text-gray-600" />
+                  </div>
+                  <div className="flex-1">
+                    <p className="text-xs text-gray-600 mb-1">Chat</p>
+                    <Button variant="outline" size="sm" className="w-full">
+                      Open Chat
+                    </Button>
+                  </div>
+                </div>
+              </div>
+
+              {/* Description */}
+              {selectedJob.description && (
+                <div className="space-y-2 pt-4 border-t border-gray-200">
+                  <p className="text-sm font-semibold text-gray-900">Description</p>
+                  <p className="text-sm text-gray-700 leading-relaxed">
+                    {selectedJob.description}
+                  </p>
+                </div>
+              )}
+
+              {/* Project Info */}
+              <div className="space-y-3 pt-4 border-t border-gray-200">
+                <p className="text-sm font-semibold text-gray-900">Project Information</p>
+                <div className="space-y-2">
+                  <div className="flex items-center justify-between text-sm">
+                    <span className="text-gray-600">Progress:</span>
+                    <span className="font-medium">{selectedJob.progress}%</span>
+                  </div>
+                  <div className="w-full bg-gray-200 rounded-full h-2.5">
+                    <div 
+                      className="bg-blue-600 h-2.5 rounded-full transition-all"
+                      style={{ width: `${selectedJob.progress}%` }}
+                    ></div>
+                  </div>
+                  <div className="flex items-center justify-between text-sm pt-2">
+                    <span className="text-gray-600">Milestones:</span>
+                    <span className="font-medium">
+                      {selectedJob.milestonesCompleted} / {selectedJob.totalMilestones} completed
+                    </span>
+                  </div>
+                  <div className="flex items-center gap-2 text-sm text-gray-600 pt-2">
+                    <Calendar className="h-4 w-4" />
+                    <span>Started: {new Date(selectedJob.startDate).toLocaleDateString()}</span>
+                  </div>
+                  <div className="flex items-center gap-2 text-sm text-gray-600">
+                    <Clock className="h-4 w-4" />
+                    <span>Expected Completion: {new Date(selectedJob.expectedCompletion).toLocaleDateString()}</span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Related Files Dropdown */}
+              {selectedJob.files && selectedJob.files.length > 0 && (
+                <div className="space-y-2 pt-4 border-t border-gray-200">
+                  <div className="relative">
+                    <Button
+                      variant="outline"
+                      className="w-full justify-between"
+                      onClick={() => setShowFilesDropdown(!showFilesDropdown)}
+                    >
+                      <span className="flex items-center gap-2">
+                        <File className="h-4 w-4" />
+                        Related Files ({selectedJob.files.length})
+                      </span>
+                      <ChevronDown className={`h-4 w-4 transition-transform ${showFilesDropdown ? 'rotate-180' : ''}`} />
+                    </Button>
+                    {showFilesDropdown && (
+                      <div className="mt-2 border border-gray-200 rounded-lg bg-white shadow-lg">
+                        <div className="max-h-64 overflow-y-auto">
+                          {selectedJob.files.map((file) => (
+                            <button
+                              key={file.id}
+                              onClick={() => handleFileClick(file)}
+                              className="w-full px-4 py-3 flex items-center gap-3 hover:bg-gray-50 border-b border-gray-100 last:border-b-0 transition-colors"
+                            >
+                              {file.type === 'pdf' ? (
+                                <File className="h-5 w-5 text-red-600" />
+                              ) : file.type === 'image' ? (
+                                <ImageIcon className="h-5 w-5 text-blue-600" />
+                              ) : (
+                                <FileText className="h-5 w-5 text-gray-600" />
+                              )}
+                              <span className="flex-1 text-left text-sm font-medium text-gray-900 truncate">
+                                {file.name}
+                              </span>
+                              {file.type === 'pdf' ? (
+                                <span className="text-xs text-gray-500">View</span>
+                              ) : (
+                                <Download className="h-4 w-4 text-gray-500" />
+                              )}
+                            </button>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
       <div className="container mx-auto px-4 py-8">
         {/* Header */}
         <div className="mb-8">
@@ -654,7 +885,7 @@ export default function HomePage() {
 
         {/* Contractor Tabs and Content */}
         {isContractor ? (
-          <div className="space-y-6">
+          <div className={`space-y-6 transition-all duration-300 ${selectedJob ? 'pr-[480px]' : ''}`}>
             {/* Tab Navigation */}
             <div className="border-b border-gray-200">
               <nav className="-mb-px flex space-x-8">
@@ -682,19 +913,6 @@ export default function HomePage() {
                   <div className="flex items-center gap-2">
                     <Users className="h-4 w-4" />
                     Active Auctions
-                  </div>
-                </button>
-                <button
-                  onClick={() => setContractorTab('closed-auctions')}
-                  className={`border-b-2 py-4 px-1 text-sm font-medium transition-colors ${
-                    contractorTab === 'closed-auctions'
-                      ? 'border-blue-600 text-blue-600'
-                      : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
-                  }`}
-                >
-                  <div className="flex items-center gap-2">
-                    <Archive className="h-4 w-4" />
-                    Closed Auctions
                   </div>
                 </button>
                 <button
@@ -805,18 +1023,11 @@ export default function HomePage() {
                               </div>
 
                               {/* Actions */}
-                              <div className="flex gap-2 pt-2">
-                <Button 
-                                  variant="outline" 
-                                  className="flex-1"
-                                  onClick={() => router.push(`/contracts/${job.contractId}`)}
-                                >
-                                  View Details
-                </Button>
+                              <div className="pt-2">
                 <Button 
                                   variant="default"
-                                  className="flex-1 bg-blue-600 hover:bg-blue-700"
-                                  onClick={() => router.push(`/jobs/${job.id}`)}
+                                  className="w-full bg-blue-600 hover:bg-blue-700"
+                                  onClick={() => handleManageJob(job)}
                                 >
                                   <Activity className="h-4 w-4 mr-2" />
                                   Manage
@@ -850,33 +1061,6 @@ export default function HomePage() {
                           totalBids={auction.bid_count}
                           endedAt={auction.end_date}
                           status="open"
-                          onViewDetails={() => router.push(`/auction/${auction.auction_id}`)}
-                        />
-                      ))}
-                    </div>
-                  )}
-                </>
-              ) : contractorTab === 'closed-auctions' ? (
-                <>
-                  {contractorClosedAuctionLoading ? (
-                    <LoadingSkeleton />
-                  ) : contractorClosedAuctions?.length === 0 ? (
-                    <EmptyState
-                      icon={Archive}
-                      title="No Closed Auctions"
-                      description="There are no closed auctions to display."
-                    />
-                  ) : (
-                    <div className="grid gap-6 sm:gap-8 grid-cols-1 md:grid-cols-2 xl:grid-cols-3">
-                      {contractorClosedAuctions?.map((auction) => (
-                        <AuctionCard
-                          key={auction.auction_id}
-                          title={auction.title}
-                          scope={auction.project_type}
-                          finalBid={auction.current_bid}
-                          totalBids={auction.bid_count}
-                          endedAt={auction.end_date}
-                          status="closed"
                           onViewDetails={() => router.push(`/auction/${auction.auction_id}`)}
                         />
                       ))}

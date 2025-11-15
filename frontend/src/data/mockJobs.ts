@@ -15,7 +15,9 @@ export interface JobPosting {
   homeowner: {
     name: string;
     rating: number;
+    phone?: string;
   };
+  imageUrl?: string;
 }
 
 export const mockJobs: JobPosting[] = [
