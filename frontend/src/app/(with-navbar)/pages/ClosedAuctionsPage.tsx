@@ -26,7 +26,7 @@ interface ClosedAuction {
 interface ClosedAuctionsPageProps {
   auctions?: ClosedAuction[];
   isLoading?: boolean;
-  onDeleteAuction?: (auction: ClosedAuction) => void;
+  onDeleteAuction?: (auctionId: string) => void;
 }
 
 export function ClosedAuctionsPage({
@@ -49,9 +49,9 @@ export function ClosedAuctionsPage({
     router.push(`/auction/${auctionId}`);
   };
 
-  const handleDelete = (auction: ClosedAuction) => {
+  const handleDelete = (auctionId: string) => {
     if (onDeleteAuction) {
-      onDeleteAuction(auction);
+      onDeleteAuction(auctionId);
     }
   };
 
@@ -114,7 +114,7 @@ export function ClosedAuctionsPage({
                   endedAt={auction.end_date}
                   status={auction.status as "closed" | "cancelled" | "expired"}
                   onViewDetails={() => handleViewDetails(auction.auction_id)}
-                  onDelete={onDeleteAuction ? () => handleDelete(auction) : undefined}
+                  onDelete={onDeleteAuction ? () => handleDelete(auction.auction_id) : undefined}
                 />
               ))}
             </div>

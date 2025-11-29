@@ -2,7 +2,7 @@
 
 import { useState, useTransition } from 'react';
 import { useRouter } from 'next/navigation';
-import { X, Mail, Lock, Eye, EyeOff, User, Briefcase } from 'lucide-react';
+import {X, Mail, Lock, Eye, EyeOff, User, Briefcase, Building2, Computer, Phone} from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import Image from 'next/image';
 import vendleLogo from "../assets/vendle_logo.jpeg";
@@ -21,6 +21,9 @@ export default function LoginModal({ isOpen, onClose }: LoginModalProps) {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
+  const [companyName, setCompanyName] = useState('');
+  const [companyWebsite, setCompanyWebsite] = useState('');
+  const [phoneNumber, setPhoneNumber] = useState('');
   const [mode, setMode] = useState<'login' | 'signup'>('login');
   const [userType, setUserType] = useState<'homeowner' | 'contractor'>('homeowner');
 
@@ -47,9 +50,17 @@ export default function LoginModal({ isOpen, onClose }: LoginModalProps) {
       let errorMessage;
 
       if (mode === 'login') {
-        errorMessage = await login(email, password);
+        const { user, error } = await login(email, password);
+        errorMessage = error ? "Error logging in.." : null;
       } else {
-        errorMessage = await signup(email, password, userType);
+        const metadata = {
+          userType,
+          companyName,
+          companyWebsite,
+          phoneNumber,
+        }
+        const { user, error } = await signup(email, password, metadata);
+        errorMessage = error ? "Error signing up.." : null;
       }
 
       if (!errorMessage) {
@@ -87,7 +98,7 @@ export default function LoginModal({ isOpen, onClose }: LoginModalProps) {
       />
 
       {/* Modal */}
-      <div className="relative bg-white rounded-2xl shadow-2xl w-full max-w-md mx-4 p-8">
+      <div className="relative bg-white rounded-2xl shadow-2xl w-full max-w-md mx-4 p-8 max-h-[90vh] overflow-auto">
         {/* Close button */}
         <button
           onClick={onClose}
@@ -199,6 +210,69 @@ export default function LoginModal({ isOpen, onClose }: LoginModalProps) {
                 </button>
               </div>
             </div>
+          )}
+
+          {mode === 'signup' && userType === 'contractor' && (
+              <div className="mb-4">
+                <label htmlFor="companyName" className="block text-sm font-medium text-gray-700 mb-2">
+                  Company Name
+                </label>
+                <div className="relative">
+                  <span className="absolute inset-y-0 left-0 flex items-center pl-3 text-gray-400">
+                    <Building2 className="h-5 w-5" />
+                  </span>
+                      <input
+                          id="companyName"
+                          value={companyName}
+                          onChange={(e) => setCompanyName(e.target.value)}
+                          placeholder="Enter Company Name"
+                          className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                          disabled={isPending}
+                      />
+                </div>
+              </div>
+          )}
+
+          {mode === 'signup' && userType === 'contractor' && (
+              <div className="mb-4">
+                <label htmlFor="companyWebsite" className="block text-sm font-medium text-gray-700 mb-2">
+                  Company Website
+                </label>
+                <div className="relative">
+                  <span className="absolute inset-y-0 left-0 flex items-center pl-3 text-gray-400">
+                    <Computer className="h-5 w-5" />
+                  </span>
+                  <input
+                      id="companyWebsite"
+                      value={companyWebsite}
+                      onChange={(e) => setCompanyWebsite(e.target.value)}
+                      placeholder="Enter Company Website"
+                      className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      disabled={isPending}
+                  />
+                </div>
+              </div>
+          )}
+
+          {mode === 'signup' && userType === 'contractor' && (
+              <div className="mb-4">
+                <label htmlFor="phoneNumber" className="block text-sm font-medium text-gray-700 mb-2">
+                  Phone Number
+                </label>
+                <div className="relative">
+                  <span className="absolute inset-y-0 left-0 flex items-center pl-3 text-gray-400">
+                    <Phone className="h-5 w-5" />
+                  </span>
+                  <input
+                      id="phoneNumber"
+                      value={phoneNumber}
+                      onChange={(e) => setPhoneNumber(e.target.value)}
+                      placeholder="Enter Phone Number"
+                      className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      disabled={isPending}
+                  />
+                </div>
+              </div>
           )}
 
           {/* Submit Button */}

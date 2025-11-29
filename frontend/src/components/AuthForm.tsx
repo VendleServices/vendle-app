@@ -58,17 +58,29 @@ const AuthForm = ({ type }: Props) => {
         }
 
         startTransition(async () => {
-            let errorMessage;
             let description;
+            let errorMessage;
 
             if (type === 'login' || type === 'contractorlogin') {
-                errorMessage = await login(email, password);
-                description = !errorMessage ? 'Successfully logged in!' : "Failed to log in";
+                const { user, error } = await login(email, password);
+                description = !error ? 'Successfully logged in!' : "Failed to log in";
+                errorMessage = error ? "Error" : null;
             } else if (type === 'signup') {
-                errorMessage = await signup(email, password, "homeowner");
-                description = !errorMessage ? "Account Created" : "Error creating account";
+                const metadata = {
+                    userType: "homeowner"
+                }
+                const { user, error } = await signup(email, password, metadata);
+                description = !error ? "Account Created" : "Error creating account";
+                errorMessage = error ? "Error" : null;
             } else if (type === 'contractorsignup') {
-                errorMessage = await signup(email, password, "contractor", companyName, companyWebsite, phoneNumber);
+                const metadata = {
+                    userType: "contractor",
+                    companyName,
+                    companyWebsite,
+                    phoneNumber,
+                }
+                const { error, user } = await signup(email, password, metadata);
+                errorMessage = error ? "Error" : null;
             }
 
             if (!errorMessage) {

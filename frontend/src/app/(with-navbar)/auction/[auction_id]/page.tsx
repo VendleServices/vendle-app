@@ -83,7 +83,7 @@ export default function AuctionDetailsPage() {
         fileInputRef.current?.click();
     };
 
-    const isContractor = user?.user_type === "contractor";
+    const isContractor = user?.user_metadata?.userType === "contractor";
 
     const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
         if (event.target.files && event.target.files[0]) {

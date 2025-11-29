@@ -105,7 +105,7 @@ interface Job {
 }
 
 export default function HomePage() {
-  const { user, isLoggedIn, isLoading: authLoading } = useAuth()
+  const { user, isLoggedIn, loading: authLoading } = useAuth()
   const router = useRouter()
   const apiService = useApiService();
 
@@ -131,8 +131,8 @@ export default function HomePage() {
     }
   }, [isLoggedIn, authLoading, router])
 
-  const isContractor = user?.user_type === 'contractor'
-  const isHomeowner = user?.user_type === 'homeowner' || !isContractor
+  const isContractor = user?.user_metadata?.userType === 'contractor'
+  const isHomeowner = user?.user_metadata?.userType === 'homeowner' || !isContractor
 
   // Mock auction data (same as dashboard)
   const getMockAuctions = () => {
@@ -351,7 +351,7 @@ export default function HomePage() {
     setShowFilesDropdown(false);
   };
 
-  const handleFileClick = (file: Job['files'][0]) => {
+  const handleFileClick = (file: any) => {
     if (file.type === 'pdf') {
       // Open PDF in new tab
       window.open(file.url, '_blank');
@@ -789,17 +789,17 @@ export default function HomePage() {
         {/* Header */}
         <div className="mb-8">
           <div className="flex items-center gap-3">
-          <h1 className="text-3xl font-bold text-gray-900">Welcome back, {user?.name || 'User'}!</h1>
-            {user?.user_type && (
+          <h1 className="text-3xl font-bold text-gray-900">Welcome back, {user?.email || 'User'}!</h1>
+            {user?.user_metadata?.userType && (
               <Badge 
-                variant={user.user_type === 'contractor' ? 'default' : 'secondary'}
+                variant={user?.user_metadata?.userType === 'contractor' ? 'default' : 'secondary'}
                 className={
-                  user.user_type === 'contractor' 
+                  user?.user_metadata?.userType === 'contractor'
                     ? 'bg-blue-700 text-white hover:bg-blue-800' 
                     : 'bg-gray-700 text-white hover:bg-gray-800'
                 }
               >
-                {user.user_type === 'contractor' ? 'Contractor' : 'Homeowner'}
+                {user?.user_metadata?.userType === 'contractor' ? 'Contractor' : 'Homeowner'}
               </Badge>
             )}
           </div>

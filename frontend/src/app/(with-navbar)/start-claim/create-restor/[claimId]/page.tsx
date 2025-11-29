@@ -84,7 +84,7 @@ export default function CreateRestorPage() {
 
   const getProjectsPath = () => {
     if (!user) return '/dashboard';
-    return user.user_type === 'contractor' ? '/contractor-projects' : '/dashboard';
+    return user?.user_metadata?.userType === 'contractor' ? '/contractor-projects' : '/dashboard';
   };
 
   const totalSteps = 6;

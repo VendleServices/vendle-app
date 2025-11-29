@@ -37,7 +37,7 @@ export default function EarningsPage() {
     setHasPaymentMethod(paymentMethodSet)
     
     // Show modal if payment method not set up and user is contractor
-    if (!paymentMethodSet && isLoggedIn && user?.user_type === 'contractor') {
+    if (!paymentMethodSet && isLoggedIn && user?.user_metadata?.userType === 'contractor') {
       setShowPaymentModal(true)
     }
   }, [isLoggedIn, user])
