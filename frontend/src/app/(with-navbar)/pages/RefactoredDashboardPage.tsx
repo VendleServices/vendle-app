@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { useToast } from "@/hooks/use-toast";
+import { toast } from "sonner";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useAuth } from "@/contexts/AuthContext";
 import { useApiService } from "@/services/api";
@@ -87,8 +87,7 @@ export default function RefactoredDashboardPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const queryClient = useQueryClient();
-  const { user, isLoggedIn, isLoading: authLoading, logout } = useAuth();
-  const { toast } = useToast();
+  const { user, isLoggedIn, loading: authLoading, logout } = useAuth();
   const [auctions, setAuctions] = useState<Auction[]>([]);
   const [auctionLoading, setAuctionLoading] = useState(false);
   const [activeSection, setActiveSection] = useState<'auctions' | 'claims' | 'reviews' | 'closed-auctions'>('claims');
@@ -138,10 +137,8 @@ export default function RefactoredDashboardPage() {
       setClosedAuctions(closedAuctions);
     } catch (error) {
       console.error('Error fetching auctions:', error);
-      toast({
-        title: "Error",
-        description: "Failed to load auctions. Please try again later.",
-        variant: "destructive",
+      toast("Error", {
+        description: "Error fetching auctions",
       });
     } finally {
       setAuctionLoading(false);
@@ -330,7 +327,7 @@ export default function RefactoredDashboardPage() {
                   {sidebarExpanded && "Closed Auctions"}
                 </Button>
 
-                {user?.user_type === "contractor" && (
+                {user?.user_metadata?.userType === "contractor" && (
                   <Button
                     variant="ghost"
                     className={`w-full ${sidebarExpanded ? 'justify-start' : 'justify-center'} h-9 text-xs ${
@@ -363,16 +360,16 @@ export default function RefactoredDashboardPage() {
             <div className="p-2 border-t border-[#1e293b] bg-[#0f172a]">
               <div className={`flex items-center ${sidebarExpanded ? 'space-x-2' : 'justify-center'}`}>
                 <Avatar className="w-8 h-8">
-                  <AvatarImage src={user?.picture || ""} />
+                  <AvatarImage src={""} />
                   <AvatarFallback>
-                    {(user?.name?.charAt(0) || "U").toUpperCase()}
+                    {(user?.email?.charAt(0) || "U").toUpperCase()}
                   </AvatarFallback>
                 </Avatar>
                 {sidebarExpanded && (
                   <>
                     <div className="flex-1 min-w-0">
                       <p className="text-xs font-medium text-white truncate">
-                        {user?.name || user?.email || "User"}
+                        {user?.email || "User"}
                       </p>
                       <p className="text-xs text-gray-400 truncate">
                         {user?.email || ""}
@@ -413,13 +410,13 @@ export default function RefactoredDashboardPage() {
                   />
                 )}
                 
-                {activeSection === 'claims' && (
-                  <ClaimsPage 
-                    claims={claims}
-                    isLoading={isLoading}
-                    onDeleteClaim={handleDeleteClick}
-                  />
-                )}
+                {/*{activeSection === 'claims' && (*/}
+                {/*  <ClaimsPage */}
+                {/*    claims={claims}*/}
+                {/*    isLoading={isLoading}*/}
+                {/*    onDeleteClaim={handleDeleteClick}*/}
+                {/*  />*/}
+                {/*)}*/}
                 
                 {activeSection === 'reviews' && (
                   <div className="space-y-6">

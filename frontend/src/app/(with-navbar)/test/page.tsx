@@ -9,12 +9,12 @@ import { TestTube, CheckCircle, User } from "lucide-react"
 import SplashScreen from "@/components/SplashScreen"
 
 export default function TestPage() {
-  const { user, isLoggedIn, isLoading: authLoading } = useAuth()
+  const { user, isLoggedIn, loading: authLoading } = useAuth()
   const router = useRouter()
 
   // Redirect if not authenticated or not a homeowner
   useEffect(() => {
-    if (!authLoading && (!isLoggedIn || user?.user_type === 'contractor')) {
+    if (!authLoading && (!isLoggedIn || user?.user_metadata?.userType === 'contractor')) {
       router.push('/')
     }
   }, [isLoggedIn, authLoading, router, user])
@@ -23,7 +23,7 @@ export default function TestPage() {
     return <SplashScreen />
   }
 
-  if (!isLoggedIn || user?.user_type === 'contractor') {
+  if (!isLoggedIn || user?.user_metadata?.userType === 'contractor') {
     return null // Will redirect
   }
 
@@ -58,7 +58,7 @@ export default function TestPage() {
                 <User className="h-5 w-5 text-blue-600" />
                 <div>
                   <p className="font-medium text-blue-800">User Type Verification</p>
-                  <p className="text-sm text-blue-600">Current user type: {user?.user_type || 'Unknown'}</p>
+                  <p className="text-sm text-blue-600">Current user type: {user?.user_metadata?.userType || 'Unknown'}</p>
                 </div>
               </div>
             </CardContent>
@@ -75,7 +75,7 @@ export default function TestPage() {
               <div className="space-y-2">
                 <div className="flex justify-between">
                   <span className="text-sm text-gray-600">Name:</span>
-                  <Badge variant="outline">{user?.name || 'N/A'}</Badge>
+                  <Badge variant="outline">{user?.email || 'N/A'}</Badge>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-sm text-gray-600">Email:</span>
@@ -83,8 +83,8 @@ export default function TestPage() {
                 </div>
                 <div className="flex justify-between">
                   <span className="text-sm text-gray-600">User Type:</span>
-                  <Badge variant={user?.user_type === 'homeowner' ? 'default' : 'secondary'}>
-                    {user?.user_type || 'Unknown'}
+                  <Badge variant={user?.user_metadata?.userType === 'homeowner' ? 'default' : 'secondary'}>
+                    {user?.user_metadata?.userType || 'Unknown'}
                   </Badge>
                 </div>
                 <div className="flex justify-between">

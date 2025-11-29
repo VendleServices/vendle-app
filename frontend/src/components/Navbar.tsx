@@ -14,7 +14,7 @@ interface NavbarProps {
 }
 
 const Navbar = ({ onProtectedAction }: NavbarProps = {}) => {
-  const { user, isLoggedIn, isLoading, logout } = useAuth();
+  const { user, isLoggedIn, loading, logout } = useAuth();
   const pathname = usePathname();
   const [showLoginModal, setShowLoginModal] = useState(false);
 
@@ -85,7 +85,7 @@ const Navbar = ({ onProtectedAction }: NavbarProps = {}) => {
         </Link>
 
         {/* Earnings - Only for contractors when logged in */}
-        {isLoggedIn && user?.user_type === 'contractor' && (
+        {isLoggedIn && user?.user_metadata?.userType === 'contractor' && (
           <Link
             href="/earnings"
             className={`flex flex-col items-center gap-2 p-3 rounded-xl transition-all ${

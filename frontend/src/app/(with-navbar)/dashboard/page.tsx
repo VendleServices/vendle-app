@@ -75,7 +75,7 @@ interface Auction {
 interface UserProfile {
     user_id: number;
     email: string;
-    user_type: string;
+    userType: string;
     first_name?: string;
     last_name?: string;
     profile_picture?: string;
@@ -98,9 +98,8 @@ export default function DashboardPage() {
     const router = useRouter();
     const searchParams = useSearchParams();
     const queryClient = useQueryClient();
-    const { user, isLoggedIn, isLoading: authLoading, logout } = useAuth();
-    const isContractor = user?.user_type === 'contractor';
-    const isHomeowner = user?.user_type === 'homeowner' || !isContractor;
+    const { user, isLoggedIn, loading: authLoading, logout } = useAuth();
+    const isContractor = user?.user_metadata?.userType === 'contractor';
     
     const [auctions, setAuctions] = useState<Auction[]>([]);
     const [auctionLoading, setAuctionLoading] = useState(false);
@@ -406,7 +405,7 @@ export default function DashboardPage() {
                                         </p>
                                     </div>
                                     {/* CONDITIONAL BUTTON BASED ON USER TYPE */}
-                                    {user?.user_type === 'contractor' ? (
+                                    {user?.user_metadata?.userType === 'contractor' ? (
                                         <Button
                                             onClick={() => router.push("/contractor-projects")}
                                             className="gap-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"

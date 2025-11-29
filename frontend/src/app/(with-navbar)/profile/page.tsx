@@ -8,7 +8,7 @@ import { User, Mail, Calendar, Shield } from "lucide-react"
 import SplashScreen from "@/components/SplashScreen"
 
 export default function ProfilePage() {
-  const { user, isLoggedIn, isLoading } = useAuth()
+  const { user, isLoggedIn, loading: isLoading } = useAuth()
   const router = useRouter()
 
   useEffect(() => {
@@ -50,10 +50,10 @@ export default function ProfilePage() {
               </div>
               <div>
                 <h3 className="text-lg font-semibold text-gray-900">
-                  {user?.name || 'User'}
+                  {user?.email || 'User'}
                 </h3>
                 <p className="text-sm text-gray-500 capitalize">
-                  {user?.user_type || 'User'}
+                  {user?.user_metadata?.userType || 'User'}
                 </p>
               </div>
             </div>
@@ -78,7 +78,7 @@ export default function ProfilePage() {
                 </div>
                 <div>
                   <p className="text-sm font-medium text-gray-500">Account Type</p>
-                  <p className="text-gray-900 capitalize">{user?.user_type || 'User'}</p>
+                  <p className="text-gray-900 capitalize">{user?.user_metadata?.userType || 'User'}</p>
                 </div>
               </div>
 
@@ -119,7 +119,7 @@ export default function ProfilePage() {
         </Card>
 
         {/* Additional Info Card */}
-        {user?.user_type === 'contractor' && (
+        {user?.user_metadata?.userType === 'contractor' && (
           <Card>
             <CardHeader>
               <CardTitle>Contractor Information</CardTitle>
