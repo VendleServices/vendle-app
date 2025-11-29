@@ -92,8 +92,16 @@ router.post('/', async (req: any, res) => {
         designPlan: claimData.designPlan,
         needsAdjuster: claimData.needsAdjuster,
         userId: user.id,
-        imageUrls: []
       }
+    });
+
+    const imageData = claimData?.imageUrls?.map((url: string) => ({
+      supabase_url: url,
+      claimId: createdClaim.id
+    })) || [];
+
+    await prisma.image.createMany({
+      data: imageData,
     });
 
     console.log('Claim created successfully:', createdClaim.id);
