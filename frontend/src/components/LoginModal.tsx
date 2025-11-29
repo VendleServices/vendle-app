@@ -65,7 +65,7 @@ export default function LoginModal({ isOpen, onClose }: LoginModalProps) {
 
       if (!errorMessage) {
         toast.success("Success", {
-          description: mode === 'login' ? 'Successfully logged in!' : 'Account created!',
+          description: mode === 'login' ? 'Successfully logged in!' : 'Account created! Please check your email for confirmation.',
         });
 
         onClose();

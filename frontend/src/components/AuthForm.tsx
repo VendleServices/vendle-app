@@ -70,7 +70,7 @@ const AuthForm = ({ type }: Props) => {
                     userType: "homeowner"
                 }
                 const { user, error } = await signup(email, password, metadata);
-                description = !error ? "Account Created" : "Error creating account";
+                description = !error ? "Please check your email to confirm your account." : "Error creating account";
                 errorMessage = error ? "Error" : null;
             } else if (type === 'contractorsignup') {
                 const metadata = {
@@ -80,6 +80,7 @@ const AuthForm = ({ type }: Props) => {
                     phoneNumber,
                 }
                 const { error, user } = await signup(email, password, metadata);
+                description = !error ? "Please check your email to confirm your account." : "Error creating account";
                 errorMessage = error ? "Error" : null;
             }
 
