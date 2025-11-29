@@ -9,6 +9,8 @@ import { Building2, MapPin, Calendar, FileText, Clock, LayoutIcon, Trash2, Arrow
 import { useQuery } from "@tanstack/react-query";
 import { use } from "react";
 import { useApiService } from "@/services/api";
+import { createClient } from "@/auth/client";
+import Image from "next/image";
 
 interface PageProps {
     params: Promise<{
@@ -36,6 +38,7 @@ export default function ClaimPage({ params }: PageProps) {
     const apiService = useApiService();
     const router = useRouter();
     const { user } = useAuth();
+    const supabase = createClient();
 
     if (!user) {
         router.push("/login");
@@ -47,9 +50,35 @@ export default function ClaimPage({ params }: PageProps) {
         return claim ? claim : null
     }
 
-    const {  data: claim, isLoading, isError, error } = useQuery({
+    const { data: claim, isLoading, isError, error } = useQuery({
         queryKey: ["getIndividualClaim"],
         queryFn: fetchClaim,
+    });
+
+    const fetchClaimImages = async () => {
+        try {
+            const response: any = await apiService.get(`/api/images/${claimId}`);
+
+            const imageObjects = response?.images;
+            const publicImageUrls: string[] = [];
+
+            for (const image of imageObjects) {
+                const { data: publicURL } = supabase.storage.from('images').getPublicUrl(image?.supabase_url?.slice(7));
+                publicImageUrls.push(publicURL.publicUrl);
+            }
+
+            console.log(publicImageUrls);
+
+            return publicImageUrls;
+        } catch (error) {
+            console.log(error);
+        }
+    }
+
+    const { data: images, isLoading: loadingImages, error: errorImages } = useQuery({
+        queryKey: ["getClaimImages"],
+        queryFn: fetchClaimImages,
+        enabled: !!claimId,
     });
 
     const getStatusColor = (status: string) => {
@@ -182,6 +211,10 @@ export default function ClaimPage({ params }: PageProps) {
                             </div>
                         </CardContent>
                     </Card>
+
+                    {images?.map((url: string, index: number) => (
+                        <Image src={url} alt="image" key={index} width={300} height={300} />
+                    ))}
                 </div>
             </div>
         </div>

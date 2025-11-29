@@ -93,8 +93,15 @@ model Claim {
   updatedAt     DateTime  @default(now()) @updatedAt
   user          User      @relation(fields: [userId], references: [id], onDelete: Cascade)
   userId        String
-  imageUrls     String[]
   auctions      Auction[]
+  images        Image[]
+}
+
+model Image {
+  id           String @id @default(uuid())
+  supabase_url String
+  claim        Claim  @relation(fields: [claimId], references: [id], onDelete: Cascade)
+  claimId      String
 }
 
 model Bid {

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -8,27 +8,28 @@ import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
 import { useAuth } from "@/contexts/AuthContext";
 import { motion, AnimatePresence } from "framer-motion";
-import { 
-    CheckCircle2, 
-    XCircle, 
-    ArrowLeft, 
-    Building2, 
-    Mail, 
-    Phone, 
-    MapPin, 
-    Home, 
-    Shield, 
-    User, 
-    FileText, 
-    Users, 
-    DollarSign, 
+import {
+    CheckCircle2,
+    XCircle,
+    ArrowLeft,
+    Building2,
+    Mail,
+    Phone,
+    MapPin,
+    Home,
+    Shield,
+    User,
+    FileText,
+    Users,
+    DollarSign,
     ArrowRight,
     ChevronRight,
-    Sparkles
+    Sparkles, Upload, X
 } from "lucide-react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useApiService } from "@/services/api";
 import { toast } from "sonner";
+import { createClient } from "@/auth/client";
 
 interface ClaimData {
   userId: string;
@@ -39,6 +40,7 @@ interface ClaimData {
   projectType: string;
   designPlan: string;
   needsAdjuster: boolean | null;
+  imageUrls: string[];
 }
 
 export default function StartClaimPage() {
@@ -47,10 +49,11 @@ export default function StartClaimPage() {
     const apiService = useApiService();
     const queryClient = useQueryClient();
     const [selectedType, setSelectedType] = useState<'insurance' | 'fema' | null>(null);
+    const supabase = createClient();
     
     // Insurance onboarding state
     const [currentStep, setCurrentStep] = useState(1);
-    const totalSteps = 4;
+    const totalSteps = 5;
     const [address, setAddress] = useState({
         street: '',
         city: '',
@@ -62,6 +65,44 @@ export default function StartClaimPage() {
     const [needsAdjuster, setNeedsAdjuster] = useState<boolean | null>(null);
     const [insuranceProvider, setInsuranceProvider] = useState('');
     const [paymentMethod, setPaymentMethod] = useState('');
+
+    const [uploadedImages, setUploadedImages] = useState<any[]>([]);
+
+    const fileInputRef = useRef<any>(null);
+
+    const handleFileSelect = (e: any) => {
+        const files: File[] = Array.from(e.target.files);
+        const mapped = files.map(file => ({
+            file,
+            preview: URL.createObjectURL(file)
+        }));
+
+        setUploadedImages(prev => [...prev, ...mapped]);
+    };
+
+    const handleDrop = (e: any) => {
+        e.preventDefault();
+
+        const dt = e.dataTransfer;
+        if (!dt) return;
+
+        const files: File[] = Array.from(dt.files)
+
+        //.filter(
+        //             (file): file is File => file.type.startsWith("image/")
+        //         );
+
+        const mapped = files?.map((file: File) => ({
+            file,
+            preview: URL.createObjectURL(file)
+        }));
+
+        setUploadedImages(prev => [...prev, ...mapped]);
+    };
+
+    const removeImage = (index: number) => {
+        setUploadedImages(prev => prev.filter((_, i) => i !== index));
+    };
     
     // FEMA form state
     const [femaFormData, setFemaFormData] = useState({
@@ -101,9 +142,10 @@ export default function StartClaimPage() {
     const isCurrentStepValid = () => {
         switch (currentStep) {
             case 1: return address.street && address.city && address.state && address.zip;
-            case 2: return !!projectType;
-            case 3: return !!designPlan;
-            case 4: return needsAdjuster !== null;
+            case 2: return true;
+            case 3: return !!projectType;
+            case 4: return !!designPlan;
+            case 5: return needsAdjuster !== null;
             default: return true;
         }
     };
@@ -136,8 +178,9 @@ export default function StartClaimPage() {
 
     const submitClaimMutation = useMutation({
         mutationFn: submitClaimData,
-        onSuccess: (data) => {
+        onSuccess: (data: any) => {
             console.log('Claim created successfully:', data);
+            const claimId = data?.id;
             // Invalidate queries to refresh the claims list
             queryClient.invalidateQueries({ queryKey: ["getClaims"] });
             toast("Successfully created claim", {
@@ -153,7 +196,7 @@ export default function StartClaimPage() {
         }
     });
 
-    const completeOnboarding = () => {
+    const completeOnboarding = async () => {
         try {
             if (!user?.id) {
                 toast("Error", {
@@ -161,6 +204,22 @@ export default function StartClaimPage() {
                 });
                 return;
             }
+
+            const imagePaths: string[] = [];
+
+            for (const fileObj of uploadedImages) {
+                const timestamp = Date.now();
+                const { data, error } = await supabase.storage
+                    .from("images")
+                    .upload(`public/${fileObj.file.name}_${timestamp}`, fileObj.file);
+
+                if (!error && data) {
+                    imagePaths.push(data.fullPath);
+                } else if (error) {
+                    console.log(error);
+                }
+            }
+
             const claimData = {
                 userId: user.id,
                 street: address.street,
@@ -169,8 +228,10 @@ export default function StartClaimPage() {
                 zipCode: address.zip,
                 projectType,
                 designPlan,
-                needsAdjuster
+                needsAdjuster,
+                imageUrls: imagePaths,
             };
+
             submitClaimMutation.mutate(claimData);
         } catch (error) {
             console.error('Error completing onboarding:', error);
@@ -439,6 +500,94 @@ export default function StartClaimPage() {
                                         transition={{ duration: 0.3 }}
                                         className="bg-white rounded-2xl shadow-sm border border-slate-200 p-8 md:p-10"
                                     >
+                                        <h2 className="text-3xl font-bold text-slate-900 mb-2">Upload Images</h2>
+                                        <p className="text-slate-600 mb-8">Upload any images or plans you'd like us to reference.</p>
+
+                                        {/* Upload Area */}
+                                        <div
+                                            onDrop={handleDrop}
+                                            onDragOver={(e) => e.preventDefault()}
+                                            className="border-2 border-dashed border-slate-300 hover:border-vendle-blue transition-all rounded-xl p-10 text-center cursor-pointer bg-slate-50/50"
+                                            onClick={() => fileInputRef.current.click()}
+                                        >
+                                            <input
+                                                type="file"
+                                                multiple
+                                                accept="image/*"
+                                                ref={fileInputRef}
+                                                className="hidden"
+                                                onChange={handleFileSelect}
+                                            />
+
+                                            <div className="flex flex-col items-center justify-center">
+                                                <div className="w-16 h-16 rounded-xl bg-vendle-blue/10 text-vendle-blue flex items-center justify-center mb-4">
+                                                    <Upload className="w-8 h-8" />
+                                                </div>
+
+                                                <p className="font-semibold text-slate-900">Click or drag files to upload</p>
+                                                <p className="text-sm text-slate-500 mt-1">You can upload multiple images</p>
+                                            </div>
+                                        </div>
+
+                                        {/* Preview Grid */}
+                                        {uploadedImages.length > 0 && (
+                                            <div className="grid grid-cols-2 md:grid-cols-3 gap-4 mt-8">
+                                                {uploadedImages.map((img, index) => (
+                                                    <div
+                                                        key={index}
+                                                        className="relative group rounded-xl overflow-hidden border border-slate-200 bg-white shadow-sm"
+                                                    >
+                                                        <img
+                                                            src={img.preview}
+                                                            alt="Upload preview"
+                                                            className="w-full h-32 object-cover"
+                                                        />
+
+                                                        {/* Remove Button */}
+                                                        <button
+                                                            className="absolute top-2 right-2 bg-white/90 hover:bg-white text-slate-700 rounded-full p-1 shadow-md opacity-0 group-hover:opacity-100 transition"
+                                                            onClick={() => removeImage(index)}
+                                                        >
+                                                            <X className="w-4 h-4" />
+                                                        </button>
+                                                    </div>
+                                                ))}
+                                            </div>
+                                        )}
+
+                                        {/* Navigation */}
+                                        <div className="flex justify-between mt-8">
+                                            <Button
+                                                onClick={prevStep}
+                                                variant="outline"
+                                                className="px-8 py-6 border-slate-300"
+                                            >
+                                                <ArrowLeft className="w-4 h-4 mr-2" />
+                                                Back
+                                            </Button>
+
+                                            <Button
+                                                onClick={nextStep}
+                                                disabled={!isCurrentStepValid()}
+                                                className="px-8 py-6 bg-gradient-to-r from-vendle-blue to-vendle-navy text-white hover:shadow-lg transition-all disabled:opacity-50"
+                                            >
+                                                Continue
+                                                <ArrowRight className="w-4 h-4 ml-2" />
+                                            </Button>
+                                        </div>
+                                    </motion.div>
+                                )}
+
+
+                                {currentStep === 3 && (
+                                    <motion.div
+                                        key="step2"
+                                        initial={{ opacity: 0, x: 20 }}
+                                        animate={{ opacity: 1, x: 0 }}
+                                        exit={{ opacity: 0, x: -20 }}
+                                        transition={{ duration: 0.3 }}
+                                        className="bg-white rounded-2xl shadow-sm border border-slate-200 p-8 md:p-10"
+                                    >
                                         <h2 className="text-3xl font-bold text-slate-900 mb-2">Project Type</h2>
                                         <p className="text-slate-600 mb-8">What type of rebuild do you need?</p>
 
@@ -498,7 +647,7 @@ export default function StartClaimPage() {
                                     </motion.div>
                                 )}
 
-                                {currentStep === 3 && (
+                                {currentStep === 4 && (
                                     <motion.div
                                         key="step3"
                                         initial={{ opacity: 0, x: 20 }}
@@ -566,7 +715,7 @@ export default function StartClaimPage() {
                                     </motion.div>
                                 )}
 
-                                {currentStep === 4 && (
+                                {currentStep === 5 && (
                                     <motion.div
                                         key="step4"
                                         initial={{ opacity: 0, x: 20 }}
