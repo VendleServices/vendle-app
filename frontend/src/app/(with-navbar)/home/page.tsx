@@ -134,52 +134,6 @@ export default function HomePage() {
   const isContractor = user?.user_metadata?.userType === 'contractor'
   const isHomeowner = user?.user_metadata?.userType === 'homeowner' || !isContractor
 
-  // Mock auction data (same as dashboard)
-  const getMockAuctions = () => {
-    return [
-      {
-        auction_id: "mock-auction-1",
-        claim_id: "mock-claim-1",
-        title: "Restoration Job - Water Damage",
-        project_type: "water damage",
-        starting_bid: 5000,
-        current_bid: 8500,
-        bid_count: 3,
-        end_date: "2025-02-15",
-        status: "open",
-        property_address: "123 Oak Street, Austin, TX",
-        design_plan: "Full restoration"
-      },
-      {
-        auction_id: "mock-auction-2", 
-        claim_id: "mock-claim-2",
-        title: "Fire Damage Restoration",
-        project_type: "fire damage",
-        starting_bid: 8000,
-        current_bid: 12500,
-        bid_count: 0,
-        end_date: "2025-02-20",
-        status: "open",
-        property_address: "456 Pine Avenue, Houston, TX",
-        design_plan: "Partial restoration"
-      },
-      {
-        auction_id: "mock-auction-3",
-        claim_id: "mock-claim-3",
-        title: "Storm Damage Repair",
-        project_type: "storm damage",
-        starting_bid: 4000,
-        current_bid: 6200,
-        bid_count: 2,
-        end_date: "2025-02-10",
-        status: "open",
-        property_address: "789 Elm Drive, Dallas, TX",
-        design_plan: "Roof repair"
-      }
-    ];
-  }
-
-
   const getMockHomeownerProjects = (): HomeownerProject[] => {
     return [
       {
@@ -320,27 +274,6 @@ export default function HomePage() {
     ];
   }
 
-  const fetchContractorAuctions = async () => {
-    setContractorAuctionLoading(true);
-    try {
-      // Use mock data (same as dashboard)
-      const activeAuctions = getMockAuctions();
-      
-      setContractorAuctions(activeAuctions);
-    } catch (error) {
-      console.error('Error fetching auctions:', error);
-      toast.error("Failed to load auctions. Please try again later.");
-    } finally {
-      setContractorAuctionLoading(false);
-    }
-  }
-
-  // Fetch auctions when contractor tab changes
-  useEffect(() => {
-    if (isContractor && !authLoading && contractorTab === 'auctions') {
-      fetchContractorAuctions();
-    }
-  }, [isContractor, authLoading, contractorTab]);
 
   const handleManageJob = (job: Job) => {
     setSelectedJob(job);
@@ -875,9 +808,9 @@ export default function HomePage() {
             </CardHeader>
             <CardContent>
                 <div className="text-2xl font-bold">{homeownerStats.activeAuctions}</div>
-              <p className="text-xs text-muted-foreground">
-                  {homeownerStats.totalAuctions} total auctions
-              </p>
+                <p className="text-xs text-muted-foreground">
+                    {homeownerStats.totalAuctions} total auctions
+                </p>
             </CardContent>
           </Card>
         </div>
