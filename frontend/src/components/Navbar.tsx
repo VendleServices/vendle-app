@@ -64,23 +64,9 @@ const Navbar = ({ onProtectedAction }: NavbarProps = {}) => {
             pathname === '/home' ? 'bg-indigo-50 scale-105' : 'hover:bg-gray-50 hover:scale-105'
           }`}
         >
-          <Home className={`w-7 h-7 flex-shrink-0 block ${pathname === '/home' ? 'text-indigo-600' : 'text-gray-600'}`} strokeWidth={2} />
+          <LayoutDashboard className={`w-7 h-7 flex-shrink-0 block ${pathname === '/home' ? 'text-indigo-600' : 'text-gray-600'}`} strokeWidth={2} />
           <span className={`text-xs font-medium ${pathname === '/home' ? 'text-indigo-600' : 'text-gray-600'}`}>
             Home
-          </span>
-        </Link>
-
-        {/* Dashboard */}
-        <Link
-          href="/dashboard"
-          onClick={(e) => handleProtectedClick(e, '/dashboard')}
-          className={`flex flex-col items-center gap-2 p-3 rounded-xl transition-all ${
-            pathname === '/dashboard' ? 'bg-indigo-50 scale-105' : 'hover:bg-gray-50 hover:scale-105'
-          }`}
-        >
-          <LayoutDashboard className={`w-7 h-7 flex-shrink-0 block ${pathname === '/dashboard' ? 'text-indigo-600' : 'text-gray-600'}`} strokeWidth={2} />
-          <span className={`text-xs font-medium ${pathname === '/dashboard' ? 'text-indigo-600' : 'text-gray-600'}`}>
-            Dashboard
           </span>
         </Link>
 
