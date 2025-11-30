@@ -1,43 +1,36 @@
 "use client";
 
-import { useState, useEffect } from 'react';
-import { motion } from 'framer-motion';
-import { useRouter, useParams } from 'next/navigation';
+import { useState, useEffect, useRef } from "react";
+import { motion } from "framer-motion";
+import { useRouter, useParams } from "next/navigation";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
-import { Checkbox } from "@/components/ui/checkbox";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { toast } from "sonner";
-import { DollarSign, Calendar, FileText, Upload, CheckCircle, AlertCircle, ArrowRight, ArrowLeft, Building, MapPin, Wrench } from 'lucide-react';
-import { useAuth } from '@/contexts/AuthContext';
-import { Progress } from "@/components/ui/progress";
+import {
+  Upload,
+  DollarSign,
+  CheckCircle,
+  Wrench,
+  FileText,
+} from "lucide-react";
+import { useAuth } from "@/contexts/AuthContext";
 import { createClient } from "@/auth/client";
 import { useApiService } from "@/services/api";
 
 interface RestoreFormData {
-  // Step 1: Insurance Estimate
   insuranceEstimatePdf: string | null | undefined;
-  
-  // Step 2: Insurance Claim Verification
   needs3rdPartyAdjuster: boolean;
-  
-  // Step 3: Cost Basis
-  costBasis: 'RCV' | 'ACV' | '';
-  
-  // Step 4: Financial Details
+  costBasis: "RCV" | "ACV" | "";
   overheadAndProfit: string;
   salesTaxes: string;
   materials: string;
   depreciation: string;
-  
-  // Step 5: Deductible Coverage
   hasDeductibleFunds: boolean;
-  fundingSource: 'FEMA' | 'Insurance' | 'SBA' | '';
-  
-  // Step 6: Job Details
+  fundingSource: "FEMA" | "Insurance" | "SBA" | "";
   totalJobValue: string;
   reconstructionType: string;
   additionalNotes: string;
@@ -48,26 +41,26 @@ export default function CreateRestorPage() {
   const router = useRouter();
   const params = useParams();
   const { user } = useAuth();
-  const [claimId, setClaimId] = useState<string | null>(null);
-  const [currentStep, setCurrentStep] = useState(1);
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [uploadedFile, setUploadedFile] = useState<File | null>(null);
-
   const supabase = createClient();
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const [claimId, setClaimId] = useState<string | null>(null);
+  const [uploadedFile, setUploadedFile] = useState<File | null>(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const [formData, setFormData] = useState<RestoreFormData>({
-    insuranceEstimatePdf: '',
+    insuranceEstimatePdf: "",
     needs3rdPartyAdjuster: false,
-    costBasis: '',
-    overheadAndProfit: '',
-    salesTaxes: '',
-    materials: '',
-    depreciation: '',
+    costBasis: "",
+    overheadAndProfit: "",
+    salesTaxes: "",
+    materials: "",
+    depreciation: "",
     hasDeductibleFunds: false,
-    fundingSource: '',
-    totalJobValue: '',
-    reconstructionType: '',
-    additionalNotes: ''
+    fundingSource: "",
+    totalJobValue: "",
+    reconstructionType: "",
+    additionalNotes: "",
   });
 
   useEffect(() => {
@@ -76,98 +69,75 @@ export default function CreateRestorPage() {
       toast("Error", {
         description: "No claim ID provided",
       });
-      router.push('/dashboard');
+      router.push("/dashboard");
       return;
     }
     setClaimId(id);
   }, [params.claimId, router]);
 
-  const getProjectsPath = () => {
-    if (!user) return '/dashboard';
-    return user?.user_metadata?.userType === 'contractor' ? '/contractor-projects' : '/dashboard';
-  };
-
-  const totalSteps = 6;
-  const progressPercentage = (currentStep / totalSteps) * 100;
-
-  const handleNext = () => {
-    if (currentStep < totalSteps) {
-      setCurrentStep(currentStep + 1);
-    }
-  };
-
-  const handleBack = () => {
-    if (currentStep > 1) {
-      setCurrentStep(currentStep - 1);
-    }
-  };
-
-  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files && e.target.files[0]) {
-      const file = e.target.files[0];
-
-      if (file.type !== 'application/pdf') {
-        toast("Invalid File Type", {
-          description: "Please upload a PDF file",
-        });
-        return;
-      }
-
-      if (file.size > 10 * 1024 * 1024) { // 10MB max
-        toast("Maximum File Size Exceeded", {
-          description: "File Size should be less than 10 MB",
-        });
-        return;
-      }
-
-      setUploadedFile(file);
-
-      try {
-        const timestamp = Date.now();
-        const { data, error } = await supabase.storage.from("vendle-estimates").upload(`public/${timestamp}-${file.name}`, file);
-
-        if (error) {
-          console.error('Upload error:', error);
-          toast("Upload Failed", {
-            description: error?.message || "There was an error uploading your file",
-          });
-          return;
-        }
-
-        setFormData(prev => ({
-          ...prev,
-          insuranceEstimatePdf: data?.fullPath
-        }));
-      } catch (error) {
-        console.log(error);
-      }
-    }
-  };
+  const handleClick = () => {
+    fileInputRef.current?.click();
+  }
 
   const handleInputChange = (field: keyof RestoreFormData, value: any) => {
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
-      [field]: value
+      [field]: value,
     }));
   };
 
-  const handleSubmit = async () => {
-    if (!claimId) {
-      toast("Error", {
-        description: "No claim ID provided",
+  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (!e.target.files || !e.target.files[0]) return;
+
+    const file = e.target.files[0];
+
+    if (file.type !== "application/pdf") {
+      toast("Invalid File Type", {
+        description: "Please upload a PDF file",
       });
       return;
     }
 
+    if (file.size > 10 * 1024 * 1024) {
+      toast("File too large", {
+        description: "Max size: 10MB",
+      });
+      return;
+    }
+
+    setUploadedFile(file);
+
+    try {
+      const timestamp = Date.now();
+      const { data, error } = await supabase.storage
+          .from("vendle-estimates")
+          .upload(`public/${timestamp}-${file.name}`, file);
+
+      if (error) throw error;
+
+      setFormData((prev) => ({
+        ...prev,
+        insuranceEstimatePdf: data?.fullPath,
+      }));
+    } catch (error: any) {
+      toast("Upload failed", { description: error.message });
+    }
+  };
+
+  const handleSubmit = async () => {
+    if (!claimId) return;
+
     setIsSubmitting(true);
 
     try {
-      // Calculate total value if not provided
-      const calculatedTotal = formData.totalJobValue || 
-        (parseFloat(formData.materials || '0') + 
-         parseFloat(formData.overheadAndProfit || '0') + 
-         parseFloat(formData.salesTaxes || '0') - 
-         parseFloat(formData.depreciation || '0')).toString();
+      const calculatedTotal =
+          formData.totalJobValue ||
+          (
+              parseFloat(formData.materials || "0") +
+              parseFloat(formData.overheadAndProfit || "0") +
+              parseFloat(formData.salesTaxes || "0") -
+              parseFloat(formData.depreciation || "0")
+          ).toString();
 
       const payload = {
         claim_id: claimId,
@@ -175,420 +145,248 @@ export default function CreateRestorPage() {
         description: formData.additionalNotes,
         starting_bid: parseFloat(calculatedTotal),
         total_job_value: parseFloat(calculatedTotal),
-        overhead_and_profit: parseFloat(formData.overheadAndProfit || '0'),
+        overhead_and_profit: parseFloat(formData.overheadAndProfit || "0"),
         cost_basis: formData.costBasis,
-        materials: parseFloat(formData.materials || '0'),
-        sales_taxes: parseFloat(formData.salesTaxes || '0'),
-        depreciation: parseFloat(formData.depreciation || '0'),
+        materials: parseFloat(formData.materials || "0"),
+        sales_taxes: parseFloat(formData.salesTaxes || "0"),
+        depreciation: parseFloat(formData.depreciation || "0"),
         reconstruction_type: formData.reconstructionType,
         needs_3rd_party_adjuster: formData.needs3rdPartyAdjuster,
         has_deductible_funds: formData.hasDeductibleFunds,
         funding_source: formData.fundingSource,
         insuranceEstimatePdf: formData.insuranceEstimatePdf,
-        auction_end_date: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(),
+        auction_end_date: new Date(
+            Date.now() + 7 * 24 * 60 * 60 * 1000
+        ).toISOString(),
         userId: user?.id,
-      }
+      };
 
-      const response = await apiService.postWithFile('/api/auctions', payload, uploadedFile);
+      await apiService.postWithFile("/api/auctions", payload, uploadedFile);
 
-      toast('Success', {
-        description: "Restoration job created successfully! Contractors in you are will be notified.",
+      toast("Success!", {
+        description: "Contractors will now be notified.",
       });
 
-      localStorage.setItem('refreshAuctions', Date.now().toString());
-      
-      router.push('/dashboard');
+      router.push("/dashboard");
     } catch (error) {
-      console.error('Error creating restoration job:', error);
-      toast("Error", {
-        description: "Failed to create restoration job",
-      });
+      console.error(error);
+      toast("Error", { description: "Failed to create restoration job" });
     } finally {
       setIsSubmitting(false);
     }
   };
 
-  const canProceedToNext = () => {
-    switch (currentStep) {
-      case 1:
-        return formData.insuranceEstimatePdf !== null;
-      case 2:
-        return true; // Always can proceed from adjuster question
-      case 3:
-        return formData.costBasis !== '';
-      case 4:
-        return formData.overheadAndProfit && formData.materials;
-      case 5:
-        return formData.hasDeductibleFunds || formData.fundingSource !== '';
-      case 6:
-        return formData.reconstructionType && formData.totalJobValue;
-      default:
-        return false;
-    }
-  };
-
-  if (!claimId) {
-    return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#0f172a]"></div>
-      </div>
-    );
-  }
-
-  const renderStep = () => {
-    switch (currentStep) {
-      case 1:
-        return (
-          <div className="space-y-6">
-            <div className="text-center">
-              <FileText className="w-16 h-16 mx-auto text-vendle-navy mb-4" />
-              <h2 className="text-2xl font-bold text-vendle-navy mb-2">Insurance Estimate</h2>
-              <p className="text-gray-600">Upload your insurance estimate PDF document</p>
-            </div>
-            
-            <div className="space-y-4">
-              <Label htmlFor="insuranceEstimate" className="text-lg">Insurance Estimate PDF</Label>
-              <div className="relative">
-                <Input
-                  id="insuranceEstimate"
-                  type="file"
-                  accept=".pdf"
-                  onChange={handleFileUpload}
-                  className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
-                />
-                <div className="flex items-center justify-center w-full h-32 border-2 border-dashed border-vendle-navy/20 rounded-lg hover:border-vendle-navy/40 transition-colors">
-                  <div className="text-center">
-                    <Upload className="w-8 h-8 mx-auto text-vendle-navy/70 mb-2" />
-                    <p className="text-vendle-navy/70">Click to upload PDF</p>
-                    <p className="text-sm text-vendle-navy/50">or drag and drop</p>
-                  </div>
-                </div>
-              </div>
-              {uploadedFile && (
-                <div className="flex items-center space-x-2 text-green-600">
-                  <CheckCircle className="w-5 h-5" />
-                  <span>{uploadedFile?.name}</span>
-                </div>
-              )}
-            </div>
-          </div>
-        );
-
-      case 2:
-        return (
-          <div className="space-y-6">
-            <div className="text-center">
-              <Building className="w-16 h-16 mx-auto text-vendle-navy mb-4" />
-              <h2 className="text-2xl font-bold text-vendle-navy mb-2">Insurance Claim Verification</h2>
-              <p className="text-gray-600">Let's verify your insurance claim details</p>
-            </div>
-            
-            <div className="space-y-4">
-              <Label className="text-lg">Do you need a 3rd Party Adjuster?</Label>
-              <RadioGroup
-                value={formData.needs3rdPartyAdjuster.toString()}
-                onValueChange={(value) => handleInputChange('needs3rdPartyAdjuster', value === 'true')}
-              >
-                <div className="flex items-center space-x-2">
-                  <RadioGroupItem value="true" id="adjuster-yes" />
-                  <Label htmlFor="adjuster-yes">Yes, I need a 3rd party adjuster</Label>
-                </div>
-                <div className="flex items-center space-x-2">
-                  <RadioGroupItem value="false" id="adjuster-no" />
-                  <Label htmlFor="adjuster-no">No, I'll work directly with my insurance</Label>
-                </div>
-              </RadioGroup>
-            </div>
-          </div>
-        );
-
-      case 3:
-        return (
-          <div className="space-y-6">
-            <div className="text-center">
-              <DollarSign className="w-16 h-16 mx-auto text-vendle-navy mb-4" />
-              <h2 className="text-2xl font-bold text-vendle-navy mb-2">Cost Basis</h2>
-              <p className="text-gray-600">What is your insurance claim based on?</p>
-            </div>
-            
-            <div className="space-y-4">
-              <Label className="text-lg">Cost Basis Type</Label>
-              <RadioGroup
-                value={formData.costBasis}
-                onValueChange={(value) => handleInputChange('costBasis', value)}
-              >
-                <div className="flex items-center space-x-2">
-                  <RadioGroupItem value="RCV" id="rcv" />
-                  <Label htmlFor="rcv">
-                    <div>
-                      <p className="font-medium">Replacement Cost Value (RCV)</p>
-                      <p className="text-sm text-gray-500">Full cost to replace damaged property</p>
-                    </div>
-                  </Label>
-                </div>
-                <div className="flex items-center space-x-2">
-                  <RadioGroupItem value="ACV" id="acv" />
-                  <Label htmlFor="acv">
-                    <div>
-                      <p className="font-medium">Actual Cash Value (ACV)</p>
-                      <p className="text-sm text-gray-500">Replacement cost minus depreciation</p>
-                    </div>
-                  </Label>
-                </div>
-              </RadioGroup>
-            </div>
-          </div>
-        );
-
-      case 4:
-        return (
-          <div className="space-y-6">
-            <div className="text-center">
-              <FileText className="w-16 h-16 mx-auto text-vendle-navy mb-4" />
-              <h2 className="text-2xl font-bold text-vendle-navy mb-2">Financial Details</h2>
-              <p className="text-gray-600">Provide the financial breakdown of your claim</p>
-            </div>
-            
-            <div className="grid grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label htmlFor="op">Overhead & Profit (O&P)</Label>
-                <div className="relative">
-                  <DollarSign className="absolute left-3 top-3 h-4 w-4 text-gray-500" />
-                  <Input
-                    id="op"
-                    type="number"
-                    placeholder="0.00"
-                    value={formData.overheadAndProfit}
-                    onChange={(e) => handleInputChange('overheadAndProfit', e.target.value)}
-                    className="pl-9"
-                  />
-                </div>
-              </div>
-              
-              <div className="space-y-2">
-                <Label htmlFor="salesTax">Sales Taxes (Materials)</Label>
-                <div className="relative">
-                  <DollarSign className="absolute left-3 top-3 h-4 w-4 text-gray-500" />
-                  <Input
-                    id="salesTax"
-                    type="number"
-                    placeholder="0.00"
-                    value={formData.salesTaxes}
-                    onChange={(e) => handleInputChange('salesTaxes', e.target.value)}
-                    className="pl-9"
-                  />
-                </div>
-              </div>
-              
-              <div className="space-y-2">
-                <Label htmlFor="materials">Materials</Label>
-                <div className="relative">
-                  <DollarSign className="absolute left-3 top-3 h-4 w-4 text-gray-500" />
-                  <Input
-                    id="materials"
-                    type="number"
-                    placeholder="0.00"
-                    value={formData.materials}
-                    onChange={(e) => handleInputChange('materials', e.target.value)}
-                    className="pl-9"
-                  />
-                </div>
-              </div>
-              
-              <div className="space-y-2">
-                <Label htmlFor="depreciation">Depreciation</Label>
-                <div className="relative">
-                  <DollarSign className="absolute left-3 top-3 h-4 w-4 text-gray-500" />
-                  <Input
-                    id="depreciation"
-                    type="number"
-                    placeholder="0.00"
-                    value={formData.depreciation}
-                    onChange={(e) => handleInputChange('depreciation', e.target.value)}
-                    className="pl-9"
-                  />
-                </div>
-              </div>
-            </div>
-          </div>
-        );
-
-      case 5:
-        return (
-          <div className="space-y-6">
-            <div className="text-center">
-              <DollarSign className="w-16 h-16 mx-auto text-vendle-navy mb-4" />
-              <h2 className="text-2xl font-bold text-vendle-navy mb-2">Deductible Coverage</h2>
-              <p className="text-gray-600">Do you have funds to cover the deductible?</p>
-            </div>
-            
-            <div className="space-y-4">
-              <Label className="text-lg">Deductible Funding</Label>
-              <RadioGroup
-                value={formData.hasDeductibleFunds.toString()}
-                onValueChange={(value) => handleInputChange('hasDeductibleFunds', value === 'true')}
-              >
-                <div className="flex items-center space-x-2">
-                  <RadioGroupItem value="true" id="funds-yes" />
-                  <Label htmlFor="funds-yes">Yes, I have funds to cover the deductible</Label>
-                </div>
-                <div className="flex items-center space-x-2">
-                  <RadioGroupItem value="false" id="funds-no" />
-                  <Label htmlFor="funds-no">No, I need alternative funding</Label>
-                </div>
-              </RadioGroup>
-              
-              {!formData.hasDeductibleFunds && (
-                <div className="space-y-4 mt-4 p-4 bg-yellow-50 rounded-lg">
-                  <Label className="text-base font-medium">Alternative Funding Source</Label>
-                  <RadioGroup
-                    value={formData.fundingSource}
-                    onValueChange={(value) => handleInputChange('fundingSource', value)}
-                  >
-                    <div className="flex items-center space-x-2">
-                      <RadioGroupItem value="FEMA" id="fema" />
-                      <Label htmlFor="fema">FEMA Assistance</Label>
-                    </div>
-                    <div className="flex items-center space-x-2">
-                      <RadioGroupItem value="Insurance" id="insurance" />
-                      <Label htmlFor="insurance">Insurance Advance</Label>
-                    </div>
-                    <div className="flex items-center space-x-2">
-                      <RadioGroupItem value="SBA" id="sba" />
-                      <Label htmlFor="sba">SBA Loan</Label>
-                    </div>
-                  </RadioGroup>
-                  <p className="text-sm text-yellow-700">
-                    We'll hold the job posting until funds are secured or in process.
-                  </p>
-                </div>
-              )}
-            </div>
-          </div>
-        );
-
-      case 6:
-        return (
-          <div className="space-y-6">
-            <div className="text-center">
-              <Wrench className="w-16 h-16 mx-auto text-vendle-navy mb-4" />
-              <h2 className="text-2xl font-bold text-vendle-navy mb-2">Job Posting Details</h2>
-              <p className="text-gray-600">Information that contractors will see</p>
-            </div>
-            
-            <div className="space-y-4">
-              <div className="space-y-2">
-                <Label htmlFor="totalValue">Total Value of the Job</Label>
-                <div className="relative">
-                  <DollarSign className="absolute left-3 top-3 h-4 w-4 text-gray-500" />
-                  <Input
-                    id="totalValue"
-                    type="number"
-                    placeholder="0.00"
-                    value={formData.totalJobValue}
-                    onChange={(e) => handleInputChange('totalJobValue', e.target.value)}
-                    className="pl-9"
-                  />
-                </div>
-              </div>
-              
-              <div className="space-y-2">
-                <Label htmlFor="reconstructionType">Type of Reconstruction</Label>
-                <Input
-                  id="reconstructionType"
-                  placeholder="e.g., Water damage restoration, Fire damage repair, Storm damage"
-                  value={formData.reconstructionType}
-                  onChange={(e) => handleInputChange('reconstructionType', e.target.value)}
-                />
-              </div>
-              
-              <div className="space-y-2">
-                <Label htmlFor="additionalNotes">Additional Notes (Optional)</Label>
-                <Textarea
-                  id="additionalNotes"
-                  placeholder="Any additional information for contractors..."
-                  value={formData.additionalNotes}
-                  onChange={(e) => handleInputChange('additionalNotes', e.target.value)}
-                  className="min-h-[100px]"
-                />
-              </div>
-            </div>
-            
-            <div className="bg-blue-50 p-4 rounded-lg">
-              <h3 className="font-medium text-blue-900 mb-2">What happens next?</h3>
-              <ul className="text-sm text-blue-800 space-y-1">
-                <li>• Contractors in your state will be notified via email</li>
-                <li>• They'll see the job value, O&P, location, and reconstruction type</li>
-                <li>• Qualified contractors can submit bids</li>
-                <li>• You'll receive notifications about new bids</li>
-              </ul>
-            </div>
-          </div>
-        );
-
-      default:
-        return null;
-    }
-  };
-
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      exit={{ opacity: 0, y: -20 }}
-      transition={{ duration: 0.3 }}
-      className="min-h-screen bg-gray-50 p-4 pt-24"
-    >
-      <div className="max-w-4xl mx-auto">
-        <Card className="bg-white shadow-lg">
-          <CardHeader className="pb-6">
-            <div className="flex items-center justify-between mb-4">
-              <CardTitle className="text-3xl font-bold text-vendle-navy">
+      <motion.div
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.25 }}
+          className="flex min-h-screen w-full bg-muted/30"
+      >
+        <main className="flex-1 px-14 py-14">
+          <div className="max-w-5xl mx-auto space-y-14">
+            <div>
+              <h1 className="text-4xl font-bold mb-1 tracking-tight text-foreground">
                 Create Restoration Job
-              </CardTitle>
-              <div className="text-sm text-gray-500">
-                Step {currentStep} of {totalSteps}
+              </h1>
+              <p className="text-muted-foreground text-lg">
+                Help contractors understand your project clearly — fill out the details
+                below.
+              </p>
+            </div>
+
+            {/* Insurance Estimate */}
+            <Card className="rounded-2xl border-border shadow-md bg-card">
+              <CardHeader>
+                <div className="flex items-center gap-2">
+                  <FileText className="w-6 h-6 text-primary" />
+                  <CardTitle className="text-xl font-semibold">
+                    Insurance Estimate
+                  </CardTitle>
+                </div>
+                <p className="text-xs text-muted-foreground">
+                  Upload your insurance estimate PDF.
+                </p>
+              </CardHeader>
+
+              <CardContent className="space-y-4">
+                <Label className="font-medium">Estimate PDF</Label>
+
+                <div className="relative flex items-center justify-center h-36 border-2 border-dashed rounded-xl border-muted-foreground/30 bg-muted/10" onClick={handleClick}>
+                  <Input
+                      type="file"
+                      accept=".pdf"
+                      onChange={handleFileUpload}
+                      className="absolute inset-0 opacity-0 cursor-pointer"
+                      ref={fileInputRef}
+                  />
+                  {!uploadedFile ? (
+                      <div className="text-center">
+                        <Upload className="h-8 w-8 mx-auto text-muted-foreground mb-1" />
+                        <p className="text-sm text-muted-foreground">Click to upload</p>
+                      </div>
+                  ) : (
+                      <div className="text-green-600 flex items-center gap-2">
+                        <CheckCircle />
+                        {uploadedFile.name}
+                      </div>
+                  )}
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Financial Breakdown */}
+            <Card className="rounded-2xl border-border shadow-md bg-card">
+              <CardHeader>
+                <div className="flex items-center gap-2">
+                  <DollarSign className="w-6 h-6 text-primary" />
+                  <CardTitle className="text-xl font-semibold">
+                    Financial Breakdown
+                  </CardTitle>
+                </div>
+              </CardHeader>
+
+              <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-10">
+                <div className="space-y-4">
+                  <div className="space-y-1.5">
+                    <Label className="font-medium">Cost Basis</Label>
+                    <RadioGroup
+                        value={formData.costBasis}
+                        onValueChange={(v) => handleInputChange("costBasis", v)}
+                        className="space-y-2"
+                    >
+                      <div className="flex items-center gap-2">
+                        <RadioGroupItem id="rcv" value="RCV" />
+                        <Label htmlFor="rcv">Replacement Cost Value (RCV)</Label>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <RadioGroupItem id="acv" value="ACV" />
+                        <Label htmlFor="acv">Actual Cash Value (ACV)</Label>
+                      </div>
+                    </RadioGroup>
+                  </div>
+
+                  <div className="space-y-1.5">
+                    <Label className="font-medium">Deductible</Label>
+                    <RadioGroup
+                        value={formData.hasDeductibleFunds.toString()}
+                        onValueChange={(v) =>
+                            handleInputChange("hasDeductibleFunds", v === "true")
+                        }
+                        className="space-y-2"
+                    >
+                      <div className="flex items-center gap-2">
+                        <RadioGroupItem id="fund-yes" value="true" />
+                        <Label htmlFor="fund-yes">I have deductible funds</Label>
+                      </div>
+
+                      <div className="flex items-center gap-2">
+                        <RadioGroupItem id="fund-no" value="false" />
+                        <Label htmlFor="fund-no">Need additional funding</Label>
+                      </div>
+                    </RadioGroup>
+                  </div>
+
+                  {!formData.hasDeductibleFunds && (
+                      <div className="ml-4 mt-2 border-l pl-4 space-y-2">
+                        <RadioGroup
+                            value={formData.fundingSource}
+                            onValueChange={(v) => handleInputChange("fundingSource", v)}
+                        >
+                          {["FEMA", "Insurance", "SBA"].map((src) => (
+                              <div key={src} className="flex items-center gap-2">
+                                <RadioGroupItem id={src} value={src} />
+                                <Label htmlFor={src}>{src} Assistance</Label>
+                              </div>
+                          ))}
+                        </RadioGroup>
+                      </div>
+                  )}
+                </div>
+
+                <div className="space-y-4">
+                  {[
+                    ["materials", "Materials Cost ($)"],
+                    ["overheadAndProfit", "Overhead & Profit ($)"],
+                    ["salesTaxes", "Sales Taxes ($)"],
+                    ["depreciation", "Depreciation ($)"],
+                  ].map(([key, label]) => (
+                      <div key={key} className="space-y-1.5">
+                        <Label className="font-medium">{label}</Label>
+                        <Input
+                            type="number"
+                            placeholder="0.00"
+                            value={(formData as any)[key]}
+                            onChange={(e) =>
+                                handleInputChange(key as any, e.target.value)
+                            }
+                        />
+                      </div>
+                  ))}
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Job Details */}
+            <Card className="rounded-2xl border-border shadow-md bg-card">
+              <CardHeader>
+                <div className="flex items-center gap-2">
+                  <Wrench className="w-6 h-6 text-primary" />
+                  <CardTitle className="text-xl font-semibold">
+                    Job Posting Details
+                  </CardTitle>
+                </div>
+              </CardHeader>
+
+              <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-10">
+                <div className="space-y-2">
+                  <Label className="font-medium">Total Job Value ($)</Label>
+                  <Input
+                      type="number"
+                      placeholder="0.00"
+                      value={formData.totalJobValue}
+                      onChange={(e) =>
+                          handleInputChange("totalJobValue", e.target.value)
+                      }
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <Label className="font-medium">Reconstruction Type</Label>
+                  <Input
+                      placeholder="e.g. Fire damage restoration"
+                      value={formData.reconstructionType}
+                      onChange={(e) =>
+                          handleInputChange("reconstructionType", e.target.value)
+                      }
+                  />
+                </div>
+
+                <div className="md:col-span-2 space-y-2">
+                  <Label className="font-medium">Additional Notes</Label>
+                  <Textarea
+                      placeholder="Add any relevant details..."
+                      className="min-h-[120px]"
+                      value={formData.additionalNotes}
+                      onChange={(e) =>
+                          handleInputChange("additionalNotes", e.target.value)
+                      }
+                  />
+                </div>
+              </CardContent>
+
+              <div className="p-6 flex justify-end">
+                <Button
+                    className="h-12 text-base font-semibold px-10"
+                    disabled={isSubmitting}
+                    onClick={handleSubmit}
+                >
+                  {isSubmitting ? "Submitting..." : "Create Job & Notify Contractors"}
+                </Button>
               </div>
-            </div>
-            <Progress value={progressPercentage} className="h-2" />
-          </CardHeader>
-          
-          <CardContent className="space-y-8">
-            {renderStep()}
-            
-            <div className="flex justify-between pt-6 border-t">
-              <Button
-                type="button"
-                variant="outline"
-                onClick={currentStep === 1 ? () => router.push(getProjectsPath()) : handleBack}
-                disabled={isSubmitting}
-              >
-                <ArrowLeft className="w-4 h-4 mr-2" />
-                {currentStep === 1 ? 'Cancel' : 'Back'}
-              </Button>
-              
-              {currentStep === totalSteps ? (
-                <Button
-                  onClick={handleSubmit}
-                  disabled={!canProceedToNext() || isSubmitting}
-                  className="bg-vendle-navy text-white hover:bg-vendle-navy/90"
-                >
-                  {isSubmitting ? 'Creating Job...' : 'Create Job & Notify Contractors'}
-                </Button>
-              ) : (
-                <Button
-                  onClick={handleNext}
-                  disabled={!canProceedToNext()}
-                  className="bg-vendle-navy text-white hover:bg-vendle-navy/90"
-                >
-                  Continue
-                  <ArrowRight className="w-4 h-4 ml-2" />
-                </Button>
-              )}
-            </div>
-          </CardContent>
-        </Card>
-      </div>
-    </motion.div>
+            </Card>
+          </div>
+        </main>
+      </motion.div>
   );
-} 
+}

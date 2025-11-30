@@ -209,9 +209,10 @@ export default function StartClaimPage() {
 
             for (const fileObj of uploadedImages) {
                 const timestamp = Date.now();
+                const fileNameCleaned = fileObj.file.name.replace(/[^\w.-]+/g, "_");
                 const { data, error } = await supabase.storage
                     .from("images")
-                    .upload(`public/${fileObj.file.name}_${timestamp}`, fileObj.file);
+                    .upload(`public/${fileNameCleaned}_${timestamp}`, fileObj.file);
 
                 if (!error && data) {
                     imagePaths.push(data.fullPath);

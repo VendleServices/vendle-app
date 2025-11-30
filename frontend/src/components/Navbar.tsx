@@ -84,21 +84,6 @@ const Navbar = ({ onProtectedAction }: NavbarProps = {}) => {
           </span>
         </Link>
 
-        {/* Earnings - Only for contractors when logged in */}
-        {isLoggedIn && user?.user_metadata?.userType === 'contractor' && (
-          <Link
-            href="/earnings"
-            className={`flex flex-col items-center gap-2 p-3 rounded-xl transition-all ${
-              pathname === '/earnings' ? 'bg-indigo-50 scale-105' : 'hover:bg-gray-50 hover:scale-105'
-            }`}
-          >
-            <DollarSign className={`w-7 h-7 flex-shrink-0 block ${pathname === '/earnings' ? 'text-indigo-600' : 'text-gray-600'}`} strokeWidth={2} />
-            <span className={`text-xs font-medium ${pathname === '/earnings' ? 'text-indigo-600' : 'text-gray-600'}`}>
-              Earnings
-            </span>
-          </Link>
-        )}
-
         {/* Profile */}
         <Link
           href="/profile"
