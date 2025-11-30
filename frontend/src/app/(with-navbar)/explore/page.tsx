@@ -27,6 +27,8 @@ import {
   MessageSquare,
 } from "lucide-react"
 import { mockJobs, formatPrice, formatLocation, getTimeAgo, type JobPosting } from "@/data/mockJobs"
+import { useApiService } from "@/services/api";
+import { useQuery } from "@tanstack/react-query";
 
 export default function ExplorePage() {
   const router = useRouter()
@@ -37,6 +39,45 @@ export default function ExplorePage() {
   const [selectedJob, setSelectedJob] = useState<JobPosting | null>(null)
   const [searchQuery, setSearchQuery] = useState("")
   const [sortBy, setSortBy] = useState("newest")
+  const apiService = useApiService()
+
+  const fetchAuctions = async () => {
+    try {
+      const response: any = await apiService.get('/api/auctions');
+      const data = response?.data;
+
+      const activeAuctions = data?.filter((auction: any) => new Date(auction.end_date) > new Date());
+      const mappedAuctions = activeAuctions?.map((auction: any, index: number) => ({
+        id: auction.auction_id,
+        title: auction.title,
+        description: auction.description,
+        price: typeof auction.startingBid === "string" ? parseInt(auction?.startingBid || "5000") : 5000,
+        location: {
+          city: auction?.property_address?.split(", ")?.[1] || "",
+          state: auction?.property_address?.split(", ")?.[2] || "",
+          zipCode: auction?.property_address?.split(", ")?.[3] || ""
+        },
+        category: auction.project_type,
+        postedAt: new Date(auction.start_date),
+        deadline: new Date(auction.end_date),
+        status: auction.status,
+        homeowner: {
+          name: "Unknown",
+          rating: 5.0
+        }
+      })) || [] as JobPosting[];
+      return mappedAuctions;
+    } catch (error) {
+      console.log(error);
+    }
+  }
+
+  const { data: realAuctions, error, isLoading } = useQuery({
+    queryKey: ["realAuctions"],
+    queryFn: fetchAuctions,
+  });
+
+  const allJobs: JobPosting[] = [...(realAuctions || []), ...mockJobs];
 
   const handleViewDetails = (job: JobPosting) => {
     if (!isLoggedIn) {
@@ -128,7 +169,7 @@ export default function ExplorePage() {
 
             {/* Opportunities Grid */}
             <div className="grid gap-5 sm:grid-cols-2 xl:grid-cols-3">
-              {mockJobs.map((job) => (
+              {allJobs.map((job) => (
                 <Card
                   key={job.id}
                   className={`group relative flex flex-col overflow-hidden rounded-2xl border-border bg-card transition-all duration-200 hover:-translate-y-0.5 hover:shadow-lg hover:border-primary/20 cursor-pointer ${
