@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useMemo } from "react"
 import { useRouter } from "next/navigation"
 import { useAuth } from "@/contexts/AuthContext"
 import { Button } from "@/components/ui/button"
@@ -77,7 +77,22 @@ export default function ExplorePage() {
     queryFn: fetchAuctions,
   });
 
-  const allJobs: JobPosting[] = [...(realAuctions || []), ...mockJobs];
+  const sortedJobs = useMemo(() => {
+    const jobs: JobPosting[] = [...(realAuctions || []), ...mockJobs];
+
+    const filteredJobs = jobs?.filter(job =>
+        job.title?.toLowerCase().includes(searchQuery?.toLowerCase() || "")
+    );
+
+    switch(sortBy) {
+      case "newest":
+        return filteredJobs?.sort((a: JobPosting, b: JobPosting) => b.postedAt?.getTime() - a.postedAt?.getTime())
+      case "highest-pay":
+        return filteredJobs?.sort((a: JobPosting, b: JobPosting) => b.price - a.price)
+      default:
+        return filteredJobs
+    }
+  }, [realAuctions, sortBy, searchQuery]);
 
   const handleViewDetails = (job: JobPosting) => {
     if (!isLoggedIn) {
@@ -145,8 +160,8 @@ export default function ExplorePage() {
                   <SelectContent>
                     <SelectItem value="newest">Newest</SelectItem>
                     <SelectItem value="highest-pay">Highest pay</SelectItem>
-                    <SelectItem value="closest">Closest</SelectItem>
-                    <SelectItem value="job-fit">Job fit</SelectItem>
+                    {/*<SelectItem value="closest">Closest</SelectItem>*/}
+                    {/*<SelectItem value="job-fit">Job fit</SelectItem>*/}
                   </SelectContent>
                 </Select>
               </div>
@@ -169,7 +184,7 @@ export default function ExplorePage() {
 
             {/* Opportunities Grid */}
             <div className="grid gap-5 sm:grid-cols-2 xl:grid-cols-3">
-              {allJobs.map((job) => (
+              {sortedJobs.map((job) => (
                 <Card
                   key={job.id}
                   className={`group relative flex flex-col overflow-hidden rounded-2xl border-border bg-card transition-all duration-200 hover:-translate-y-0.5 hover:shadow-lg hover:border-primary/20 cursor-pointer ${
