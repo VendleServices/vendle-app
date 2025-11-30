@@ -5,32 +5,18 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { useAuth } from "@/contexts/AuthContext";
-import { Building2, MapPin, Calendar, FileText, Clock, LayoutIcon, Trash2, ArrowLeft } from "lucide-react";
+import { Building2, MapPin, Calendar, FileText, Clock, LayoutIcon, ArrowLeft } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { use } from "react";
 import { useApiService } from "@/services/api";
 import { createClient } from "@/auth/client";
 import Image from "next/image";
+import { motion } from "framer-motion";
 
 interface PageProps {
     params: Promise<{
         claimId: string;
     }>;
-}
-
-interface Claim {
-    id: string;
-    street: string;
-    city: string;
-    state: string;
-    zipCode: string;
-    projectType: string;
-    designPlan: string;
-    insuranceEstimateFilePath: string;
-    needsAdjuster: boolean;
-    insuranceProvider: string;
-    createdAt: Date;
-    updatedAt: Date;
 }
 
 export default function ClaimPage({ params }: PageProps) {
@@ -46,68 +32,39 @@ export default function ClaimPage({ params }: PageProps) {
 
     const fetchClaim = async () => {
         const response: any = await apiService.get(`/api/claim/${claimId}`);
-        const claim  = response?.claim;
-        return claim ? claim : null
-    }
+        return response?.claim ?? null;
+    };
 
-    const { data: claim, isLoading, isError, error } = useQuery({
+    const { data: claim, isLoading } = useQuery({
         queryKey: ["getIndividualClaim"],
         queryFn: fetchClaim,
     });
 
     const fetchClaimImages = async () => {
-        try {
-            const response: any = await apiService.get(`/api/images/${claimId}`);
+        const response: any = await apiService.get(`/api/images/${claimId}`);
+        const images = response?.images ?? [];
+        return images.map((img: any) => {
+            const { data } = supabase.storage
+                .from("images")
+                .getPublicUrl(img?.supabase_url?.slice(7));
+            return data?.publicUrl;
+        });
+    };
 
-            const imageObjects = response?.images;
-            const publicImageUrls: string[] = [];
-
-            for (const image of imageObjects) {
-                const { data: publicURL } = supabase.storage.from('images').getPublicUrl(image?.supabase_url?.slice(7));
-                publicImageUrls.push(publicURL.publicUrl);
-            }
-
-            console.log(publicImageUrls);
-
-            return publicImageUrls;
-        } catch (error) {
-            console.log(error);
-        }
-    }
-
-    const { data: images, isLoading: loadingImages, error: errorImages } = useQuery({
+    const { data: images } = useQuery({
         queryKey: ["getClaimImages"],
         queryFn: fetchClaimImages,
         enabled: !!claimId,
     });
 
-    const getStatusColor = (status: string) => {
-        switch (status) {
-            case "pending":
-                return "bg-yellow-500";
-            case "in-progress":
-                return "bg-blue-500";
-            case "completed":
-                return "bg-green-500";
-            case "cleanup-in-progress":
-                return "bg-purple-500";
-            default:
-                return "bg-gray-500";
-        }
-    };
+    const getStatusColor = () => "bg-blue-600";
 
     if (isLoading) {
         return (
-            <div className="flex-1 p-8">
-                <div className="max-w-7xl mx-auto">
-                    <div className="animate-pulse">
-                        <div className="h-8 bg-gray-200 rounded w-1/4 mb-4"></div>
-                        <div className="h-4 bg-gray-200 rounded w-1/2 mb-8"></div>
-                        <div className="space-y-4">
-                            <div className="h-32 bg-gray-200 rounded"></div>
-                            <div className="h-32 bg-gray-200 rounded"></div>
-                        </div>
-                    </div>
+            <div className="min-h-screen bg-gray-50 pl-32 flex items-center justify-center">
+                <div className="animate-pulse w-full max-w-3xl space-y-4 p-6">
+                    <div className="h-6 bg-gray-200 rounded w-1/3"></div>
+                    <div className="h-48 bg-gray-200 rounded"></div>
                 </div>
             </div>
         );
@@ -115,108 +72,122 @@ export default function ClaimPage({ params }: PageProps) {
 
     if (!claim) {
         return (
-            <div className="flex-1 p-8">
-                <div className="max-w-7xl mx-auto">
-                    <h1 className="text-3xl font-bold text-gray-900">Claim Not Found</h1>
-                    <p className="mt-2 text-gray-600">The claim you're looking for doesn't exist or you don't have permission to view it.</p>
-                    <Button
-                        onClick={() => router.push("/dashboard")}
-                        className="mt-4"
-                    >
-                        Back to My Projects
-                    </Button>
-                </div>
+            <div className="min-h-screen bg-gray-50 pl-32 p-10">
+                <h1 className="text-3xl font-bold">Claim Not Found</h1>
+                <p className="mt-2 text-gray-600">
+                    The requested claim could not be found or you don’t have access.
+                </p>
+                <Button onClick={() => router.push("/dashboard")} className="mt-6">
+                    Back to Dashboard
+                </Button>
             </div>
         );
     }
 
     return (
-        <div className="flex-1 p-8 mt-20">
-            <div className="max-w-7xl mx-auto">
-                <div className="flex flex-col justify-center mb-6">
-                    <Button
-                        variant="ghost"
-                        onClick={() => router.push("/dashboard")}
-                        className="mr-4 w-fit mb-6"
+        <div className="min-h-screen bg-gray-50 pl-32 py-12">
+            <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.3 }}
+                className="max-w-6xl mx-auto space-y-10"
+            >
+                {/* Header */}
+                <div className="flex items-start justify-between">
+                    <div>
+                        <Button
+                            variant="ghost"
+                            onClick={() => router.push("/dashboard")}
+                            className="mb-3 gap-2"
+                        >
+                            <ArrowLeft className="h-4 w-4" />
+                            Back to Dashboard
+                        </Button>
+                        <h1 className="text-3xl font-bold tracking-tight text-gray-900">
+                            Claim Details
+                        </h1>
+                        <p className="text-sm text-gray-500 mt-2">
+                            Review the details and uploaded documentation.
+                        </p>
+                    </div>
+
+                    <Badge
+                        className={`${getStatusColor()} text-white px-3 py-1 text-sm rounded-full`}
                     >
-                        <ArrowLeft className="h-4 w-4" />
-                        Back to My Projects
-                    </Button>
-                    <h1 className="text-3xl font-bold text-gray-900">Claim Details</h1>
+                        ID: {claim.id}
+                    </Badge>
                 </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <Card>
+                {/* Claim Info */}
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    <Card className="shadow-sm border border-gray-200">
                         <CardHeader>
-                            <CardTitle>Claim Information</CardTitle>
+                            <CardTitle className="text-gray-900">Property Info</CardTitle>
                         </CardHeader>
-                        <CardContent>
-                            <div className="space-y-4">
-                                <div className="flex items-center">
-                                    <Badge className={`${getStatusColor(claim.id)} text-white mr-2`}>
-                                        {claim.id}
-                                    </Badge>
-                                    <span className="text-sm text-gray-500">
-                                        Created on {new Date(claim.createdAt).toLocaleDateString()}
-                                    </span>
-                                </div>
-                                <div className="flex items-center">
-                                    <MapPin className="h-4 w-4 mr-2 text-gray-500" />
-                                    <span>{claim.street}</span>
-                                </div>
-                                {claim.city && (
-                                    <div className="flex items-center">
-                                        <Building2 className="h-4 w-4 mr-2 text-gray-500" />
-                                        <span>{claim.city}</span>
-                                    </div>
-                                )}
-                                {claim.state && (
-                                    <div className="flex items-center">
-                                        <FileText className="h-4 w-4 mr-2 text-gray-500" />
-                                        <span>State: {claim.state}</span>
-                                    </div>
-                                )}
-                                {claim.zipCode && (
-                                    <div className="flex items-center">
-                                        <Calendar className="h-4 w-4 mr-2 text-gray-500" />
-                                        <span>ZipCode: {claim.zipCode}</span>
-                                    </div>
-                                )}
+                        <CardContent className="space-y-4 text-gray-700">
+                            <div className="flex items-center">
+                                <MapPin className="h-4 w-4 mr-3 text-gray-500" />
+                                {claim.street}
+                            </div>
+                            <div className="flex items-center">
+                                <Building2 className="h-4 w-4 mr-3 text-gray-500" />
+                                {claim.city}, {claim.state} {claim.zipCode}
+                            </div>
+                            <div className="flex items-center">
+                                <Calendar className="h-4 w-4 mr-3 text-gray-500" />
+                                Created: {new Date(claim.createdAt).toLocaleDateString()}
                             </div>
                         </CardContent>
                     </Card>
 
-                    <Card>
+                    <Card className="shadow-sm border border-gray-200">
                         <CardHeader>
-                            <CardTitle>Project Details</CardTitle>
+                            <CardTitle className="text-gray-900">Project Specs</CardTitle>
                         </CardHeader>
-                        <CardContent>
-                            <div className="space-y-4">
-                                {claim.projectType && (
-                                    <div className="flex items-center">
-                                        <LayoutIcon className="h-4 w-4 mr-2 text-gray-500" />
-                                        <span>Project Type: {claim.projectType}</span>
-                                    </div>
-                                )}
-                                {claim.designPlan && (
-                                    <div className="flex items-center">
-                                        <FileText className="h-4 w-4 mr-2 text-gray-500" />
-                                        <span>Design Plan: {claim.designPlan}</span>
-                                    </div>
-                                )}
-                                <div className="flex items-center">
-                                    <Clock className="h-4 w-4 mr-2 text-gray-500" />
-                                    <span>Last Updated: {new Date(claim.updatedAt).toLocaleDateString()}</span>
-                                </div>
+                        <CardContent className="space-y-4 text-gray-700">
+                            <div className="flex items-center">
+                                <LayoutIcon className="h-4 w-4 mr-3 text-gray-500" />
+                                Project Type: {claim.projectType}
+                            </div>
+                            <div className="flex items-center">
+                                <FileText className="h-4 w-4 mr-3 text-gray-500" />
+                                Design Plan: {claim.designPlan}
+                            </div>
+                            <div className="flex items-center">
+                                <Clock className="h-4 w-4 mr-3 text-gray-500" />
+                                Updated: {new Date(claim.updatedAt).toLocaleDateString()}
                             </div>
                         </CardContent>
                     </Card>
-
-                    {images?.map((url: string, index: number) => (
-                        <Image src={url} alt="image" key={index} width={300} height={300} />
-                    ))}
                 </div>
-            </div>
+
+                {/* Images */}
+                <Card className="shadow-sm border border-gray-200">
+                    <CardHeader>
+                        <CardTitle className="text-gray-900">Property Images</CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                        {images?.length ? (
+                            <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+                                {images.map((url: string, i: number) => (
+                                    <div key={i} className="relative w-full h-48 rounded-lg overflow-hidden border">
+                                        <Image
+                                            src={url}
+                                            alt="Claim"
+                                            fill
+                                            className="object-cover"
+                                        />
+                                    </div>
+                                ))}
+                            </div>
+                        ) : (
+                            <p className="text-gray-500 text-sm">
+                                No images uploaded for this claim yet.
+                            </p>
+                        )}
+                    </CardContent>
+                </Card>
+            </motion.div>
         </div>
     );
-} 
+}
