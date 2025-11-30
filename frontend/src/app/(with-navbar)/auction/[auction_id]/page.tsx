@@ -305,16 +305,6 @@ export default function AuctionDetailsPage() {
                     >
                         ← Back to Auctions
                     </Button>
-
-                    {!isContractor && (
-                        <Button
-                            size="sm"
-                            className="rounded-full bg-[hsl(217,64%,23%)] px-4 text-sm font-medium text-white hover:bg-[hsl(217,64%,18%)]"
-                            onClick={() => askVendleAIMutation.mutate()}
-                        >
-                            Ask Vendle
-                        </Button>
-                    )}
                 </div>
 
                 {/* Main header card */}
@@ -660,12 +650,14 @@ export default function AuctionDetailsPage() {
                                             </Badge>
                                         </div>
                                     </div>
-                                    <Button
-                                        onClick={() => askVendleAIMutation.mutate()}
-                                        className="rounded-full bg-[hsl(217,64%,23%)] px-5 text-sm font-medium text-white hover:bg-[hsl(217,64%,18%)]"
-                                    >
-                                        Ask Vendle
-                                    </Button>
+                                    {!isContractor && (
+                                        <Button
+                                            onClick={() => askVendleAIMutation.mutate()}
+                                            className="rounded-full bg-[hsl(217,64%,23%)] px-5 text-sm font-medium text-white hover:bg-[hsl(217,64%,18%)]"
+                                        >
+                                            Ask Vendle
+                                        </Button>
+                                    )}
                                 </div>
                             </CardHeader>
                             <CardContent className="p-8">
