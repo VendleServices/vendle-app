@@ -62,7 +62,7 @@ export default function StartClaimPage() {
     
     // Insurance onboarding state
     const [currentStep, setCurrentStep] = useState(1);
-    const totalSteps = 8;
+    const totalSteps = 9;
     const [address, setAddress] = useState({
         street: '',
         city: '',
@@ -88,9 +88,11 @@ export default function StartClaimPage() {
     const [insuranceProvider, setInsuranceProvider] = useState('');
     const [paymentMethod, setPaymentMethod] = useState('');
 
+    const [uploadedPdfs, setUploadedPdfs] = useState<any[]>([]);
     const [uploadedImages, setUploadedImages] = useState<any[]>([]);
 
     const fileInputRef = useRef<any>(null);
+    const pdfInputRef = useRef<any>(null);
 
     const handleFileSelect = (e: any) => {
         const files: File[] = Array.from(e.target.files);
@@ -120,6 +122,33 @@ export default function StartClaimPage() {
         }));
 
         setUploadedImages(prev => [...prev, ...mapped]);
+    };
+
+    const handlePdfSelect = (e: any) => {
+        const files: File[] = Array.from(e.target.files);
+        const mapped = files.map(file => ({
+            file,
+            name: file.name,
+            size: file.size
+        }));
+        setUploadedPdfs(prev => [...prev, ...mapped]);
+    };
+
+    const handlePdfDrop = (e: any) => {
+        e.preventDefault();
+        const dt = e.dataTransfer;
+        if (!dt) return;
+        const files: File[] = Array.from(dt.files).filter((file: File) => file.type === 'application/pdf');
+        const mapped = files?.map((file: File) => ({
+            file,
+            name: file.name,
+            size: file.size
+        }));
+        setUploadedPdfs(prev => [...prev, ...mapped]);
+    };
+
+    const removePdf = (index: number) => {
+        setUploadedPdfs(prev => prev.filter((_, i) => i !== index));
     };
 
     const removeImage = (index: number) => {
@@ -184,16 +213,17 @@ export default function StartClaimPage() {
     const isCurrentStepValid = () => {
         switch (currentStep) {
             case 1: return address.street && address.city && address.state && address.zip;
-            case 2: return true;
-            case 3: return damageTypes.length > 0;
-            case 4: return propertyQuestions.hasFunctionalUtilities !== null && 
+            case 2: return true; // PDF upload is optional
+            case 3: return true; // Image upload is optional
+            case 4: return damageTypes.length > 0;
+            case 5: return propertyQuestions.hasFunctionalUtilities !== null && 
                        propertyQuestions.hasDumpster !== null && 
                        propertyQuestions.isOccupied !== null;
-            case 5: return timeline.phase1Start && timeline.phase1End && 
+            case 6: return timeline.phase1Start && timeline.phase1End && 
                        timeline.phase2Start && timeline.phase2End;
-            case 6: return !!projectType;
-            case 7: return !!designPlan;
-            case 8: return needsAdjuster !== null;
+            case 7: return !!projectType;
+            case 8: return !!designPlan;
+            case 9: return needsAdjuster !== null;
             default: return true;
         }
     };
@@ -839,7 +869,96 @@ export default function StartClaimPage() {
 
                                 {currentStep === 2 && (
                                     <motion.div
-                                        key="step2"
+                                        key="step2-pdf"
+                                        initial={{ opacity: 0, x: 20 }}
+                                        animate={{ opacity: 1, x: 0 }}
+                                        exit={{ opacity: 0, x: -20 }}
+                                        transition={{ duration: 0.3 }}
+                                        className="bg-white rounded-2xl shadow-sm border border-slate-200 p-8 md:p-10"
+                                    >
+                                        <h2 className="text-3xl font-bold text-slate-900 mb-2">Upload Documents</h2>
+                                        <p className="text-slate-600 mb-8">Upload insurance adjustment documents, estimates, or other PDF files (optional)</p>
+
+                                        {/* PDF Upload Area */}
+                                        <div
+                                            onDrop={handlePdfDrop}
+                                            onDragOver={(e) => e.preventDefault()}
+                                            className="border-2 border-dashed border-slate-300 hover:border-vendle-blue transition-all rounded-xl p-10 text-center cursor-pointer bg-slate-50/50"
+                                            onClick={() => pdfInputRef.current?.click()}
+                                        >
+                                            <input
+                                                type="file"
+                                                multiple
+                                                accept="application/pdf"
+                                                ref={pdfInputRef}
+                                                className="hidden"
+                                                onChange={handlePdfSelect}
+                                            />
+
+                                            <div className="flex flex-col items-center justify-center">
+                                                <div className="w-16 h-16 rounded-xl bg-vendle-blue/10 text-vendle-blue flex items-center justify-center mb-4">
+                                                    <FileText className="w-8 h-8" />
+                                                </div>
+
+                                                <p className="font-semibold text-slate-900">Click or drag PDF files to upload</p>
+                                                <p className="text-sm text-slate-500 mt-1">You can upload multiple PDF documents</p>
+                                            </div>
+                                        </div>
+
+                                        {/* PDF Preview List */}
+                                        {uploadedPdfs.length > 0 && (
+                                            <div className="mt-8 space-y-3">
+                                                {uploadedPdfs.map((pdf, index) => (
+                                                    <div
+                                                        key={index}
+                                                        className="flex items-center justify-between p-4 rounded-lg border border-slate-200 bg-slate-50"
+                                                    >
+                                                        <div className="flex items-center gap-3 flex-1 min-w-0">
+                                                            <div className="w-10 h-10 rounded-lg bg-red-100 text-red-600 flex items-center justify-center flex-shrink-0">
+                                                                <FileText className="w-5 h-5" />
+                                                            </div>
+                                                            <div className="flex-1 min-w-0">
+                                                                <p className="font-medium text-slate-900 truncate">{pdf.name}</p>
+                                                                <p className="text-sm text-slate-500">{(pdf.size / 1024).toFixed(2)} KB</p>
+                                                            </div>
+                                                        </div>
+                                                        <button
+                                                            className="ml-4 p-2 hover:bg-slate-200 rounded-lg transition-colors flex-shrink-0"
+                                                            onClick={() => removePdf(index)}
+                                                        >
+                                                            <X className="w-5 h-5 text-slate-600" />
+                                                        </button>
+                                                    </div>
+                                                ))}
+                                            </div>
+                                        )}
+
+                                        {/* Navigation */}
+                                        <div className="flex justify-between mt-8">
+                                            <Button
+                                                onClick={prevStep}
+                                                variant="outline"
+                                                className="px-8 py-6 border-slate-300"
+                                            >
+                                                <ArrowLeft className="w-4 h-4 mr-2" />
+                                                Back
+                                            </Button>
+
+                                            <Button
+                                                onClick={nextStep}
+                                                disabled={!isCurrentStepValid()}
+                                                className="px-8 py-6 bg-[#1a365d] text-white hover:bg-[#1a365d]/90 disabled:opacity-50"
+                                            >
+                                                Continue
+                                                <ArrowRight className="w-4 h-4 ml-2" />
+                                            </Button>
+                                        </div>
+                                    </motion.div>
+                                )}
+
+                                {currentStep === 3 && (
+                                    <motion.div
+                                        key="step3-images"
                                         initial={{ opacity: 0, x: 20 }}
                                         animate={{ opacity: 1, x: 0 }}
                                         exit={{ opacity: 0, x: -20 }}
@@ -924,9 +1043,9 @@ export default function StartClaimPage() {
                                     </motion.div>
                                 )}
 
-                                {currentStep === 3 && (
+                                {currentStep === 4 && (
                                     <motion.div
-                                        key="step3-damage"
+                                        key="step4-damage"
                                         initial={{ opacity: 0, x: 20 }}
                                         animate={{ opacity: 1, x: 0 }}
                                         exit={{ opacity: 0, x: -20 }}
@@ -938,34 +1057,33 @@ export default function StartClaimPage() {
 
                                         <div className="grid md:grid-cols-2 gap-4">
                                             {[
-                                                { value: 'water', label: 'Water Damage', icon: Droplets, color: 'bg-blue-100 text-blue-600' },
-                                                { value: 'fire-smoke', label: 'Fire/Smoke Damage', icon: Flame, color: 'bg-red-100 text-red-600' },
-                                                { value: 'mold', label: 'Mold', icon: AlertTriangle, color: 'bg-green-100 text-green-600' },
-                                                { value: 'impact-structural', label: 'Impact/Structural', icon: Hammer, color: 'bg-orange-100 text-orange-600' },
+                                                { value: 'water', label: 'Water Damage', icon: Droplets },
+                                                { value: 'fire-smoke', label: 'Fire/Smoke Damage', icon: Flame },
+                                                { value: 'mold', label: 'Mold', icon: AlertTriangle },
+                                                { value: 'impact-structural', label: 'Impact/Structural', icon: Hammer },
                                             ].map((type) => {
                                                 const isSelected = damageTypes.includes(type.value);
                                                 return (
                                                     <button
                                                         key={type.value}
                                                         onClick={() => toggleDamageType(type.value)}
-                                                        className={`w-full p-6 rounded-xl border-2 text-left transition-all ${
+                                                        className={`w-full p-5 rounded-xl border-2 text-left transition-all ${
                                                             isSelected
                                                                 ? 'border-vendle-blue bg-vendle-blue/5 shadow-md'
                                                                 : 'border-slate-200 hover:border-slate-300 bg-white'
                                                         }`}
                                                     >
-                                                        <div className="flex items-center gap-4">
-                                                            <div className={`w-12 h-12 rounded-lg flex items-center justify-center flex-shrink-0 ${
-                                                                isSelected ? 'bg-vendle-blue text-white' : type.color
+                                                        <div className="flex items-center gap-3">
+                                                            <div className={`w-10 h-10 rounded-lg flex items-center justify-center flex-shrink-0 ${
+                                                                isSelected
+                                                                    ? 'bg-vendle-blue text-white'
+                                                                    : 'bg-slate-100 text-slate-600'
                                                             }`}>
-                                                                <type.icon className="w-6 h-6" />
+                                                                <type.icon className="w-5 h-5" />
                                                             </div>
-                                                            <div className="flex-1">
-                                                                <h3 className="font-semibold text-slate-900">{type.label}</h3>
+                                                            <div className="flex-1 min-w-0">
+                                                                <h3 className="text-base font-semibold text-slate-900 leading-tight">{type.label}</h3>
                                                             </div>
-                                                            {isSelected && (
-                                                                <CheckCircle2 className="w-6 h-6 text-vendle-blue flex-shrink-0" />
-                                                            )}
                                                         </div>
                                                     </button>
                                                 );
@@ -993,9 +1111,9 @@ export default function StartClaimPage() {
                                     </motion.div>
                                 )}
 
-                                {currentStep === 4 && (
+                                {currentStep === 5 && (
                                     <motion.div
-                                        key="step4-property"
+                                        key="step5-property"
                                         initial={{ opacity: 0, x: 20 }}
                                         animate={{ opacity: 1, x: 0 }}
                                         exit={{ opacity: 0, x: -20 }}
@@ -1115,9 +1233,9 @@ export default function StartClaimPage() {
                                     </motion.div>
                                 )}
 
-                                {currentStep === 5 && (
+                                {currentStep === 6 && (
                                     <motion.div
-                                        key="step5-timeline"
+                                        key="step6-timeline"
                                         initial={{ opacity: 0, x: 20 }}
                                         animate={{ opacity: 1, x: 0 }}
                                         exit={{ opacity: 0, x: -20 }}
@@ -1237,9 +1355,9 @@ export default function StartClaimPage() {
                                     </motion.div>
                                 )}
 
-                                {currentStep === 6 && (
+                                {currentStep === 7 && (
                                     <motion.div
-                                        key="step6-project"
+                                        key="step7-project"
                                         initial={{ opacity: 0, x: 20 }}
                                         animate={{ opacity: 1, x: 0 }}
                                         exit={{ opacity: 0, x: -20 }}
@@ -1305,9 +1423,9 @@ export default function StartClaimPage() {
                                     </motion.div>
                                 )}
 
-                                {currentStep === 7 && (
+                                {currentStep === 8 && (
                                     <motion.div
-                                        key="step7-design"
+                                        key="step8-design"
                                         initial={{ opacity: 0, x: 20 }}
                                         animate={{ opacity: 1, x: 0 }}
                                         exit={{ opacity: 0, x: -20 }}
@@ -1373,9 +1491,9 @@ export default function StartClaimPage() {
                                     </motion.div>
                                 )}
 
-                                {currentStep === 8 && (
+                                {currentStep === 9 && (
                                     <motion.div
-                                        key="step8-claim"
+                                        key="step9-claim"
                                         initial={{ opacity: 0, x: 20 }}
                                         animate={{ opacity: 1, x: 0 }}
                                         exit={{ opacity: 0, x: -20 }}
