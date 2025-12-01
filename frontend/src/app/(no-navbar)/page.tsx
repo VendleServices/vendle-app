@@ -7,8 +7,7 @@ export default function RootPage() {
   const router = useRouter()
 
   useEffect(() => {
-    // Redirect everyone to /explore
-    router.replace('/explore')
+    router.replace("/reviews")
   }, [router])
 
   return <SplashScreen />

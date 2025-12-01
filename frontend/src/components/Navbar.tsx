@@ -7,7 +7,7 @@ import LoginModal from "@/components/LoginModal";
 import { useAuth } from "@/contexts/AuthContext";
 import vendleLogo from "../assets/vendle_logo.jpeg";
 import { Home, Search, User, LayoutDashboard, LogOut, LogIn, DollarSign } from "lucide-react";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 
 interface NavbarProps {
   onProtectedAction?: () => void;
@@ -17,6 +17,7 @@ const Navbar = ({ onProtectedAction }: NavbarProps = {}) => {
   const { user, isLoggedIn, loading, logout } = useAuth();
   const pathname = usePathname();
   const [showLoginModal, setShowLoginModal] = useState(false);
+  const router = useRouter();
 
   const handleProtectedClick = (e: React.MouseEvent, href: string) => {
     if (!isLoggedIn && onProtectedAction) {
@@ -26,7 +27,11 @@ const Navbar = ({ onProtectedAction }: NavbarProps = {}) => {
   };
 
   const handleLogout = async () => {
-    await logout();
+    const { error } = await logout();
+
+    if (!error) {
+      router.push("/reviews");
+    }
   };
 
   const handleSignIn = () => {
@@ -44,17 +49,19 @@ const Navbar = ({ onProtectedAction }: NavbarProps = {}) => {
       {/* Navigation Items - Centered vertically */}
       <div className="flex-1 flex flex-col items-center justify-center space-y-8">
         {/* Explore */}
-        <Link
-          href="/explore"
-          className={`flex flex-col items-center gap-2 p-3 rounded-xl transition-all ${
-            pathname === '/explore' ? 'bg-indigo-50 scale-105' : 'hover:bg-gray-50 hover:scale-105'
-          }`}
-        >
-          <Search className={`w-7 h-7 flex-shrink-0 block ${pathname === '/explore' ? 'text-indigo-600' : 'text-gray-600'}`} strokeWidth={2} />
-          <span className={`text-xs font-medium ${pathname === '/explore' ? 'text-indigo-600' : 'text-gray-600'}`}>
-            Explore
-          </span>
-        </Link>
+        {user && user?.user_metadata?.userType === "contractor" ? (
+            <Link
+                href="/explore"
+                className={`flex flex-col items-center gap-2 p-3 rounded-xl transition-all ${
+                    pathname === '/explore' ? 'bg-indigo-50 scale-105' : 'hover:bg-gray-50 hover:scale-105'
+                }`}
+            >
+                <Search className={`w-7 h-7 flex-shrink-0 block ${pathname === '/explore' ? 'text-indigo-600' : 'text-gray-600'}`} strokeWidth={2} />
+                <span className={`text-xs font-medium ${pathname === '/explore' ? 'text-indigo-600' : 'text-gray-600'}`}>
+                  Explore
+                </span>
+            </Link>
+        ) : null}
 
         {/* Home */}
         <Link
