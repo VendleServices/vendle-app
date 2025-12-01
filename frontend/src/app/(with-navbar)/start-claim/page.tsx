@@ -8,6 +8,7 @@ import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
 import { useAuth } from "@/contexts/AuthContext";
 import { motion, AnimatePresence } from "framer-motion";
+import { AddressAutocomplete } from "@/components/AddressAutocomplete";
 import {
     CheckCircle2,
     XCircle,
@@ -24,7 +25,7 @@ import {
     DollarSign,
     ArrowRight,
     ChevronRight,
-    Sparkles, Upload, X
+    Sparkles, Upload, X, Droplets, Flame, AlertTriangle, Hammer, Zap, Trash2, Calendar, ExternalLink
 } from "lucide-react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useApiService } from "@/services/api";
@@ -49,16 +50,37 @@ export default function StartClaimPage() {
     const apiService = useApiService();
     const queryClient = useQueryClient();
     const [selectedType, setSelectedType] = useState<'insurance' | 'fema' | null>(null);
+    const [showContactForm, setShowContactForm] = useState(false);
+    const [showInsuranceCompanies, setShowInsuranceCompanies] = useState(false);
+    const [contactInfo, setContactInfo] = useState({
+        firstName: '',
+        lastName: '',
+        email: '',
+        phone: ''
+    });
     const supabase = createClient();
     
     // Insurance onboarding state
     const [currentStep, setCurrentStep] = useState(1);
-    const totalSteps = 5;
+    const totalSteps = 8;
     const [address, setAddress] = useState({
         street: '',
         city: '',
         state: '',
         zip: '',
+    });
+    const [damageTypes, setDamageTypes] = useState<string[]>([]);
+    const [propertyQuestions, setPropertyQuestions] = useState({
+        hasFunctionalUtilities: null as boolean | null,
+        hasDumpster: null as boolean | null,
+        isOccupied: null as boolean | null,
+    });
+    const [timeline, setTimeline] = useState({
+        phase1Start: '',
+        phase1End: '',
+        phase2Start: '',
+        phase2End: '',
+        contractorVisitDays: [] as string[],
     });
     const [projectType, setProjectType] = useState('');
     const [designPlan, setDesignPlan] = useState('');
@@ -121,16 +143,36 @@ export default function StartClaimPage() {
     });
 
     const handleSelection = (hasInsurance: boolean) => {
-        setSelectedType(hasInsurance ? 'insurance' : 'fema');
+        if (hasInsurance) {
+            setSelectedType('insurance');
+        } else {
+            setShowContactForm(true);
+        }
+    };
+
+    const handleContactSubmit = (e: React.FormEvent) => {
+        e.preventDefault();
+        if (contactInfo.firstName && contactInfo.lastName && contactInfo.email && contactInfo.phone) {
+            setShowContactForm(false);
+            setShowInsuranceCompanies(true);
+        }
+    };
+
+    const handleContactChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const { name, value } = e.target;
+        setContactInfo(prev => ({ ...prev, [name]: value }));
     };
 
     const handleBackToSelection = () => {
         setSelectedType(null);
+        setShowContactForm(false);
+        setShowInsuranceCompanies(false);
         setCurrentStep(1);
         setAddress({ street: '', city: '', state: '', zip: '' });
         setProjectType('');
         setDesignPlan('');
         setNeedsAdjuster(null);
+        setContactInfo({ firstName: '', lastName: '', email: '', phone: '' });
         setFemaFormData({
             firstName: "", lastName: "", email: "", phone: "",
             address: "", city: "", state: "", zipCode: "",
@@ -143,11 +185,25 @@ export default function StartClaimPage() {
         switch (currentStep) {
             case 1: return address.street && address.city && address.state && address.zip;
             case 2: return true;
-            case 3: return !!projectType;
-            case 4: return !!designPlan;
-            case 5: return needsAdjuster !== null;
+            case 3: return damageTypes.length > 0;
+            case 4: return propertyQuestions.hasFunctionalUtilities !== null && 
+                       propertyQuestions.hasDumpster !== null && 
+                       propertyQuestions.isOccupied !== null;
+            case 5: return timeline.phase1Start && timeline.phase1End && 
+                       timeline.phase2Start && timeline.phase2End;
+            case 6: return !!projectType;
+            case 7: return !!designPlan;
+            case 8: return needsAdjuster !== null;
             default: return true;
         }
+    };
+
+    const toggleDamageType = (type: string) => {
+        setDamageTypes(prev => 
+            prev.includes(type) 
+                ? prev.filter(t => t !== type)
+                : [...prev, type]
+        );
     };
 
     const nextStep = () => {
@@ -242,8 +298,11 @@ export default function StartClaimPage() {
         }
     };
 
-    const handleFemaChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        const { name, value, type, checked } = e.target;
+    const handleFemaChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+        const target = e.target as HTMLInputElement | HTMLSelectElement;
+        const { name, value } = target;
+        const type = 'type' in target ? (target as HTMLInputElement).type : undefined;
+        const checked = 'checked' in target ? (target as HTMLInputElement).checked : false;
         setFemaFormData(prev => ({
             ...prev,
             [name]: type === 'checkbox' ? checked : value
@@ -285,7 +344,248 @@ export default function StartClaimPage() {
         <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-slate-50">
             <div className="container mx-auto px-4 py-8 md:py-16">
                 <AnimatePresence mode="wait">
-                    {!selectedType ? (
+                    {showInsuranceCompanies ? (
+                        // Insurance Companies Page
+                        <motion.div
+                            key="insurance-companies"
+                            initial={{ opacity: 0, y: 20 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            exit={{ opacity: 0, y: -20 }}
+                            transition={{ duration: 0.5 }}
+                            className="max-w-4xl mx-auto"
+                        >
+                            <div className="text-center mb-12">
+                                <motion.h1
+                                    initial={{ opacity: 0, y: 10 }}
+                                    animate={{ opacity: 1, y: 0 }}
+                                    className="text-4xl md:text-5xl font-bold text-slate-900 mb-4"
+                                >
+                                    File Your Claim
+                                </motion.h1>
+                                <motion.p
+                                    initial={{ opacity: 0, y: 10 }}
+                                    animate={{ opacity: 1, y: 0 }}
+                                    transition={{ delay: 0.1 }}
+                                    className="text-lg text-slate-600 mb-8"
+                                >
+                                    Contact your insurance company to file a claim. If you have a broker or use another carrier, please call them to request to file a claim and come back.
+                                </motion.p>
+                            </div>
+
+                            <div className="grid md:grid-cols-2 gap-6 mb-8">
+                                {/* State Farm */}
+                                <motion.div
+                                    initial={{ opacity: 0, y: 20 }}
+                                    animate={{ opacity: 1, y: 0 }}
+                                    transition={{ delay: 0.2 }}
+                                    className="bg-white rounded-2xl p-8 shadow-sm border border-slate-200 hover:shadow-lg transition-shadow"
+                                >
+                                    <div className="flex items-center justify-between mb-4">
+                                        <div className="text-2xl font-bold text-red-600">State Farm</div>
+                                    </div>
+                                    <div className="text-sm text-slate-600 mb-4">Claims Number:</div>
+                                    <div className="text-xl font-semibold text-slate-900">1-800-SF-CLAIM</div>
+                                    <div className="text-sm text-slate-500 mt-1">(1-800-732-5246)</div>
+                                </motion.div>
+
+                                {/* Berkshire Hathaway */}
+                                <motion.div
+                                    initial={{ opacity: 0, y: 20 }}
+                                    animate={{ opacity: 1, y: 0 }}
+                                    transition={{ delay: 0.3 }}
+                                    className="bg-white rounded-2xl p-8 shadow-sm border border-slate-200 hover:shadow-lg transition-shadow"
+                                >
+                                    <div className="flex items-center justify-between mb-4">
+                                        <div className="text-2xl font-bold text-blue-600">Berkshire Hathaway</div>
+                                    </div>
+                                    <div className="text-sm text-slate-600 mb-4">Claims Number:</div>
+                                    <div className="text-xl font-semibold text-slate-900">1-800-435-7764</div>
+                                </motion.div>
+
+                                {/* Progressive */}
+                                <motion.div
+                                    initial={{ opacity: 0, y: 20 }}
+                                    animate={{ opacity: 1, y: 0 }}
+                                    transition={{ delay: 0.4 }}
+                                    className="bg-white rounded-2xl p-8 shadow-sm border border-slate-200 hover:shadow-lg transition-shadow"
+                                >
+                                    <div className="flex items-center justify-between mb-4">
+                                        <div className="text-2xl font-bold text-blue-700">Progressive</div>
+                                    </div>
+                                    <div className="text-sm text-slate-600 mb-4">Claims Number:</div>
+                                    <div className="text-xl font-semibold text-slate-900">1-800-274-4499</div>
+                                </motion.div>
+
+                                {/* Allstate */}
+                                <motion.div
+                                    initial={{ opacity: 0, y: 20 }}
+                                    animate={{ opacity: 1, y: 0 }}
+                                    transition={{ delay: 0.5 }}
+                                    className="bg-white rounded-2xl p-8 shadow-sm border border-slate-200 hover:shadow-lg transition-shadow"
+                                >
+                                    <div className="flex items-center justify-between mb-4">
+                                        <div className="text-2xl font-bold text-red-700">Allstate</div>
+                                    </div>
+                                    <div className="text-sm text-slate-600 mb-4">Claims Number:</div>
+                                    <div className="text-xl font-semibold text-slate-900">1-800-54-CLAIM</div>
+                                    <div className="text-sm text-slate-500 mt-1">(1-800-542-5246)</div>
+                                </motion.div>
+
+                                {/* Liberty Mutual */}
+                                <motion.div
+                                    initial={{ opacity: 0, y: 20 }}
+                                    animate={{ opacity: 1, y: 0 }}
+                                    transition={{ delay: 0.6 }}
+                                    className="bg-white rounded-2xl p-8 shadow-sm border border-slate-200 hover:shadow-lg transition-shadow md:col-span-2"
+                                >
+                                    <div className="flex items-center justify-between mb-4">
+                                        <div className="text-2xl font-bold text-green-600">Liberty Mutual</div>
+                                    </div>
+                                    <div className="text-sm text-slate-600 mb-4">Claims Number:</div>
+                                    <div className="text-xl font-semibold text-slate-900">1-800-225-2467</div>
+                                </motion.div>
+                            </div>
+
+                            <div className="text-center">
+                                <Button
+                                    onClick={() => {
+                                        setShowInsuranceCompanies(false);
+                                        setShowContactForm(false);
+                                        setSelectedType(null);
+                                        setContactInfo({ firstName: '', lastName: '', email: '', phone: '' });
+                                    }}
+                                    variant="outline"
+                                    className="px-8 py-6 border-slate-300"
+                                >
+                                    <ArrowLeft className="w-4 h-4 mr-2" />
+                                    Back to Start
+                                </Button>
+                            </div>
+                        </motion.div>
+                    ) : showContactForm ? (
+                        // Contact Form
+                        <motion.div
+                            key="contact-form"
+                            initial={{ opacity: 0, y: 20 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            exit={{ opacity: 0, y: -20 }}
+                            transition={{ duration: 0.5 }}
+                            className="max-w-2xl mx-auto"
+                        >
+                            <div className="text-center mb-8">
+                                <motion.h1
+                                    initial={{ opacity: 0, y: 10 }}
+                                    animate={{ opacity: 1, y: 0 }}
+                                    className="text-4xl md:text-5xl font-bold text-slate-900 mb-4"
+                                >
+                                    Let's get started
+                                </motion.h1>
+                                <motion.p
+                                    initial={{ opacity: 0, y: 10 }}
+                                    animate={{ opacity: 1, y: 0 }}
+                                    transition={{ delay: 0.1 }}
+                                    className="text-lg text-slate-600"
+                                >
+                                    Please provide your contact information
+                                </motion.p>
+                            </div>
+
+                            <motion.div
+                                initial={{ opacity: 0, y: 20 }}
+                                animate={{ opacity: 1, y: 0 }}
+                                transition={{ delay: 0.2 }}
+                                className="bg-white rounded-2xl shadow-sm border border-slate-200 p-8 md:p-10"
+                            >
+                                <form onSubmit={handleContactSubmit} className="space-y-6">
+                                    <div className="grid md:grid-cols-2 gap-6">
+                                        <div>
+                                            <Label className="text-sm font-medium text-slate-700 mb-2 block flex items-center gap-2">
+                                                <User className="w-4 h-4" />
+                                                First Name
+                                            </Label>
+                                            <Input
+                                                name="firstName"
+                                                value={contactInfo.firstName}
+                                                onChange={handleContactChange}
+                                                required
+                                                className="h-12 border-slate-300 focus:border-vendle-blue focus:ring-vendle-blue/20"
+                                                placeholder="John"
+                                            />
+                                        </div>
+                                        <div>
+                                            <Label className="text-sm font-medium text-slate-700 mb-2 block flex items-center gap-2">
+                                                <User className="w-4 h-4" />
+                                                Last Name
+                                            </Label>
+                                            <Input
+                                                name="lastName"
+                                                value={contactInfo.lastName}
+                                                onChange={handleContactChange}
+                                                required
+                                                className="h-12 border-slate-300 focus:border-vendle-blue focus:ring-vendle-blue/20"
+                                                placeholder="Doe"
+                                            />
+                                        </div>
+                                    </div>
+
+                                    <div>
+                                        <Label className="text-sm font-medium text-slate-700 mb-2 block flex items-center gap-2">
+                                            <Mail className="w-4 h-4" />
+                                            Email
+                                        </Label>
+                                        <Input
+                                            name="email"
+                                            type="email"
+                                            value={contactInfo.email}
+                                            onChange={handleContactChange}
+                                            required
+                                            className="h-12 border-slate-300 focus:border-vendle-blue focus:ring-vendle-blue/20"
+                                            placeholder="john.doe@example.com"
+                                        />
+                                    </div>
+
+                                    <div>
+                                        <Label className="text-sm font-medium text-slate-700 mb-2 block flex items-center gap-2">
+                                            <Phone className="w-4 h-4" />
+                                            Phone Number
+                                        </Label>
+                                        <Input
+                                            name="phone"
+                                            type="tel"
+                                            value={contactInfo.phone}
+                                            onChange={handleContactChange}
+                                            required
+                                            className="h-12 border-slate-300 focus:border-vendle-blue focus:ring-vendle-blue/20"
+                                            placeholder="(555) 123-4567"
+                                        />
+                                    </div>
+
+                                    <div className="flex justify-between pt-6 border-t border-slate-200">
+                                        <Button
+                                            type="button"
+                                            onClick={() => {
+                                                setShowContactForm(false);
+                                                setContactInfo({ firstName: '', lastName: '', email: '', phone: '' });
+                                            }}
+                                            variant="outline"
+                                            className="px-8 py-6 border-slate-300"
+                                        >
+                                            <ArrowLeft className="w-4 h-4 mr-2" />
+                                            Back
+                                        </Button>
+                                        <Button
+                                            type="submit"
+                                            disabled={!contactInfo.firstName || !contactInfo.lastName || !contactInfo.email || !contactInfo.phone}
+                                            className="px-8 py-6 bg-gradient-to-r from-vendle-blue to-vendle-navy text-white hover:shadow-lg transition-all disabled:opacity-50"
+                                        >
+                                            Continue
+                                            <ArrowRight className="w-4 h-4 ml-2" />
+                                        </Button>
+                                    </div>
+                                </form>
+                            </motion.div>
+                        </motion.div>
+                    ) : !selectedType ? (
                         // Modern Selection Screen
                         <motion.div
                             key="selection"
@@ -310,7 +610,7 @@ export default function StartClaimPage() {
                                     transition={{ delay: 0.2 }}
                                     className="text-5xl md:text-6xl font-bold text-slate-900 mb-4 tracking-tight"
                                 >
-                                    Start Your Claim
+                                    Let's rebuild!
                                 </motion.h1>
                                 <motion.p
                                     initial={{ opacity: 0, y: 10 }}
@@ -318,7 +618,7 @@ export default function StartClaimPage() {
                                     transition={{ delay: 0.3 }}
                                     className="text-xl text-slate-600 mb-12"
                                 >
-                                    Do you have property insurance?
+                                    Have you filed a claim?
                                 </motion.p>
                             </div>
 
@@ -342,7 +642,7 @@ export default function StartClaimPage() {
                                                 </div>
                                                 <ChevronRight className="w-5 h-5 text-slate-400 group-hover:text-vendle-blue group-hover:translate-x-1 transition-all" />
                                             </div>
-                                            <h3 className="text-2xl font-semibold text-slate-900 mb-2">Yes, I have insurance</h3>
+                                            <h3 className="text-2xl font-semibold text-slate-900 mb-2">Yes, I have, let's start recovering</h3>
                                             <p className="text-slate-600">Start your insurance claim process</p>
                                         </div>
                                     </button>
@@ -367,7 +667,7 @@ export default function StartClaimPage() {
                                                 </div>
                                                 <ChevronRight className="w-5 h-5 text-slate-400 group-hover:text-vendle-blue group-hover:translate-x-1 transition-all" />
                                             </div>
-                                            <h3 className="text-2xl font-semibold text-slate-900 mb-2">No, apply for FEMA</h3>
+                                            <h3 className="text-2xl font-semibold text-slate-900 mb-2">Not yet, where do I start?</h3>
                                             <p className="text-slate-600">Get assistance through FEMA programs</p>
                                         </div>
                                     </button>
@@ -425,18 +725,18 @@ export default function StartClaimPage() {
                                         <p className="text-slate-600 mb-8">Where is your property located?</p>
 
                                         <div className="space-y-6">
-                                            <div>
-                                                <Label className="text-sm font-medium text-slate-700 mb-2 block flex items-center gap-2">
-                                                    <MapPin className="w-4 h-4" />
-                                                    Street Address
-                                                </Label>
-                                                <Input
+                                            <AddressAutocomplete
                                                     value={address.street}
-                                                    onChange={(e) => setAddress({...address, street: e.target.value})}
+                                                onChange={(newAddress) => {
+                                                    setAddress({
+                                                        ...address,
+                                                        street: newAddress.street
+                                                    });
+                                                }}
                                                     className="h-12 border-slate-300 focus:border-vendle-blue focus:ring-vendle-blue/20"
                                                     placeholder="123 Main Street"
+                                                label="Street Address"
                                                 />
-                                            </div>
 
                                             <div className="grid md:grid-cols-2 gap-6">
                                                 <div>
@@ -459,11 +759,56 @@ export default function StartClaimPage() {
                                                         className="w-full h-12 px-4 border border-slate-300 rounded-lg focus:border-vendle-blue focus:ring-2 focus:ring-vendle-blue/20 transition-colors"
                                                     >
                                                         <option value="">Select State</option>
+                                                        <option value="AL">Alabama</option>
+                                                        <option value="AK">Alaska</option>
+                                                        <option value="AZ">Arizona</option>
+                                                        <option value="AR">Arkansas</option>
                                                         <option value="CA">California</option>
-                                                        <option value="TX">Texas</option>
-                                                        <option value="FL">Florida</option>
-                                                        <option value="NY">New York</option>
                                                         <option value="CO">Colorado</option>
+                                                        <option value="CT">Connecticut</option>
+                                                        <option value="DE">Delaware</option>
+                                                        <option value="FL">Florida</option>
+                                                        <option value="GA">Georgia</option>
+                                                        <option value="HI">Hawaii</option>
+                                                        <option value="ID">Idaho</option>
+                                                        <option value="IL">Illinois</option>
+                                                        <option value="IN">Indiana</option>
+                                                        <option value="IA">Iowa</option>
+                                                        <option value="KS">Kansas</option>
+                                                        <option value="KY">Kentucky</option>
+                                                        <option value="LA">Louisiana</option>
+                                                        <option value="ME">Maine</option>
+                                                        <option value="MD">Maryland</option>
+                                                        <option value="MA">Massachusetts</option>
+                                                        <option value="MI">Michigan</option>
+                                                        <option value="MN">Minnesota</option>
+                                                        <option value="MS">Mississippi</option>
+                                                        <option value="MO">Missouri</option>
+                                                        <option value="MT">Montana</option>
+                                                        <option value="NE">Nebraska</option>
+                                                        <option value="NV">Nevada</option>
+                                                        <option value="NH">New Hampshire</option>
+                                                        <option value="NJ">New Jersey</option>
+                                                        <option value="NM">New Mexico</option>
+                                                        <option value="NY">New York</option>
+                                                        <option value="NC">North Carolina</option>
+                                                        <option value="ND">North Dakota</option>
+                                                        <option value="OH">Ohio</option>
+                                                        <option value="OK">Oklahoma</option>
+                                                        <option value="OR">Oregon</option>
+                                                        <option value="PA">Pennsylvania</option>
+                                                        <option value="RI">Rhode Island</option>
+                                                        <option value="SC">South Carolina</option>
+                                                        <option value="SD">South Dakota</option>
+                                                        <option value="TN">Tennessee</option>
+                                                        <option value="TX">Texas</option>
+                                                        <option value="UT">Utah</option>
+                                                        <option value="VT">Vermont</option>
+                                                        <option value="VA">Virginia</option>
+                                                        <option value="WA">Washington</option>
+                                                        <option value="WV">West Virginia</option>
+                                                        <option value="WI">Wisconsin</option>
+                                                        <option value="WY">Wyoming</option>
                                                     </select>
                                                 </div>
                                             </div>
@@ -483,7 +828,7 @@ export default function StartClaimPage() {
                                             <Button
                                                 onClick={nextStep}
                                                 disabled={!isCurrentStepValid()}
-                                                className="px-8 py-6 bg-gradient-to-r from-vendle-blue to-vendle-navy text-white hover:shadow-lg transition-all disabled:opacity-50"
+                                                className="px-8 py-6 bg-[#1a365d] text-white hover:bg-[#1a365d]/90 disabled:opacity-50"
                                             >
                                                 Continue
                                                 <ArrowRight className="w-4 h-4 ml-2" />
@@ -570,7 +915,7 @@ export default function StartClaimPage() {
                                             <Button
                                                 onClick={nextStep}
                                                 disabled={!isCurrentStepValid()}
-                                                className="px-8 py-6 bg-gradient-to-r from-vendle-blue to-vendle-navy text-white hover:shadow-lg transition-all disabled:opacity-50"
+                                                className="px-8 py-6 bg-[#1a365d] text-white hover:bg-[#1a365d]/90 disabled:opacity-50"
                                             >
                                                 Continue
                                                 <ArrowRight className="w-4 h-4 ml-2" />
@@ -579,10 +924,322 @@ export default function StartClaimPage() {
                                     </motion.div>
                                 )}
 
-
                                 {currentStep === 3 && (
                                     <motion.div
-                                        key="step2"
+                                        key="step3-damage"
+                                        initial={{ opacity: 0, x: 20 }}
+                                        animate={{ opacity: 1, x: 0 }}
+                                        exit={{ opacity: 0, x: -20 }}
+                                        transition={{ duration: 0.3 }}
+                                        className="bg-white rounded-2xl shadow-sm border border-slate-200 p-8 md:p-10"
+                                    >
+                                        <h2 className="text-3xl font-bold text-slate-900 mb-2">Damage Types</h2>
+                                        <p className="text-slate-600 mb-8">Select all types of damage that apply to your property</p>
+
+                                        <div className="grid md:grid-cols-2 gap-4">
+                                            {[
+                                                { value: 'water', label: 'Water Damage', icon: Droplets, color: 'bg-blue-100 text-blue-600' },
+                                                { value: 'fire-smoke', label: 'Fire/Smoke Damage', icon: Flame, color: 'bg-red-100 text-red-600' },
+                                                { value: 'mold', label: 'Mold', icon: AlertTriangle, color: 'bg-green-100 text-green-600' },
+                                                { value: 'impact-structural', label: 'Impact/Structural', icon: Hammer, color: 'bg-orange-100 text-orange-600' },
+                                            ].map((type) => {
+                                                const isSelected = damageTypes.includes(type.value);
+                                                return (
+                                                    <button
+                                                        key={type.value}
+                                                        onClick={() => toggleDamageType(type.value)}
+                                                        className={`w-full p-6 rounded-xl border-2 text-left transition-all ${
+                                                            isSelected
+                                                                ? 'border-vendle-blue bg-vendle-blue/5 shadow-md'
+                                                                : 'border-slate-200 hover:border-slate-300 bg-white'
+                                                        }`}
+                                                    >
+                                                        <div className="flex items-center gap-4">
+                                                            <div className={`w-12 h-12 rounded-lg flex items-center justify-center flex-shrink-0 ${
+                                                                isSelected ? 'bg-vendle-blue text-white' : type.color
+                                                            }`}>
+                                                                <type.icon className="w-6 h-6" />
+                                                            </div>
+                                                            <div className="flex-1">
+                                                                <h3 className="font-semibold text-slate-900">{type.label}</h3>
+                                                            </div>
+                                                            {isSelected && (
+                                                                <CheckCircle2 className="w-6 h-6 text-vendle-blue flex-shrink-0" />
+                                                            )}
+                                                        </div>
+                                                    </button>
+                                                );
+                                            })}
+                                        </div>
+
+                                        <div className="flex justify-between mt-8">
+                                            <Button
+                                                onClick={prevStep}
+                                                variant="outline"
+                                                className="px-8 py-6 border-slate-300"
+                                            >
+                                                <ArrowLeft className="w-4 h-4 mr-2" />
+                                                Back
+                                            </Button>
+                                            <Button
+                                                onClick={nextStep}
+                                                disabled={!isCurrentStepValid()}
+                                                className="px-8 py-6 bg-[#1a365d] text-white hover:bg-[#1a365d]/90 disabled:opacity-50"
+                                            >
+                                                Continue
+                                                <ArrowRight className="w-4 h-4 ml-2" />
+                                            </Button>
+                                        </div>
+                                    </motion.div>
+                                )}
+
+                                {currentStep === 4 && (
+                                    <motion.div
+                                        key="step4-property"
+                                        initial={{ opacity: 0, x: 20 }}
+                                        animate={{ opacity: 1, x: 0 }}
+                                        exit={{ opacity: 0, x: -20 }}
+                                        transition={{ duration: 0.3 }}
+                                        className="bg-white rounded-2xl shadow-sm border border-slate-200 p-8 md:p-10"
+                                    >
+                                        <h2 className="text-3xl font-bold text-slate-900 mb-2">Property Information</h2>
+                                        <p className="text-slate-600 mb-8">Please answer the following questions about your property</p>
+
+                                        <div className="space-y-6">
+                                            <div>
+                                                <Label className="text-lg font-semibold text-slate-900 mb-4 block flex items-center gap-2">
+                                                    <Zap className="w-5 h-5" />
+                                                    Is there functional electricity and water?
+                                                </Label>
+                                                <div className="flex gap-4">
+                                                    <button
+                                                        onClick={() => setPropertyQuestions({...propertyQuestions, hasFunctionalUtilities: true})}
+                                                        className={`flex-1 p-4 rounded-xl border-2 transition-all ${
+                                                            propertyQuestions.hasFunctionalUtilities === true
+                                                                ? 'border-vendle-blue bg-vendle-blue/5 shadow-md'
+                                                                : 'border-slate-200 hover:border-slate-300'
+                                                        }`}
+                                                    >
+                                                        <div className="font-medium text-slate-900">Yes</div>
+                                                    </button>
+                                                    <button
+                                                        onClick={() => setPropertyQuestions({...propertyQuestions, hasFunctionalUtilities: false})}
+                                                        className={`flex-1 p-4 rounded-xl border-2 transition-all ${
+                                                            propertyQuestions.hasFunctionalUtilities === false
+                                                                ? 'border-vendle-blue bg-vendle-blue/5 shadow-md'
+                                                                : 'border-slate-200 hover:border-slate-300'
+                                                        }`}
+                                                    >
+                                                        <div className="font-medium text-slate-900">No</div>
+                                                    </button>
+                                                </div>
+                                            </div>
+
+                                            <div>
+                                                <Label className="text-lg font-semibold text-slate-900 mb-4 block flex items-center gap-2">
+                                                    <Trash2 className="w-5 h-5" />
+                                                    Is there a dumpster within the immediate area?
+                                                </Label>
+                                                <div className="flex gap-4">
+                                                    <button
+                                                        onClick={() => setPropertyQuestions({...propertyQuestions, hasDumpster: true})}
+                                                        className={`flex-1 p-4 rounded-xl border-2 transition-all ${
+                                                            propertyQuestions.hasDumpster === true
+                                                                ? 'border-vendle-blue bg-vendle-blue/5 shadow-md'
+                                                                : 'border-slate-200 hover:border-slate-300'
+                                                        }`}
+                                                    >
+                                                        <div className="font-medium text-slate-900">Yes</div>
+                                                    </button>
+                                                    <button
+                                                        onClick={() => setPropertyQuestions({...propertyQuestions, hasDumpster: false})}
+                                                        className={`flex-1 p-4 rounded-xl border-2 transition-all ${
+                                                            propertyQuestions.hasDumpster === false
+                                                                ? 'border-vendle-blue bg-vendle-blue/5 shadow-md'
+                                                                : 'border-slate-200 hover:border-slate-300'
+                                                        }`}
+                                                    >
+                                                        <div className="font-medium text-slate-900">No</div>
+                                                    </button>
+                                                </div>
+                                            </div>
+
+                                            <div>
+                                                <Label className="text-lg font-semibold text-slate-900 mb-4 block flex items-center gap-2">
+                                                    <Home className="w-5 h-5" />
+                                                    Is the property occupied?
+                                                </Label>
+                                                <div className="flex gap-4">
+                                                    <button
+                                                        onClick={() => setPropertyQuestions({...propertyQuestions, isOccupied: true})}
+                                                        className={`flex-1 p-4 rounded-xl border-2 transition-all ${
+                                                            propertyQuestions.isOccupied === true
+                                                                ? 'border-vendle-blue bg-vendle-blue/5 shadow-md'
+                                                                : 'border-slate-200 hover:border-slate-300'
+                                                        }`}
+                                                    >
+                                                        <div className="font-medium text-slate-900">Yes</div>
+                                                    </button>
+                                                    <button
+                                                        onClick={() => setPropertyQuestions({...propertyQuestions, isOccupied: false})}
+                                                        className={`flex-1 p-4 rounded-xl border-2 transition-all ${
+                                                            propertyQuestions.isOccupied === false
+                                                                ? 'border-vendle-blue bg-vendle-blue/5 shadow-md'
+                                                                : 'border-slate-200 hover:border-slate-300'
+                                                        }`}
+                                                    >
+                                                        <div className="font-medium text-slate-900">No</div>
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <div className="flex justify-between mt-8">
+                                            <Button
+                                                onClick={prevStep}
+                                                variant="outline"
+                                                className="px-8 py-6 border-slate-300"
+                                            >
+                                                <ArrowLeft className="w-4 h-4 mr-2" />
+                                                Back
+                                            </Button>
+                                            <Button
+                                                onClick={nextStep}
+                                                disabled={!isCurrentStepValid()}
+                                                className="px-8 py-6 bg-[#1a365d] text-white hover:bg-[#1a365d]/90 disabled:opacity-50"
+                                            >
+                                                Continue
+                                                <ArrowRight className="w-4 h-4 ml-2" />
+                                            </Button>
+                                        </div>
+                                    </motion.div>
+                                )}
+
+                                {currentStep === 5 && (
+                                    <motion.div
+                                        key="step5-timeline"
+                                        initial={{ opacity: 0, x: 20 }}
+                                        animate={{ opacity: 1, x: 0 }}
+                                        exit={{ opacity: 0, x: -20 }}
+                                        transition={{ duration: 0.3 }}
+                                        className="bg-white rounded-2xl shadow-sm border border-slate-200 p-8 md:p-10"
+                                    >
+                                        <h2 className="text-3xl font-bold text-slate-900 mb-2">Timeline & Scheduling</h2>
+                                        <p className="text-slate-600 mb-8">Set your project timeline and schedule contractor visits</p>
+
+                                        <div className="space-y-8">
+                                            <div>
+                                                <h3 className="text-xl font-semibold text-slate-900 mb-4 flex items-center gap-2">
+                                                    <Calendar className="w-5 h-5" />
+                                                    Phase 1 Timeline
+                                                </h3>
+                                                <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-4">
+                                                    <p className="text-sm text-blue-800">
+                                                        <strong>Recommendation:</strong> 2 weeks for a competitive auction process
+                                                    </p>
+                                                </div>
+                                                <div className="grid md:grid-cols-2 gap-4">
+                                                    <div>
+                                                        <Label className="text-sm font-medium text-slate-700 mb-2 block">Start Date</Label>
+                                                        <Input
+                                                            type="date"
+                                                            value={timeline.phase1Start}
+                                                            onChange={(e) => setTimeline({...timeline, phase1Start: e.target.value})}
+                                                            className="h-12 border-slate-300 focus:border-vendle-blue focus:ring-vendle-blue/20"
+                                                        />
+                                                    </div>
+                                                    <div>
+                                                        <Label className="text-sm font-medium text-slate-700 mb-2 block">End Date</Label>
+                                                        <Input
+                                                            type="date"
+                                                            value={timeline.phase1End}
+                                                            onChange={(e) => setTimeline({...timeline, phase1End: e.target.value})}
+                                                            className="h-12 border-slate-300 focus:border-vendle-blue focus:ring-vendle-blue/20"
+                                                            min={timeline.phase1Start}
+                                                        />
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            <div>
+                                                <h3 className="text-xl font-semibold text-slate-900 mb-4 flex items-center gap-2">
+                                                    <Calendar className="w-5 h-5" />
+                                                    Phase 2 Timeline
+                                                </h3>
+                                                <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-4">
+                                                    <p className="text-sm text-blue-800">
+                                                        <strong>Recommendation:</strong> 1 week for a competitive auction process
+                                                    </p>
+                                                </div>
+                                                <div className="grid md:grid-cols-2 gap-4">
+                                                    <div>
+                                                        <Label className="text-sm font-medium text-slate-700 mb-2 block">Start Date</Label>
+                                                        <Input
+                                                            type="date"
+                                                            value={timeline.phase2Start}
+                                                            onChange={(e) => setTimeline({...timeline, phase2Start: e.target.value})}
+                                                            className="h-12 border-slate-300 focus:border-vendle-blue focus:ring-vendle-blue/20"
+                                                            min={timeline.phase1End}
+                                                        />
+                                                    </div>
+                                                    <div>
+                                                        <Label className="text-sm font-medium text-slate-700 mb-2 block">End Date</Label>
+                                                        <Input
+                                                            type="date"
+                                                            value={timeline.phase2End}
+                                                            onChange={(e) => setTimeline({...timeline, phase2End: e.target.value})}
+                                                            className="h-12 border-slate-300 focus:border-vendle-blue focus:ring-vendle-blue/20"
+                                                            min={timeline.phase2Start}
+                                                        />
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            <div>
+                                                <h3 className="text-xl font-semibold text-slate-900 mb-4 flex items-center gap-2">
+                                                    <Calendar className="w-5 h-5" />
+                                                    Contractor Site Visits
+                                                </h3>
+                                                <p className="text-slate-600 mb-4">Schedule when contractors can visit your property</p>
+                                                <Button
+                                                    onClick={() => {
+                                                        const calendlyUrl = `https://calendly.com/your-calendly-link?text=${encodeURIComponent(`Site Visit - ${address.street}`)}`;
+                                                        window.open(calendlyUrl, '_blank');
+                                                    }}
+                                                    variant="outline"
+                                                    className="w-full border-vendle-blue text-vendle-blue hover:bg-vendle-blue hover:text-white"
+                                                >
+                                                    <Calendar className="h-4 w-4 mr-2" />
+                                                    Open Calendly to Schedule Visits
+                                                    <ExternalLink className="h-4 w-4 ml-2" />
+                                                </Button>
+                                            </div>
+                                        </div>
+
+                                        <div className="flex justify-between mt-8">
+                                            <Button
+                                                onClick={prevStep}
+                                                variant="outline"
+                                                className="px-8 py-6 border-slate-300"
+                                            >
+                                                <ArrowLeft className="w-4 h-4 mr-2" />
+                                                Back
+                                            </Button>
+                                            <Button
+                                                onClick={nextStep}
+                                                disabled={!isCurrentStepValid()}
+                                                className="px-8 py-6 bg-[#1a365d] text-white hover:bg-[#1a365d]/90 disabled:opacity-50"
+                                            >
+                                                Continue
+                                                <ArrowRight className="w-4 h-4 ml-2" />
+                                            </Button>
+                                        </div>
+                                    </motion.div>
+                                )}
+
+                                {currentStep === 6 && (
+                                    <motion.div
+                                        key="step6-project"
                                         initial={{ opacity: 0, x: 20 }}
                                         animate={{ opacity: 1, x: 0 }}
                                         exit={{ opacity: 0, x: -20 }}
@@ -639,7 +1296,7 @@ export default function StartClaimPage() {
                                             <Button
                                                 onClick={nextStep}
                                                 disabled={!isCurrentStepValid()}
-                                                className="px-8 py-6 bg-gradient-to-r from-vendle-blue to-vendle-navy text-white hover:shadow-lg transition-all disabled:opacity-50"
+                                                className="px-8 py-6 bg-[#1a365d] text-white hover:bg-[#1a365d]/90 disabled:opacity-50"
                                             >
                                                 Continue
                                                 <ArrowRight className="w-4 h-4 ml-2" />
@@ -648,9 +1305,9 @@ export default function StartClaimPage() {
                                     </motion.div>
                                 )}
 
-                                {currentStep === 4 && (
+                                {currentStep === 7 && (
                                     <motion.div
-                                        key="step3"
+                                        key="step7-design"
                                         initial={{ opacity: 0, x: 20 }}
                                         animate={{ opacity: 1, x: 0 }}
                                         exit={{ opacity: 0, x: -20 }}
@@ -707,7 +1364,7 @@ export default function StartClaimPage() {
                                             <Button
                                                 onClick={nextStep}
                                                 disabled={!isCurrentStepValid()}
-                                                className="px-8 py-6 bg-gradient-to-r from-vendle-blue to-vendle-navy text-white hover:shadow-lg transition-all disabled:opacity-50"
+                                                className="px-8 py-6 bg-[#1a365d] text-white hover:bg-[#1a365d]/90 disabled:opacity-50"
                                             >
                                                 Continue
                                                 <ArrowRight className="w-4 h-4 ml-2" />
@@ -716,9 +1373,9 @@ export default function StartClaimPage() {
                                     </motion.div>
                                 )}
 
-                                {currentStep === 5 && (
+                                {currentStep === 8 && (
                                     <motion.div
-                                        key="step4"
+                                        key="step8-claim"
                                         initial={{ opacity: 0, x: 20 }}
                                         animate={{ opacity: 1, x: 0 }}
                                         exit={{ opacity: 0, x: -20 }}
@@ -833,7 +1490,7 @@ export default function StartClaimPage() {
                                             <Button
                                                 onClick={nextStep}
                                                 disabled={!isCurrentStepValid()}
-                                                className="px-8 py-6 bg-gradient-to-r from-vendle-blue to-vendle-navy text-white hover:shadow-lg transition-all disabled:opacity-50"
+                                                className="px-8 py-6 bg-[#1a365d] text-white hover:bg-[#1a365d]/90 disabled:opacity-50"
                                             >
                                                 Complete Setup
                                                 <ArrowRight className="w-4 h-4 ml-2" />
@@ -960,13 +1617,65 @@ export default function StartClaimPage() {
                                         </div>
                                         <div>
                                             <Label className="text-sm font-medium text-slate-700 mb-2 block">State</Label>
-                                            <Input
+                                            <select
                                                 name="state"
                                                 value={femaFormData.state}
                                                 onChange={handleFemaChange}
                                                 required
-                                                className="h-12 border-slate-300 focus:border-vendle-blue focus:ring-vendle-blue/20"
-                                            />
+                                                className="w-full h-12 px-4 border border-slate-300 rounded-lg focus:border-vendle-blue focus:ring-2 focus:ring-vendle-blue/20 transition-colors"
+                                            >
+                                                <option value="">Select State</option>
+                                                <option value="AL">Alabama</option>
+                                                <option value="AK">Alaska</option>
+                                                <option value="AZ">Arizona</option>
+                                                <option value="AR">Arkansas</option>
+                                                <option value="CA">California</option>
+                                                <option value="CO">Colorado</option>
+                                                <option value="CT">Connecticut</option>
+                                                <option value="DE">Delaware</option>
+                                                <option value="FL">Florida</option>
+                                                <option value="GA">Georgia</option>
+                                                <option value="HI">Hawaii</option>
+                                                <option value="ID">Idaho</option>
+                                                <option value="IL">Illinois</option>
+                                                <option value="IN">Indiana</option>
+                                                <option value="IA">Iowa</option>
+                                                <option value="KS">Kansas</option>
+                                                <option value="KY">Kentucky</option>
+                                                <option value="LA">Louisiana</option>
+                                                <option value="ME">Maine</option>
+                                                <option value="MD">Maryland</option>
+                                                <option value="MA">Massachusetts</option>
+                                                <option value="MI">Michigan</option>
+                                                <option value="MN">Minnesota</option>
+                                                <option value="MS">Mississippi</option>
+                                                <option value="MO">Missouri</option>
+                                                <option value="MT">Montana</option>
+                                                <option value="NE">Nebraska</option>
+                                                <option value="NV">Nevada</option>
+                                                <option value="NH">New Hampshire</option>
+                                                <option value="NJ">New Jersey</option>
+                                                <option value="NM">New Mexico</option>
+                                                <option value="NY">New York</option>
+                                                <option value="NC">North Carolina</option>
+                                                <option value="ND">North Dakota</option>
+                                                <option value="OH">Ohio</option>
+                                                <option value="OK">Oklahoma</option>
+                                                <option value="OR">Oregon</option>
+                                                <option value="PA">Pennsylvania</option>
+                                                <option value="RI">Rhode Island</option>
+                                                <option value="SC">South Carolina</option>
+                                                <option value="SD">South Dakota</option>
+                                                <option value="TN">Tennessee</option>
+                                                <option value="TX">Texas</option>
+                                                <option value="UT">Utah</option>
+                                                <option value="VT">Vermont</option>
+                                                <option value="VA">Virginia</option>
+                                                <option value="WA">Washington</option>
+                                                <option value="WV">West Virginia</option>
+                                                <option value="WI">Wisconsin</option>
+                                                <option value="WY">Wyoming</option>
+                                            </select>
                                         </div>
                                         <div>
                                             <Label className="text-sm font-medium text-slate-700 mb-2 block">ZIP Code</Label>

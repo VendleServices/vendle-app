@@ -6,7 +6,6 @@ import { useAuth } from "@/contexts/AuthContext"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import { useApiService } from "@/services/api";
 import { 
   Building2, 
@@ -33,12 +32,7 @@ import {
   ChevronDown,
   Download,
   File,
-  Image as ImageIcon,
-  Bookmark,
-  FileCheck,
-  ChevronLeft,
-  ChevronRight,
-  ExternalLink
+  Image as ImageIcon
 } from "lucide-react"
 import { useQuery } from "@tanstack/react-query"
 import Link from "next/link";
@@ -48,7 +42,6 @@ import { ClaimCard } from "@/components/ClaimCard";
 import { EmptyState } from "@/components/EmptyState";
 import { LoadingSkeleton } from "@/components/LoadingSkeleton";
 import { toast } from "sonner";
-import { mockSavedOpportunities, mockIoiOpportunities, mockLoiOpportunities, type BiddingOpportunity } from "@/data/mockBiddingOpportunities";
 
 interface Auction {
   auction_id: string;
@@ -84,7 +77,6 @@ interface HomeownerProject {
   totalMilestones: number;
 }
 
-
 interface Job {
   id: string;
   contractId: string;
@@ -118,7 +110,7 @@ export default function HomePage() {
   const apiService = useApiService();
 
   // Contractor tab state
-  const [contractorTab, setContractorTab] = useState<'saved-opportunities' | 'iois' | 'lois' | 'active-contracts'>('saved-opportunities');
+  const [contractorTab, setContractorTab] = useState<'auctions' | 'schedule' | 'my-jobs'>('my-jobs');
   const [scheduleTab, setScheduleTab] = useState<'upcoming' | 'deadlines' | 'visits' | 'milestones'>('upcoming');
   const [contractorAuctions, setContractorAuctions] = useState<Auction[]>([]);
   const [contractorAuctionLoading, setContractorAuctionLoading] = useState(false);
@@ -126,16 +118,9 @@ export default function HomePage() {
   const [jobsLoading, setJobsLoading] = useState(false);
   const [selectedJob, setSelectedJob] = useState<Job | null>(null);
   const [showFilesDropdown, setShowFilesDropdown] = useState(false);
-  const [savedOpportunities, setSavedOpportunities] = useState<BiddingOpportunity[]>([]);
-  const [ioiOpportunities, setIoiOpportunities] = useState<BiddingOpportunity[]>([]);
-  const [loiOpportunities, setLoiOpportunities] = useState<BiddingOpportunity[]>([]);
-  const [selectedOpportunity, setSelectedOpportunity] = useState<BiddingOpportunity | null>(null);
-  const [imageModalOpen, setImageModalOpen] = useState(false);
-  const [selectedImages, setSelectedImages] = useState<string[]>([]);
-  const [currentImageIndex, setCurrentImageIndex] = useState(0);
 
   // Homeowner tab state
-  const [homeownerTab, setHomeownerTab] = useState<'my-projects' | 'active-auctions' | 'closed-auctions' | 'claims'>('my-projects');
+  const [homeownerTab, setHomeownerTab] = useState<'my-projects' | 'active-auctions' | 'closed-auctions'>('my-projects');
   const [homeownerProjects, setHomeownerProjects] = useState<HomeownerProject[]>([]);
   const [homeownerProjectsLoading, setHomeownerProjectsLoading] = useState(false);
 
@@ -291,23 +276,7 @@ export default function HomePage() {
 
 
   const handleManageJob = (job: Job) => {
-    setSelectedOpportunity(null); // Close opportunity panel if open
     setSelectedJob(job);
-  };
-
-  const handleOpenImageModal = (images: string[], startIndex: number = 0) => {
-    setSelectedImages(images);
-    setCurrentImageIndex(startIndex);
-    setImageModalOpen(true);
-  };
-
-  const handleViewOpportunity = (opportunity: BiddingOpportunity) => {
-    setSelectedJob(null); // Close job panel if open
-    setSelectedOpportunity(opportunity);
-  };
-
-  const handleCloseOpportunityPanel = () => {
-    setSelectedOpportunity(null);
   };
 
   const handleClosePanel = () => {
@@ -335,214 +304,6 @@ export default function HomePage() {
     return `https://staticmap.openstreetmap.de/staticmap.php?center=${encodeURIComponent(query)}&zoom=13&size=400x300&maptype=mapnik`;
   };
 
-  // Helper function to render bidding opportunity card
-  const renderBiddingOpportunityCard = (opportunity: BiddingOpportunity, stage: 'saved' | 'ioi' | 'loi') => {
-    const getStatusBadge = () => {
-      if (stage === 'ioi' && opportunity.ioiPhase?.status) {
-        const status = opportunity.ioiPhase.status;
-        if (status === 'submitted') return { label: 'IOI Submitted', color: 'bg-blue-100 text-blue-800 border-blue-200' };
-        if (status === 'accepted') return { label: 'IOI Accepted', color: 'bg-green-100 text-green-800 border-green-200' };
-        if (status === 'rejected') return { label: 'IOI Rejected', color: 'bg-red-100 text-red-800 border-red-200' };
-        return { label: 'IOI Pending', color: 'bg-yellow-100 text-yellow-800 border-yellow-200' };
-      }
-      if (stage === 'loi' && opportunity.loiPhase?.status) {
-        const status = opportunity.loiPhase.status;
-        if (status === 'submitted') return { label: 'LOI Submitted', color: 'bg-blue-100 text-blue-800 border-blue-200' };
-        if (status === 'accepted') return { label: 'LOI Accepted', color: 'bg-green-100 text-green-800 border-green-200' };
-        if (status === 'rejected') return { label: 'LOI Rejected', color: 'bg-red-100 text-red-800 border-red-200' };
-        return { label: 'LOI Pending', color: 'bg-yellow-100 text-yellow-800 border-yellow-200' };
-      }
-      return null;
-    };
-
-    const statusBadge = getStatusBadge();
-    const isSelected = selectedOpportunity?.id === opportunity.id;
-
-    return (
-      <Card key={opportunity.id} className={`hover:shadow-lg transition-all cursor-pointer ${
-        isSelected 
-          ? 'ring-2 ring-blue-500 shadow-lg bg-blue-50/30' 
-          : 'shadow-sm'
-      }`} onClick={() => handleViewOpportunity(opportunity)}>
-        <CardHeader>
-          <div className="flex items-start justify-between">
-            <div className="flex-1">
-              <CardTitle className="text-lg mb-1">{opportunity.title}</CardTitle>
-              <div className="flex items-center gap-2 text-sm text-gray-600 mt-1">
-                <MapPin className="h-4 w-4" />
-                <span>{opportunity.address}, {opportunity.city}, {opportunity.state}</span>
-              </div>
-            </div>
-            <div className="flex flex-col items-end gap-2">
-              <Badge className="bg-blue-100 text-blue-800 border-blue-200 rounded-full px-2.5 py-0.5 text-xs font-medium">
-                {opportunity.projectType}
-              </Badge>
-              {statusBadge && (
-                <Badge className={`${statusBadge.color} rounded-full px-2.5 py-0.5 text-xs font-medium`}>
-                  {statusBadge.label}
-                </Badge>
-              )}
-            </div>
-          </div>
-        </CardHeader>
-        <CardContent>
-          <div className="space-y-4">
-            {/* Project Type */}
-            <div className="flex items-center justify-between text-sm">
-              <span className="text-gray-600">Project Type:</span>
-              <span className="font-medium">{opportunity.projectType}</span>
-            </div>
-
-            {/* Images */}
-            {opportunity.images && opportunity.images.length > 0 && (
-              <div className="space-y-2">
-                <p className="text-sm text-gray-600">Property Images</p>
-                <div 
-                  className="relative rounded-lg overflow-hidden border border-gray-200 cursor-pointer group"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    handleOpenImageModal(opportunity.images, 0);
-                  }}
-                >
-                  <img
-                    src={opportunity.images[0]}
-                    alt={opportunity.title}
-                    className="w-full h-48 object-cover group-hover:opacity-90 transition-opacity"
-                  />
-                  {opportunity.images.length > 1 && (
-                    <div className="absolute top-2 right-2 bg-black/60 text-white text-xs px-2 py-1 rounded">
-                      +{opportunity.images.length - 1} more
-                    </div>
-                  )}
-                </div>
-              </div>
-            )}
-
-            {/* Insurance Adjustment PDF */}
-            {opportunity.insuranceAdjustmentPdf && (
-              <div className="space-y-2">
-                <p className="text-sm text-gray-600">Insurance Adjustment</p>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  className="w-full justify-start hover:bg-blue-700 hover:text-white overflow-hidden"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    window.open(opportunity.insuranceAdjustmentPdf!.url, '_blank');
-                  }}
-                >
-                  <File className="h-4 w-4 mr-2 flex-shrink-0" />
-                  <span className="truncate flex-1 min-w-0">{opportunity.insuranceAdjustmentPdf.name}</span>
-                  <Download className="h-4 w-4 ml-2 flex-shrink-0" />
-                </Button>
-              </div>
-            )}
-
-            {/* IOI Phase Timeline */}
-            {opportunity.ioiPhase && (
-              <div className="space-y-1 text-xs text-gray-500 pt-2 border-t">
-                <div className="flex items-center gap-2">
-                  <FileText className="h-3 w-3" />
-                  <span className="font-medium text-gray-700">IOI Phase:</span>
-                </div>
-                <div className="pl-5 space-y-1">
-                  <div className="flex items-center gap-2">
-                    <Calendar className="h-3 w-3" />
-                    <span>Start: {new Date(opportunity.ioiPhase.startDate).toLocaleDateString()}</span>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <Clock className="h-3 w-3" />
-                    <span>End: {new Date(opportunity.ioiPhase.endDate).toLocaleDateString()}</span>
-                  </div>
-                  {opportunity.ioiPhase.submittedDate && (
-                    <div className="flex items-center gap-2 text-green-600">
-                      <CheckCircle className="h-3 w-3" />
-                      <span>Submitted: {new Date(opportunity.ioiPhase.submittedDate).toLocaleDateString()}</span>
-                    </div>
-                  )}
-                  {stage === 'ioi' && opportunity.ioiPhase.initialBid && (
-                    <div className="flex items-center gap-2 text-blue-600">
-                      <DollarSign className="h-3 w-3" />
-                      <span>Initial Bid: ${opportunity.ioiPhase.initialBid.toLocaleString()}</span>
-                    </div>
-                  )}
-                </div>
-              </div>
-            )}
-
-            {/* LOI Phase Timeline */}
-            {opportunity.loiPhase && (
-              <div className="space-y-1 text-xs text-gray-500 pt-2 border-t">
-                <div className="flex items-center gap-2">
-                  <FileCheck className="h-3 w-3" />
-                  <span className="font-medium text-gray-700">LOI Phase:</span>
-                </div>
-                <div className="pl-5 space-y-1">
-                  <div className="flex items-center gap-2">
-                    <Calendar className="h-3 w-3" />
-                    <span>Start: {new Date(opportunity.loiPhase.startDate).toLocaleDateString()}</span>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <Clock className="h-3 w-3" />
-                    <span>End: {new Date(opportunity.loiPhase.endDate).toLocaleDateString()}</span>
-                  </div>
-                  {opportunity.loiPhase.submittedDate && (
-                    <div className="flex items-center gap-2 text-green-600">
-                      <CheckCircle className="h-3 w-3" />
-                      <span>Submitted: {new Date(opportunity.loiPhase.submittedDate).toLocaleDateString()}</span>
-                    </div>
-                  )}
-                  {stage === 'loi' && opportunity.loiPhase.contractValue && (
-                    <div className="flex items-center gap-2 text-blue-600">
-                      <DollarSign className="h-3 w-3" />
-                      <span>Contract Value: ${opportunity.loiPhase.contractValue.toLocaleString()}</span>
-                    </div>
-                  )}
-                </div>
-              </div>
-            )}
-
-            {/* Schedule Site Visit Button (IOI only) */}
-            {stage === 'ioi' && (
-              <div className="pt-2">
-                <Button 
-                  variant="outline"
-                  className="w-full border-green-600 text-green-600 hover:bg-green-600 hover:text-white"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    // Open Calendly in a new window
-                    // Replace with actual Calendly URL
-                    const calendlyUrl = `https://calendly.com/your-calendly-link?text=${encodeURIComponent(`Site Visit - ${opportunity.title}`)}`;
-                    window.open(calendlyUrl, '_blank');
-                  }}
-                >
-                  <Calendar className="h-4 w-4 mr-2" />
-                  Schedule Site Visit
-                  <ExternalLink className="h-4 w-4 ml-2" />
-                </Button>
-              </div>
-            )}
-
-            {/* Action Button */}
-            <div className="pt-2">
-              <Button 
-                variant="default"
-                className="w-full bg-blue-600 hover:bg-blue-700 hover:text-white"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  handleViewOpportunity(opportunity);
-                }}
-              >
-                <Activity className="h-4 w-4 mr-2" />
-                View Details
-              </Button>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
-    );
-  };
-
   // Fetch homeowner projects when My Projects tab is selected
   useEffect(() => {
     if (isHomeowner && !authLoading && homeownerTab === 'my-projects') {
@@ -555,42 +316,15 @@ export default function HomePage() {
     }
   }, [isHomeowner, authLoading, homeownerTab]);
 
-  // Fetch jobs when Active Contracts tab is selected
+  // Fetch jobs when My Jobs tab is selected
   useEffect(() => {
-    if (isContractor && !authLoading && contractorTab === 'active-contracts') {
+    if (isContractor && !authLoading && contractorTab === 'my-jobs') {
       setJobsLoading(true);
       // Simulate API call
       setTimeout(() => {
         setMyJobs(getMockJobs());
         setJobsLoading(false);
       }, 500);
-    }
-  }, [isContractor, authLoading, contractorTab]);
-
-  // Fetch saved opportunities
-  useEffect(() => {
-    if (isContractor && !authLoading && contractorTab === 'saved-opportunities') {
-      setTimeout(() => {
-        setSavedOpportunities(mockSavedOpportunities);
-      }, 300);
-    }
-  }, [isContractor, authLoading, contractorTab]);
-
-  // Fetch IOI opportunities
-  useEffect(() => {
-    if (isContractor && !authLoading && contractorTab === 'iois') {
-      setTimeout(() => {
-        setIoiOpportunities(mockIoiOpportunities);
-      }, 300);
-    }
-  }, [isContractor, authLoading, contractorTab]);
-
-  // Fetch LOI opportunities
-  useEffect(() => {
-    if (isContractor && !authLoading && contractorTab === 'lois') {
-      setTimeout(() => {
-        setLoiOpportunities(mockLoiOpportunities);
-      }, 300);
     }
   }, [isContractor, authLoading, contractorTab]);
 
@@ -787,314 +521,10 @@ export default function HomePage() {
   }
 
   return (
-    <div className={`min-h-screen bg-gray-50 pl-32 transition-all duration-300 ${selectedJob || selectedOpportunity ? 'pr-[33.333%]' : ''}`}>
-      {/* Image Modal */}
-      <Dialog open={imageModalOpen} onOpenChange={setImageModalOpen}>
-        <DialogContent className="max-w-4xl max-h-[90vh] p-0">
-          <DialogHeader className="px-6 py-4 border-b">
-            <DialogTitle>Property Images</DialogTitle>
-          </DialogHeader>
-          <div className="relative px-6 py-4">
-            {selectedImages.length > 0 && (
-              <>
-                <div className="relative w-full h-[60vh] flex items-center justify-center bg-gray-100 rounded-lg overflow-hidden">
-                  <img
-                    src={selectedImages[currentImageIndex]}
-                    alt={`Image ${currentImageIndex + 1}`}
-                    className="max-w-full max-h-full object-contain"
-                  />
-                  {selectedImages.length > 1 && (
-                    <>
-                      <button
-                        onClick={() => setCurrentImageIndex((prev) => (prev > 0 ? prev - 1 : selectedImages.length - 1))}
-                        className="absolute left-4 top-1/2 -translate-y-1/2 p-2 bg-black/50 text-white rounded-full hover:bg-black/70 transition-colors"
-                      >
-                        <ChevronLeft className="h-6 w-6" />
-                      </button>
-                      <button
-                        onClick={() => setCurrentImageIndex((prev) => (prev < selectedImages.length - 1 ? prev + 1 : 0))}
-                        className="absolute right-4 top-1/2 -translate-y-1/2 p-2 bg-black/50 text-white rounded-full hover:bg-black/70 transition-colors"
-                      >
-                        <ChevronRight className="h-6 w-6" />
-                      </button>
-                    </>
-                  )}
-                </div>
-                {selectedImages.length > 1 && (
-                  <div className="flex items-center justify-center gap-2 mt-4">
-                    <span className="text-sm text-gray-600">
-                      {currentImageIndex + 1} of {selectedImages.length}
-                    </span>
-                  </div>
-                )}
-              </>
-            )}
-          </div>
-        </DialogContent>
-      </Dialog>
-
-      {/* Right Side Detail Panel for Opportunities */}
-      {selectedOpportunity && (
-        <div className="fixed right-0 top-0 h-screen w-1/3 bg-white border-l border-gray-200 shadow-2xl z-50 flex flex-col">
-          <div className="flex-1 overflow-y-auto">
-            <div className="sticky top-0 bg-white border-b border-gray-200 px-6 py-4 flex items-center justify-between z-10">
-              <h2 className="text-xl font-bold text-gray-900">Opportunity Details</h2>
-              <button
-                onClick={handleCloseOpportunityPanel}
-                className="p-2 hover:bg-gray-100 rounded-full transition-colors"
-              >
-                <X className="h-5 w-5 text-gray-600" />
-              </button>
-            </div>
-
-            <div className="px-6 py-6 space-y-6">
-              {/* Title */}
-              <div>
-                <h3 className="text-2xl font-bold text-gray-900 mb-2">
-                  {selectedOpportunity.title}
-                </h3>
-                <Badge className="bg-blue-100 text-blue-800 border-blue-200 rounded-full px-2.5 py-0.5 text-xs font-medium">
-                  {selectedOpportunity.projectType}
-                </Badge>
-              </div>
-
-              {/* Location */}
-              <div className="space-y-1">
-                <p className="text-sm text-gray-600">Location</p>
-                <div className="flex items-center gap-2">
-                  <MapPin className="h-4 w-4 text-gray-600" />
-                  <p className="text-base font-medium text-gray-900">
-                    {selectedOpportunity.address}, {selectedOpportunity.city}, {selectedOpportunity.state}
-                  </p>
-                </div>
-              </div>
-
-              {/* Images */}
-              {selectedOpportunity.images && selectedOpportunity.images.length > 0 && (
-                <div className="space-y-2">
-                  <p className="text-sm text-gray-600">Property Images</p>
-                  <div className="grid grid-cols-2 gap-2">
-                    {selectedOpportunity.images.map((image, index) => (
-                      <div
-                        key={index}
-                        className="relative rounded-lg overflow-hidden border border-gray-200 cursor-pointer group"
-                        onClick={() => handleOpenImageModal(selectedOpportunity.images!, index)}
-                      >
-                        <img
-                          src={image}
-                          alt={`${selectedOpportunity.title} - Image ${index + 1}`}
-                          className="w-full h-32 object-cover group-hover:opacity-90 transition-opacity"
-                        />
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              )}
-
-              {/* Insurance Adjustment PDF */}
-              {selectedOpportunity.insuranceAdjustmentPdf && (
-                <div className="space-y-2">
-                  <p className="text-sm text-gray-600">Insurance Adjustment Document</p>
-                  <Button
-                    variant="outline"
-                    className="w-full justify-start hover:bg-blue-700 hover:text-white overflow-hidden"
-                    onClick={() => window.open(selectedOpportunity.insuranceAdjustmentPdf!.url, '_blank')}
-                  >
-                    <File className="h-4 w-4 mr-2 flex-shrink-0" />
-                    <span className="truncate flex-1 min-w-0">{selectedOpportunity.insuranceAdjustmentPdf.name}</span>
-                    <Download className="h-4 w-4 ml-2 flex-shrink-0" />
-                  </Button>
-                </div>
-              )}
-
-              {/* IOI Phase */}
-              {selectedOpportunity.ioiPhase && (
-                <div className="space-y-3 pt-4 border-t border-gray-200">
-                  <p className="text-sm font-semibold text-gray-900">IOI Phase</p>
-                  <div className="space-y-2">
-                    <div className="flex items-center justify-between text-sm">
-                      <span className="text-gray-600">Start Date:</span>
-                      <span className="font-medium">{new Date(selectedOpportunity.ioiPhase.startDate).toLocaleDateString()}</span>
-                    </div>
-                    <div className="flex items-center justify-between text-sm">
-                      <span className="text-gray-600">End Date:</span>
-                      <span className="font-medium">{new Date(selectedOpportunity.ioiPhase.endDate).toLocaleDateString()}</span>
-                    </div>
-                    {selectedOpportunity.ioiPhase.submittedDate && (
-                      <div className="flex items-center justify-between text-sm">
-                        <span className="text-gray-600">Submitted:</span>
-                        <span className="font-medium text-green-600">{new Date(selectedOpportunity.ioiPhase.submittedDate).toLocaleDateString()}</span>
-                      </div>
-                    )}
-                    {selectedOpportunity.ioiPhase.status && (
-                      <div className="flex items-center justify-between text-sm">
-                        <span className="text-gray-600">Status:</span>
-                        <Badge className={`${
-                          selectedOpportunity.ioiPhase.status === 'accepted' ? 'bg-green-100 text-green-800 border-green-200' :
-                          selectedOpportunity.ioiPhase.status === 'rejected' ? 'bg-red-100 text-red-800 border-red-200' :
-                          selectedOpportunity.ioiPhase.status === 'submitted' ? 'bg-blue-100 text-blue-800 border-blue-200' :
-                          'bg-yellow-100 text-yellow-800 border-yellow-200'
-                        }`}>
-                          {selectedOpportunity.ioiPhase.status.charAt(0).toUpperCase() + selectedOpportunity.ioiPhase.status.slice(1)}
-                        </Badge>
-                      </div>
-                    )}
-                    {selectedOpportunity.ioiPhase.initialBid && (
-                      <div className="flex items-center justify-between text-sm">
-                        <span className="text-gray-600">Initial Bid:</span>
-                        <span className="font-semibold text-blue-600">${selectedOpportunity.ioiPhase.initialBid.toLocaleString()}</span>
-                      </div>
-                    )}
-                  </div>
-                  
-                  {/* Schedule Site Visit Button */}
-                  <div className="pt-3">
-                    <Button 
-                      variant="outline"
-                      className="w-full border-green-600 text-green-600 hover:bg-green-600 hover:text-white"
-                      onClick={() => {
-                        // Open Calendly in a new window
-                        // Replace with actual Calendly URL
-                        const calendlyUrl = `https://calendly.com/your-calendly-link?text=${encodeURIComponent(`Site Visit - ${selectedOpportunity.title}`)}`;
-                        window.open(calendlyUrl, '_blank');
-                      }}
-                    >
-                      <Calendar className="h-4 w-4 mr-2" />
-                      Schedule Site Visit
-                      <ExternalLink className="h-4 w-4 ml-2" />
-                    </Button>
-                  </div>
-                </div>
-              )}
-
-              {/* LOI Phase */}
-              {selectedOpportunity.loiPhase && (
-                <div className="space-y-3 pt-4 border-t border-gray-200">
-                  <p className="text-sm font-semibold text-gray-900">LOI Phase</p>
-                  <div className="space-y-2">
-                    <div className="flex items-center justify-between text-sm">
-                      <span className="text-gray-600">Start Date:</span>
-                      <span className="font-medium">{new Date(selectedOpportunity.loiPhase.startDate).toLocaleDateString()}</span>
-                    </div>
-                    <div className="flex items-center justify-between text-sm">
-                      <span className="text-gray-600">End Date:</span>
-                      <span className="font-medium">{new Date(selectedOpportunity.loiPhase.endDate).toLocaleDateString()}</span>
-                    </div>
-                    {selectedOpportunity.loiPhase.submittedDate && (
-                      <div className="flex items-center justify-between text-sm">
-                        <span className="text-gray-600">Submitted:</span>
-                        <span className="font-medium text-green-600">{new Date(selectedOpportunity.loiPhase.submittedDate).toLocaleDateString()}</span>
-                      </div>
-                    )}
-                    {selectedOpportunity.loiPhase.status && (
-                      <div className="flex items-center justify-between text-sm">
-                        <span className="text-gray-600">Status:</span>
-                        <Badge className={`${
-                          selectedOpportunity.loiPhase.status === 'accepted' ? 'bg-green-100 text-green-800 border-green-200' :
-                          selectedOpportunity.loiPhase.status === 'rejected' ? 'bg-red-100 text-red-800 border-red-200' :
-                          selectedOpportunity.loiPhase.status === 'submitted' ? 'bg-blue-100 text-blue-800 border-blue-200' :
-                          'bg-yellow-100 text-yellow-800 border-yellow-200'
-                        }`}>
-                          {selectedOpportunity.loiPhase.status.charAt(0).toUpperCase() + selectedOpportunity.loiPhase.status.slice(1)}
-                        </Badge>
-                      </div>
-                    )}
-                    {selectedOpportunity.loiPhase.contractValue && (
-                      <div className="flex items-center justify-between text-sm">
-                        <span className="text-gray-600">Contract Value:</span>
-                        <span className="font-semibold text-blue-600">${selectedOpportunity.loiPhase.contractValue.toLocaleString()}</span>
-                      </div>
-                    )}
-                  </div>
-                </div>
-              )}
-
-              {/* Additional Details (if available) */}
-              {selectedOpportunity.description && (
-                <div className="space-y-2 pt-4 border-t border-gray-200">
-                  <p className="text-sm font-semibold text-gray-900">Description</p>
-                  <p className="text-sm text-gray-700 leading-relaxed">
-                    {selectedOpportunity.description}
-                  </p>
-                </div>
-              )}
-
-              {selectedOpportunity.contractValue && (
-                <div className="space-y-1 pt-4 border-t border-gray-200">
-                  <p className="text-sm text-gray-600">Contract Value</p>
-                  <p className="text-3xl font-bold text-blue-600">
-                    ${selectedOpportunity.contractValue.toLocaleString()}
-                  </p>
-                </div>
-              )}
-
-              {/* Contact Information */}
-              <div className="space-y-3 pt-4 border-t border-gray-200">
-                <p className="text-sm font-semibold text-gray-900">Contact Homeowner</p>
-                
-                {/* Phone Number */}
-                {selectedOpportunity.homeownerPhone && (
-                  <div className="flex items-center gap-3 p-4 bg-gray-50 rounded-lg border border-gray-200">
-                    <div className="p-2 bg-gray-100 rounded-lg">
-                      <Phone className="h-5 w-5 text-gray-600" />
-                    </div>
-                    <div className="flex-1">
-                      <p className="text-xs text-gray-600 mb-1">Phone Number</p>
-                      <p className="text-base font-medium text-gray-900">
-                        {selectedOpportunity.homeownerPhone}
-                      </p>
-                    </div>
-                  </div>
-                )}
-
-                {/* Name (if phone not available, show name in a card) */}
-                {selectedOpportunity.homeownerName && !selectedOpportunity.homeownerPhone && (
-                  <div className="flex items-center gap-3 p-4 bg-gray-50 rounded-lg border border-gray-200">
-                    <div className="p-2 bg-gray-100 rounded-lg">
-                      <Users className="h-5 w-5 text-gray-600" />
-                    </div>
-                    <div className="flex-1">
-                      <p className="text-xs text-gray-600 mb-1">Homeowner Name</p>
-                      <p className="text-base font-medium text-gray-900">
-                        {selectedOpportunity.homeownerName}
-                      </p>
-                    </div>
-                  </div>
-                )}
-
-                {/* Chat - Always available */}
-                <div className="flex items-center gap-3 p-4 bg-gray-50 rounded-lg border border-gray-200">
-                  <div className="p-2 bg-gray-100 rounded-lg">
-                    <MessageSquare className="h-5 w-5 text-gray-600" />
-                  </div>
-                  <div className="flex-1">
-                    <p className="text-xs text-gray-600 mb-1">Chat</p>
-                    <Button variant="outline" size="sm" className="w-full hover:bg-blue-700 hover:text-white">
-                      Open Chat
-                    </Button>
-                  </div>
-                </div>
-              </div>
-
-              {/* Map */}
-              <div className="space-y-2">
-                <p className="text-sm text-gray-600">Location Map</p>
-                <div className="relative rounded-lg overflow-hidden border border-gray-200">
-                  <img
-                    src={getMapUrl(selectedOpportunity.address, selectedOpportunity.city, selectedOpportunity.state)}
-                    alt="Location map"
-                    className="w-full h-64 object-cover"
-                  />
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* Right Side Detail Panel for Jobs */}
+    <div className="min-h-screen bg-gray-50 pl-32">
+      {/* Left Side Detail Panel */}
       {selectedJob && (
-        <div className="fixed right-0 top-0 h-screen w-1/3 bg-white border-l border-gray-200 shadow-2xl z-50 flex flex-col">
+        <div className="fixed left-32 top-0 h-screen w-[480px] bg-white border-r border-gray-200 shadow-2xl z-50 flex flex-col">
           {/* Scrollable Content */}
           <div className="flex-1 overflow-y-auto">
             {/* Header */}
@@ -1189,7 +619,7 @@ export default function HomePage() {
                   </div>
                   <div className="flex-1">
                     <p className="text-xs text-gray-600 mb-1">Chat</p>
-                    <Button variant="outline" size="sm" className="w-full hover:bg-blue-700 hover:text-white">
+                    <Button variant="outline" size="sm" className="w-full">
                       Open Chat
                     </Button>
                   </div>
@@ -1243,7 +673,7 @@ export default function HomePage() {
                   <div className="relative">
                     <Button
                       variant="outline"
-                      className="w-full justify-between hover:bg-blue-700 hover:text-white"
+                      className="w-full justify-between"
                       onClick={() => setShowFilesDropdown(!showFilesDropdown)}
                     >
                       <span className="flex items-center gap-2">
@@ -1298,8 +728,8 @@ export default function HomePage() {
                 variant={user?.user_metadata?.userType === 'contractor' ? 'default' : 'secondary'}
                 className={
                   user?.user_metadata?.userType === 'contractor'
-                    ? 'bg-blue-700 text-white hover:bg-blue-800 hover:text-white' 
-                    : 'bg-gray-700 text-white hover:bg-gray-800 hover:text-white'
+                    ? 'bg-blue-700 text-white hover:bg-blue-800' 
+                    : 'bg-gray-700 text-white hover:bg-gray-800'
                 }
               >
                 {user?.user_metadata?.userType === 'contractor' ? 'Contractor' : 'Homeowner'}
@@ -1320,11 +750,12 @@ export default function HomePage() {
             <Card>
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                 <CardTitle className="text-sm font-medium">IOI Negotiations</CardTitle>
+                <Handshake className="h-4 w-4 text-muted-foreground" />
               </CardHeader>
               <CardContent>
-                <div className="text-2xl font-bold text-blue-600">${contractorStats.ioiValue.toLocaleString()}</div>
-                <p className="text-xs text-muted-foreground mt-1">
-                  {contractorStats.ioiCount} contract{contractorStats.ioiCount !== 1 ? 's' : ''}
+                <div className="text-2xl font-bold">{contractorStats.ioiCount}</div>
+                <p className="text-xs text-muted-foreground">
+                  ${contractorStats.ioiValue.toLocaleString()} potential value
                 </p>
               </CardContent>
             </Card>
@@ -1332,11 +763,12 @@ export default function HomePage() {
             <Card>
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                 <CardTitle className="text-sm font-medium">LOI Negotiations</CardTitle>
+                <FileText className="h-4 w-4 text-muted-foreground" />
               </CardHeader>
               <CardContent>
-                <div className="text-2xl font-bold text-blue-600">${contractorStats.loiValue.toLocaleString()}</div>
-                <p className="text-xs text-muted-foreground mt-1">
-                  {contractorStats.loiCount} contract{contractorStats.loiCount !== 1 ? 's' : ''}
+                <div className="text-2xl font-bold">{contractorStats.loiCount}</div>
+                <p className="text-xs text-muted-foreground">
+                  ${contractorStats.loiValue.toLocaleString()} potential value
                 </p>
               </CardContent>
             </Card>
@@ -1344,11 +776,12 @@ export default function HomePage() {
             <Card>
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                 <CardTitle className="text-sm font-medium">Active Contracts</CardTitle>
+                <Briefcase className="h-4 w-4 text-muted-foreground" />
               </CardHeader>
               <CardContent>
-                <div className="text-2xl font-bold text-blue-600">${contractorStats.activeValue.toLocaleString()}</div>
-                <p className="text-xs text-muted-foreground mt-1">
-                  {contractorStats.activeContracts} contract{contractorStats.activeContracts !== 1 ? 's' : ''}
+                <div className="text-2xl font-bold">{contractorStats.activeContracts}</div>
+                <p className="text-xs text-muted-foreground">
+                  ${contractorStats.activeValue.toLocaleString()} active value
                 </p>
               </CardContent>
             </Card>
@@ -1385,94 +818,47 @@ export default function HomePage() {
 
         {/* Contractor Tabs and Content */}
         {isContractor ? (
-          <div className="space-y-6 transition-all duration-300">
+          <div className={`space-y-6 transition-all duration-300 ${selectedJob ? 'pr-[480px]' : ''}`}>
             {/* Tab Navigation */}
             <div className="border-b border-gray-200">
-              <nav className="-mb-px flex items-center">
-                {/* Section 1: Saved Bidding Opportunities */}
+              <nav className="-mb-px flex space-x-8">
                 <button
-                  onClick={() => setContractorTab('saved-opportunities')}
+                  onClick={() => setContractorTab('my-jobs')}
                   className={`border-b-2 py-4 px-1 text-sm font-medium transition-colors ${
-                    contractorTab === 'saved-opportunities'
-                      ? 'border-blue-600 text-blue-600'
-                      : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
-                  }`}
-                >
-                  <div className="flex items-center gap-2">
-                    <Bookmark className="h-4 w-4" />
-                    Saved Bidding Opportunities
-                    {savedOpportunities.length > 0 && (
-                      <Badge className="ml-1 bg-blue-100 text-blue-800 border-blue-200 text-xs px-1.5 py-0">
-                        {savedOpportunities.length}
-                      </Badge>
-                    )}
-                  </div>
-                </button>
-                
-                {/* Visual Separator */}
-                <div className="h-6 w-px bg-gray-300 mx-4"></div>
-                
-                {/* Section 2: Live Bidding Opportunities */}
-                <div className="flex items-center gap-1">
-                  <span className="text-xs text-gray-400 font-medium mr-2">Live Bidding:</span>
-                  <button
-                    onClick={() => setContractorTab('iois')}
-                    className={`border-b-2 py-4 px-1 text-sm font-medium transition-colors ${
-                      contractorTab === 'iois'
-                        ? 'border-blue-600 text-blue-600'
-                        : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
-                    }`}
-                  >
-                    <div className="flex items-center gap-2">
-                      <FileText className="h-4 w-4" />
-                      IOIs
-                      {contractorStats.ioiCount > 0 && (
-                        <Badge className="ml-1 bg-blue-100 text-blue-800 border-blue-200 text-xs px-1.5 py-0">
-                          {contractorStats.ioiCount}
-                        </Badge>
-                      )}
-                    </div>
-                  </button>
-                  <button
-                    onClick={() => setContractorTab('lois')}
-                    className={`border-b-2 py-4 px-1 text-sm font-medium transition-colors ${
-                      contractorTab === 'lois'
-                        ? 'border-blue-600 text-blue-600'
-                        : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
-                    }`}
-                  >
-                    <div className="flex items-center gap-2">
-                      <FileCheck className="h-4 w-4" />
-                      LOIs
-                      {contractorStats.loiCount > 0 && (
-                        <Badge className="ml-1 bg-blue-100 text-blue-800 border-blue-200 text-xs px-1.5 py-0">
-                          {contractorStats.loiCount}
-                        </Badge>
-                      )}
-                    </div>
-                  </button>
-                </div>
-                
-                {/* Visual Separator */}
-                <div className="h-6 w-px bg-gray-300 mx-4"></div>
-                
-                {/* Section 3: Active Contracts */}
-                <button
-                  onClick={() => setContractorTab('active-contracts')}
-                  className={`border-b-2 py-4 px-1 text-sm font-medium transition-colors ${
-                    contractorTab === 'active-contracts'
+                    contractorTab === 'my-jobs'
                       ? 'border-blue-600 text-blue-600'
                       : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
                   }`}
                 >
                   <div className="flex items-center gap-2">
                     <Wrench className="h-4 w-4" />
-                    Active Contracts
-                    {contractorStats.activeContracts > 0 && (
-                      <Badge className="ml-1 bg-blue-100 text-blue-800 border-blue-200 text-xs px-1.5 py-0">
-                        {contractorStats.activeContracts}
-                      </Badge>
-                    )}
+                    My Jobs
+                  </div>
+                </button>
+                <button
+                  onClick={() => setContractorTab('auctions')}
+                  className={`border-b-2 py-4 px-1 text-sm font-medium transition-colors ${
+                    contractorTab === 'auctions'
+                      ? 'border-blue-600 text-blue-600'
+                      : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                  }`}
+                >
+                  <div className="flex items-center gap-2">
+                    <Users className="h-4 w-4" />
+                    Active Auctions
+                  </div>
+                </button>
+                <button
+                  onClick={() => setContractorTab('schedule')}
+                  className={`border-b-2 py-4 px-1 text-sm font-medium transition-colors ${
+                    contractorTab === 'schedule'
+                      ? 'border-blue-600 text-blue-600'
+                      : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                  }`}
+                >
+                  <div className="flex items-center gap-2">
+                    <Calendar className="h-4 w-4" />
+                    Schedule
                   </div>
                 </button>
               </nav>
@@ -1480,49 +866,7 @@ export default function HomePage() {
 
             {/* Tab Content */}
             <div>
-              {contractorTab === 'saved-opportunities' ? (
-                <>
-                  {savedOpportunities.length === 0 ? (
-                    <EmptyState
-                      icon={Bookmark}
-                      title="No Saved Opportunities"
-                      description="Save bidding opportunities you're interested in to track them here."
-                    />
-                  ) : (
-                    <div className="grid gap-6 sm:gap-8 grid-cols-1 md:grid-cols-2 xl:grid-cols-3">
-                      {savedOpportunities.map((opportunity) => renderBiddingOpportunityCard(opportunity, 'saved'))}
-                    </div>
-                  )}
-                </>
-              ) : contractorTab === 'iois' ? (
-                <>
-                  {ioiOpportunities.length === 0 ? (
-                    <EmptyState
-                      icon={FileText}
-                      title="No IOI Negotiations"
-                      description="You don't have any active Intent of Interest negotiations at the moment."
-                    />
-                  ) : (
-                    <div className="grid gap-6 sm:gap-8 grid-cols-1 md:grid-cols-2 xl:grid-cols-3">
-                      {ioiOpportunities.map((opportunity) => renderBiddingOpportunityCard(opportunity, 'ioi'))}
-                    </div>
-                  )}
-                </>
-              ) : contractorTab === 'lois' ? (
-                <>
-                  {loiOpportunities.length === 0 ? (
-                    <EmptyState
-                      icon={FileCheck}
-                      title="No LOI Negotiations"
-                      description="You don't have any active Letter of Intent negotiations at the moment."
-                    />
-                  ) : (
-                    <div className="grid gap-6 sm:gap-8 grid-cols-1 md:grid-cols-2 xl:grid-cols-3">
-                      {loiOpportunities.map((opportunity) => renderBiddingOpportunityCard(opportunity, 'loi'))}
-                    </div>
-                  )}
-                </>
-              ) : contractorTab === 'active-contracts' ? (
+              {contractorTab === 'my-jobs' ? (
                 <>
                   {jobsLoading ? (
                     <LoadingSkeleton />
@@ -1534,18 +878,8 @@ export default function HomePage() {
                     />
                   ) : (
                     <div className="grid gap-6 sm:gap-8 grid-cols-1 md:grid-cols-2 xl:grid-cols-3">
-                      {myJobs?.map((job) => {
-                        const isSelected = selectedJob?.id === job.id;
-                        return (
-                        <Card 
-                          key={job.id} 
-                          className={`hover:shadow-lg transition-all cursor-pointer ${
-                            isSelected 
-                              ? 'ring-2 ring-blue-500 shadow-lg bg-blue-50/30' 
-                              : 'shadow-sm'
-                          }`}
-                          onClick={() => handleManageJob(job)}
-                        >
+                      {myJobs?.map((job) => (
+                        <Card key={job.id} className="hover:shadow-lg transition-shadow">
                           <CardHeader>
                             <div className="flex items-start justify-between">
                               <div className="flex-1">
@@ -1625,7 +959,7 @@ export default function HomePage() {
                               <div className="pt-2">
                 <Button 
                                   variant="default"
-                                  className="w-full bg-blue-600 hover:bg-blue-700 hover:text-white"
+                                  className="w-full bg-blue-600 hover:bg-blue-700"
                                   onClick={() => handleManageJob(job)}
                                 >
                                   <Activity className="h-4 w-4 mr-2" />
@@ -1635,11 +969,235 @@ export default function HomePage() {
                             </div>
                           </CardContent>
                         </Card>
-                        );
-                      })}
+                      ))}
                     </div>
                   )}
                 </>
+              ) : contractorTab === 'auctions' ? (
+                <>
+                  {contractorAuctionLoading ? (
+                    <LoadingSkeleton />
+                  ) : contractorAuctions?.length === 0 ? (
+                    <EmptyState
+                      icon={Users}
+                      title="No Active Auctions"
+                      description="There are currently no active auctions to display."
+                    />
+                  ) : (
+                    <div className="grid gap-6 sm:gap-8 grid-cols-1 md:grid-cols-2 xl:grid-cols-3">
+                      {contractorAuctions?.map((auction) => (
+                        <AuctionCard
+                          key={auction.auction_id}
+                          title={auction.title}
+                          scope={auction.project_type}
+                          finalBid={auction.current_bid}
+                          totalBids={auction.bid_count}
+                          endedAt={auction.end_date}
+                          status="open"
+                          onViewDetails={() => router.push(`/auction/${auction.auction_id}`)}
+                        />
+                      ))}
+                    </div>
+                  )}
+                </>
+              ) : contractorTab === 'schedule' ? (
+                <div className="space-y-6">
+                  {/* Schedule Header */}
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <h2 className="text-2xl font-bold text-gray-900">Schedule & Calendar</h2>
+                      <p className="text-gray-600 mt-1">Manage all deadlines, visits, and milestones</p>
+                    </div>
+                    <div className="flex items-center space-x-2">
+                      <Button variant="default" size="sm" className="bg-blue-600 hover:bg-blue-700">
+                        <List className="h-4 w-4 mr-2" />
+                        List
+                      </Button>
+                      <Button variant="outline" size="sm">
+                        <Calendar className="h-4 w-4 mr-2" />
+                        Calendar
+                      </Button>
+                      <Button variant="outline" size="sm">
+                        <BarChart3 className="h-4 w-4 mr-2" />
+                        Gantt
+                </Button>
+              </div>
+        </div>
+
+                  {/* Critical Deadlines Alert */}
+                  <Card className="bg-red-50 border-red-200">
+                    <CardContent className="p-4">
+                      <div className="flex items-start space-x-3">
+                        <div className="flex-shrink-0">
+                          <div className="w-6 h-6 bg-red-100 rounded-full flex items-center justify-center">
+                            <AlertCircle className="h-4 w-4 text-red-600" />
+                          </div>
+                        </div>
+                        <div>
+                          <h3 className="text-sm font-medium text-red-800">Critical Deadlines</h3>
+                          <p className="text-sm text-red-700 mt-1">
+                            IOI deadline for Bathroom Remodel project due tomorrow at 5:00 PM
+                          </p>
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+
+                  {/* Schedule Tab Navigation */}
+                  <div className="border-b border-gray-200">
+                    <nav className="-mb-px flex space-x-8">
+                      <button
+                        onClick={() => setScheduleTab('upcoming')}
+                        className={`border-b-2 py-2 px-1 text-sm font-medium ${
+                          scheduleTab === 'upcoming'
+                            ? 'border-blue-500 text-blue-600'
+                            : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                        }`}
+                      >
+                        Upcoming Events
+                      </button>
+                      <button
+                        onClick={() => setScheduleTab('deadlines')}
+                        className={`border-b-2 py-2 px-1 text-sm font-medium ${
+                          scheduleTab === 'deadlines'
+                            ? 'border-blue-500 text-blue-600'
+                            : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                        }`}
+                      >
+                        Deadlines
+                      </button>
+                      <button
+                        onClick={() => setScheduleTab('visits')}
+                        className={`border-b-2 py-2 px-1 text-sm font-medium ${
+                          scheduleTab === 'visits'
+                            ? 'border-blue-500 text-blue-600'
+                            : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                        }`}
+                      >
+                        Site Visits
+                      </button>
+                      <button
+                        onClick={() => setScheduleTab('milestones')}
+                        className={`border-b-2 py-2 px-1 text-sm font-medium ${
+                          scheduleTab === 'milestones'
+                            ? 'border-blue-500 text-blue-600'
+                            : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                        }`}
+                      >
+                        Milestones
+                      </button>
+                    </nav>
+                  </div>
+
+                  {/* Schedule Tab Content */}
+                  <div>
+                    {scheduleTab === 'upcoming' && (
+                      <>
+                        <h3 className="text-xl font-semibold text-gray-900 mb-4">Next 7 Days</h3>
+                        <div className="space-y-4">
+                          <Card className="p-4 bg-white border border-gray-200">
+                            <div className="flex items-center justify-between">
+                              <div className="flex items-center space-x-4">
+                                <div className="w-2 h-2 bg-red-500 rounded-full"></div>
+                                <div>
+                                  <h4 className="text-sm font-medium text-gray-900">IOI Deadline - Bathroom Remodel</h4>
+                                  <p className="text-xs text-gray-500 mt-1">Tomorrow at 5:00 PM</p>
+                                </div>
+                              </div>
+                              <Badge variant="outline" className="text-red-600 border-red-200 bg-red-50 text-xs">Critical</Badge>
+                            </div>
+                          </Card>
+                          <Card className="p-4 bg-white border border-gray-200">
+                            <div className="flex items-center justify-between">
+                              <div className="flex items-center space-x-4">
+                                <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
+                                <div>
+                                  <h4 className="text-sm font-medium text-gray-900">Site Visit - Kitchen Renovation</h4>
+                                  <p className="text-xs text-gray-500 mt-1">Friday at 10:00 AM</p>
+                                </div>
+                              </div>
+                              <Badge variant="outline" className="text-blue-600 border-blue-200 bg-blue-50 text-xs">Scheduled</Badge>
+                            </div>
+                          </Card>
+                        </div>
+                      </>
+                    )}
+
+                    {scheduleTab === 'deadlines' && (
+                      <>
+                        <h3 className="text-xl font-semibold text-gray-900 mb-4">Critical Deadlines</h3>
+                        <div className="space-y-6">
+                          <Card className="p-6 bg-white border border-gray-200 shadow-sm">
+                            <div className="flex items-start justify-between">
+                              <div className="flex-1">
+                                <div className="flex items-center justify-between mb-2">
+                                  <h4 className="text-lg font-semibold text-gray-900">IOI Submission Deadline</h4>
+                                  <div className="text-right">
+                                    <p className="text-sm font-medium text-gray-900">2/19/2024</p>
+                                    <p className="text-sm text-gray-500">5:00 PM</p>
+                                  </div>
+                                </div>
+                                <p className="text-gray-600 mb-3">Bathroom Remodel - Flood Damage</p>
+                                <div className="flex items-center space-x-3 mb-4">
+                                  <Badge className="bg-red-100 text-red-800 border-red-200">HIGH</Badge>
+                                  <span className="text-sm text-gray-600">IOI Deadline</span>
+                                </div>
+                                <p className="text-gray-700 mb-4">Submit Intent of Interest for bathroom renovation project</p>
+                                <div className="flex space-x-3">
+                                  <Button variant="outline" size="sm">View Details</Button>
+                                  <Button size="sm" className="bg-blue-600 hover:bg-blue-700">Reschedule</Button>
+                                </div>
+                              </div>
+                            </div>
+                          </Card>
+                          <Card className="p-6 bg-white border border-gray-200 shadow-sm">
+                            <div className="flex items-start justify-between">
+                              <div className="flex-1">
+                                <div className="flex items-center justify-between mb-2">
+                                  <h4 className="text-lg font-semibold text-gray-900">LOI Response Due</h4>
+                                  <div className="text-right">
+                                    <p className="text-sm font-medium text-gray-900">2/27/2024</p>
+                                    <p className="text-sm text-gray-500">11:59 PM</p>
+                                  </div>
+                                </div>
+                                <p className="text-gray-600 mb-3">Siding Replacement - Wind Damage</p>
+                                <div className="flex items-center space-x-3 mb-4">
+                                  <Badge className="bg-orange-100 text-orange-800 border-orange-200">MEDIUM</Badge>
+                                  <span className="text-sm text-gray-600">LOI Deadline</span>
+                                </div>
+                                <p className="text-gray-700 mb-4">Letter of Intent response deadline</p>
+                                <div className="flex space-x-3">
+                                  <Button variant="outline" size="sm">View Details</Button>
+                                  <Button size="sm" className="bg-blue-600 hover:bg-blue-700">Reschedule</Button>
+                                </div>
+                              </div>
+                            </div>
+                          </Card>
+                    </div>
+                      </>
+                    )}
+
+                    {scheduleTab === 'visits' && (
+                      <>
+                        <h3 className="text-xl font-semibold text-gray-900 mb-4">Site Visits</h3>
+                        <div className="text-center py-8">
+                          <MapPin className="h-16 w-16 text-gray-400 mx-auto mb-4" />
+                          <p className="text-gray-500">No site visits scheduled</p>
+                </div>
+                      </>
+                    )}
+
+                    {scheduleTab === 'milestones' && (
+                      <>
+                        <h3 className="text-xl font-semibold text-gray-900 mb-4">Project Milestones</h3>
+                <div className="text-center py-8">
+                          <CheckCircle className="h-16 w-16 text-gray-400 mx-auto mb-4" />
+                          <p className="text-gray-500">No milestones scheduled</p>
+                        </div>
+                      </>
+                    )}
+                  </div>
+                </div>
               ) : null}
             </div>
           </div>
@@ -1685,19 +1243,6 @@ export default function HomePage() {
                 <div className="flex items-center gap-2">
                   <Archive className="h-4 w-4" />
                   Closed Auctions
-                </div>
-              </button>
-              <button
-                onClick={() => setHomeownerTab('claims')}
-                className={`border-b-2 py-4 px-1 text-sm font-medium transition-colors ${
-                  homeownerTab === 'claims'
-                    ? 'border-blue-600 text-blue-600'
-                    : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
-                }`}
-              >
-                <div className="flex items-center gap-2">
-                  <FileText className="h-4 w-4" />
-                  Claims
                 </div>
               </button>
             </nav>
@@ -1804,14 +1349,14 @@ export default function HomePage() {
                             <div className="flex gap-2 pt-2">
                               <Button 
                                 variant="outline" 
-                                className="flex-1 hover:bg-blue-700 hover:text-white"
+                                className="flex-1"
                                 onClick={() => router.push(`/claim/${project.claimId}`)}
                               >
                                 View Details
                               </Button>
                               <Button 
                                 variant="default"
-                                className="flex-1 bg-blue-600 hover:bg-blue-700 hover:text-white"
+                                className="flex-1 bg-blue-600 hover:bg-blue-700"
                                 onClick={() => router.push(`/projects/${project.id}`)}
                               >
                                 <Activity className="h-4 w-4 mr-2" />
@@ -1859,8 +1404,8 @@ export default function HomePage() {
                     icon={DollarSign}
                     title="No Active Auctions"
                     description="There are currently no active auctions for your claims. Create a restoration job from your claims to start an auction."
-                    actionLabel="View Claims"
-                    onAction={() => setHomeownerTab('claims')}
+                    actionLabel="Start Claim"
+                    onAction={() => router.push('/start-claim')}
                   />
                 ) : (
                   <div className="grid gap-6 sm:gap-8 grid-cols-1 md:grid-cols-2 xl:grid-cols-3">
@@ -1934,44 +1479,6 @@ export default function HomePage() {
                         />
                       );
                     })}
-                  </div>
-                )}
-              </>
-            ) : homeownerTab === 'claims' ? (
-              <>
-                {claimsLoading ? (
-                  <LoadingSkeleton />
-                ) : claims?.length === 0 ? (
-                  <EmptyState
-                    icon={FileText}
-                    title="No Claims Found"
-                    description="You haven't filed any claims yet. Start a new claim to get started with your recovery process."
-                    actionLabel="Start New Claim"
-                    onAction={() => router.push("/start-claim")}
-                  />
-                ) : (
-                  <div className="grid gap-4 sm:gap-6 grid-cols-1 sm:grid-cols-2 md:grid-cols-3">
-                    {claims?.map((claim: any) => (
-                      <ClaimCard
-                        key={claim.id}
-                        id={claim.id}
-                        street={claim.street}
-                        city={claim.city}
-                        state={claim.state}
-                        zipCode={claim.zipCode}
-                        projectType={claim.projectType}
-                        designPlan={claim.designPlan}
-                        needsAdjuster={claim.needsAdjuster}
-                        insuranceProvider={claim.insuranceProvider ? (claim.insuranceProvider === 'statefarm' ? 'State Farm' : claim.insuranceProvider) : 'Not specified'}
-                        createdAt={claim.createdAt}
-                        updatedAt={claim.updatedAt}
-                        onViewDetails={() => router.push(`/claim/${claim.id}`)}
-                        onCreateRestoration={() => router.push(`/start-claim/create-restor/${claim.id}`)}
-                        onDelete={() => {
-                          toast("Delete functionality coming soon");
-                        }}
-                      />
-                    ))}
                   </div>
                 )}
               </>
