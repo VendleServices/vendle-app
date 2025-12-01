@@ -29,6 +29,7 @@ import {
 import { mockJobs, formatPrice, formatLocation, getTimeAgo, type JobPosting } from "@/data/mockJobs"
 import { useApiService } from "@/services/api";
 import { useQuery } from "@tanstack/react-query";
+import Map from "@/components/Map";
 
 export default function ExplorePage() {
   const router = useRouter()
@@ -126,13 +127,6 @@ export default function ExplorePage() {
       setShowSuccessModal(false)
       setSelectedJob(null)
     }
-  }
-
-  // Helper function to get map URL - using a placeholder service
-  const getMapUrl = (location: JobPosting['location']) => {
-    const query = `${location.city}, ${location.state} ${location.zipCode}`
-    // Using OpenStreetMap static map as a fallback (no API key needed)
-    return `https://staticmap.openstreetmap.de/staticmap.php?center=${encodeURIComponent(query)}&zoom=13&size=400x300&maptype=mapnik`
   }
 
   return (
@@ -249,7 +243,7 @@ export default function ExplorePage() {
                       }}
                     >
                       View Details
-                      <Lock className="ml-2 h-4 w-4" />
+                      {!isLoggedIn && <Lock className="ml-2 h-4 w-4"/>}
                     </Button>
                   </CardFooter>
                 </Card>
@@ -339,21 +333,15 @@ export default function ExplorePage() {
                   <p className="text-sm text-muted-foreground">Location Map</p>
                   <div className="relative rounded-lg overflow-hidden border border-border bg-muted/30">
                     <div className="relative w-full h-64 overflow-hidden">
-                      <img
-                        src={getMapUrl(selectedJob.location)}
-                        alt="Location map"
-                        className="w-full h-full object-cover"
-                        style={{
-                          filter: 'blur(20px) brightness(0.6)',
-                          imageRendering: 'pixelated',
-                        }}
-                      />
-                      <div className="absolute inset-0 bg-black/40 flex items-center justify-center backdrop-blur-[2px]">
-                        <div className="flex flex-col items-center gap-2">
-                          <Lock className="h-8 w-8 text-white/90" />
-                          <span className="text-xs text-white/80 font-medium">Locked</span>
-                        </div>
-                      </div>
+                      <Map address={`${selectedJob.location.city}, ${selectedJob.location.state} ${selectedJob.location.zipCode}`}/>
+                      {!isLoggedIn ? (
+                          <div className="absolute inset-0 bg-black/40 flex items-center justify-center backdrop-blur-[2px]">
+                            <div className="flex flex-col items-center gap-2">
+                              <Lock className="h-8 w-8 text-white/90"/>
+                              <span className="text-xs text-white/80 font-medium">Locked</span>
+                            </div>
+                          </div>
+                      ) : null}
                     </div>
                   </div>
                 </div>
