@@ -41,12 +41,13 @@ router.get('/', async (req: any, res) => {
       status: auction.status,
       starting_bid: auction.startingBid,
       current_bid: auction.currentBid || auction.startingBid,
-      bid_count: 0, // TODO: Add bid count logic
+      bid_count: 0, // TODO: Add bid count logic,
+      start_date: auction.createdAt.toISOString(),
       end_date: auction.auctionEndDate.toISOString(),
-      property_address: auction.claim ? `${auction.claim.street}, ${auction.claim.city}, ${auction.claim.state} ${auction.claim.zipCode}` : '',
+      property_address: auction.claim ? `${auction.claim.street}, ${auction.claim.city}, ${auction.claim.state}, ${auction.claim.zipCode}` : '',
       project_type: auction.claim?.projectType || '',
       design_plan: auction.claim?.designPlan || '',
-      description: auction.description || ''
+      description: auction?.aiSummary || auction?.description || '',
     }));
     
     res.status(200).json({ data: transformedAuctions });

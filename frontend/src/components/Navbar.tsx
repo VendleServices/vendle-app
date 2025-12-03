@@ -7,7 +7,7 @@ import LoginModal from "@/components/LoginModal";
 import { useAuth } from "@/contexts/AuthContext";
 import vendleLogo from "../assets/vendle_logo.jpeg";
 import { Home, Search, User, LayoutDashboard, LogOut, LogIn, DollarSign, FileText } from "lucide-react";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 
 interface NavbarProps {
   onProtectedAction?: () => void;
@@ -17,6 +17,7 @@ const Navbar = ({ onProtectedAction }: NavbarProps = {}) => {
   const { user, isLoggedIn, loading, logout } = useAuth();
   const pathname = usePathname();
   const [showLoginModal, setShowLoginModal] = useState(false);
+  const router = useRouter();
 
   const isContractor = user?.user_metadata?.userType === 'contractor';
   const isHomeowner = user?.user_metadata?.userType === 'homeowner' || (!isContractor && isLoggedIn);
@@ -29,7 +30,11 @@ const Navbar = ({ onProtectedAction }: NavbarProps = {}) => {
   };
 
   const handleLogout = async () => {
-    await logout();
+    const { error } = await logout();
+
+    if (!error) {
+      router.push("/reviews");
+    }
   };
 
   const handleSignIn = () => {

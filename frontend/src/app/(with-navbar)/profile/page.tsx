@@ -13,7 +13,7 @@ export default function ProfilePage() {
 
   useEffect(() => {
     if (!isLoading && !isLoggedIn) {
-      router.push('/explore')
+      router.push('/reviews')
     }
   }, [isLoggedIn, isLoading, router])
 

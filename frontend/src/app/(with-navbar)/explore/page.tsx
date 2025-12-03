@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useMemo, useEffect } from "react"
 import { useRouter } from "next/navigation"
 import { useAuth } from "@/contexts/AuthContext"
 import { Button } from "@/components/ui/button"
@@ -27,6 +27,9 @@ import {
   MessageSquare,
 } from "lucide-react"
 import { mockJobs, formatPrice, formatLocation, getTimeAgo, type JobPosting } from "@/data/mockJobs"
+import { useApiService } from "@/services/api";
+import { useQuery } from "@tanstack/react-query";
+import Map from "@/components/Map";
 
 export default function ExplorePage() {
   const router = useRouter()
@@ -37,6 +40,60 @@ export default function ExplorePage() {
   const [selectedJob, setSelectedJob] = useState<JobPosting | null>(null)
   const [searchQuery, setSearchQuery] = useState("")
   const [sortBy, setSortBy] = useState("newest")
+  const apiService = useApiService()
+
+  const fetchAuctions = async () => {
+    try {
+      const response: any = await apiService.get('/api/auctions');
+      const data = response?.data;
+
+      const activeAuctions = data?.filter((auction: any) => new Date(auction.end_date) > new Date());
+      const mappedAuctions = activeAuctions?.map((auction: any, index: number) => ({
+        id: auction.auction_id,
+        title: auction.title,
+        description: auction.description,
+        price: typeof auction.startingBid === "string" ? parseInt(auction?.startingBid || "5000") : 5000,
+        location: {
+          city: auction?.property_address?.split(", ")?.[1] || "",
+          state: auction?.property_address?.split(", ")?.[2] || "",
+          zipCode: auction?.property_address?.split(", ")?.[3] || ""
+        },
+        category: auction.project_type,
+        postedAt: new Date(auction.start_date),
+        deadline: new Date(auction.end_date),
+        status: auction.status,
+        homeowner: {
+          name: "Unknown",
+          rating: 5.0
+        }
+      })) || [] as JobPosting[];
+      return mappedAuctions;
+    } catch (error) {
+      console.log(error);
+    }
+  }
+
+  const { data: realAuctions, error, isLoading } = useQuery({
+    queryKey: ["realAuctions"],
+    queryFn: fetchAuctions,
+  });
+
+  const sortedJobs = useMemo(() => {
+    const jobs: JobPosting[] = [...(realAuctions || []), ...mockJobs];
+
+    const filteredJobs = jobs?.filter(job =>
+        job.title?.toLowerCase().includes(searchQuery?.toLowerCase() || "")
+    );
+
+    switch(sortBy) {
+      case "newest":
+        return filteredJobs?.sort((a: JobPosting, b: JobPosting) => b.postedAt?.getTime() - a.postedAt?.getTime())
+      case "highest-pay":
+        return filteredJobs?.sort((a: JobPosting, b: JobPosting) => b.price - a.price)
+      default:
+        return filteredJobs
+    }
+  }, [realAuctions, sortBy, searchQuery]);
 
   const handleViewDetails = (job: JobPosting) => {
     if (!isLoggedIn) {
@@ -72,13 +129,6 @@ export default function ExplorePage() {
     }
   }
 
-  // Helper function to get map URL - using a placeholder service
-  const getMapUrl = (location: JobPosting['location']) => {
-    const query = `${location.city}, ${location.state} ${location.zipCode}`
-    // Using OpenStreetMap static map as a fallback (no API key needed)
-    return `https://staticmap.openstreetmap.de/staticmap.php?center=${encodeURIComponent(query)}&zoom=13&size=400x300&maptype=mapnik`
-  }
-
   return (
     <>
       {/* Main Layout */}
@@ -104,8 +154,8 @@ export default function ExplorePage() {
                   <SelectContent>
                     <SelectItem value="newest">Newest</SelectItem>
                     <SelectItem value="highest-pay">Highest pay</SelectItem>
-                    <SelectItem value="closest">Closest</SelectItem>
-                    <SelectItem value="job-fit">Job fit</SelectItem>
+                    {/*<SelectItem value="closest">Closest</SelectItem>*/}
+                    {/*<SelectItem value="job-fit">Job fit</SelectItem>*/}
                   </SelectContent>
                 </Select>
               </div>
@@ -128,7 +178,7 @@ export default function ExplorePage() {
 
             {/* Opportunities Grid */}
             <div className="grid gap-5 sm:grid-cols-2 xl:grid-cols-3">
-              {mockJobs.map((job) => (
+              {sortedJobs.map((job) => (
                 <Card
                   key={job.id}
                   className={`group relative flex flex-col overflow-hidden rounded-2xl border-border bg-card transition-all duration-200 hover:-translate-y-0.5 hover:shadow-lg hover:border-primary/20 cursor-pointer ${
@@ -193,7 +243,7 @@ export default function ExplorePage() {
                       }}
                     >
                       View Details
-                      <Lock className="ml-2 h-4 w-4" />
+                      {!isLoggedIn && <Lock className="ml-2 h-4 w-4"/>}
                     </Button>
                   </CardFooter>
                 </Card>
@@ -283,21 +333,15 @@ export default function ExplorePage() {
                   <p className="text-sm text-muted-foreground">Location Map</p>
                   <div className="relative rounded-lg overflow-hidden border border-border bg-muted/30">
                     <div className="relative w-full h-64 overflow-hidden">
-                      <img
-                        src={getMapUrl(selectedJob.location)}
-                        alt="Location map"
-                        className="w-full h-full object-cover"
-                        style={{
-                          filter: 'blur(20px) brightness(0.6)',
-                          imageRendering: 'pixelated',
-                        }}
-                      />
-                      <div className="absolute inset-0 bg-black/40 flex items-center justify-center backdrop-blur-[2px]">
-                        <div className="flex flex-col items-center gap-2">
-                          <Lock className="h-8 w-8 text-white/90" />
-                          <span className="text-xs text-white/80 font-medium">Locked</span>
-                        </div>
-                      </div>
+                      <Map address={`${selectedJob.location.city}, ${selectedJob.location.state} ${selectedJob.location.zipCode}`}/>
+                      {!isLoggedIn ? (
+                          <div className="absolute inset-0 bg-black/40 flex items-center justify-center backdrop-blur-[2px]">
+                            <div className="flex flex-col items-center gap-2">
+                              <Lock className="h-8 w-8 text-white/90"/>
+                              <span className="text-xs text-white/80 font-medium">Locked</span>
+                            </div>
+                          </div>
+                      ) : null}
                     </div>
                   </div>
                 </div>

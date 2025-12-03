@@ -2,7 +2,7 @@
 
 import { useState, useTransition } from 'react';
 import { useRouter } from 'next/navigation';
-import {X, Mail, Lock, Eye, EyeOff, User, Briefcase, Building2, Computer, Phone} from 'lucide-react';
+import { X, Mail, Lock, Eye, EyeOff, User, Briefcase, Building2, Computer, Phone } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import Image from 'next/image';
 import vendleLogo from "../assets/vendle_logo.jpeg";
@@ -48,9 +48,11 @@ export default function LoginModal({ isOpen, onClose }: LoginModalProps) {
 
     startTransition(async () => {
       let errorMessage;
+      let signedInUser = null;
 
       if (mode === 'login') {
         const { user, error } = await login(email, password);
+        signedInUser = user;
         errorMessage = error ? "Error logging in.." : null;
       } else {
         const metadata = {
@@ -60,6 +62,7 @@ export default function LoginModal({ isOpen, onClose }: LoginModalProps) {
           phoneNumber,
         }
         const { user, error } = await signup(email, password, metadata);
+        signedInUser = user;
         errorMessage = error ? "Error signing up.." : null;
       }
 
@@ -70,10 +73,11 @@ export default function LoginModal({ isOpen, onClose }: LoginModalProps) {
 
         onClose();
 
-        // Wait for auth state to sync, then redirect
-        setTimeout(() => {
-          window.location.href = '/home';
-        }, 500);
+        if (signedInUser?.user_metadata?.userType === "contractor") {
+          router.push('/explore');
+        } else {
+          router.push('/home');
+        }
       } else {
         toast.error("Error", {
           description: errorMessage,
