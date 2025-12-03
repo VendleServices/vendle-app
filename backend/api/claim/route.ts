@@ -88,6 +88,14 @@ router.post('/', async (req: any, res) => {
         city: claimData.city,
         state: claimData.state,
         zipCode: claimData.zipCode,
+        damageTypes: claimData.damageTypes,
+        hasFunctionalUtilities: claimData.hasFunctionalUtilities,
+        hasDumpster: claimData.hasDumpster,
+        isOccupied: claimData.isOccupied,
+        phase1Start: claimData.phase1Start,
+        phase1End: claimData.phase1End,
+        phase2Start: claimData.phase2Start,
+        phase2End: claimData.phase2End,
         projectType: claimData.projectType,
         designPlan: claimData.designPlan,
         needsAdjuster: claimData.needsAdjuster,
@@ -102,6 +110,15 @@ router.post('/', async (req: any, res) => {
 
     await prisma.image.createMany({
       data: imageData,
+    });
+
+    const pdfData = claimData?.pdfUrls?.map((url: string) => ({
+      supabase_url: url,
+      claimId: createdClaim.id
+    })) || [];
+
+    await prisma.claimPdf.createMany({
+      data: pdfData,
     });
 
     console.log('Claim created successfully:', createdClaim.id);

@@ -81,23 +81,39 @@ model Fema {
 }
 
 model Claim {
-  id            String    @id @default(uuid())
-  street        String
-  city          String
-  state         String
-  zipCode       String
-  projectType   String
-  designPlan    String
-  needsAdjuster Boolean
-  createdAt     DateTime  @default(now())
-  updatedAt     DateTime  @default(now()) @updatedAt
-  user          User      @relation(fields: [userId], references: [id], onDelete: Cascade)
-  userId        String
-  auctions      Auction[]
-  images        Image[]
+  id                     String     @id @default(uuid())
+  street                 String
+  city                   String
+  state                  String
+  zipCode                String
+  projectType            String
+  designPlan             String
+  needsAdjuster          Boolean
+  damageTypes            String
+  hasFunctionalUtilities Boolean
+  hasDumpster            Boolean
+  isOccupied             Boolean
+  phase1Start            String
+  phase1End              String
+  phase2Start            String
+  phase2End              String
+  createdAt              DateTime   @default(now())
+  updatedAt              DateTime   @default(now()) @updatedAt
+  user                   User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId                 String
+  auctions               Auction[]
+  images                 Image[]
+  pdfs                   ClaimPdf[]
 }
 
 model Image {
+  id           String @id @default(uuid())
+  supabase_url String
+  claim        Claim  @relation(fields: [claimId], references: [id], onDelete: Cascade)
+  claimId      String
+}
+
+model ClaimPdf {
   id           String @id @default(uuid())
   supabase_url String
   claim        Claim  @relation(fields: [claimId], references: [id], onDelete: Cascade)
