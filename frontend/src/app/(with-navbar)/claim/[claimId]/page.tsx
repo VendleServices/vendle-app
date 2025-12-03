@@ -3,9 +3,8 @@
 import { useRouter } from "next/navigation";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
 import { useAuth } from "@/contexts/AuthContext";
-import { Building2, MapPin, Calendar, FileText, Clock, LayoutIcon, ArrowLeft } from "lucide-react";
+import { MapPin, Calendar, FileText, Clock, LayoutIcon, ArrowLeft, ShieldQuestionIcon } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { use } from "react";
 import { useApiService } from "@/services/api";
@@ -57,7 +56,23 @@ export default function ClaimPage({ params }: PageProps) {
         enabled: !!claimId,
     });
 
-    const getStatusColor = () => "bg-blue-600";
+    const fetchClaimPdfs = async () => {
+        const response: any = await apiService.get(`/api/pdfs/${claimId}`);
+        const pdfs = response?.pdfs ?? [];
+
+        return pdfs.map((pdf: any) => {
+            const { data } = supabase.storage
+                .from("vendle-claims")
+                .getPublicUrl(pdf?.supabase_url?.slice(14));
+            return data?.publicUrl;
+        });
+    }
+
+    const { data: claimPdfs } = useQuery({
+        queryKey: ["getClaimPdfs"],
+        queryFn: fetchClaimPdfs,
+        enabled: !!claimId,
+    });
 
     if (isLoading) {
         return (
@@ -77,8 +92,8 @@ export default function ClaimPage({ params }: PageProps) {
                 <p className="mt-2 text-gray-600">
                     The requested claim could not be found or you don’t have access.
                 </p>
-                <Button onClick={() => router.push("/dashboard")} className="mt-6">
-                    Back to Dashboard
+                <Button onClick={() => router.push("/home")} className="mt-6">
+                    Back to Home
                 </Button>
             </div>
         );
@@ -97,11 +112,11 @@ export default function ClaimPage({ params }: PageProps) {
                     <div>
                         <Button
                             variant="ghost"
-                            onClick={() => router.push("/dashboard")}
+                            onClick={() => router.push("/home")}
                             className="mb-3 gap-2"
                         >
                             <ArrowLeft className="h-4 w-4" />
-                            Back to Dashboard
+                            Back to Home
                         </Button>
                         <h1 className="text-3xl font-bold tracking-tight text-gray-900">
                             Claim Details
@@ -110,12 +125,6 @@ export default function ClaimPage({ params }: PageProps) {
                             Review the details and uploaded documentation.
                         </p>
                     </div>
-
-                    <Badge
-                        className={`${getStatusColor()} text-white px-3 py-1 text-sm rounded-full`}
-                    >
-                        ID: {claim.id}
-                    </Badge>
                 </div>
 
                 {/* Claim Info */}
@@ -127,22 +136,26 @@ export default function ClaimPage({ params }: PageProps) {
                         <CardContent className="space-y-4 text-gray-700">
                             <div className="flex items-center">
                                 <MapPin className="h-4 w-4 mr-3 text-gray-500" />
-                                {claim.street}
+                                Property Address: {claim.street}, {claim.city}, {claim.state} {claim.zipCode}
                             </div>
                             <div className="flex items-center">
-                                <Building2 className="h-4 w-4 mr-3 text-gray-500" />
-                                {claim.city}, {claim.state} {claim.zipCode}
+                                <ShieldQuestionIcon className="h-4 w-4 mr-3 text-gray-500" />
+                                Functional Utilities: {claim.hasFunctionalUtilities ? "Yes" : "No"}
                             </div>
                             <div className="flex items-center">
-                                <Calendar className="h-4 w-4 mr-3 text-gray-500" />
-                                Created: {new Date(claim.createdAt).toLocaleDateString()}
+                                <ShieldQuestionIcon className="h-4 w-4 mr-3 text-gray-500" />
+                                Dumpster: {claim.hasDumpster ? "Yes" : "No"}
+                            </div>
+                            <div className="flex items-center">
+                                <ShieldQuestionIcon className="h-4 w-4 mr-3 text-gray-500" />
+                                Occupied: {claim.isOccupied ? "Yes" : "No"}
                             </div>
                         </CardContent>
                     </Card>
 
                     <Card className="shadow-sm border border-gray-200">
                         <CardHeader>
-                            <CardTitle className="text-gray-900">Project Specs</CardTitle>
+                            <CardTitle className="text-gray-900">Project Specifications</CardTitle>
                         </CardHeader>
                         <CardContent className="space-y-4 text-gray-700">
                             <div className="flex items-center">
@@ -154,12 +167,36 @@ export default function ClaimPage({ params }: PageProps) {
                                 Design Plan: {claim.designPlan}
                             </div>
                             <div className="flex items-center">
+                                <Calendar className="h-4 w-4 mr-3 text-gray-500" />
+                                Created: {new Date(claim.createdAt).toLocaleDateString()}
+                            </div>
+                            <div className="flex items-center">
                                 <Clock className="h-4 w-4 mr-3 text-gray-500" />
                                 Updated: {new Date(claim.updatedAt).toLocaleDateString()}
                             </div>
                         </CardContent>
                     </Card>
                 </div>
+
+                {/* Pdfs */}
+                <Card className="shadow-sm border border-gray-200">
+                    <CardHeader>
+                        <CardTitle className="text-gray-900">Property Documentation</CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                        {claimPdfs?.length ? (
+                            <div className="grid grid-cols-2 gap-4">
+                                {claimPdfs.map((url: string, index: number) => (
+                                    <iframe
+                                        key={index}
+                                        src={url}
+                                        style={{ width: "100%", height: "400px" }}
+                                    />
+                                ))}
+                            </div>
+                        ) : null}
+                    </CardContent>
+                </Card>
 
                 {/* Images */}
                 <Card className="shadow-sm border border-gray-200">

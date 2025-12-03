@@ -95,6 +95,7 @@ import onboardingRoutes from './api/onboarding/route.ts';
 import femaRoutes from './api/fema/route.ts';
 import setupDbRoutes from './api/setup-db/route.ts';
 import imageRoutes from './api/images/route.ts';
+import pdfRoutes from './api/pdfs/route.ts';
 
 // API Routes
 app.use('/api/signup', signUpRoute);
@@ -104,6 +105,7 @@ app.use('/api/claim', verifyToken, claimRoutes);
 app.use('/api/onboarding', onboardingRoutes);
 app.use('/api/fema', verifyToken, femaRoutes);
 app.use('/api/images', verifyToken, imageRoutes);
+app.use('/api/pdfs', verifyToken, pdfRoutes);
 app.use('/api/setup-db', setupDbRoutes);
 app.use('/api/analyze_contractors', verifyToken, contractorAnalysisProxy);
 

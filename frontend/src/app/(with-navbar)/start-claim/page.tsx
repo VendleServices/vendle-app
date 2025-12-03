@@ -42,6 +42,15 @@ interface ClaimData {
   designPlan: string;
   needsAdjuster: boolean | null;
   imageUrls: string[];
+  pdfUrls: string[];
+  damageTypes: string;
+  hasFunctionalUtilities: boolean;
+  hasDumpster: boolean;
+  isOccupied: boolean;
+  phase1Start: string;
+  phase1End: string;
+  phase2Start: string;
+  phase2End: string;
 }
 
 export default function StartClaimPage() {
@@ -138,7 +147,7 @@ export default function StartClaimPage() {
         e.preventDefault();
         const dt = e.dataTransfer;
         if (!dt) return;
-        const files: File[] = Array.from(dt.files).filter((file: File) => file.type === 'application/pdf');
+        const files: File[] = Array.from(dt.files);
         const mapped = files?.map((file: File) => ({
             file,
             name: file.name,
@@ -266,13 +275,12 @@ export default function StartClaimPage() {
         mutationFn: submitClaimData,
         onSuccess: (data: any) => {
             console.log('Claim created successfully:', data);
-            const claimId = data?.id;
             // Invalidate queries to refresh the claims list
             queryClient.invalidateQueries({ queryKey: ["getClaims"] });
             toast("Successfully created claim", {
                 description: "Your claim has been saved and is ready for processing.",
             });
-            router.push('/dashboard');
+            router.push('/home');
         },
         onError: (error: any) => {
             console.error('Error creating claim:', error);
@@ -307,6 +315,22 @@ export default function StartClaimPage() {
                 }
             }
 
+            const pdfPaths: string[] = [];
+
+            for (const fileObj of uploadedPdfs) {
+                const timestamp = Date.now();
+                const fileNameCleaned = fileObj.file.name.replace(/[^\w.-]+/g, "_");
+                const { data, error } = await supabase.storage
+                    .from("vendle-claims")
+                    .upload(`public/${fileNameCleaned}_${timestamp}`, fileObj.file);
+
+                if (!error && data) {
+                    pdfPaths.push(data.fullPath);
+                } else if (error) {
+                    console.log(error);
+                }
+            }
+
             const claimData = {
                 userId: user.id,
                 street: address.street,
@@ -317,6 +341,15 @@ export default function StartClaimPage() {
                 designPlan,
                 needsAdjuster,
                 imageUrls: imagePaths,
+                pdfUrls: pdfPaths,
+                damageTypes: JSON.stringify(damageTypes),
+                hasFunctionalUtilities: !!propertyQuestions.hasFunctionalUtilities,
+                hasDumpster: !!propertyQuestions.hasDumpster,
+                isOccupied: !!propertyQuestions.isOccupied,
+                phase1Start: timeline.phase1Start,
+                phase1End: timeline.phase1End,
+                phase2Start: timeline.phase2Start,
+                phase2End: timeline.phase2End,
             };
 
             submitClaimMutation.mutate(claimData);
@@ -351,7 +384,7 @@ export default function StartClaimPage() {
     const femaMutation = useMutation({
         mutationFn: submitFemaForm,
         onSuccess: () => {
-            router.push("/dashboard");
+            router.push("/home");
         },
         onError: (error) => {
             console.log(error);
