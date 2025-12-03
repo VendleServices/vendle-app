@@ -120,7 +120,7 @@ export default function HomePage() {
   const [showFilesDropdown, setShowFilesDropdown] = useState(false);
 
   // Homeowner tab state
-  const [homeownerTab, setHomeownerTab] = useState<'my-projects' | 'active-auctions' | 'closed-auctions' | 'claims'>('my-projects');
+  const [homeownerTab, setHomeownerTab] = useState<'my-projects' | 'active-auctions' | 'closed-auctions'>('my-projects');
   const [homeownerProjects, setHomeownerProjects] = useState<HomeownerProject[]>([]);
   const [homeownerProjectsLoading, setHomeownerProjectsLoading] = useState(false);
 
@@ -1245,19 +1245,6 @@ export default function HomePage() {
                   Closed Auctions
                 </div>
               </button>
-              <button
-                onClick={() => setHomeownerTab('claims')}
-                className={`border-b-2 py-4 px-1 text-sm font-medium transition-colors ${
-                  homeownerTab === 'claims'
-                    ? 'border-blue-600 text-blue-600'
-                    : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
-                }`}
-              >
-                <div className="flex items-center gap-2">
-                  <FileText className="h-4 w-4" />
-                  Claims
-                </div>
-              </button>
             </nav>
           </div>
 
@@ -1417,8 +1404,8 @@ export default function HomePage() {
                     icon={DollarSign}
                     title="No Active Auctions"
                     description="There are currently no active auctions for your claims. Create a restoration job from your claims to start an auction."
-                    actionLabel="View Claims"
-                    onAction={() => setHomeownerTab('claims')}
+                    actionLabel="Start Claim"
+                    onAction={() => router.push('/start-claim')}
                   />
                 ) : (
                   <div className="grid gap-6 sm:gap-8 grid-cols-1 md:grid-cols-2 xl:grid-cols-3">
@@ -1492,44 +1479,6 @@ export default function HomePage() {
                         />
                       );
                     })}
-                  </div>
-                )}
-              </>
-            ) : homeownerTab === 'claims' ? (
-              <>
-                {claimsLoading ? (
-                  <LoadingSkeleton />
-                ) : claims?.length === 0 ? (
-                  <EmptyState
-                    icon={FileText}
-                    title="No Claims Found"
-                    description="You haven't filed any claims yet. Start a new claim to get started with your recovery process."
-                    actionLabel="Start New Claim"
-                    onAction={() => router.push("/start-claim")}
-                  />
-                ) : (
-                  <div className="grid gap-4 sm:gap-6 grid-cols-1 sm:grid-cols-2 md:grid-cols-3">
-                    {claims?.map((claim: any) => (
-                      <ClaimCard
-                        key={claim.id}
-                        id={claim.id}
-                        street={claim.street}
-                        city={claim.city}
-                        state={claim.state}
-                        zipCode={claim.zipCode}
-                        projectType={claim.projectType}
-                        designPlan={claim.designPlan}
-                        needsAdjuster={claim.needsAdjuster}
-                        insuranceProvider={claim.insuranceProvider ? (claim.insuranceProvider === 'statefarm' ? 'State Farm' : claim.insuranceProvider) : 'Not specified'}
-                        createdAt={claim.createdAt}
-                        updatedAt={claim.updatedAt}
-                        onViewDetails={() => router.push(`/claim/${claim.id}`)}
-                        onCreateRestoration={() => router.push(`/start-claim/create-restor/${claim.id}`)}
-                        onDelete={() => {
-                          toast("Delete functionality coming soon");
-                        }}
-                      />
-                    ))}
                   </div>
                 )}
               </>
