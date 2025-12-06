@@ -1,11 +1,12 @@
 "use client"
 
-import { useEffect, useMemo, useState } from "react"
+import { useEffect, useMemo, useState, useRef } from "react"
 import { useRouter } from "next/navigation"
 import { useAuth } from "@/contexts/AuthContext"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
+import { Input } from "@/components/ui/input"
 import { useApiService } from "@/services/api";
 import { 
   Building2, 
@@ -32,7 +33,9 @@ import {
   ChevronDown,
   Download,
   File,
-  Image as ImageIcon
+  Image as ImageIcon,
+  Shield,
+  FileCheck
 } from "lucide-react"
 import { useQuery } from "@tanstack/react-query"
 import Link from "next/link";
@@ -42,6 +45,23 @@ import { ClaimCard } from "@/components/ClaimCard";
 import { EmptyState } from "@/components/EmptyState";
 import { LoadingSkeleton } from "@/components/LoadingSkeleton";
 import { toast } from "sonner";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { 
+  getMockHomeownerProjects, 
+  getMockJobs, 
+  getMockPendingNDAs, 
+  getMockPhase1Projects, 
+  getMockPhase2Projects,
+  type HomeownerProject,
+  type Job,
+  type PhaseProject
+} from "@/data/mockHomeData";
 
 interface Auction {
   auction_id: string;
@@ -58,51 +78,7 @@ interface Auction {
   winning_bidder?: string;
 }
 
-interface HomeownerProject {
-  id: string;
-  claimId: string;
-  title: string;
-  address: string;
-  city: string;
-  state: string;
-  projectType: string;
-  contractValue: number;
-  status: 'active' | 'completed' | 'pending';
-  startDate: string;
-  expectedCompletion: string;
-  progress: number;
-  contractorName: string;
-  contractorCompany?: string;
-  milestonesCompleted: number;
-  totalMilestones: number;
-}
-
-interface Job {
-  id: string;
-  contractId: string;
-  title: string;
-  address: string;
-  city: string;
-  state: string;
-  projectType: string;
-  contractValue: number;
-  status: 'active' | 'completed' | 'on-hold';
-  startDate: string;
-  expectedCompletion: string;
-  progress: number;
-  milestonesCompleted: number;
-  totalMilestones: number;
-  homeownerName: string;
-  homeownerPhone?: string;
-  description?: string;
-  imageUrl?: string;
-  files?: Array<{
-    id: string;
-    name: string;
-    url: string;
-    type: 'pdf' | 'image' | 'document';
-  }>;
-}
+// Types are imported from mockHomeData
 
 export default function HomePage() {
   const { user, isLoggedIn, loading: authLoading } = useAuth()
@@ -110,13 +86,14 @@ export default function HomePage() {
   const apiService = useApiService();
 
   // Contractor tab state
-  const [contractorTab, setContractorTab] = useState<'auctions' | 'schedule' | 'my-jobs'>('my-jobs');
+  const [contractorTab, setContractorTab] = useState<'pending-ndas' | 'phase-1' | 'phase-2' | 'my-jobs'>('pending-ndas');
   const [scheduleTab, setScheduleTab] = useState<'upcoming' | 'deadlines' | 'visits' | 'milestones'>('upcoming');
   const [contractorAuctions, setContractorAuctions] = useState<Auction[]>([]);
   const [contractorAuctionLoading, setContractorAuctionLoading] = useState(false);
   const [myJobs, setMyJobs] = useState<Job[]>([]);
   const [jobsLoading, setJobsLoading] = useState(false);
   const [selectedJob, setSelectedJob] = useState<Job | null>(null);
+  const [selectedPhaseProject, setSelectedPhaseProject] = useState<PhaseProject | null>(null);
   const [showFilesDropdown, setShowFilesDropdown] = useState(false);
 
   // Homeowner tab state
@@ -134,146 +111,52 @@ export default function HomePage() {
   const isContractor = user?.user_metadata?.userType === 'contractor'
   const isHomeowner = user?.user_metadata?.userType === 'homeowner' || !isContractor
 
-  const getMockHomeownerProjects = (): HomeownerProject[] => {
-    return [
-      {
-        id: "project-1",
-        claimId: "claim-1",
-        title: "Water Restoration",
-        address: "123 Oak Street",
-        city: "Austin",
-        state: "TX",
-        projectType: "Water Damage",
-        contractValue: 18500,
-        status: "active",
-        startDate: "2025-01-20",
-        expectedCompletion: "2025-03-15",
-        progress: 45,
-        contractorName: "John Smith",
-        contractorCompany: "Smith Restoration Co.",
-        milestonesCompleted: 1,
-        totalMilestones: 3
-      },
-      {
-        id: "project-2",
-        claimId: "claim-2",
-        title: "Fire Damage Restoration",
-        address: "456 Pine Avenue",
-        city: "Houston",
-        state: "TX",
-        projectType: "Fire Damage",
-        contractValue: 32000,
-        status: "active",
-        startDate: "2025-01-15",
-        expectedCompletion: "2025-04-10",
-        progress: 25,
-        contractorName: "Maria Garcia",
-        contractorCompany: "Garcia Builders",
-        milestonesCompleted: 1,
-        totalMilestones: 3
-      },
-      {
-        id: "project-3",
-        claimId: "claim-3",
-        title: "Storm Damage Repair",
-        address: "789 Elm Drive",
-        city: "Dallas",
-        state: "TX",
-        projectType: "Storm Damage",
-        contractValue: 12500,
-        status: "pending",
-        startDate: "2025-02-01",
-        expectedCompletion: "2025-03-20",
-        progress: 0,
-        contractorName: "Robert Williams",
-        contractorCompany: "Williams Contracting",
-        milestonesCompleted: 0,
-        totalMilestones: 3
-      }
-    ];
-  }
+  const [pendingNDAs, setPendingNDAs] = useState<any[]>([]);
+  const [phase1Projects, setPhase1Projects] = useState<any[]>([]);
+  const [phase2Projects, setPhase2Projects] = useState<any[]>([]);
+  const [selectedJobForChat, setSelectedJobForChat] = useState<Job | null>(null);
+  const [chatMessages, setChatMessages] = useState<Array<{
+    id: string;
+    sender: 'contractor' | 'homeowner';
+    message: string;
+    timestamp: Date;
+    attachments?: Array<{ name: string; url: string; type: string }>;
+  }>>([]);
+  const [newMessage, setNewMessage] = useState('');
+  const chatFileInputRef = useRef<HTMLInputElement>(null);
+  const [chatAttachments, setChatAttachments] = useState<File[]>([]);
 
-  const getMockJobs = (): Job[] => {
-    return [
-      {
-        id: "job-1",
-        contractId: "contract-1",
-        title: "Water Damage Restoration",
-        address: "123 Oak Street",
-        city: "Austin",
-        state: "TX",
-        projectType: "Water Damage",
-        contractValue: 18500,
-        status: "active",
-        startDate: "2025-01-20",
-        expectedCompletion: "2025-03-15",
-        progress: 45,
-        milestonesCompleted: 1,
-        totalMilestones: 3,
-        homeownerName: "John Smith",
-        homeownerPhone: "(555) 123-4567",
-        description: "Extensive water damage from burst pipe affecting kitchen and basement. Need immediate restoration work including drywall repair, flooring replacement, and mold remediation.",
-        imageUrl: "https://images.unsplash.com/photo-1581578731548-c64695cc6952?w=800",
-        files: [
-          { id: "file-1", name: "Contract_Agreement.pdf", url: "/files/contract.pdf", type: "pdf" },
-          { id: "file-2", name: "Insurance_Estimate.pdf", url: "/files/estimate.pdf", type: "pdf" },
-          { id: "file-3", name: "Damage_Photos.jpg", url: "/files/photos.jpg", type: "image" },
-          { id: "file-4", name: "Design_Plan.pdf", url: "/files/design.pdf", type: "pdf" },
-          { id: "file-5", name: "Inspection_Report.pdf", url: "/files/inspection.pdf", type: "pdf" }
-        ]
-      },
-      {
-        id: "job-2",
-        contractId: "contract-2",
-        title: "Fire Damage Restoration",
-        address: "456 Pine Avenue",
-        city: "Houston",
-        state: "TX",
-        projectType: "Fire Damage",
-        contractValue: 32000,
-        status: "active",
-        startDate: "2025-01-15",
-        expectedCompletion: "2025-04-10",
-        progress: 25,
-        milestonesCompleted: 1,
-        totalMilestones: 3,
-        homeownerName: "Maria Garcia",
-        homeownerPhone: "(555) 234-5678",
-        description: "Fire damage restoration needed for living room and attic area. Includes smoke damage cleanup, structural repairs, and complete interior restoration.",
-        imageUrl: "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=800",
-        files: [
-          { id: "file-6", name: "Contract_Agreement.pdf", url: "/files/contract2.pdf", type: "pdf" },
-          { id: "file-7", name: "Fire_Report.pdf", url: "/files/fire-report.pdf", type: "pdf" },
-          { id: "file-8", name: "Before_Photos.jpg", url: "/files/before.jpg", type: "image" }
-        ]
-      },
-      {
-        id: "job-3",
-        contractId: "contract-3",
-        title: "Storm Damage Repair",
-        address: "789 Elm Drive",
-        city: "Dallas",
-        state: "TX",
-        projectType: "Storm Damage",
-        contractValue: 12500,
-        status: "active",
-        startDate: "2025-02-01",
-        expectedCompletion: "2025-03-20",
-        progress: 10,
-        milestonesCompleted: 0,
-        totalMilestones: 3,
-        homeownerName: "Robert Williams",
-        homeownerPhone: "(555) 345-6789",
-        description: "Complete roof replacement needed after severe storm damage. Includes removal of old shingles, inspection of roof deck, and installation of new roofing system.",
-        imageUrl: "https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?w=800",
-        files: [
-          { id: "file-9", name: "Contract_Agreement.pdf", url: "/files/contract3.pdf", type: "pdf" },
-          { id: "file-10", name: "Roof_Assessment.pdf", url: "/files/roof-assessment.pdf", type: "pdf" }
-        ]
-      }
-    ];
-  }
+  const handleSendMessage = () => {
+    if (!newMessage.trim() && chatAttachments.length === 0) return;
+    
+    const message: typeof chatMessages[0] = {
+      id: Date.now().toString(),
+      sender: 'contractor',
+      message: newMessage.trim(),
+      timestamp: new Date(),
+      attachments: chatAttachments.map(file => ({
+        name: file.name,
+        url: URL.createObjectURL(file),
+        type: file.type.startsWith('image/') ? 'image' : file.type === 'application/pdf' ? 'pdf' : 'document'
+      }))
+    };
+    
+    setChatMessages(prev => [...prev, message]);
+    setNewMessage('');
+    setChatAttachments([]);
+    if (chatFileInputRef.current) {
+      chatFileInputRef.current.value = '';
+    }
+  };
 
+  const handleChatFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = Array.from(e.target.files || []);
+    setChatAttachments(prev => [...prev, ...files]);
+  };
+
+  const removeChatAttachment = (index: number) => {
+    setChatAttachments(prev => prev.filter((_, i) => i !== index));
+  };
 
   const handleManageJob = (job: Job) => {
     setSelectedJob(job);
@@ -281,6 +164,7 @@ export default function HomePage() {
 
   const handleClosePanel = () => {
     setSelectedJob(null);
+    setSelectedPhaseProject(null);
     setShowFilesDropdown(false);
   };
 
@@ -316,17 +200,26 @@ export default function HomePage() {
     }
   }, [isHomeowner, authLoading, homeownerTab]);
 
-  // Fetch jobs when My Jobs tab is selected
+  // Fetch data when contractor tabs are selected
   useEffect(() => {
-    if (isContractor && !authLoading && contractorTab === 'my-jobs') {
-      setJobsLoading(true);
-      // Simulate API call
-      setTimeout(() => {
-        setMyJobs(getMockJobs());
-        setJobsLoading(false);
-      }, 500);
+    if (isContractor && !authLoading) {
+      if (contractorTab === 'pending-ndas') {
+        setPendingNDAs(getMockPendingNDAs());
+      } else if (contractorTab === 'phase-1') {
+        setPhase1Projects(getMockPhase1Projects());
+      } else if (contractorTab === 'phase-2') {
+        setPhase2Projects(getMockPhase2Projects());
+      } else if (contractorTab === 'my-jobs') {
+        setJobsLoading(true);
+        // Simulate API call
+        setTimeout(() => {
+          setMyJobs(getMockJobs());
+          setJobsLoading(false);
+        }, 500);
+      }
     }
   }, [isContractor, authLoading, contractorTab]);
+
 
   // Fetch homeowner data
   const { data: claims = [], isLoading: claimsLoading } = useQuery({
@@ -491,26 +384,26 @@ export default function HomePage() {
 
   // Calculate contractor stats
   const contractorStats = useMemo(() => {
+    // Calculate Phase 1 and Phase 2 contract values from projects
+    const phase1Value = phase1Projects.reduce((sum, project) => sum + (project.contractValue || 0), 0);
+    const phase2Value = phase2Projects.reduce((sum, project) => sum + (project.contractValue || 0), 0);
+    
     if (!contractorMetrics) {
       return {
-        ioiCount: 0,
-        ioiValue: 0,
-        loiCount: 0,
-        loiValue: 0,
+        phase1Value,
+        phase2Value,
         activeContracts: 0,
         activeValue: 0
       }
     }
 
     return {
-      ioiCount: contractorMetrics.ioiCount || 0,
-      ioiValue: (contractorMetrics.ioiValueCents || 0) / 100,
-      loiCount: contractorMetrics.loiCount || 0,
-      loiValue: (contractorMetrics.loiValueCents || 0) / 100,
+      phase1Value,
+      phase2Value,
       activeContracts: contractorMetrics.activeCount || 0,
       activeValue: (contractorMetrics.activeValueCents || 0) / 100
     }
-  }, [contractorMetrics])
+  }, [contractorMetrics, phase1Projects, phase2Projects])
 
   if (authLoading) {
     return <SplashScreen />
@@ -522,9 +415,9 @@ export default function HomePage() {
 
   return (
     <div className="min-h-screen bg-gray-50 pl-32">
-      {/* Left Side Detail Panel */}
+      {/* Right Side Detail Panel */}
       {selectedJob && (
-        <div className="fixed left-32 top-0 h-screen w-[480px] bg-white border-r border-gray-200 shadow-2xl z-50 flex flex-col">
+        <div className="fixed right-0 top-0 h-screen w-1/2 bg-white border-l border-gray-200 shadow-2xl z-50 flex flex-col">
           {/* Scrollable Content */}
           <div className="flex-1 overflow-y-auto">
             {/* Header */}
@@ -718,9 +611,299 @@ export default function HomePage() {
           </div>
         </div>
       )}
-      <div className="container mx-auto px-4 py-8">
-        {/* Header */}
-        <div className="mb-8">
+
+      {/* Phase Project Detail Panel */}
+      {selectedPhaseProject && (
+        <div className="fixed right-0 top-0 h-screen w-1/2 bg-white border-l border-gray-200 shadow-2xl z-50 flex flex-col">
+          <div className="flex-1 overflow-y-auto">
+            {/* Header */}
+            <div className="sticky top-0 bg-white border-b border-gray-200 px-6 py-4 flex items-center justify-between z-10">
+              <h2 className="text-xl font-bold text-gray-900">
+                {selectedPhaseProject.phase1StartDate ? 'Phase 1' : 'Phase 2'} Project Details
+              </h2>
+              <button
+                onClick={handleClosePanel}
+                className="p-2 hover:bg-gray-100 rounded-full transition-colors"
+              >
+                <X className="h-5 w-5 text-gray-600" />
+              </button>
+            </div>
+
+            {/* Content */}
+            <div className="px-6 py-6 space-y-6">
+              {/* Title */}
+              <div>
+                <h3 className="text-2xl font-bold text-gray-900 mb-2">
+                  {selectedPhaseProject.title}
+                </h3>
+                <Badge className="bg-blue-100 text-blue-800 border-blue-200 rounded-full px-2.5 py-0.5 text-xs font-medium">
+                  {selectedPhaseProject.projectType}
+                </Badge>
+              </div>
+
+              {/* Phase 2 Dashboard - Only for Phase 2 */}
+              {selectedPhaseProject.phase2StartDate && selectedPhaseProject.competingBids && (
+                <div className="space-y-4 pt-4 border-t border-gray-200">
+                  <h4 className="text-lg font-semibold text-gray-900">Bid Comparison Dashboard</h4>
+                  
+                  {/* Analytics Summary */}
+                  <div className="grid grid-cols-3 gap-4 mb-4">
+                    <div className="bg-gray-50 rounded-lg p-4">
+                      <p className="text-xs text-gray-600 mb-1">Mean Bid</p>
+                      <p className="text-xl font-bold text-gray-900">
+                        ${Math.round(
+                          selectedPhaseProject.competingBids.reduce((sum, bid) => sum + bid.bidAmount, 0) /
+                          selectedPhaseProject.competingBids.length
+                        ).toLocaleString()}
+                      </p>
+                    </div>
+                    <div className="bg-gray-50 rounded-lg p-4">
+                      <p className="text-xs text-gray-600 mb-1">Total Bidders</p>
+                      <p className="text-xl font-bold text-gray-900">
+                        {selectedPhaseProject.competingBids.length}
+                      </p>
+                    </div>
+                    <div className="bg-blue-50 rounded-lg p-4">
+                      <p className="text-xs text-blue-600 mb-1">Your Rank</p>
+                      <p className="text-xl font-bold text-blue-600">
+                        #{selectedPhaseProject.competingBids
+                          .sort((a, b) => a.bidAmount - b.bidAmount)
+                          .findIndex(bid => bid.isCurrentContractor) + 1}
+                      </p>
+                    </div>
+                  </div>
+
+                  {/* Bar Chart */}
+                  <div className="space-y-2">
+                    <p className="text-sm font-medium text-gray-700 mb-3">Bid Comparison</p>
+                    {selectedPhaseProject.competingBids
+                      .sort((a, b) => a.bidAmount - b.bidAmount)
+                      .map((bid, index) => {
+                        const maxBid = Math.max(...selectedPhaseProject.competingBids!.map(b => b.bidAmount));
+                        const percentage = (bid.bidAmount / maxBid) * 100;
+                        const contractorNumber = index + 1;
+                        return (
+                          <div key={bid.contractorId} className="space-y-1">
+                            <div className="flex items-center justify-between text-xs">
+                              <span className={`font-medium ${bid.isCurrentContractor ? 'text-blue-600' : 'text-gray-600'}`}>
+                                Contractor #{contractorNumber} {bid.isCurrentContractor && '(You)'}
+                              </span>
+                              <span className={`font-semibold ${bid.isCurrentContractor ? 'text-blue-600' : 'text-gray-900'}`}>
+                                ${bid.bidAmount.toLocaleString()}
+                              </span>
+                            </div>
+                            <div className="w-full bg-gray-200 rounded-full h-6 relative">
+                              <div
+                                className={`h-6 rounded-full flex items-center justify-end pr-2 ${
+                                  bid.isCurrentContractor
+                                    ? 'bg-blue-600'
+                                    : 'bg-gray-400'
+                                }`}
+                                style={{ width: `${percentage}%` }}
+                              >
+                                {bid.isCurrentContractor && (
+                                  <span className="text-xs text-white font-medium">
+                                    #{index + 1}
+                                  </span>
+                                )}
+                              </div>
+                            </div>
+                          </div>
+                        );
+                      })}
+                  </div>
+                </div>
+              )}
+
+              {/* Contract Value */}
+              <div className="space-y-1">
+                <p className="text-sm text-gray-600">Contract Value</p>
+                <p className="text-3xl font-bold text-blue-600">
+                  ${selectedPhaseProject.contractValue.toLocaleString()}
+                </p>
+              </div>
+
+              {/* Location */}
+              <div className="space-y-1">
+                <p className="text-sm text-gray-600">Location</p>
+                <div className="flex items-center gap-2">
+                  <MapPin className="h-4 w-4 text-gray-600" />
+                  <p className="text-base font-medium text-gray-900">
+                    {selectedPhaseProject.address}, {selectedPhaseProject.city}, {selectedPhaseProject.state}
+                  </p>
+                </div>
+              </div>
+
+              {/* Phase Dates */}
+              {selectedPhaseProject.phase1StartDate && (
+                <div className="space-y-2">
+                  <p className="text-sm text-gray-600">Phase 1 Timeline</p>
+                  <div className="flex items-center gap-4 text-sm">
+                    <div className="flex items-center gap-2">
+                      <Calendar className="h-4 w-4 text-gray-600" />
+                      <span className="font-medium">
+                        Start: {new Date(selectedPhaseProject.phase1StartDate).toLocaleDateString()}
+                      </span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <Clock className="h-4 w-4 text-gray-600" />
+                      <span className="font-medium">
+                        End: {new Date(selectedPhaseProject.phase1EndDate!).toLocaleDateString()}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              )}
+              {selectedPhaseProject.phase2StartDate && (
+                <div className="space-y-2">
+                  <p className="text-sm text-gray-600">Phase 2 Timeline</p>
+                  <div className="flex items-center gap-4 text-sm">
+                    <div className="flex items-center gap-2">
+                      <Calendar className="h-4 w-4 text-gray-600" />
+                      <span className="font-medium">
+                        Start: {new Date(selectedPhaseProject.phase2StartDate).toLocaleDateString()}
+                      </span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <Clock className="h-4 w-4 text-gray-600" />
+                      <span className="font-medium">
+                        End: {new Date(selectedPhaseProject.phase2EndDate!).toLocaleDateString()}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* Images */}
+              {selectedPhaseProject.imageUrls && selectedPhaseProject.imageUrls.length > 0 && (
+                <div className="space-y-2">
+                  <p className="text-sm text-gray-600">Project Photos</p>
+                  <div className="grid grid-cols-2 gap-2">
+                    {selectedPhaseProject.imageUrls.map((url, index) => (
+                      <div key={index} className="relative rounded-lg overflow-hidden border border-gray-200">
+                        <img
+                          src={url}
+                          alt={`Project photo ${index + 1}`}
+                          className="w-full h-32 object-cover"
+                        />
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Calendly Scheduler - Only for Phase 1 */}
+              {selectedPhaseProject.phase1StartDate && (
+                <div className="space-y-2 pt-4 border-t border-gray-200">
+                  <p className="text-sm font-semibold text-gray-900">Schedule Site Visit</p>
+                  <Button
+                    variant="outline"
+                    className="w-full border-blue-600 text-blue-600 hover:bg-blue-600 hover:text-white"
+                    onClick={() => window.open('https://calendly.com/vendle/site-visit', '_blank')}
+                  >
+                    <Calendar className="h-4 w-4 mr-2" />
+                    Schedule with Calendly
+                  </Button>
+                </div>
+              )}
+
+              {/* Related Files */}
+              {selectedPhaseProject.files && selectedPhaseProject.files.length > 0 && (
+                <div className="space-y-2 pt-4 border-t border-gray-200">
+                  <p className="text-sm font-semibold text-gray-900">Related Files</p>
+                  <div className="space-y-2">
+                    {selectedPhaseProject.files.map((file) => (
+                      <div
+                        key={file.id}
+                        className="flex items-center justify-between p-3 bg-gray-50 rounded-lg border border-gray-200 hover:bg-gray-100 transition-colors"
+                      >
+                        <div className="flex items-center gap-3">
+                          <File className="h-5 w-5 text-gray-600" />
+                          <span className="text-sm font-medium text-gray-900">{file.name}</span>
+                        </div>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => window.open(file.url, '_blank')}
+                        >
+                          <Download className="h-4 w-4" />
+                        </Button>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Adjustment PDF */}
+              {selectedPhaseProject.adjustmentPdf && (
+                <div className="space-y-2 pt-4 border-t border-gray-200">
+                  <p className="text-sm font-semibold text-gray-900">Insurance Adjustment Document</p>
+                  <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg border border-gray-200">
+                    <div className="flex items-center gap-3">
+                      <File className="h-5 w-5 text-gray-600" />
+                      <span className="text-sm font-medium text-gray-900">
+                        {selectedPhaseProject.adjustmentPdf.name}
+                      </span>
+                    </div>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => window.open(selectedPhaseProject.adjustmentPdf!.url, '_blank')}
+                    >
+                      <Download className="h-4 w-4 mr-2" />
+                      View PDF
+                    </Button>
+                  </div>
+                </div>
+              )}
+
+              {/* Contact Information */}
+              <div className="space-y-3 pt-4 border-t border-gray-200">
+                <p className="text-sm font-semibold text-gray-900">Contact Homeowner</p>
+                <div className="flex items-center gap-3 p-4 bg-gray-50 rounded-lg border border-gray-200">
+                  <div className="p-2 bg-gray-100 rounded-lg">
+                    <Users className="h-5 w-5 text-gray-600" />
+                  </div>
+                  <div className="flex-1">
+                    <p className="text-xs text-gray-600 mb-1">Homeowner Name</p>
+                    <p className="text-base font-medium text-gray-900">
+                      {selectedPhaseProject.homeownerName}
+                    </p>
+                  </div>
+                </div>
+                {selectedPhaseProject.homeownerPhone && (
+                  <div className="flex items-center gap-3 p-4 bg-gray-50 rounded-lg border border-gray-200">
+                    <div className="p-2 bg-gray-100 rounded-lg">
+                      <Phone className="h-5 w-5 text-gray-600" />
+                    </div>
+                    <div className="flex-1">
+                      <p className="text-xs text-gray-600 mb-1">Phone Number</p>
+                      <p className="text-base font-medium text-gray-900">
+                        {selectedPhaseProject.homeownerPhone}
+                      </p>
+                    </div>
+                  </div>
+                )}
+              </div>
+
+              {/* Description */}
+              {selectedPhaseProject.description && (
+                <div className="space-y-2 pt-4 border-t border-gray-200">
+                  <p className="text-sm font-semibold text-gray-900">Description</p>
+                  <p className="text-sm text-gray-700 leading-relaxed">
+                    {selectedPhaseProject.description}
+                  </p>
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
+
+      <div className={`transition-all duration-300 ${selectedJob || selectedPhaseProject ? 'pr-[50%]' : ''}`}>
+        <div className="container mx-auto px-4 py-8 max-w-full">
+          {/* Header */}
+          <div className="mb-8">
           <div className="flex items-center gap-3">
           <h1 className="text-3xl font-bold text-gray-900">Welcome back, {user?.email || 'User'}!</h1>
             {user?.user_metadata?.userType && (
@@ -749,26 +932,26 @@ export default function HomePage() {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
             <Card>
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">IOI Negotiations</CardTitle>
-                <Handshake className="h-4 w-4 text-muted-foreground" />
+                <CardTitle className="text-sm font-medium">Phase 1 Contract Value</CardTitle>
+                <FileCheck className="h-4 w-4 text-muted-foreground" />
               </CardHeader>
               <CardContent>
-                <div className="text-2xl font-bold">{contractorStats.ioiCount}</div>
+                <div className="text-2xl font-bold">${contractorStats.phase1Value.toLocaleString()}</div>
                 <p className="text-xs text-muted-foreground">
-                  ${contractorStats.ioiValue.toLocaleString()} potential value
+                  {phase1Projects.length} active project{phase1Projects.length !== 1 ? 's' : ''}
                 </p>
               </CardContent>
             </Card>
 
             <Card>
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">LOI Negotiations</CardTitle>
-                <FileText className="h-4 w-4 text-muted-foreground" />
+                <CardTitle className="text-sm font-medium">Phase 2 Contract Value</CardTitle>
+                <FileCheck className="h-4 w-4 text-muted-foreground" />
               </CardHeader>
               <CardContent>
-                <div className="text-2xl font-bold">{contractorStats.loiCount}</div>
+                <div className="text-2xl font-bold">${contractorStats.phase2Value.toLocaleString()}</div>
                 <p className="text-xs text-muted-foreground">
-                  ${contractorStats.loiValue.toLocaleString()} potential value
+                  {phase2Projects.length} active project{phase2Projects.length !== 1 ? 's' : ''}
                 </p>
               </CardContent>
             </Card>
@@ -818,10 +1001,60 @@ export default function HomePage() {
 
         {/* Contractor Tabs and Content */}
         {isContractor ? (
-          <div className={`space-y-6 transition-all duration-300 ${selectedJob ? 'pr-[480px]' : ''}`}>
+          <div className={`space-y-6 transition-all duration-300 ${selectedJob || selectedPhaseProject ? 'pr-[480px]' : ''}`}>
             {/* Tab Navigation */}
             <div className="border-b border-gray-200">
               <nav className="-mb-px flex space-x-8">
+                {/* Section 1: Pending NDAs */}
+                <button
+                  onClick={() => setContractorTab('pending-ndas')}
+                  className={`border-b-2 py-4 px-1 text-sm font-medium transition-colors ${
+                    contractorTab === 'pending-ndas'
+                      ? 'border-blue-600 text-blue-600'
+                      : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                  }`}
+                >
+                  <div className="flex items-center gap-2">
+                    <Shield className="h-4 w-4" />
+                    Pending NDAs
+                  </div>
+                </button>
+
+                {/* Separator */}
+                <div className="border-l border-gray-300 h-8 my-auto"></div>
+
+                {/* Section 2: Phase 1 and Phase 2 */}
+                <button
+                  onClick={() => setContractorTab('phase-1')}
+                  className={`border-b-2 py-4 px-1 text-sm font-medium transition-colors ${
+                    contractorTab === 'phase-1'
+                      ? 'border-blue-600 text-blue-600'
+                      : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                  }`}
+                >
+                  <div className="flex items-center gap-2">
+                    <FileCheck className="h-4 w-4" />
+                    Phase 1
+                  </div>
+                </button>
+                <button
+                  onClick={() => setContractorTab('phase-2')}
+                  className={`border-b-2 py-4 px-1 text-sm font-medium transition-colors ${
+                    contractorTab === 'phase-2'
+                      ? 'border-blue-600 text-blue-600'
+                      : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                  }`}
+                >
+                  <div className="flex items-center gap-2">
+                    <FileCheck className="h-4 w-4" />
+                    Phase 2
+                  </div>
+                </button>
+
+                {/* Separator */}
+                <div className="border-l border-gray-300 h-8 my-auto"></div>
+
+                {/* Section 3: My Jobs */}
                 <button
                   onClick={() => setContractorTab('my-jobs')}
                   className={`border-b-2 py-4 px-1 text-sm font-medium transition-colors ${
@@ -835,38 +1068,237 @@ export default function HomePage() {
                     My Jobs
                   </div>
                 </button>
-                <button
-                  onClick={() => setContractorTab('auctions')}
-                  className={`border-b-2 py-4 px-1 text-sm font-medium transition-colors ${
-                    contractorTab === 'auctions'
-                      ? 'border-blue-600 text-blue-600'
-                      : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
-                  }`}
-                >
-                  <div className="flex items-center gap-2">
-                    <Users className="h-4 w-4" />
-                    Active Auctions
-                  </div>
-                </button>
-                <button
-                  onClick={() => setContractorTab('schedule')}
-                  className={`border-b-2 py-4 px-1 text-sm font-medium transition-colors ${
-                    contractorTab === 'schedule'
-                      ? 'border-blue-600 text-blue-600'
-                      : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
-                  }`}
-                >
-                  <div className="flex items-center gap-2">
-                    <Calendar className="h-4 w-4" />
-                    Schedule
-                  </div>
-                </button>
               </nav>
             </div>
 
             {/* Tab Content */}
             <div>
-              {contractorTab === 'my-jobs' ? (
+              {contractorTab === 'pending-ndas' ? (
+                <>
+                  {pendingNDAs?.length === 0 ? (
+                    <EmptyState
+                      icon={Shield}
+                      title="No Pending NDAs"
+                      description="You don't have any pending NDAs at this time."
+                    />
+                  ) : (
+                    <div className={`grid gap-6 sm:gap-8 transition-all duration-300 ${
+                      selectedJob 
+                        ? 'grid-cols-1 md:grid-cols-1' 
+                        : 'grid-cols-1 md:grid-cols-2 xl:grid-cols-3'
+                    }`}>
+                      {pendingNDAs?.map((nda) => (
+                        <Card key={nda.id} className="hover:shadow-lg transition-shadow">
+                          <CardHeader>
+                            <div className="flex items-start justify-between">
+                              <div className="flex-1">
+                                <CardTitle className="text-lg mb-1">{nda.projectTitle}</CardTitle>
+                                <div className="flex items-center gap-2 text-sm text-gray-600 mt-1">
+                                  <MapPin className="h-4 w-4" />
+                                  <span>{nda.address}</span>
+                                </div>
+                              </div>
+                              <Badge className="bg-yellow-100 text-yellow-800 border-yellow-200">
+                                Pending
+                              </Badge>
+                            </div>
+                          </CardHeader>
+                          <CardContent>
+                            <div className="space-y-4">
+                              <div className="space-y-2">
+                                <div className="flex items-center justify-between text-sm">
+                                  <span className="text-gray-600">Homeowner:</span>
+                                  <span className="font-medium">{nda.homeownerName}</span>
+                                </div>
+                                <div className="flex items-center justify-between text-sm">
+                                  <span className="text-gray-600">Requested:</span>
+                                  <span className="font-medium">{new Date(nda.requestedDate).toLocaleDateString()}</span>
+                                </div>
+                              </div>
+                              <div className="pt-2">
+                                <Button 
+                                  variant="default"
+                                  className="w-full bg-blue-600 hover:bg-blue-700"
+                                  onClick={() => {
+                                    toast("NDA review functionality coming soon");
+                                  }}
+                                >
+                                  <FileText className="h-4 w-4 mr-2" />
+                                  Review NDA
+                                </Button>
+                              </div>
+                            </div>
+                          </CardContent>
+                        </Card>
+                      ))}
+                    </div>
+                  )}
+                </>
+              ) : contractorTab === 'phase-1' ? (
+                <>
+                  {phase1Projects?.length === 0 ? (
+                    <EmptyState
+                      icon={FileCheck}
+                      title="No Phase 1 Projects"
+                      description="You don't have any active Phase 1 projects at this time."
+                    />
+                  ) : (
+                    <div className={`grid gap-6 sm:gap-8 transition-all duration-300 ${
+                      selectedJob || selectedPhaseProject
+                        ? 'grid-cols-1 md:grid-cols-1' 
+                        : 'grid-cols-1 md:grid-cols-2 xl:grid-cols-3'
+                    }`}>
+                      {phase1Projects?.map((project) => (
+                        <Card key={project.id} className="hover:shadow-lg transition-shadow">
+                          <CardHeader>
+                            <div className="flex items-start justify-between">
+                              <div className="flex-1">
+                                <CardTitle className="text-lg mb-1">{project.title}</CardTitle>
+                                <div className="flex items-center gap-2 text-sm text-gray-600 mt-1">
+                                  <MapPin className="h-4 w-4" />
+                                  <span>{project.address}</span>
+                                </div>
+                              </div>
+                              <Badge className="bg-blue-100 text-blue-800 border-blue-200">
+                                Phase 1
+                              </Badge>
+                            </div>
+                          </CardHeader>
+                          <CardContent>
+                            <div className="space-y-4">
+                              <div className="space-y-2">
+                                <div className="flex items-center justify-between text-sm">
+                                  <span className="text-gray-600">Contract Value:</span>
+                                  <span className="font-semibold text-blue-600">${project.contractValue.toLocaleString()}</span>
+                                </div>
+                                {project.phase1StartDate && (
+                                  <div className="flex items-center justify-between text-sm">
+                                    <span className="text-gray-600">Phase 1 Start:</span>
+                                    <span className="font-medium">{new Date(project.phase1StartDate).toLocaleDateString()}</span>
+                                  </div>
+                                )}
+                                {project.phase1EndDate && (
+                                  <div className="flex items-center justify-between text-sm">
+                                    <span className="text-gray-600">Phase 1 End:</span>
+                                    <span className="font-medium">{new Date(project.phase1EndDate).toLocaleDateString()}</span>
+                                  </div>
+                                )}
+                                {project.adjustmentPdf && (
+                                  <div className="flex items-center justify-between text-sm pt-1">
+                                    <span className="text-gray-600">Adjustment PDF:</span>
+                                    <a
+                                      href={project.adjustmentPdf.url}
+                                      target="_blank"
+                                      rel="noopener noreferrer"
+                                      className="text-blue-600 hover:underline flex items-center gap-1"
+                                      onClick={(e) => e.stopPropagation()}
+                                    >
+                                      <File className="h-3 w-3" />
+                                      View
+                                    </a>
+                                  </div>
+                                )}
+                              </div>
+                              <div className="pt-2">
+                                <Button 
+                                  variant="default"
+                                  className="w-full bg-blue-600 hover:bg-blue-700"
+                                  onClick={() => setSelectedPhaseProject(project)}
+                                >
+                                  <Activity className="h-4 w-4 mr-2" />
+                                  View Details
+                                </Button>
+                              </div>
+                            </div>
+                          </CardContent>
+                        </Card>
+                      ))}
+                    </div>
+                  )}
+                </>
+              ) : contractorTab === 'phase-2' ? (
+                <>
+                  {phase2Projects?.length === 0 ? (
+                    <EmptyState
+                      icon={FileCheck}
+                      title="No Phase 2 Projects"
+                      description="You don't have any active Phase 2 projects at this time."
+                    />
+                  ) : (
+                    <div className={`grid gap-6 sm:gap-8 transition-all duration-300 ${
+                      selectedJob || selectedPhaseProject
+                        ? 'grid-cols-1 md:grid-cols-1' 
+                        : 'grid-cols-1 md:grid-cols-2 xl:grid-cols-3'
+                    }`}>
+                      {phase2Projects?.map((project) => (
+                        <Card key={project.id} className="hover:shadow-lg transition-shadow">
+                          <CardHeader>
+                            <div className="flex items-start justify-between">
+                              <div className="flex-1">
+                                <CardTitle className="text-lg mb-1">{project.title}</CardTitle>
+                                <div className="flex items-center gap-2 text-sm text-gray-600 mt-1">
+                                  <MapPin className="h-4 w-4" />
+                                  <span>{project.address}</span>
+                                </div>
+                              </div>
+                              <Badge className="bg-green-100 text-green-800 border-green-200">
+                                Phase 2
+                              </Badge>
+                            </div>
+                          </CardHeader>
+                          <CardContent>
+                            <div className="space-y-4">
+                              <div className="space-y-2">
+                                <div className="flex items-center justify-between text-sm">
+                                  <span className="text-gray-600">Contract Value:</span>
+                                  <span className="font-semibold text-blue-600">${project.contractValue.toLocaleString()}</span>
+                                </div>
+                                {project.phase2StartDate && (
+                                  <div className="flex items-center justify-between text-sm">
+                                    <span className="text-gray-600">Phase 2 Start:</span>
+                                    <span className="font-medium">{new Date(project.phase2StartDate).toLocaleDateString()}</span>
+                                  </div>
+                                )}
+                                {project.phase2EndDate && (
+                                  <div className="flex items-center justify-between text-sm">
+                                    <span className="text-gray-600">Phase 2 End:</span>
+                                    <span className="font-medium">{new Date(project.phase2EndDate).toLocaleDateString()}</span>
+                                  </div>
+                                )}
+                                {project.adjustmentPdf && (
+                                  <div className="flex items-center justify-between text-sm pt-1">
+                                    <span className="text-gray-600">Adjustment PDF:</span>
+                                    <a
+                                      href={project.adjustmentPdf.url}
+                                      target="_blank"
+                                      rel="noopener noreferrer"
+                                      className="text-blue-600 hover:underline flex items-center gap-1"
+                                      onClick={(e) => e.stopPropagation()}
+                                    >
+                                      <File className="h-3 w-3" />
+                                      View
+                                    </a>
+                                  </div>
+                                )}
+                              </div>
+                              <div className="pt-2">
+                                <Button 
+                                  variant="default"
+                                  className="w-full bg-blue-600 hover:bg-blue-700"
+                                  onClick={() => setSelectedPhaseProject(project)}
+                                >
+                                  <Activity className="h-4 w-4 mr-2" />
+                                  View Details
+                                </Button>
+                              </div>
+                            </div>
+                          </CardContent>
+                        </Card>
+                      ))}
+                    </div>
+                  )}
+                </>
+              ) : contractorTab === 'my-jobs' ? (
                 <>
                   {jobsLoading ? (
                     <LoadingSkeleton />
@@ -877,7 +1309,11 @@ export default function HomePage() {
                       description="You don't have any active jobs yet. Jobs will appear here once you win an auction and both parties accept the contract."
                     />
                   ) : (
-                    <div className="grid gap-6 sm:gap-8 grid-cols-1 md:grid-cols-2 xl:grid-cols-3">
+                    <div className={`grid gap-6 sm:gap-8 transition-all duration-300 ${
+                      selectedJob 
+                        ? 'grid-cols-1 md:grid-cols-1' 
+                        : 'grid-cols-1 md:grid-cols-2 xl:grid-cols-3'
+                    }`}>
                       {myJobs?.map((job) => (
                         <Card key={job.id} className="hover:shadow-lg transition-shadow">
                           <CardHeader>
@@ -915,6 +1351,10 @@ export default function HomePage() {
                                 <div className="flex items-center justify-between text-sm">
                                   <span className="text-gray-600">Homeowner:</span>
                                   <span className="font-medium">{job.homeownerName}</span>
+                                </div>
+                                <div className="flex items-center justify-between text-sm">
+                                  <span className="text-gray-600">Phone:</span>
+                                  <span className="font-medium">{job.homeownerPhone || 'N/A'}</span>
                                 </div>
                               </div>
 
@@ -956,8 +1396,39 @@ export default function HomePage() {
                               </div>
 
                               {/* Actions */}
-                              <div className="pt-2">
-                <Button 
+                              <div className="space-y-2 pt-2">
+                                <Button 
+                                  variant="outline"
+                                  className="w-full border-blue-600 text-blue-600 hover:bg-blue-600 hover:text-white"
+                                  onClick={() => {
+                                    setSelectedJobForChat(job);
+                                    // Load mock chat history
+                                    setChatMessages([
+                                      {
+                                        id: '1',
+                                        sender: 'homeowner',
+                                        message: 'Hi, I wanted to check on the progress of the restoration work.',
+                                        timestamp: new Date(Date.now() - 86400000),
+                                      },
+                                      {
+                                        id: '2',
+                                        sender: 'contractor',
+                                        message: 'Hello! We\'re making great progress. We\'ve completed the drywall repairs and are moving on to flooring next.',
+                                        timestamp: new Date(Date.now() - 82800000),
+                                      },
+                                      {
+                                        id: '3',
+                                        sender: 'homeowner',
+                                        message: 'That sounds great! When do you expect to finish?',
+                                        timestamp: new Date(Date.now() - 79200000),
+                                      },
+                                    ]);
+                                  }}
+                                >
+                                  <MessageSquare className="h-4 w-4 mr-2" />
+                                  Send Message
+                                </Button>
+                                <Button 
                                   variant="default"
                                   className="w-full bg-blue-600 hover:bg-blue-700"
                                   onClick={() => handleManageJob(job)}
@@ -1537,6 +2008,134 @@ export default function HomePage() {
           </div>
         </div>
         )}
+
+        {/* Chat Modal - Bottom Right */}
+        {selectedJobForChat && (
+          <div className={`fixed bottom-6 w-96 h-[600px] bg-white rounded-lg shadow-2xl border border-gray-200 z-[60] flex flex-col transition-all duration-300 ${selectedJob ? 'right-[calc(50%+24px)]' : 'right-6'}`}>
+            {/* Header */}
+            <div className="flex items-center justify-between p-4 border-b border-gray-200">
+              <div className="flex items-center gap-2">
+                <MessageSquare className="h-5 w-5 text-gray-700" />
+                <h3 className="text-lg font-semibold text-gray-900">
+                  Chat with {selectedJobForChat?.homeownerName}
+                </h3>
+              </div>
+              <button
+                onClick={() => setSelectedJobForChat(null)}
+                className="p-1 hover:bg-gray-100 rounded-full transition-colors"
+              >
+                <X className="h-4 w-4 text-gray-600" />
+              </button>
+            </div>
+            
+            {/* Chat Messages */}
+            <ScrollArea className="flex-1 pr-4 min-h-0">
+              <div className="space-y-4">
+                {chatMessages.map((msg) => (
+                  <div
+                    key={msg.id}
+                    className={`flex ${msg.sender === 'contractor' ? 'justify-end' : 'justify-start'}`}
+                  >
+                    <div className={`max-w-[80%] rounded-lg p-3 ${
+                      msg.sender === 'contractor'
+                        ? 'bg-blue-600 text-white'
+                        : 'bg-gray-100 text-gray-900'
+                    }`}>
+                      <p className="text-sm">{msg.message}</p>
+                      {msg.attachments && msg.attachments.length > 0 && (
+                        <div className="mt-2 space-y-1">
+                          {msg.attachments.map((attachment, idx) => (
+                            <div
+                              key={idx}
+                              className="flex items-center gap-2 text-xs opacity-90"
+                            >
+                              <File className="h-3 w-3" />
+                              <a
+                                href={attachment.url}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="underline hover:no-underline"
+                              >
+                                {attachment.name}
+                              </a>
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                      <p className={`text-xs mt-1 ${
+                        msg.sender === 'contractor' ? 'text-blue-100' : 'text-gray-500'
+                      }`}>
+                        {msg.timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                      </p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </ScrollArea>
+
+            {/* Attachments Preview */}
+            {chatAttachments.length > 0 && (
+              <div className="border-t pt-2">
+                <div className="flex flex-wrap gap-2">
+                  {chatAttachments.map((file, index) => (
+                    <div
+                      key={index}
+                      className="flex items-center gap-2 bg-gray-100 rounded px-2 py-1 text-sm"
+                    >
+                      <File className="h-4 w-4 text-gray-600" />
+                      <span className="text-gray-700">{file.name}</span>
+                      <button
+                        onClick={() => removeChatAttachment(index)}
+                        className="text-gray-500 hover:text-gray-700"
+                      >
+                        <X className="h-3 w-3" />
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Message Input */}
+            <div className="border-t pt-4 flex gap-2">
+              <input
+                type="file"
+                ref={chatFileInputRef}
+                className="hidden"
+                multiple
+                onChange={handleChatFileSelect}
+              />
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => chatFileInputRef.current?.click()}
+                className="flex-shrink-0"
+              >
+                <File className="h-4 w-4" />
+              </Button>
+              <Input
+                value={newMessage}
+                onChange={(e: React.ChangeEvent<HTMLInputElement>) => setNewMessage(e.target.value)}
+                onKeyPress={(e: React.KeyboardEvent<HTMLInputElement>) => {
+                  if (e.key === 'Enter' && !e.shiftKey) {
+                    e.preventDefault();
+                    handleSendMessage();
+                  }
+                }}
+                placeholder="Type a message..."
+                className="flex-1"
+              />
+              <Button
+                onClick={handleSendMessage}
+                disabled={!newMessage.trim() && chatAttachments.length === 0}
+                className="bg-blue-600 hover:bg-blue-700"
+              >
+                <Send className="h-4 w-4" />
+              </Button>
+            </div>
+          </div>
+        )}
+        </div>
       </div>
     </div>
   )
