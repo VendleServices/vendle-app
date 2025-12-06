@@ -50,7 +50,13 @@ router.get('/', async (req: any, res) => {
       design_plan: auction.claim?.designPlan || '',
       description: auction?.aiSummary || auction?.description || '',
       ndas: auction?.ndas || [],
-      userEmail: user?.email
+      userEmail: auction?.user?.email,
+      phase1StartDate: auction?.claim?.phase1Start || "",
+      phase1EndDate: auction?.claim?.phase1End || "",
+      phase2StartDate: auction?.claim?.phase2Start || "",
+      phase2EndDate: auction?.claim?.phase2End || "",
+      homeownerName: auction?.user?.email,
+      insuranceEstimatePdf: auction?.insuranceEstimatePdf || '',
     }));
     
     res.status(200).json({ data: transformedAuctions });
