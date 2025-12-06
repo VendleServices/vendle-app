@@ -27,4 +27,33 @@ router.post("/:auctionId", async (req: any, res: any) => {
     }
 });
 
+router.put("/:ndaId", async (req: any, res: any)=> {
+    try {
+        const user = req?.user;
+
+        if (!user) {
+            return res.status(401).json({ message: "User not authorized" });
+        }
+
+        const body = req.body;
+        const acceptedStatus: boolean = body?.acceptedStatus;
+        const { ndaId } = req.params;
+        const auctionId = req.query.auctionId;
+
+        const updatedNda = await prisma.nda.update({
+            where: {
+                id: ndaId,
+                auctionId,
+            },
+            data: {
+                accepted: acceptedStatus,
+            }
+        });
+
+        return res.status(200).json({ error: "NDA accepted" });
+    } catch (error) {
+        return res.status(500).json({ error: "Error updating nda status" });
+    }
+});
+
 export default router;

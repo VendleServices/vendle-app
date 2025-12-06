@@ -11,11 +11,9 @@ import { useApiService } from "@/services/api";
 import { 
   Building2, 
   FileText, 
-  DollarSign, 
-  TrendingUp, 
+  DollarSign,
   Clock, 
   Briefcase,
-  Handshake,
   MessageSquare,
   Send,
   Users,
@@ -38,7 +36,6 @@ import {
   FileCheck
 } from "lucide-react"
 import { useQuery } from "@tanstack/react-query"
-import Link from "next/link";
 import SplashScreen from "@/components/SplashScreen";
 import { AuctionCard } from "@/components/AuctionCard";
 import { ClaimCard } from "@/components/ClaimCard";
@@ -46,14 +43,10 @@ import { EmptyState } from "@/components/EmptyState";
 import { LoadingSkeleton } from "@/components/LoadingSkeleton";
 import { toast } from "sonner";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { 
-  getMockHomeownerProjects, 
-  getMockJobs, 
-  getMockPendingNDAs, 
-  getMockPhase1Projects, 
-  getMockPhase2Projects,
+import {
+  getMockHomeownerProjects,
   type HomeownerProject,
-  type Job,
+  type Job, PendingNDA,
   type PhaseProject
 } from "@/data/mockHomeData";
 
@@ -71,8 +64,6 @@ interface Auction {
   title: string;
   winning_bidder?: string;
 }
-
-// Types are imported from mockHomeData
 
 export default function HomePage() {
   const { user, isLoggedIn, loading: authLoading } = useAuth()
@@ -105,8 +96,6 @@ export default function HomePage() {
   const isContractor = user?.user_metadata?.userType === 'contractor'
   const isHomeowner = user?.user_metadata?.userType === 'homeowner' || !isContractor
 
-  const [phase1Projects, setPhase1Projects] = useState<any[]>([]);
-  const [phase2Projects, setPhase2Projects] = useState<any[]>([]);
   const [selectedJobForChat, setSelectedJobForChat] = useState<Job | null>(null);
   const [chatMessages, setChatMessages] = useState<Array<{
     id: string;
@@ -194,27 +183,27 @@ export default function HomePage() {
   }, [isHomeowner, authLoading, homeownerTab]);
 
   // Fetch homeowner data
-  const { data: claims = [], isLoading: claimsLoading } = useQuery({
+  const { data: claims, isLoading: claimsLoading } = useQuery({
     queryKey: ["getClaims"],
     queryFn: async () => {
       if (!user?.id) return []
       const response: any = await apiService.get('/api/claim');
-      return response?.claims;
+      return response?.claims || [];
     },
     enabled: !!user?.id && isHomeowner
   })
 
-  const { data: auctions = [], isLoading: auctionsLoading } = useQuery({
+  const { data: auctions, isLoading: auctionsLoading } = useQuery({
     queryKey: ["getAuctions"],
     queryFn: async () => {
       const response: any = await apiService.get('/api/auctions');
-      return response?.data;
+      return response?.data || [];
     },
     enabled: !!user?.id
   })
 
-  const pendingNDAs = useMemo(() => {
-    return auctions?.filter((auction: any) => auction?.ndas?.some((nda: any) => nda?.userId === user?.id))?.map((auction: any)=> (
+  const { pendingNDAs, phase1Projects, phase2Projects } = useMemo(() => {
+    const pendingNDAs: PendingNDA[] = auctions?.filter((auction: any) => auction?.ndas?.some((nda: any) => nda?.userId === user?.id && !nda?.accepted))?.map((auction: any)=> (
         {
           id: auction?.auction_id,
           projectTitle: auction?.title,
@@ -224,6 +213,53 @@ export default function HomePage() {
           status: auction?.status,
         }
     )) || [];
+
+    const phase1Projects: PhaseProject[] = auctions?.filter((auction: any) => auction?.ndas?.find((nda: any) => nda?.userId === user?.id && nda?.accepted))?.map((auction: any) => ({
+      id: auction?.auction_id,
+      title: auction?.title,
+      address: auction?.property_address?.split(", ")?.[0],
+      city: auction?.property_address?.split(", ")?.[1],
+      state: auction?.property_address?.split(", ")?.[2],
+      contractValue: auction?.starting_bid,
+      phase1StartDate: auction?.phase1StartDate,
+      phase1EndDate: auction?.phase1EndDate,
+      status: new Date() > new Date(auction?.phase1StartDate) && new Date() < new Date(auction?.phase1EndDate) ? "Active" : "Inactive",
+      projectType: auction?.project_type,
+      homeownerName: auction?.homeownerName,
+      homeownerPhone: '(555) 987-6543',
+      description: auction?.description,
+      adjustmentPdf: {
+        name: 'Insurance_Adjustment_Report.pdf',
+        url: auction?.insuranceEstimatePdf
+      },
+      imageUrls: [],
+      files: []
+    }));
+
+    const phase2Projects: PhaseProject[] = auctions?.filter((auction: any) => auction?.ndas?.find((nda: any) => nda?.userId === user?.id && nda?.accepted))?.map((auction: any) => ({
+      id: auction?.auction_id,
+      title: auction?.title,
+      address: auction?.property_address?.split(", ")?.[0],
+      city: auction?.property_address?.split(", ")?.[1],
+      state: auction?.property_address?.split(", ")?.[2],
+      contractValue: auction?.starting_bid,
+      phase2StartDate: auction?.phase2StartDate,
+      phase2EndDate: auction?.phase2EndDate,
+      status: new Date() > new Date(auction?.phase2StartDate) && new Date() < new Date(auction?.phase2EndDate) ? "Active" : "Inactive",
+      projectType: auction?.project_type,
+      homeownerName: auction?.homeownerName,
+      homeownerPhone: '(555) 987-6543',
+      description: auction?.description,
+      adjustmentPdf: {
+        name: 'Insurance_Adjustment_Report.pdf',
+        url: auction?.insuranceEstimatePdf
+      },
+      imageUrls: [],
+      files: [],
+      competingBids: []
+    }));
+
+    return { pendingNDAs, phase1Projects, phase2Projects };
   }, [auctions, user?.id]);
 
   // Fetch contractor data (only if contractor)
@@ -236,88 +272,37 @@ export default function HomePage() {
     enabled: !!user?.id && isContractor
   })
 
-  // Filter homeowner's active auctions (only auctions for their claims that are open)
-  const homeownerActiveAuctions = useMemo(() => {
-    console.log('Filtering active auctions - claims:', claims?.length, 'auctions:', auctions?.length);
+  const { homeownerActiveAuctions, homeownerClosedAuctions } = useMemo(() => {
     if (!auctions || auctions.length === 0) {
-      console.log('No auctions available');
-      return []
+      return { homeownerActiveAuctions: [], homeownerClosedAuctions: [] };
     }
 
-    // If no claims, return empty (or could show all auctions for testing)
     if (!claims || claims.length === 0) {
-      console.log('No claims, returning empty array');
-      return []
+      return { homeownerActiveAuctions: [], homeownerClosedAuctions: [] };
     }
 
     // Get claim IDs for this homeowner
-    const claimIds = claims.map((claim: any) => claim.id)
-    console.log('Claim IDs:', claimIds);
-    console.log('All auctions sample:', auctions[0]);
-    
+    const claimIds = claims?.map((claim: any) => claim.id)
+
     // Filter auctions to only those belonging to homeowner's claims and are active/open
-    const filtered = auctions.filter((auction: any) => {
-      const claimId = auction.claimId || auction.claim_id
-      const endDate = new Date(auction.end_date || auction.auctionEndDate)
-      const isActive = auction.status === 'open' && endDate > new Date()
-      const belongsToClaim = claimIds.includes(claimId)
-      
-      console.log('Auction:', auction.title || auction.id, 'claimId:', claimId, 'belongsToClaim:', belongsToClaim, 'isActive:', isActive, 'status:', auction.status, 'endDate:', endDate);
-      
+    const homeownerActiveAuctions = auctions?.filter((auction: any) => {
+      const claimId = auction?.claim_id
+      const endDate = new Date(auction?.end_date || "")
+      const isActive = auction?.status === 'open' && endDate > new Date()
+      const belongsToClaim = claimIds?.includes(claimId)
       return belongsToClaim && isActive
-    })
-    
-    console.log('Filtered active auctions:', filtered.length, filtered);
-    return filtered
-  }, [claims, auctions])
+    }) || [];
 
-  // Filter homeowner's closed auctions (only auctions for their claims that are closed)
-  const homeownerClosedAuctions = useMemo(() => {
-    console.log('Filtering closed auctions - claims:', claims?.length, 'auctions:', auctions?.length);
-    if (!auctions || auctions.length === 0) {
-      console.log('No auctions available');
-      return []
-    }
-
-    // If no claims, return empty
-    if (!claims || claims.length === 0) {
-      console.log('No claims, returning empty array');
-      return []
-    }
-
-    // Get claim IDs for this homeowner
-    const claimIds = claims.map((claim: any) => claim.id)
-    
-    // Filter auctions to only those belonging to homeowner's claims and are closed
-    const filtered = auctions.filter((auction: any) => {
-      const claimId = auction.claimId || auction.claim_id
-      const endDate = new Date(auction.end_date || auction.auctionEndDate)
+    // filter closed auctions
+    const homeownerClosedAuctions = auctions?.filter((auction: any) => {
+      const claimId = auction?.claim_id
+      const endDate = new Date(auction?.end_date)
       const isClosed = auction.status === 'closed' || endDate <= new Date()
-      
+
       return claimIds.includes(claimId) && isClosed
-    })
-    
-    console.log('Filtered closed auctions:', filtered.length, filtered);
-    return filtered
-  }, [claims, auctions])
+    }) || [];
 
-  // Filter homeowner's live auctions (only auctions for their claims)
-  const homeownerLiveAuctions = useMemo(() => {
-    if (!claims || !auctions || claims.length === 0) {
-      return []
-    }
-
-    // Get claim IDs for this homeowner
-    const claimIds = claims.map((claim: any) => claim.id)
-    
-    // Filter auctions to only those belonging to homeowner's claims and are live/open
-    return auctions.filter((auction: any) => {
-      const claimId = auction.claimId || auction.claim_id
-      const endDate = new Date(auction.end_date || auction.auctionEndDate)
-      const isLive = auction.status === 'open' && endDate > new Date()
-      
-      return claimIds.includes(claimId) && isLive
-    })
+    return { homeownerActiveAuctions, homeownerClosedAuctions };
   }, [claims, auctions])
 
   // Calculate homeowner stats
@@ -344,7 +329,7 @@ export default function HomePage() {
     // Count only live auctions for homeowner's claims
     const activeAuctions = homeownerActiveAuctions.length
 
-    const totalValue = claims.reduce((sum: number, claim: any) => 
+    const totalValue = claims?.reduce((sum: number, claim: any) =>
       sum + (claim.insuranceEstimate || 0), 0
     )
 
@@ -352,17 +337,17 @@ export default function HomePage() {
       totalClaims: claims?.length,
       activeClaims,
       completedClaims,
-      totalAuctions: homeownerLiveAuctions.length,
+      totalAuctions: homeownerActiveAuctions.length,
       activeAuctions,
       totalValue
     }
-  }, [claims, auctions, homeownerLiveAuctions])
+  }, [claims, auctions, homeownerActiveAuctions.length])
 
   // Calculate contractor stats
   const contractorStats = useMemo(() => {
     // Calculate Phase 1 and Phase 2 contract values from projects
-    const phase1Value = phase1Projects.reduce((sum, project) => sum + (project.contractValue || 0), 0);
-    const phase2Value = phase2Projects.reduce((sum, project) => sum + (project.contractValue || 0), 0);
+    const phase1Value = phase1Projects?.reduce((sum, project) => sum + (project.contractValue || 0), 0);
+    const phase2Value = phase2Projects?.reduce((sum, project) => sum + (project.contractValue || 0), 0);
     
     if (!contractorMetrics) {
       return {
@@ -628,9 +613,9 @@ export default function HomePage() {
                       <p className="text-xs text-gray-600 mb-1">Mean Bid</p>
                       <p className="text-xl font-bold text-gray-900">
                         ${Math.round(
-                          selectedPhaseProject.competingBids.reduce((sum, bid) => sum + bid.bidAmount, 0) /
+                          selectedPhaseProject.competingBids?.reduce((sum, bid) => sum + bid.bidAmount, 0) /
                           selectedPhaseProject.competingBids.length
-                        ).toLocaleString()}
+                        )?.toLocaleString()}
                       </p>
                     </div>
                     <div className="bg-gray-50 rounded-lg p-4">
@@ -912,9 +897,9 @@ export default function HomePage() {
                 <FileCheck className="h-4 w-4 text-muted-foreground" />
               </CardHeader>
               <CardContent>
-                <div className="text-2xl font-bold">${contractorStats.phase1Value.toLocaleString()}</div>
+                <div className="text-2xl font-bold">${contractorStats.phase1Value?.toLocaleString()}</div>
                 <p className="text-xs text-muted-foreground">
-                  {phase1Projects.length} active project{phase1Projects.length !== 1 ? 's' : ''}
+                  {phase1Projects?.length} active project{phase1Projects?.length !== 1 ? 's' : ''}
                 </p>
               </CardContent>
             </Card>
@@ -925,9 +910,9 @@ export default function HomePage() {
                 <FileCheck className="h-4 w-4 text-muted-foreground" />
               </CardHeader>
               <CardContent>
-                <div className="text-2xl font-bold">${contractorStats.phase2Value.toLocaleString()}</div>
+                <div className="text-2xl font-bold">${contractorStats.phase2Value?.toLocaleString()}</div>
                 <p className="text-xs text-muted-foreground">
-                  {phase2Projects.length} active project{phase2Projects.length !== 1 ? 's' : ''}
+                  {phase2Projects?.length} active project{phase2Projects?.length !== 1 ? 's' : ''}
                 </p>
               </CardContent>
             </Card>

@@ -190,4 +190,5 @@ model Nda {
   user      User    @relation(fields: [userId], references: [id], onDelete: Cascade)
   auctionId String
   auction   Auction @relation(fields: [auctionId], references: [id], onDelete: Cascade)
+  accepted  Boolean @default(false)
 }
