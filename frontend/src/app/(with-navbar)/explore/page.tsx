@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useMemo, useEffect } from "react"
+import { useState, useMemo } from "react"
 import { useRouter } from "next/navigation"
 import { useAuth } from "@/contexts/AuthContext"
 import { Button } from "@/components/ui/button"
@@ -26,14 +26,14 @@ import {
   Phone,
   MessageSquare,
 } from "lucide-react"
-import { mockJobs, formatPrice, formatLocation, getTimeAgo, type JobPosting } from "@/data/mockJobs"
+import { formatPrice, formatLocation, getTimeAgo, type JobPosting } from "@/data/mockJobs"
 import { useApiService } from "@/services/api";
 import { useQuery } from "@tanstack/react-query";
 import Map from "@/components/Map";
 
 export default function ExplorePage() {
   const router = useRouter()
-  const { isLoggedIn } = useAuth()
+  const { isLoggedIn, user } = useAuth()
   const [showLoginModal, setShowLoginModal] = useState(false)
   const [showContractModal, setShowContractModal] = useState(false)
   const [showSuccessModal, setShowSuccessModal] = useState(false)
@@ -65,7 +65,8 @@ export default function ExplorePage() {
         homeowner: {
           name: "Unknown",
           rating: 5.0
-        }
+        },
+        ndaSigned: auction?.ndas?.some((nda: any) => nda?.userId === user?.id),
       })) || [] as JobPosting[];
       return mappedAuctions;
     } catch (error) {
@@ -79,7 +80,7 @@ export default function ExplorePage() {
   });
 
   const sortedJobs = useMemo(() => {
-    const jobs: JobPosting[] = [...(realAuctions || []), ...mockJobs];
+    const jobs: JobPosting[] = [...(realAuctions || [])];
 
     const filteredJobs = jobs?.filter(job =>
         job.title?.toLowerCase().includes(searchQuery?.toLowerCase() || "")
@@ -178,7 +179,30 @@ export default function ExplorePage() {
 
             {/* Opportunities Grid */}
             <div className="grid gap-5 sm:grid-cols-2 xl:grid-cols-3">
-              {sortedJobs.map((job) => (
+              {sortedJobs?.length === 0 ? (
+                  <div className="flex flex-col items-center justify-center py-16 px-4">
+                    <div className="rounded-full bg-muted p-6 mb-4">
+                      <Search className="h-12 w-12 text-muted-foreground" />
+                    </div>
+                    <h3 className="text-xl font-semibold text-foreground mb-2">
+                      No opportunities found
+                    </h3>
+                    <p className="text-sm text-muted-foreground text-center max-w-md">
+                      {searchQuery
+                          ? `No results match "${searchQuery}". Try adjusting your search.`
+                          : "There are no opportunities available at the moment. Check back later!"}
+                    </p>
+                    {searchQuery && (
+                        <Button
+                            variant="outline"
+                            className="mt-4"
+                            onClick={() => setSearchQuery("")}
+                        >
+                          Clear search
+                        </Button>
+                    )}
+                  </div>
+              ) : sortedJobs?.map((job) => (
                 <Card
                   key={job.id}
                   className={`group relative flex flex-col overflow-hidden rounded-2xl border-border bg-card transition-all duration-200 hover:-translate-y-0.5 hover:shadow-lg hover:border-primary/20 cursor-pointer ${
@@ -429,6 +453,7 @@ export default function ExplorePage() {
           }}
           jobId={selectedJob.id}
           jobTitle={selectedJob.title}
+          isSigned={selectedJob?.ndaSigned || false}
           onContractSigned={handleContractSigned}
         />
       )}

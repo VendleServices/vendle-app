@@ -25,7 +25,8 @@ router.get('/', async (req: any, res) => {
     const auctions = await prisma.auction.findMany({
       include: {
         user: true,
-        claim: true
+        claim: true,
+        ndas: true,
       },
       orderBy: {
         createdAt: 'desc'
@@ -48,6 +49,8 @@ router.get('/', async (req: any, res) => {
       project_type: auction.claim?.projectType || '',
       design_plan: auction.claim?.designPlan || '',
       description: auction?.aiSummary || auction?.description || '',
+      ndas: auction?.ndas || [],
+      userEmail: user?.email
     }));
     
     res.status(200).json({ data: transformedAuctions });
@@ -129,6 +132,9 @@ router.get('/:auctionId', async (req: any, res) => {
     const auction = await prisma.auction.findUnique({
       where: {
         id: auctionId,
+      },
+      include: {
+        ndas: true,
       }
     });
 

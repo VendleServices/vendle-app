@@ -69,7 +69,7 @@ export default function CreateRestorPage() {
       toast("Error", {
         description: "No claim ID provided",
       });
-      router.push("/dashboard");
+      router.push("/home");
       return;
     }
     setClaimId(id);
@@ -167,7 +167,7 @@ export default function CreateRestorPage() {
         description: "Contractors will now be notified.",
       });
 
-      router.push("/dashboard");
+      router.push("/home");
     } catch (error) {
       console.error(error);
       toast("Error", { description: "Failed to create restoration job" });

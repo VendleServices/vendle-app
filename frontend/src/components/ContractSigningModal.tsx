@@ -1,10 +1,11 @@
 'use client';
 
-import { useState } from 'react';
 import { X, FileText, CheckCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useAuth } from '@/contexts/AuthContext';
 import { toast } from 'sonner';
+import { useApiService } from "@/services/api";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 
 interface ContractSigningModalProps {
   isOpen: boolean;
@@ -12,6 +13,7 @@ interface ContractSigningModalProps {
   jobId: string;
   jobTitle: string;
   onContractSigned: () => void;
+  isSigned: boolean;
 }
 
 export default function ContractSigningModal({
@@ -19,63 +21,35 @@ export default function ContractSigningModal({
   onClose,
   jobId,
   jobTitle,
-  onContractSigned
+  onContractSigned,
+  isSigned,
 }: ContractSigningModalProps) {
   const { user } = useAuth();
-  const [isSigning, setIsSigning] = useState(false);
-  const [isSigned, setIsSigned] = useState(false);
-
-  if (!isOpen) return null;
+  const apiService = useApiService();
+  const queryClient = useQueryClient();
 
   const handleSignContract = async () => {
-    setIsSigning(true);
-
     try {
-      // TODO: Integrate with DocuSign API
-      // For now, we'll simulate the signing process
-
-      // Call backend endpoint to initiate DocuSign signing
-      // const response = await fetch('/api/docusign/initiate-signing', {
-      //   method: 'POST',
-      //   headers: {
-      //     'Content-Type': 'application/json',
-      //     'Authorization': `Bearer ${token}`
-      //   },
-      //   body: JSON.stringify({
-      //     jobId,
-      //     userEmail: user?.email,
-      //     userName: user?.name || user?.email,
-      //     contractUrl: '/vendle-contract.pdf'
-      //   })
-      // });
-
-      // Simulate API call delay
-      await new Promise(resolve => setTimeout(resolve, 2000));
-
-      // Mock successful signing
-      setIsSigned(true);
-      toast.success('Contract Signed Successfully', {
-        description: 'You can now view the full job details'
-      });
-
-      // Close modal and trigger success modal
-      setTimeout(() => {
-        onClose();
-        // Small delay to allow modal close animation
-        setTimeout(() => {
-          onContractSigned();
-        }, 300);
-      }, 1000);
-
+      const signedNda = await apiService.post(`/api/nda/${jobId}`, {});
+      return signedNda;
     } catch (error) {
       console.error('Error signing contract:', error);
       toast.error('Signing Failed', {
         description: 'There was an error signing the contract. Please try again.'
       });
-    } finally {
-      setIsSigning(false);
     }
   };
+
+  const ndaSignMutation = useMutation({
+    mutationFn: handleSignContract,
+    onSuccess: () => {
+      toast.success("Successfully signed contract.", {
+        description: "NDA was signed successfully!"
+      });
+      queryClient.invalidateQueries({ queryKey: ["realAuctions"] });
+      onClose();
+    }
+  })
 
   return (
     <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
@@ -136,11 +110,11 @@ export default function ContractSigningModal({
           {!isSigned ? (
             <div className="flex items-center gap-3">
               <Button
-                onClick={handleSignContract}
-                disabled={isSigning}
+                onClick={() => ndaSignMutation.mutate()}
+                disabled={ndaSignMutation?.isPending}
                 className="flex-1 bg-primary text-primary-foreground hover:bg-primary/90 h-12 text-base font-medium"
               >
-                {isSigning ? (
+                {ndaSignMutation?.isPending ? (
                   <>
                     <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white mr-2"></div>
                     Processing Signature...
@@ -155,7 +129,7 @@ export default function ContractSigningModal({
               <Button
                 variant="outline"
                 onClick={onClose}
-                disabled={isSigning}
+                disabled={ndaSignMutation?.isPending}
                 className="px-6 h-12"
               >
                 Cancel

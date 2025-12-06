@@ -18,6 +18,7 @@ export interface JobPosting {
     phone?: string;
   };
   imageUrl?: string;
+  ndaSigned?: boolean;
 }
 
 export const mockJobs: JobPosting[] = [
