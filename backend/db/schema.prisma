@@ -58,6 +58,7 @@ model User {
   companyWebsite String?
   createdAt      DateTime      @default(now())
   updatedAt      DateTime      @default(now()) @updatedAt
+  ndas           Nda[]
 }
 
 model Fema {
@@ -165,6 +166,7 @@ model Auction {
   claim                 Claim    @relation(fields: [claimId], references: [id], onDelete: Cascade)
   bids                  Bid[]
   aiSummary             String?
+  ndas                  Nda[]
 }
 
 model Restoration {
@@ -180,4 +182,12 @@ model Restoration {
   materials                 Boolean
   salesTaxes                Boolean
   depreciation              Boolean
+}
+
+model Nda {
+  id        String  @id @default(uuid())
+  userId    String
+  user      User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  auctionId String
+  auction   Auction @relation(fields: [auctionId], references: [id], onDelete: Cascade)
 }
