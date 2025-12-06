@@ -45,12 +45,6 @@ import { ClaimCard } from "@/components/ClaimCard";
 import { EmptyState } from "@/components/EmptyState";
 import { LoadingSkeleton } from "@/components/LoadingSkeleton";
 import { toast } from "sonner";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { 
   getMockHomeownerProjects, 
@@ -111,7 +105,6 @@ export default function HomePage() {
   const isContractor = user?.user_metadata?.userType === 'contractor'
   const isHomeowner = user?.user_metadata?.userType === 'homeowner' || !isContractor
 
-  const [pendingNDAs, setPendingNDAs] = useState<any[]>([]);
   const [phase1Projects, setPhase1Projects] = useState<any[]>([]);
   const [phase2Projects, setPhase2Projects] = useState<any[]>([]);
   const [selectedJobForChat, setSelectedJobForChat] = useState<Job | null>(null);
@@ -200,27 +193,6 @@ export default function HomePage() {
     }
   }, [isHomeowner, authLoading, homeownerTab]);
 
-  // Fetch data when contractor tabs are selected
-  useEffect(() => {
-    if (isContractor && !authLoading) {
-      if (contractorTab === 'pending-ndas') {
-        setPendingNDAs(getMockPendingNDAs());
-      } else if (contractorTab === 'phase-1') {
-        setPhase1Projects(getMockPhase1Projects());
-      } else if (contractorTab === 'phase-2') {
-        setPhase2Projects(getMockPhase2Projects());
-      } else if (contractorTab === 'my-jobs') {
-        setJobsLoading(true);
-        // Simulate API call
-        setTimeout(() => {
-          setMyJobs(getMockJobs());
-          setJobsLoading(false);
-        }, 500);
-      }
-    }
-  }, [isContractor, authLoading, contractorTab]);
-
-
   // Fetch homeowner data
   const { data: claims = [], isLoading: claimsLoading } = useQuery({
     queryKey: ["getClaims"],
@@ -238,8 +210,21 @@ export default function HomePage() {
       const response: any = await apiService.get('/api/auctions');
       return response?.data;
     },
-    enabled: !!user?.id && isHomeowner
+    enabled: !!user?.id
   })
+
+  const pendingNDAs = useMemo(() => {
+    return auctions?.filter((auction: any) => auction?.ndas?.some((nda: any) => nda?.userId === user?.id))?.map((auction: any)=> (
+        {
+          id: auction?.auction_id,
+          projectTitle: auction?.title,
+          address: auction?.property_address,
+          homeownerName: auction?.userEmail,
+          requestedDate: auction?.start_date,
+          status: auction?.status,
+        }
+    )) || [];
+  }, [auctions, user?.id]);
 
   // Fetch contractor data (only if contractor)
   const { data: contractorMetrics, isLoading: metricsLoading } = useQuery({
@@ -247,15 +232,6 @@ export default function HomePage() {
     queryFn: async () => {
       const response: any = await apiService.get('/api/contracts/metrics');
       return response;
-    },
-    enabled: !!user?.id && isContractor
-  })
-
-  const { data: activeContracts = [], isLoading: contractsLoading } = useQuery({
-    queryKey: ['contracts', 'active'],
-    queryFn: async () => {
-      const response: any = await apiService.get('/api/contracts?status=active');
-      return response?.contracts || [];
     },
     enabled: !!user?.id && isContractor
   })
@@ -1087,7 +1063,7 @@ export default function HomePage() {
                         ? 'grid-cols-1 md:grid-cols-1' 
                         : 'grid-cols-1 md:grid-cols-2 xl:grid-cols-3'
                     }`}>
-                      {pendingNDAs?.map((nda) => (
+                      {pendingNDAs?.map((nda: any) => (
                         <Card key={nda.id} className="hover:shadow-lg transition-shadow">
                           <CardHeader>
                             <div className="flex items-start justify-between">

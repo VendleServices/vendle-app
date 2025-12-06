@@ -53,7 +53,7 @@ export default function FemaAssistancePage() {
     const femaMutation = useMutation({
         mutationFn: submitFemaForm,
         onSuccess: () => {
-            router.push("/dashboard");
+            router.push("/home");
         },
         onError: (error) => {
             console.log(error);

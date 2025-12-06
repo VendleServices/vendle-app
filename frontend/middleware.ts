@@ -56,17 +56,10 @@ export async function updateSession(request: NextRequest) {
     
     // Define protected routes
     const protectedRoutes = [
-      '/dashboard',
-      '/my-projects',
-      '/contractor-projects',
-      '/reverse-auction',
       '/claim',
-      '/adjust-report',
       '/auction',
       '/start-claim/create-restor',
-      '/smart-bid-comparison',
       '/home',
-      '/test'
     ]
     
     // Check if the current path is a protected route
