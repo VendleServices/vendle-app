@@ -6,6 +6,7 @@ import { useState } from 'react';
 import LoginModal from "@/components/LoginModal";
 import { useAuth } from "@/contexts/AuthContext";
 import vendleLogo from "../assets/vendle_logo.jpeg";
+import vendleAltLogo from "../assets/Vendle-logo-alt.png";
 import { Home, Search, User, LayoutDashboard, LogOut, LogIn, DollarSign, FileText } from "lucide-react";
 import { usePathname, useRouter } from "next/navigation";
 
@@ -41,9 +42,42 @@ const Navbar = ({ onProtectedAction }: NavbarProps = {}) => {
     setShowLoginModal(true);
   };
 
+  const isStartClaimActive = pathname === '/start-claim';
+
   // Always show left sidebar
   return (
-    <nav className="fixed left-0 top-0 h-screen w-32 bg-white border-r border-gray-200 flex flex-col items-center py-8 z-50">
+    <>
+      <style dangerouslySetInnerHTML={{__html: `
+        .vendle-logo-wrapper {
+          background: transparent !important;
+        }
+        .vendle-logo-wrapper img {
+          background: transparent !important;
+        }
+        .vendle-logo-outline {
+          filter: grayscale(100%) brightness(0) invert(1);
+          opacity: 0.7;
+          transition: filter 0.3s ease, opacity 0.3s ease;
+        }
+        .group:hover .vendle-logo-outline,
+        .group:active .vendle-logo-outline {
+          filter: none !important;
+          opacity: 1 !important;
+        }
+        /* Ensure the image container doesn't have background */
+        .vendle-logo-wrapper::before {
+          content: '';
+          display: none;
+        }
+        /* Vendle It button logo hover expand effect */
+        .vendle-it-logo {
+          transition: transform 0.3s ease;
+        }
+        .group:hover .vendle-it-logo {
+          transform: scale(1.2);
+        }
+      `}} />
+      <nav className="fixed left-0 top-0 h-screen w-32 bg-white border-r border-gray-200 flex flex-col items-center py-8 z-50">
       {/* Logo */}
       <Link href={isContractor ? "/explore" : "/home"} className="mb-12">
         <Image src={vendleLogo} alt="Vendle Logo" width={56} height={56} className="h-14 w-14 rounded-lg" />
@@ -66,18 +100,27 @@ const Navbar = ({ onProtectedAction }: NavbarProps = {}) => {
           </Link>
         )}
 
-        {/* Start Claim - Only show for homeowners */}
+        {/* Vendle It - Only show for homeowners */}
         {isHomeowner && (
           <Link
             href="/start-claim"
             onClick={(e) => handleProtectedClick(e, '/start-claim')}
-            className={`flex flex-col items-center gap-2 p-3 rounded-xl transition-all ${
+            className={`group flex flex-col items-center gap-2 p-3 rounded-xl transition-all ${
               pathname === '/start-claim' ? 'bg-indigo-50 scale-105' : 'hover:bg-gray-50 hover:scale-105'
             }`}
           >
-            <FileText className={`w-7 h-7 flex-shrink-0 block ${pathname === '/start-claim' ? 'text-indigo-600' : 'text-gray-600'}`} strokeWidth={2} />
+            <div className="relative w-14 h-14 flex-shrink-0">
+              <Image 
+                src={vendleAltLogo} 
+                alt="Vendle Logo" 
+                width={56} 
+                height={56} 
+                className="w-14 h-14 rounded transition-all duration-300 object-contain vendle-it-logo"
+                style={{ backgroundColor: 'transparent' }}
+              />
+            </div>
             <span className={`text-xs font-medium ${pathname === '/start-claim' ? 'text-indigo-600' : 'text-gray-600'}`}>
-              Start Claim
+              Vendle It
             </span>
           </Link>
         )}
@@ -139,6 +182,7 @@ const Navbar = ({ onProtectedAction }: NavbarProps = {}) => {
         onClose={() => setShowLoginModal(false)}
       />
     </nav>
+    </>
   );
 };
 

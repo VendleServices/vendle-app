@@ -6,6 +6,9 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
+import { Textarea } from "@/components/ui/textarea";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useAuth } from "@/contexts/AuthContext";
 import { motion, AnimatePresence } from "framer-motion";
 import { AddressAutocomplete } from "@/components/AddressAutocomplete";
@@ -25,7 +28,7 @@ import {
     DollarSign,
     ArrowRight,
     ChevronRight,
-    Sparkles, Upload, X, Droplets, Flame, AlertTriangle, Hammer, Zap, Trash2, Calendar, ExternalLink
+    Sparkles, Upload, X, Droplets, Flame, AlertTriangle, Hammer, Zap, Trash2, Calendar, ExternalLink, Wrench, CheckCircle
 } from "lucide-react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useApiService } from "@/services/api";
@@ -71,7 +74,7 @@ export default function StartClaimPage() {
     
     // Insurance onboarding state
     const [currentStep, setCurrentStep] = useState(1);
-    const totalSteps = 9;
+    const totalSteps = 8; // Reduced from 9 since we're combining steps 2 and 3
     const [address, setAddress] = useState({
         street: '',
         city: '',
@@ -99,9 +102,27 @@ export default function StartClaimPage() {
 
     const [uploadedPdfs, setUploadedPdfs] = useState<any[]>([]);
     const [uploadedImages, setUploadedImages] = useState<any[]>([]);
+    
+    // Restoration form state (replaces steps 2 and 3)
+    const [restorationFormData, setRestorationFormData] = useState({
+        insuranceEstimatePdf: "",
+        needs3rdPartyAdjuster: false,
+        costBasis: "" as "RCV" | "ACV" | "",
+        overheadAndProfit: "",
+        salesTaxes: "",
+        materials: "",
+        depreciation: "",
+        hasDeductibleFunds: false,
+        fundingSource: "" as "FEMA" | "Insurance" | "SBA" | "",
+        totalJobValue: "",
+        reconstructionType: "",
+        additionalNotes: "",
+    });
+    const [uploadedInsuranceEstimate, setUploadedInsuranceEstimate] = useState<File | null>(null);
 
     const fileInputRef = useRef<any>(null);
     const pdfInputRef = useRef<any>(null);
+    const insuranceEstimateInputRef = useRef<HTMLInputElement>(null);
 
     const handleFileSelect = (e: any) => {
         const files: File[] = Array.from(e.target.files);
@@ -163,6 +184,49 @@ export default function StartClaimPage() {
     const removeImage = (index: number) => {
         setUploadedImages(prev => prev.filter((_, i) => i !== index));
     };
+
+    const handleRestorationInputChange = (field: keyof typeof restorationFormData, value: any) => {
+        setRestorationFormData((prev) => ({
+            ...prev,
+            [field]: value,
+        }));
+    };
+
+    const handleInsuranceEstimateUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+        if (!e.target.files || !e.target.files[0]) return;
+
+        const file = e.target.files[0];
+
+        if (file.type !== "application/pdf") {
+            toast("Invalid File Type", {
+                description: "Please upload a PDF file",
+            });
+            return;
+        }
+
+        if (file.size > 10 * 1024 * 1024) {
+            toast("File too large", {
+                description: "Max size: 10MB",
+            });
+            return;
+        }
+
+        setUploadedInsuranceEstimate(file);
+
+        try {
+            const timestamp = Date.now();
+            const { data, error } = await supabase.storage
+                .from("vendle-estimates")
+                .upload(`public/${timestamp}-${file.name}`, file);
+
+            if (error) throw error;
+
+            handleRestorationInputChange("insuranceEstimatePdf", data?.fullPath);
+            toast.success("Insurance estimate uploaded successfully");
+        } catch (error: any) {
+            toast("Upload failed", { description: error.message });
+        }
+    };
     
     // FEMA form state
     const [femaFormData, setFemaFormData] = useState({
@@ -222,17 +286,16 @@ export default function StartClaimPage() {
     const isCurrentStepValid = () => {
         switch (currentStep) {
             case 1: return address.street && address.city && address.state && address.zip;
-            case 2: return true; // PDF upload is optional
-            case 3: return true; // Image upload is optional
-            case 4: return damageTypes.length > 0;
-            case 5: return propertyQuestions.hasFunctionalUtilities !== null && 
+            case 2: return true; // Restoration form - all fields optional for now
+            case 3: return damageTypes.length > 0;
+            case 4: return propertyQuestions.hasFunctionalUtilities !== null && 
                        propertyQuestions.hasDumpster !== null && 
                        propertyQuestions.isOccupied !== null;
-            case 6: return timeline.phase1Start && timeline.phase1End && 
+            case 5: return timeline.phase1Start && timeline.phase1End && 
                        timeline.phase2Start && timeline.phase2End;
-            case 7: return !!projectType;
-            case 8: return !!designPlan;
-            case 9: return needsAdjuster !== null;
+            case 6: return !!projectType;
+            case 7: return !!designPlan;
+            case 8: return needsAdjuster !== null;
             default: return true;
         }
     };
@@ -902,69 +965,178 @@ export default function StartClaimPage() {
 
                                 {currentStep === 2 && (
                                     <motion.div
-                                        key="step2-pdf"
+                                        key="step2-restoration"
                                         initial={{ opacity: 0, x: 20 }}
                                         animate={{ opacity: 1, x: 0 }}
                                         exit={{ opacity: 0, x: -20 }}
                                         transition={{ duration: 0.3 }}
-                                        className="bg-white rounded-2xl shadow-sm border border-slate-200 p-8 md:p-10"
+                                        className="space-y-6"
                                     >
-                                        <h2 className="text-3xl font-bold text-slate-900 mb-2">Upload Documents</h2>
-                                        <p className="text-slate-600 mb-8">Upload insurance adjustment documents, estimates, or other PDF files (optional)</p>
+                                        {/* Insurance Estimate */}
+                                        <div className="bg-white rounded-2xl shadow-sm border border-slate-200 p-8 md:p-10">
+                                            <div className="flex items-center gap-2 mb-2">
+                                                <FileText className="w-6 h-6 text-[#1a365d]" />
+                                                <h2 className="text-3xl font-bold text-slate-900">Insurance Estimate</h2>
+                                            </div>
+                                            <p className="text-slate-600 mb-6">Upload your insurance estimate PDF.</p>
 
-                                        {/* PDF Upload Area */}
-                                        <div
-                                            onDrop={handlePdfDrop}
-                                            onDragOver={(e) => e.preventDefault()}
-                                            className="border-2 border-dashed border-slate-300 hover:border-vendle-blue transition-all rounded-xl p-10 text-center cursor-pointer bg-slate-50/50"
-                                            onClick={() => pdfInputRef.current?.click()}
-                                        >
-                                            <input
-                                                type="file"
-                                                multiple
-                                                accept="application/pdf"
-                                                ref={pdfInputRef}
-                                                className="hidden"
-                                                onChange={handlePdfSelect}
-                                            />
-
-                                            <div className="flex flex-col items-center justify-center">
-                                                <div className="w-16 h-16 rounded-xl bg-vendle-blue/10 text-vendle-blue flex items-center justify-center mb-4">
-                                                    <FileText className="w-8 h-8" />
-                                                </div>
-
-                                                <p className="font-semibold text-slate-900">Click or drag PDF files to upload</p>
-                                                <p className="text-sm text-slate-500 mt-1">You can upload multiple PDF documents</p>
+                                            <div className="relative flex items-center justify-center h-36 border-2 border-dashed rounded-xl border-slate-300 hover:border-[#1a365d] transition-all bg-slate-50/50 cursor-pointer" 
+                                                 onClick={() => insuranceEstimateInputRef.current?.click()}>
+                                                <input
+                                                    type="file"
+                                                    accept=".pdf"
+                                                    onChange={handleInsuranceEstimateUpload}
+                                                    className="absolute inset-0 opacity-0 cursor-pointer"
+                                                    ref={insuranceEstimateInputRef}
+                                                />
+                                                {!uploadedInsuranceEstimate ? (
+                                                    <div className="text-center">
+                                                        <Upload className="h-8 w-8 mx-auto text-slate-600 mb-1" />
+                                                        <p className="text-sm text-slate-600">Click to upload</p>
+                                                    </div>
+                                                ) : (
+                                                    <div className="text-green-600 flex items-center gap-2">
+                                                        <CheckCircle />
+                                                        {uploadedInsuranceEstimate.name}
+                                                    </div>
+                                                )}
                                             </div>
                                         </div>
 
-                                        {/* PDF Preview List */}
-                                        {uploadedPdfs.length > 0 && (
-                                            <div className="mt-8 space-y-3">
-                                                {uploadedPdfs.map((pdf, index) => (
-                                                    <div
-                                                        key={index}
-                                                        className="flex items-center justify-between p-4 rounded-lg border border-slate-200 bg-slate-50"
-                                                    >
-                                                        <div className="flex items-center gap-3 flex-1 min-w-0">
-                                                            <div className="w-10 h-10 rounded-lg bg-red-100 text-red-600 flex items-center justify-center flex-shrink-0">
-                                                                <FileText className="w-5 h-5" />
-                                                            </div>
-                                                            <div className="flex-1 min-w-0">
-                                                                <p className="font-medium text-slate-900 truncate">{pdf.name}</p>
-                                                                <p className="text-sm text-slate-500">{(pdf.size / 1024).toFixed(2)} KB</p>
-                                                            </div>
-                                                        </div>
-                                                        <button
-                                                            className="ml-4 p-2 hover:bg-slate-200 rounded-lg transition-colors flex-shrink-0"
-                                                            onClick={() => removePdf(index)}
-                                                        >
-                                                            <X className="w-5 h-5 text-slate-600" />
-                                                        </button>
-                                                    </div>
-                                                ))}
+                                        {/* Financial Breakdown */}
+                                        <div className="bg-white rounded-2xl shadow-sm border border-slate-200 p-8 md:p-10">
+                                            <div className="flex items-center gap-2 mb-6">
+                                                <DollarSign className="w-6 h-6 text-[#1a365d]" />
+                                                <h2 className="text-3xl font-bold text-slate-900">Financial Breakdown</h2>
                                             </div>
-                                        )}
+
+                                            <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
+                                                <div className="space-y-4">
+                                                    <div className="space-y-1.5">
+                                                        <Label className="font-medium text-slate-900">Cost Basis</Label>
+                                                        <RadioGroup
+                                                            value={restorationFormData.costBasis}
+                                                            onValueChange={(v) => handleRestorationInputChange("costBasis", v)}
+                                                            className="space-y-2"
+                                                        >
+                                                            <div className="flex items-center gap-2">
+                                                                <RadioGroupItem id="rcv" value="RCV" />
+                                                                <Label htmlFor="rcv" className="font-normal cursor-pointer">Replacement Cost Value (RCV)</Label>
+                                                            </div>
+                                                            <div className="flex items-center gap-2">
+                                                                <RadioGroupItem id="acv" value="ACV" />
+                                                                <Label htmlFor="acv" className="font-normal cursor-pointer">Actual Cash Value (ACV)</Label>
+                                                            </div>
+                                                        </RadioGroup>
+                                                    </div>
+
+                                                    <div className="space-y-1.5">
+                                                        <Label className="font-medium text-slate-900">Deductible</Label>
+                                                        <RadioGroup
+                                                            value={restorationFormData.hasDeductibleFunds.toString()}
+                                                            onValueChange={(v) =>
+                                                                handleRestorationInputChange("hasDeductibleFunds", v === "true")
+                                                            }
+                                                            className="space-y-2"
+                                                        >
+                                                            <div className="flex items-center gap-2">
+                                                                <RadioGroupItem id="fund-yes" value="true" />
+                                                                <Label htmlFor="fund-yes" className="font-normal cursor-pointer">I have deductible funds</Label>
+                                                            </div>
+                                                            <div className="flex items-center gap-2">
+                                                                <RadioGroupItem id="fund-no" value="false" />
+                                                                <Label htmlFor="fund-no" className="font-normal cursor-pointer">Need additional funding</Label>
+                                                            </div>
+                                                        </RadioGroup>
+                                                    </div>
+
+                                                    {!restorationFormData.hasDeductibleFunds && (
+                                                        <div className="ml-4 mt-2 border-l-2 border-slate-200 pl-4 space-y-2">
+                                                            <RadioGroup
+                                                                value={restorationFormData.fundingSource}
+                                                                onValueChange={(v) => handleRestorationInputChange("fundingSource", v)}
+                                                            >
+                                                                {["FEMA", "Insurance", "SBA"].map((src) => (
+                                                                    <div key={src} className="flex items-center gap-2">
+                                                                        <RadioGroupItem id={src} value={src} />
+                                                                        <Label htmlFor={src} className="font-normal cursor-pointer">{src} Assistance</Label>
+                                                                    </div>
+                                                                ))}
+                                                            </RadioGroup>
+                                                        </div>
+                                                    )}
+                                                </div>
+
+                                                <div className="space-y-4">
+                                                    {[
+                                                        ["materials", "Materials Cost ($)"],
+                                                        ["overheadAndProfit", "Overhead & Profit ($)"],
+                                                        ["salesTaxes", "Sales Taxes ($)"],
+                                                        ["depreciation", "Depreciation ($)"],
+                                                    ].map(([key, label]) => (
+                                                        <div key={key} className="space-y-1.5">
+                                                            <Label className="font-medium text-slate-900">{label}</Label>
+                                                            <Input
+                                                                type="number"
+                                                                placeholder="0.00"
+                                                                value={(restorationFormData as any)[key]}
+                                                                onChange={(e) =>
+                                                                    handleRestorationInputChange(key as any, e.target.value)
+                                                                }
+                                                                className="border-slate-300"
+                                                            />
+                                                        </div>
+                                                    ))}
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        {/* Job Posting Details */}
+                                        <div className="bg-white rounded-2xl shadow-sm border border-slate-200 p-8 md:p-10">
+                                            <div className="flex items-center gap-2 mb-6">
+                                                <Wrench className="w-6 h-6 text-[#1a365d]" />
+                                                <h2 className="text-3xl font-bold text-slate-900">Job Posting Details</h2>
+                                            </div>
+
+                                            <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
+                                                <div className="space-y-2">
+                                                    <Label className="font-medium text-slate-900">Total Job Value ($)</Label>
+                                                    <Input
+                                                        type="number"
+                                                        placeholder="0.00"
+                                                        value={restorationFormData.totalJobValue}
+                                                        onChange={(e) =>
+                                                            handleRestorationInputChange("totalJobValue", e.target.value)
+                                                        }
+                                                        className="border-slate-300"
+                                                    />
+                                                </div>
+
+                                                <div className="space-y-2">
+                                                    <Label className="font-medium text-slate-900">Reconstruction Type</Label>
+                                                    <Input
+                                                        placeholder="e.g. Fire damage restoration"
+                                                        value={restorationFormData.reconstructionType}
+                                                        onChange={(e) =>
+                                                            handleRestorationInputChange("reconstructionType", e.target.value)
+                                                        }
+                                                        className="border-slate-300"
+                                                    />
+                                                </div>
+
+                                                <div className="md:col-span-2 space-y-2">
+                                                    <Label className="font-medium text-slate-900">Additional Notes</Label>
+                                                    <Textarea
+                                                        placeholder="Add any relevant details..."
+                                                        className="min-h-[120px] border-slate-300"
+                                                        value={restorationFormData.additionalNotes}
+                                                        onChange={(e) =>
+                                                            handleRestorationInputChange("additionalNotes", e.target.value)
+                                                        }
+                                                    />
+                                                </div>
+                                            </div>
+                                        </div>
 
                                         {/* Navigation */}
                                         <div className="flex justify-between mt-8">
@@ -990,93 +1162,6 @@ export default function StartClaimPage() {
                                 )}
 
                                 {currentStep === 3 && (
-                                    <motion.div
-                                        key="step3-images"
-                                        initial={{ opacity: 0, x: 20 }}
-                                        animate={{ opacity: 1, x: 0 }}
-                                        exit={{ opacity: 0, x: -20 }}
-                                        transition={{ duration: 0.3 }}
-                                        className="bg-white rounded-2xl shadow-sm border border-slate-200 p-8 md:p-10"
-                                    >
-                                        <h2 className="text-3xl font-bold text-slate-900 mb-2">Upload Images</h2>
-                                        <p className="text-slate-600 mb-8">Upload any images or plans you'd like us to reference.</p>
-
-                                        {/* Upload Area */}
-                                        <div
-                                            onDrop={handleDrop}
-                                            onDragOver={(e) => e.preventDefault()}
-                                            className="border-2 border-dashed border-slate-300 hover:border-vendle-blue transition-all rounded-xl p-10 text-center cursor-pointer bg-slate-50/50"
-                                            onClick={() => fileInputRef.current.click()}
-                                        >
-                                            <input
-                                                type="file"
-                                                multiple
-                                                accept="image/*"
-                                                ref={fileInputRef}
-                                                className="hidden"
-                                                onChange={handleFileSelect}
-                                            />
-
-                                            <div className="flex flex-col items-center justify-center">
-                                                <div className="w-16 h-16 rounded-xl bg-vendle-blue/10 text-vendle-blue flex items-center justify-center mb-4">
-                                                    <Upload className="w-8 h-8" />
-                                                </div>
-
-                                                <p className="font-semibold text-slate-900">Click or drag files to upload</p>
-                                                <p className="text-sm text-slate-500 mt-1">You can upload multiple images</p>
-                                            </div>
-                                        </div>
-
-                                        {/* Preview Grid */}
-                                        {uploadedImages.length > 0 && (
-                                            <div className="grid grid-cols-2 md:grid-cols-3 gap-4 mt-8">
-                                                {uploadedImages.map((img, index) => (
-                                                    <div
-                                                        key={index}
-                                                        className="relative group rounded-xl overflow-hidden border border-slate-200 bg-white shadow-sm"
-                                                    >
-                                                        <img
-                                                            src={img.preview}
-                                                            alt="Upload preview"
-                                                            className="w-full h-32 object-cover"
-                                                        />
-
-                                                        {/* Remove Button */}
-                                                        <button
-                                                            className="absolute top-2 right-2 bg-white/90 hover:bg-white text-slate-700 rounded-full p-1 shadow-md opacity-0 group-hover:opacity-100 transition"
-                                                            onClick={() => removeImage(index)}
-                                                        >
-                                                            <X className="w-4 h-4" />
-                                                        </button>
-                                                    </div>
-                                                ))}
-                                            </div>
-                                        )}
-
-                                        {/* Navigation */}
-                                        <div className="flex justify-between mt-8">
-                                            <Button
-                                                onClick={prevStep}
-                                                variant="outline"
-                                                className="px-8 py-6 border-slate-300"
-                                            >
-                                                <ArrowLeft className="w-4 h-4 mr-2" />
-                                                Back
-                                            </Button>
-
-                                            <Button
-                                                onClick={nextStep}
-                                                disabled={!isCurrentStepValid()}
-                                                className="px-8 py-6 bg-[#1a365d] text-white hover:bg-[#1a365d]/90 disabled:opacity-50"
-                                            >
-                                                Continue
-                                                <ArrowRight className="w-4 h-4 ml-2" />
-                                            </Button>
-                                        </div>
-                                    </motion.div>
-                                )}
-
-                                {currentStep === 4 && (
                                     <motion.div
                                         key="step4-damage"
                                         initial={{ opacity: 0, x: 20 }}
@@ -1144,7 +1229,7 @@ export default function StartClaimPage() {
                                     </motion.div>
                                 )}
 
-                                {currentStep === 5 && (
+                                {currentStep === 4 && (
                                     <motion.div
                                         key="step5-property"
                                         initial={{ opacity: 0, x: 20 }}
@@ -1266,7 +1351,7 @@ export default function StartClaimPage() {
                                     </motion.div>
                                 )}
 
-                                {currentStep === 6 && (
+                                {currentStep === 5 && (
                                     <motion.div
                                         key="step6-timeline"
                                         initial={{ opacity: 0, x: 20 }}
@@ -1388,7 +1473,7 @@ export default function StartClaimPage() {
                                     </motion.div>
                                 )}
 
-                                {currentStep === 7 && (
+                                {currentStep === 6 && (
                                     <motion.div
                                         key="step7-project"
                                         initial={{ opacity: 0, x: 20 }}
@@ -1456,7 +1541,7 @@ export default function StartClaimPage() {
                                     </motion.div>
                                 )}
 
-                                {currentStep === 8 && (
+                                {currentStep === 7 && (
                                     <motion.div
                                         key="step8-design"
                                         initial={{ opacity: 0, x: 20 }}
@@ -1524,7 +1609,7 @@ export default function StartClaimPage() {
                                     </motion.div>
                                 )}
 
-                                {currentStep === 9 && (
+                                {currentStep === 8 && (
                                     <motion.div
                                         key="step9-claim"
                                         initial={{ opacity: 0, x: 20 }}
