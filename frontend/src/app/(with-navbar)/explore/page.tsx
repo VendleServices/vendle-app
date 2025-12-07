@@ -101,13 +101,13 @@ export default function ExplorePage() {
       setShowLoginModal(true)
       return
     }
+
     setSelectedJob(job)
   }
 
   const handleViewOpportunity = () => {
     if (selectedJob) {
       setShowContractModal(true)
-      // Keep selectedJob so modal can access it, but panel will be hidden by modal backdrop
     }
   }
 
@@ -178,106 +178,106 @@ export default function ExplorePage() {
             </div>
 
             {/* Opportunities Grid */}
-            <div className="grid gap-5 sm:grid-cols-2 xl:grid-cols-3">
-              {sortedJobs?.length === 0 ? (
-                  <div className="flex flex-col items-center justify-center py-16 px-4">
-                    <div className="rounded-full bg-muted p-6 mb-4">
-                      <Search className="h-12 w-12 text-muted-foreground" />
-                    </div>
-                    <h3 className="text-xl font-semibold text-foreground mb-2">
-                      No opportunities found
-                    </h3>
-                    <p className="text-sm text-muted-foreground text-center max-w-md">
-                      {searchQuery
-                          ? `No results match "${searchQuery}". Try adjusting your search.`
-                          : "There are no opportunities available at the moment. Check back later!"}
-                    </p>
-                    {searchQuery && (
-                        <Button
-                            variant="outline"
-                            className="mt-4"
-                            onClick={() => setSearchQuery("")}
-                        >
-                          Clear search
-                        </Button>
-                    )}
+            {sortedJobs?.length === 0 ? (
+                <div className="flex flex-col items-center justify-center py-16 px-4">
+                  <div className="rounded-full bg-muted p-6 mb-4">
+                    <Search className="h-12 w-12 text-muted-foreground" />
                   </div>
-              ) : sortedJobs?.map((job) => (
-                <Card
-                  key={job.id}
-                  className={`group relative flex flex-col overflow-hidden rounded-2xl border-border bg-card transition-all duration-200 hover:-translate-y-0.5 hover:shadow-lg hover:border-primary/20 cursor-pointer ${
-                    selectedJob?.id === job.id ? 'border-primary shadow-lg' : ''
-                  }`}
-                  onClick={() => handleViewDetails(job)}
-                >
-                  <CardHeader className="space-y-3 pb-4">
-                    {/* Title + Category Badge */}
-                    <div className="flex items-start justify-between gap-3">
-                      <h3 className="line-clamp-2 text-lg font-semibold leading-snug tracking-tight">
-                        {job.title}
-                      </h3>
-                      <Badge
-                        variant="secondary"
-                        className="shrink-0 rounded-full px-2.5 py-0.5 text-xs font-medium text-white"
+                  <h3 className="text-xl font-semibold text-foreground mb-2">
+                    No opportunities found
+                  </h3>
+                  <p className="text-sm text-muted-foreground text-center max-w-md">
+                    {searchQuery
+                        ? `No results match "${searchQuery}". Try adjusting your search.`
+                        : "There are no opportunities available at the moment. Check back later!"}
+                  </p>
+                  {searchQuery && (
+                      <Button
+                          variant="outline"
+                          className="mt-4"
+                          onClick={() => setSearchQuery("")}
                       >
-                        {job.category}
-                      </Badge>
-                    </div>
+                        Clear search
+                      </Button>
+                  )}
+                </div>
+            ) : (<div className="grid gap-5 sm:grid-cols-2 xl:grid-cols-3">
+              {sortedJobs?.map((job) => (
+                  <Card
+                      key={job.id}
+                      className={`group relative flex flex-col overflow-hidden rounded-2xl border-border bg-card transition-all duration-200 hover:-translate-y-0.5 hover:shadow-lg hover:border-primary/20 cursor-pointer ${
+                          selectedJob?.id === job.id ? 'border-primary shadow-lg' : ''
+                      }`}
+                      onClick={() => handleViewDetails(job)}
+                  >
+                    <CardHeader className="space-y-3 pb-4">
+                      {/* Title + Category Badge */}
+                      <div className="flex items-start justify-between gap-3">
+                        <h3 className="line-clamp-2 text-lg font-semibold leading-snug tracking-tight">
+                          {job.title}
+                        </h3>
+                        <Badge
+                            variant="secondary"
+                            className="shrink-0 rounded-full px-2.5 py-0.5 text-xs font-medium text-white"
+                        >
+                          {job.category}
+                        </Badge>
+                      </div>
 
-                    {/* Description */}
-                    <p className="line-clamp-3 text-sm leading-relaxed text-muted-foreground">
-                      {job.description}
-                    </p>
-                  </CardHeader>
+                      {/* Description */}
+                      <p className="line-clamp-3 text-sm leading-relaxed text-muted-foreground">
+                        {job.description}
+                      </p>
+                    </CardHeader>
 
-                  <CardContent className="flex-1 space-y-4 pb-4">
-                    {/* Budget */}
-                    <div className="space-y-0.5">
-                      <div className="flex items-baseline gap-1.5">
+                    <CardContent className="flex-1 space-y-4 pb-4">
+                      {/* Budget */}
+                      <div className="space-y-0.5">
+                        <div className="flex items-baseline gap-1.5">
                         <span className="text-2xl font-semibold tracking-tight text-primary">
                           {formatPrice(job.price)}
                         </span>
+                        </div>
+                        <p className="text-xs text-muted-foreground">Budget</p>
                       </div>
-                      <p className="text-xs text-muted-foreground">Budget</p>
-                    </div>
 
-                    {/* Meta Info: Location + Posted Date */}
-                    <div className="space-y-2 pt-1">
-                      <div className="flex items-start gap-2">
-                        <MapPin className="mt-0.5 h-4 w-4 shrink-0 text-muted-foreground" />
-                        <span className="text-sm leading-tight text-foreground">
+                      {/* Meta Info: Location + Posted Date */}
+                      <div className="space-y-2 pt-1">
+                        <div className="flex items-start gap-2">
+                          <MapPin className="mt-0.5 h-4 w-4 shrink-0 text-muted-foreground"/>
+                          <span className="text-sm leading-tight text-foreground">
                           {formatLocation(job.location)}
                         </span>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <Calendar className="h-4 w-4 shrink-0 text-muted-foreground" />
-                        <span className="text-sm text-muted-foreground">
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <Calendar className="h-4 w-4 shrink-0 text-muted-foreground"/>
+                          <span className="text-sm text-muted-foreground">
                           Posted {getTimeAgo(job.postedAt)}
                         </span>
+                        </div>
                       </div>
-                    </div>
-                  </CardContent>
+                    </CardContent>
 
-                  <CardFooter className="pt-0">
-                    <Button
-                      className="w-full rounded-lg"
-                      onClick={(e) => {
-                        e.stopPropagation()
-                        handleViewDetails(job)
-                      }}
-                    >
-                      View Details
-                      {!isLoggedIn && <Lock className="ml-2 h-4 w-4"/>}
-                    </Button>
-                  </CardFooter>
-                </Card>
+                    <CardFooter className="pt-0">
+                      <Button
+                          className="w-full rounded-lg"
+                          onClick={(e) => {
+                            e.stopPropagation()
+                            handleViewDetails(job)
+                          }}
+                      >
+                        View Details
+                        {!isLoggedIn && <Lock className="ml-2 h-4 w-4"/>}
+                      </Button>
+                    </CardFooter>
+                  </Card>
               ))}
-            </div>
+            </div>)}
           </div>
         </main>
 
         {/* Right Side Detail Panel */}
-        {selectedJob && !showContractModal && (
+        {selectedJob && (
           <div className="fixed right-0 top-0 h-screen w-[480px] bg-white border-l border-border shadow-2xl z-50 flex flex-col">
             {/* Scrollable Content */}
             <div className="flex-1 overflow-y-auto">
@@ -430,7 +430,7 @@ export default function ExplorePage() {
                 onClick={handleViewOpportunity}
               >
                 View Opportunity
-                <Lock className="ml-2 h-4 w-4" />
+                {!isLoggedIn && <Lock className="ml-2 h-4 w-4"/>}
               </Button>
             </div>
           </div>
@@ -444,9 +444,8 @@ export default function ExplorePage() {
       />
 
       {/* Contract Signing Modal */}
-      {selectedJob && (
+      {selectedJob && showContractModal ? (
         <ContractSigningModal
-          isOpen={showContractModal}
           onClose={() => {
             setShowContractModal(false)
             setSelectedJob(null)
@@ -456,7 +455,7 @@ export default function ExplorePage() {
           isSigned={selectedJob?.ndaSigned || false}
           onContractSigned={handleContractSigned}
         />
-      )}
+      ) : null}
 
       {/* Success Modal */}
       {selectedJob && (

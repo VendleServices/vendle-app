@@ -8,7 +8,6 @@ import { useApiService } from "@/services/api";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 
 interface ContractSigningModalProps {
-  isOpen: boolean;
   onClose: () => void;
   jobId: string;
   jobTitle: string;
@@ -17,7 +16,6 @@ interface ContractSigningModalProps {
 }
 
 export default function ContractSigningModal({
-  isOpen,
   onClose,
   jobId,
   jobTitle,
@@ -27,6 +25,7 @@ export default function ContractSigningModal({
   const { user } = useAuth();
   const apiService = useApiService();
   const queryClient = useQueryClient();
+  const ndaUrl = "/vendle_nda.pdf"
 
   const handleSignContract = async () => {
     try {
@@ -97,7 +96,7 @@ export default function ContractSigningModal({
           <div className="px-6 py-4">
             <div className="border border-gray-300 rounded-lg overflow-hidden bg-gray-50">
               <iframe
-                src="/vendle-contract.pdf"
+                src={ndaUrl}
                 className="w-full h-[500px]"
                 title="Vendle NDA Contract"
               />
@@ -136,9 +135,10 @@ export default function ContractSigningModal({
               </Button>
             </div>
           ) : (
-            <div className="flex items-center justify-center gap-2 text-green-600 py-2">
+            <div className="flex flex-col gap-y-2 items-center justify-center gap-2 text-green-600 py-2">
               <CheckCircle className="w-6 h-6" />
               <span className="font-semibold text-lg">Contract Signed Successfully!</span>
+              <span className="text-sm text-gray-600">Your request is pending approval from the homeowner.</span>
             </div>
           )}
 

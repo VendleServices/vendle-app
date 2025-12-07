@@ -100,14 +100,14 @@ export function AuctionCard({
           <Separator className="mb-4" />
 
           {/* Actions Section */}
-          <div className="flex items-center gap-3">
+          <div className="flex flex-col sm:flex-row items-center gap-2">
             <Button
               variant="default"
               size="sm"
               onClick={onViewDetails}
-              className="flex-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+              className="flex-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 p-2"
             >
-              <Eye className="mr-2 h-4 w-4" />
+              <Eye className="h-4 w-4" />
               View Details
             </Button>
             
@@ -116,9 +116,9 @@ export function AuctionCard({
                 variant="ghost"
                 size="sm"
                 onClick={onViewDetails}
-                className="flex-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+                className="flex-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 hover:bg-primary hover:text-white transition-colors p-2"
               >
-                <ArrowRight className="mr-2 h-4 w-4" />
+                <ArrowRight className="h-4 w-4" />
                 Place Bid
               </Button>
             )}
