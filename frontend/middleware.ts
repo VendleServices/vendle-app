@@ -7,14 +7,14 @@ export async function middleware(request: NextRequest) {
 
 export const config = {
     matcher: [
-        /*
-         * Match all request paths except for the ones starting with:
-         * - _next/static (static files)
-         * - _next/image (image optimization files)
-         * - favicon.ico (favicon file)
-         * Feel free to modify this pattern to include more paths.
-         */
-        '/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)',
+        "/claim/:path*",
+        "/auction/:path*",
+        "/start-claim/:path*",
+        "/home",
+        "/explore",
+        "/login",
+        "/signup",
+        "/contractor-signup",
     ],
 }
 
@@ -61,6 +61,10 @@ export async function updateSession(request: NextRequest) {
       '/start-claim/create-restor',
       '/home',
     ]
+
+    const isHomeowner =
+        user?.app_metadata?.userType === "homeowner" ||
+        user?.user_metadata?.userType === "homeowner";
     
     // Check if the current path is a protected route
     const isProtectedRoute = protectedRoutes.some(route => 
@@ -72,6 +76,14 @@ export async function updateSession(request: NextRequest) {
     const isAuthRoute = authRoutes.some(route => 
       request.nextUrl.pathname.startsWith(route)
     )
+
+    const isExploreRoute = request.nextUrl.pathname.startsWith('/explore');
+
+    if (user && isHomeowner && isExploreRoute) {
+        const url = request.nextUrl.clone()
+        url.pathname = '/home'
+        return NextResponse.redirect(url)
+    }
     
         // If user is not logged in and trying to access protected route
     if (!user && isProtectedRoute) {

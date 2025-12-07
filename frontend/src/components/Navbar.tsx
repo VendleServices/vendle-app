@@ -45,7 +45,7 @@ const Navbar = ({ onProtectedAction }: NavbarProps = {}) => {
   return (
     <nav className="fixed left-0 top-0 h-screen w-32 bg-white border-r border-gray-200 flex flex-col items-center py-8 z-50">
       {/* Logo */}
-      <Link href="/explore" className="mb-12">
+      <Link href={isContractor ? "/explore" : "/home"} className="mb-12">
         <Image src={vendleLogo} alt="Vendle Logo" width={56} height={56} className="h-14 w-14 rounded-lg" />
       </Link>
 
