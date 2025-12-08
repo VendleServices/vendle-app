@@ -44,6 +44,14 @@ import { LoadingSkeleton } from "@/components/LoadingSkeleton";
 import { toast } from "sonner";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import {
   getMockHomeownerProjects,
   type HomeownerProject,
   type Job, PendingNDA,
@@ -82,9 +90,15 @@ export default function HomePage() {
   const [showFilesDropdown, setShowFilesDropdown] = useState(false);
 
   // Homeowner tab state
-  const [homeownerTab, setHomeownerTab] = useState<'my-projects' | 'active-auctions' | 'closed-auctions' | 'claims'>('my-projects');
+  const [homeownerTab, setHomeownerTab] = useState<'pre-launch' | 'phase-1' | 'phase-2' | 'active-rebuild'>('pre-launch');
   const [homeownerProjects, setHomeownerProjects] = useState<HomeownerProject[]>([]);
   const [homeownerProjectsLoading, setHomeownerProjectsLoading] = useState(false);
+  const [selectedPreLaunchClaim, setSelectedPreLaunchClaim] = useState<any | null>(null);
+  const [showRecommendedContractors, setShowRecommendedContractors] = useState(false);
+  const [selectedClaimForInvite, setSelectedClaimForInvite] = useState<any | null>(null);
+  const [showLaunchModal, setShowLaunchModal] = useState(false);
+  const [claimToLaunch, setClaimToLaunch] = useState<any | null>(null);
+  const [ndaSignedCount, setNdaSignedCount] = useState(0);
 
   // Redirect if not authenticated
   useEffect(() => {
@@ -150,6 +164,17 @@ export default function HomePage() {
     setShowFilesDropdown(false);
   };
 
+  const handleLaunch = (claim: any) => {
+    // Launch the project - create auction from claim
+    toast.success("Project launched successfully!", {
+      description: "Your project is now live and visible to contractors.",
+    });
+    setShowLaunchModal(false);
+    setClaimToLaunch(null);
+    // In real implementation, this would call an API to create the auction
+    router.push(`/start-claim/create-restor/${claim.id}`);
+  };
+
   const handleFileClick = (file: any) => {
     if (file.type === 'pdf') {
       // Open PDF in new tab
@@ -170,9 +195,9 @@ export default function HomePage() {
     return `https://staticmap.openstreetmap.de/staticmap.php?center=${encodeURIComponent(query)}&zoom=13&size=400x300&maptype=mapnik`;
   };
 
-  // Fetch homeowner projects when My Projects tab is selected
+  // Fetch homeowner projects when Active Rebuild tab is selected
   useEffect(() => {
-    if (isHomeowner && !authLoading && homeownerTab === 'my-projects') {
+    if (isHomeowner && !authLoading && homeownerTab === 'active-rebuild') {
       setHomeownerProjectsLoading(true);
       // Simulate API call
       setTimeout(() => {
@@ -214,7 +239,13 @@ export default function HomePage() {
         }
     )) || [];
 
-    const phase1Projects: PhaseProject[] = auctions?.filter((auction: any) => auction?.ndas?.find((nda: any) => nda?.userId === user?.id && nda?.accepted))?.map((auction: any) => ({
+    // For homeowners: filter by their claim IDs, for contractors: filter by accepted NDAs
+    const claimIds = claims?.map((claim: any) => claim.id) || [];
+    const filterFunction = isHomeowner 
+      ? (auction: any) => claimIds.includes(auction?.claim_id)
+      : (auction: any) => auction?.ndas?.find((nda: any) => nda?.userId === user?.id && nda?.accepted);
+
+    const phase1Projects: PhaseProject[] = auctions?.filter(filterFunction)?.map((auction: any) => ({
       id: auction?.auction_id,
       title: auction?.title,
       address: auction?.property_address?.split(", ")?.[0],
@@ -223,8 +254,11 @@ export default function HomePage() {
       contractValue: auction?.starting_bid,
       phase1StartDate: auction?.phase1StartDate,
       phase1EndDate: auction?.phase1EndDate,
-      status: new Date() > new Date(auction?.phase1StartDate) && new Date() < new Date(auction?.phase1EndDate) ? "Active" : "Inactive",
+      status: auction?.phase1StartDate && auction?.phase1EndDate 
+        ? (new Date() > new Date(auction?.phase1StartDate) && new Date() < new Date(auction?.phase1EndDate) ? "Active" : "Inactive")
+        : "Pending",
       projectType: auction?.project_type,
+      bidCount: auction?.bid_count || auction?.bidCount || 0,
       homeownerName: auction?.homeownerName,
       homeownerPhone: '(555) 987-6543',
       description: auction?.description,
@@ -234,9 +268,9 @@ export default function HomePage() {
       },
       imageUrls: [],
       files: []
-    }));
+    })) || [];
 
-    const phase2Projects: PhaseProject[] = auctions?.filter((auction: any) => auction?.ndas?.find((nda: any) => nda?.userId === user?.id && nda?.accepted))?.map((auction: any) => ({
+    const phase2Projects: PhaseProject[] = auctions?.filter(filterFunction)?.map((auction: any) => ({
       id: auction?.auction_id,
       title: auction?.title,
       address: auction?.property_address?.split(", ")?.[0],
@@ -245,7 +279,9 @@ export default function HomePage() {
       contractValue: auction?.starting_bid,
       phase2StartDate: auction?.phase2StartDate,
       phase2EndDate: auction?.phase2EndDate,
-      status: new Date() > new Date(auction?.phase2StartDate) && new Date() < new Date(auction?.phase2EndDate) ? "Active" : "Inactive",
+      status: auction?.phase2StartDate && auction?.phase2EndDate 
+        ? (new Date() > new Date(auction?.phase2StartDate) && new Date() < new Date(auction?.phase2EndDate) ? "Active" : "Inactive")
+        : "Pending",
       projectType: auction?.project_type,
       homeownerName: auction?.homeownerName,
       homeownerPhone: '(555) 987-6543',
@@ -257,10 +293,10 @@ export default function HomePage() {
       imageUrls: [],
       files: [],
       competingBids: []
-    }));
+    })) || [];
 
     return { pendingNDAs, phase1Projects, phase2Projects };
-  }, [auctions, user?.id]);
+  }, [auctions, user?.id, claims, isHomeowner]);
 
   // Fetch contractor data (only if contractor)
   const { data: contractorMetrics, isLoading: metricsLoading } = useQuery({
@@ -271,6 +307,37 @@ export default function HomePage() {
     },
     enabled: !!user?.id && isContractor
   })
+
+  // Fetch Phase 1 bids for Phase 2 projects
+  const { data: phase1Bids, isLoading: phase1BidsLoading } = useQuery({
+    queryKey: ['phase1Bids', selectedPhaseProject?.id, auctions],
+    queryFn: async () => {
+      if (!selectedPhaseProject?.id || !selectedPhaseProject?.phase2StartDate || !auctions) return null;
+      
+      // Find the current Phase 2 auction
+      const currentAuction = auctions?.find((auction: any) => auction?.auction_id === selectedPhaseProject.id);
+      if (!currentAuction?.claim_id) return null;
+      
+      // Find Phase 1 auction for this project (same claim_id, has phase1StartDate but no phase2StartDate)
+      const phase1Auction = auctions?.find((auction: any) => 
+        auction?.claim_id === currentAuction.claim_id &&
+        auction?.phase1StartDate &&
+        !auction?.phase2StartDate &&
+        auction?.auction_id !== selectedPhaseProject.id
+      );
+      
+      if (!phase1Auction?.auction_id) return null;
+      
+      try {
+        const response: any = await apiService.get(`/api/bids/${phase1Auction.auction_id}`);
+        return response?.expandedBidInfo || [];
+      } catch (error) {
+        console.error('Error fetching Phase 1 bids:', error);
+        return [];
+      }
+    },
+    enabled: !!selectedPhaseProject?.id && !!selectedPhaseProject?.phase2StartDate && !!auctions && auctions.length > 0
+  });
 
   const { homeownerActiveAuctions, homeownerClosedAuctions } = useMemo(() => {
     if (!auctions || auctions.length === 0) {
@@ -375,7 +442,7 @@ export default function HomePage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 pl-32">
+    <div className="min-h-screen bg-gray-50 pl-32 overflow-x-hidden">
       {/* Right Side Detail Panel */}
       {selectedJob && (
         <div className="fixed right-0 top-0 h-screen w-1/2 bg-white border-l border-gray-200 shadow-2xl z-50 flex flex-col">
@@ -602,10 +669,47 @@ export default function HomePage() {
                 </Badge>
               </div>
 
+              {/* Phase 1 Bidders - Only for Phase 2 projects */}
+              {selectedPhaseProject.phase2StartDate && phase1Bids && phase1Bids.length > 0 && (
+                <div className="space-y-4 pt-4 border-t border-gray-200">
+                  <h4 className="text-lg font-semibold text-gray-900">Phase 1 Bidders (Ranked from Phase 1 End)</h4>
+                  <div className="space-y-3">
+                    {phase1Bids
+                      .sort((a: any, b: any) => a.bid_amount - b.bid_amount)
+                      .map((bid: any, index: number) => (
+                        <div 
+                          key={bid.contractor_id || index} 
+                          className="flex items-center justify-between p-4 rounded-lg border border-gray-200 bg-gray-50 hover:bg-gray-100 transition-colors"
+                        >
+                          <div className="flex items-center gap-3">
+                            <div className="flex items-center justify-center w-8 h-8 rounded-full bg-blue-600 text-white font-semibold text-sm">
+                              #{index + 1}
+                            </div>
+                            <div>
+                              <p className="font-semibold text-gray-900">
+                                {bid.company_name || bid.contractor_name || `Contractor ${index + 1}`}
+                              </p>
+                              {bid.contractor_name && bid.contractor_name !== bid.company_name && (
+                                <p className="text-xs text-gray-500">{bid.contractor_name}</p>
+                              )}
+                            </div>
+                          </div>
+                          <div className="text-right">
+                            <p className="text-lg font-bold text-blue-600">
+                              ${bid.bid_amount?.toLocaleString() || '0'}
+                            </p>
+                            <p className="text-xs text-gray-500">Phase 1 Proposal</p>
+                          </div>
+                        </div>
+                      ))}
+                  </div>
+                </div>
+              )}
+
               {/* Phase 2 Dashboard - Only for Phase 2 */}
               {selectedPhaseProject.phase2StartDate && selectedPhaseProject.competingBids && (
                 <div className="space-y-4 pt-4 border-t border-gray-200">
-                  <h4 className="text-lg font-semibold text-gray-900">Bid Comparison Dashboard</h4>
+                  <h4 className="text-lg font-semibold text-gray-900">Current Phase 2 Bidders</h4>
                   
                   {/* Analytics Summary */}
                   <div className="grid grid-cols-3 gap-4 mb-4">
@@ -930,35 +1034,7 @@ export default function HomePage() {
               </CardContent>
             </Card>
           </div>
-        ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Total Claims</CardTitle>
-              <Building2 className="h-4 w-4 text-muted-foreground" />
-            </CardHeader>
-            <CardContent>
-                <div className="text-2xl font-bold">{homeownerStats.totalClaims}</div>
-              <p className="text-xs text-muted-foreground">
-                  {homeownerStats.activeClaims} active, {homeownerStats.completedClaims} completed
-              </p>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Active Auctions</CardTitle>
-              <DollarSign className="h-4 w-4 text-muted-foreground" />
-            </CardHeader>
-            <CardContent>
-                <div className="text-2xl font-bold">{homeownerStats.activeAuctions}</div>
-                <p className="text-xs text-muted-foreground">
-                    {homeownerStats.totalAuctions} total auctions
-                </p>
-            </CardContent>
-          </Card>
-        </div>
-        )}
+        ) : null}
 
         {/* Contractor Tabs and Content */}
         {isContractor ? (
@@ -1634,60 +1710,71 @@ export default function HomePage() {
             </div>
           </div>
         ) : (
-        <div className="space-y-6">
-          {/* Homeowner Tab Navigation */}
+        <div className={`space-y-6 transition-all duration-300 px-4 py-8 max-w-full ${selectedPreLaunchClaim || showRecommendedContractors ? 'pr-[480px]' : ''}`}>
+          {/* Homeowner Tab Navigation - Horizontal Layout */}
           <div className="border-b border-gray-200">
             <nav className="-mb-px flex space-x-8">
+              {/* Section 1: Pre-Launch */}
               <button
-                onClick={() => setHomeownerTab('my-projects')}
+                onClick={() => setHomeownerTab('pre-launch')}
                 className={`border-b-2 py-4 px-1 text-sm font-medium transition-colors ${
-                  homeownerTab === 'my-projects'
+                  homeownerTab === 'pre-launch'
                     ? 'border-blue-600 text-blue-600'
                     : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
                 }`}
               >
                 <div className="flex items-center gap-2">
                   <Building2 className="h-4 w-4" />
-                  My Projects
+                  Pre-Launch
                 </div>
               </button>
+
+              {/* Separator */}
+              <div className="border-l border-gray-300 h-8 my-auto"></div>
+
+              {/* Section 2: Phase 1 and Phase 2 */}
               <button
-                onClick={() => setHomeownerTab('active-auctions')}
+                onClick={() => setHomeownerTab('phase-1')}
                 className={`border-b-2 py-4 px-1 text-sm font-medium transition-colors ${
-                  homeownerTab === 'active-auctions'
+                  homeownerTab === 'phase-1'
                     ? 'border-blue-600 text-blue-600'
                     : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
                 }`}
               >
                 <div className="flex items-center gap-2">
-                  <DollarSign className="h-4 w-4" />
-                  Active Auctions
+                  <Activity className="h-4 w-4" />
+                  Phase 1
                 </div>
               </button>
               <button
-                onClick={() => setHomeownerTab('closed-auctions')}
+                onClick={() => setHomeownerTab('phase-2')}
                 className={`border-b-2 py-4 px-1 text-sm font-medium transition-colors ${
-                  homeownerTab === 'closed-auctions'
+                  homeownerTab === 'phase-2'
                     ? 'border-blue-600 text-blue-600'
                     : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
                 }`}
               >
                 <div className="flex items-center gap-2">
-                  <Archive className="h-4 w-4" />
-                  Closed Auctions
+                  <Activity className="h-4 w-4" />
+                  Phase 2
                 </div>
               </button>
+
+              {/* Separator */}
+              <div className="border-l border-gray-300 h-8 my-auto"></div>
+
+              {/* Section 3: Active Rebuild */}
               <button
-                  onClick={() => setHomeownerTab('claims')}
-                  className={`border-b-2 py-4 px-1 text-sm font-medium transition-colors ${
-                      homeownerTab === 'claims'
-                          ? 'border-blue-600 text-blue-600'
-                          : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
-                  }`}
+                onClick={() => setHomeownerTab('active-rebuild')}
+                className={`border-b-2 py-4 px-1 text-sm font-medium transition-colors ${
+                  homeownerTab === 'active-rebuild'
+                    ? 'border-blue-600 text-blue-600'
+                    : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                }`}
               >
                 <div className="flex items-center gap-2">
-                  <FileText className="h-4 w-4" />
-                  Claims
+                  <Wrench className="h-4 w-4" />
+                  Active Rebuild
                 </div>
               </button>
             </nav>
@@ -1695,18 +1782,268 @@ export default function HomePage() {
 
           {/* Homeowner Tab Content */}
           <div>
-            {homeownerTab === 'my-projects' ? (
+            {homeownerTab === 'pre-launch' ? (
+              <>
+                {claimsLoading ? (
+                  <LoadingSkeleton />
+                ) : claims?.length === 0 ? (
+                  <EmptyState
+                    icon={Building2}
+                    title="No Pre-Launch Projects"
+                    description="Complete the Vendle It process to create a pre-launch project. Once submitted, it will appear here and be visible to contractors."
+                    actionLabel="Start Vendle It"
+                    onAction={() => router.push('/start-claim')}
+                  />
+                ) : (
+                  <div className={`grid gap-6 sm:gap-8 transition-all duration-300 ${
+                    selectedPreLaunchClaim || showRecommendedContractors
+                      ? 'grid-cols-1 md:grid-cols-1' 
+                      : 'grid-cols-1 md:grid-cols-2 xl:grid-cols-3'
+                  }`}>
+                    {claims?.map((claim: any) => (
+                      <Card key={claim.id} className="hover:shadow-lg transition-shadow">
+                        <CardHeader>
+                          <div className="flex items-start justify-between">
+                            <div className="flex-1">
+                              <CardTitle className="text-lg mb-1">
+                                {claim.street || 'Untitled Project'}
+                              </CardTitle>
+                              <div className="flex items-center gap-2 text-sm text-gray-600 mt-1">
+                                <MapPin className="h-4 w-4" />
+                                <span>{claim.street}, {claim.city}, {claim.state} {claim.zipCode}</span>
+                              </div>
+                            </div>
+                            <Badge className="bg-yellow-100 text-yellow-800 border-yellow-200">
+                              Pre-Launch
+                            </Badge>
+                          </div>
+                        </CardHeader>
+                        <CardContent>
+                          <div className="space-y-4">
+                            <div className="space-y-2">
+                              <div className="flex items-center justify-between text-sm">
+                                <span className="text-gray-600">Project Type:</span>
+                                <span className="font-medium">{claim.projectType || 'N/A'}</span>
+                              </div>
+                            </div>
+                            <div className="flex flex-col gap-2 pt-2">
+                              <div className="flex gap-2">
+                                <Button 
+                                  variant="outline" 
+                                  className="flex-1"
+                                  onClick={() => {
+                                    setShowRecommendedContractors(false);
+                                    setSelectedClaimForInvite(null);
+                                    setSelectedPreLaunchClaim(claim);
+                                  }}
+                                >
+                                  View Details
+                                </Button>
+                                <Button 
+                                  variant="default"
+                                  className="flex-1 bg-blue-600 hover:bg-blue-700"
+                                  onClick={() => {
+                                    setSelectedPreLaunchClaim(null);
+                                    setSelectedClaimForInvite(claim);
+                                    setShowRecommendedContractors(true);
+                                  }}
+                                >
+                                  <Users className="h-4 w-4 mr-2" />
+                                  Invite Contractors
+                                </Button>
+                              </div>
+                              <Button 
+                                variant="default"
+                                className="w-full bg-green-600 hover:bg-green-700"
+                                onClick={() => {
+                                  // Get count of contractors who signed NDA for this claim
+                                  const claimAuction = auctions?.find((auction: any) => auction?.claim_id === claim.id);
+                                  const signedNdaCount = claimAuction?.ndas?.filter((nda: any) => nda?.accepted === true)?.length || 0;
+                                  
+                                  setNdaSignedCount(signedNdaCount);
+                                  setClaimToLaunch(claim);
+                                  
+                                  if (signedNdaCount < 5) {
+                                    setShowLaunchModal(true);
+                                  } else {
+                                    handleLaunch(claim);
+                                  }
+                                }}
+                              >
+                                Launch
+                              </Button>
+                            </div>
+                          </div>
+                        </CardContent>
+                      </Card>
+                    ))}
+                  </div>
+                )}
+              </>
+            ) : homeownerTab === 'phase-1' ? (
+              <>
+                {auctionsLoading ? (
+                  <LoadingSkeleton />
+                ) : phase1Projects?.length === 0 ? (
+                  <EmptyState
+                    icon={Activity}
+                    title="No Phase 1 Projects"
+                    description="You don't have any Phase 1 projects at this time. Phase 1 projects will appear here once contractors accept NDAs and begin work."
+                  />
+                ) : (
+                  <div className={`grid gap-6 sm:gap-8 transition-all duration-300 ${
+                    selectedPreLaunchClaim || showRecommendedContractors
+                      ? 'grid-cols-1 md:grid-cols-1' 
+                      : 'grid-cols-1 md:grid-cols-2 xl:grid-cols-3'
+                  }`}>
+                    {phase1Projects?.map((project) => (
+                      <Card key={project.id} className="hover:shadow-lg transition-shadow">
+                        <CardHeader>
+                          <div className="flex items-start justify-between">
+                            <div className="flex-1">
+                              <CardTitle className="text-lg mb-1">{project.title}</CardTitle>
+                              <div className="flex items-center gap-2 text-sm text-gray-600 mt-1">
+                                <MapPin className="h-4 w-4" />
+                                <span>{project.address}, {project.city}, {project.state}</span>
+                              </div>
+                            </div>
+                            <Badge className={`${
+                              project.status === 'Active' 
+                                ? 'bg-green-100 text-green-800 border-green-200' 
+                                : 'bg-gray-100 text-gray-800 border-gray-200'
+                            }`}>
+                              {project.status}
+                            </Badge>
+                          </div>
+                        </CardHeader>
+                        <CardContent>
+                          <div className="space-y-4">
+                            <div className="space-y-2">
+                              <div className="flex items-center justify-between text-sm">
+                                <span className="text-gray-600">Number of Bidders:</span>
+                                <span className="font-semibold text-blue-600">{(project as any).bidCount || 0}</span>
+                              </div>
+                              {project.phase1StartDate && (
+                                <div className="flex items-center justify-between text-sm">
+                                  <span className="text-gray-600">Start Date:</span>
+                                  <span className="font-medium">{new Date(project.phase1StartDate).toLocaleDateString()}</span>
+                                </div>
+                              )}
+                              {project.phase1EndDate && (
+                                <div className="flex items-center justify-between text-sm">
+                                  <span className="text-gray-600">End Date:</span>
+                                  <span className="font-medium">{new Date(project.phase1EndDate).toLocaleDateString()}</span>
+                                </div>
+                              )}
+                            </div>
+                            <div className="flex gap-2 pt-2">
+                              <Button 
+                                variant="outline" 
+                                className="flex-1"
+                                onClick={() => router.push(`/auction/${project.id}`)}
+                              >
+                                View Details
+                              </Button>
+                            </div>
+                          </div>
+                        </CardContent>
+                      </Card>
+                    ))}
+                  </div>
+                )}
+              </>
+            ) : homeownerTab === 'phase-2' ? (
+              <>
+                {auctionsLoading ? (
+                  <LoadingSkeleton />
+                ) : phase2Projects?.length === 0 ? (
+                  <EmptyState
+                    icon={Activity}
+                    title="No Phase 2 Projects"
+                    description="You don't have any Phase 2 projects at this time. Phase 2 projects will appear here once Phase 1 is completed."
+                  />
+                ) : (
+                  <div className={`grid gap-6 sm:gap-8 transition-all duration-300 ${
+                    selectedPreLaunchClaim || showRecommendedContractors
+                      ? 'grid-cols-1 md:grid-cols-1' 
+                      : 'grid-cols-1 md:grid-cols-2 xl:grid-cols-3'
+                  }`}>
+                    {phase2Projects?.map((project) => (
+                      <Card key={project.id} className="hover:shadow-lg transition-shadow">
+                        <CardHeader>
+                          <div className="flex items-start justify-between">
+                            <div className="flex-1">
+                              <CardTitle className="text-lg mb-1">{project.title}</CardTitle>
+                              <div className="flex items-center gap-2 text-sm text-gray-600 mt-1">
+                                <MapPin className="h-4 w-4" />
+                                <span>{project.address}, {project.city}, {project.state}</span>
+                              </div>
+                            </div>
+                            <Badge className={`${
+                              project.status === 'Active' 
+                                ? 'bg-green-100 text-green-800 border-green-200' 
+                                : 'bg-gray-100 text-gray-800 border-gray-200'
+                            }`}>
+                              {project.status}
+                            </Badge>
+                          </div>
+                        </CardHeader>
+                        <CardContent>
+                          <div className="space-y-4">
+                            <div className="space-y-2">
+                              <div className="flex items-center justify-between text-sm">
+                                <span className="text-gray-600">Project Type:</span>
+                                <span className="font-medium">{project.projectType}</span>
+                              </div>
+                              <div className="flex items-center justify-between text-sm">
+                                <span className="text-gray-600">Contract Value:</span>
+                                <span className="font-semibold text-blue-600">${project.contractValue?.toLocaleString() || '0'}</span>
+                              </div>
+                              {project.phase2StartDate && (
+                                <div className="flex items-center justify-between text-sm">
+                                  <span className="text-gray-600">Start Date:</span>
+                                  <span className="font-medium">{new Date(project.phase2StartDate).toLocaleDateString()}</span>
+                                </div>
+                              )}
+                              {project.phase2EndDate && (
+                                <div className="flex items-center justify-between text-sm">
+                                  <span className="text-gray-600">End Date:</span>
+                                  <span className="font-medium">{new Date(project.phase2EndDate).toLocaleDateString()}</span>
+                                </div>
+                              )}
+                            </div>
+                            <div className="flex gap-2 pt-2">
+                              <Button 
+                                variant="outline" 
+                                className="flex-1"
+                                onClick={() => router.push(`/auction/${project.id}`)}
+                              >
+                                View Details
+                              </Button>
+                            </div>
+                          </div>
+                        </CardContent>
+                      </Card>
+                    ))}
+                  </div>
+                )}
+              </>
+            ) : homeownerTab === 'active-rebuild' ? (
               <>
                 {homeownerProjectsLoading ? (
                   <LoadingSkeleton />
                 ) : homeownerProjects?.length === 0 ? (
                   <EmptyState
-                    icon={Building2}
-                    title="No Active Projects"
-                    description="You don't have any active projects yet. Projects will appear here once you accept a contractor's bid."
+                    icon={Wrench}
+                    title="No Active Rebuild Projects"
+                    description="Projects that have completed all phases will appear here once construction begins."
                   />
                 ) : (
-                  <div className="grid gap-6 sm:gap-8 grid-cols-1 md:grid-cols-2 xl:grid-cols-3">
+                  <div className={`grid gap-6 sm:gap-8 transition-all duration-300 ${
+                    selectedPreLaunchClaim || showRecommendedContractors
+                      ? 'grid-cols-1 md:grid-cols-1' 
+                      : 'grid-cols-1 md:grid-cols-2 xl:grid-cols-3'
+                  }`}>
                     {homeownerProjects?.map((project) => (
                       <Card key={project.id} className="hover:shadow-lg transition-shadow">
                         <CardHeader>
@@ -1815,160 +2152,311 @@ export default function HomePage() {
                   </div>
                 )}
               </>
-            ) : homeownerTab === 'active-auctions' ? (
-              <>
-                {auctionsLoading ? (
-                  <LoadingSkeleton />
-                ) : (homeownerActiveAuctions?.length === 0 && auctions?.length > 0) ? (
-                  <div className="space-y-4">
-                    <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
-                      <p className="text-sm text-yellow-800">
-                        Found {auctions.length} auction(s) but none match your claims. Showing all auctions for debugging:
-                      </p>
-                    </div>
-                    <div className="grid gap-6 sm:gap-8 grid-cols-1 md:grid-cols-2 xl:grid-cols-3">
-                      {auctions.slice(0, 6).map((auction: any) => {
-                        console.log('Rendering debug auction card:', auction);
-                        return (
-                          <AuctionCard
-                            key={auction.auction_id || auction.id}
-                            title={auction.title || 'Untitled Auction'}
-                            scope={auction.project_type || auction.scope || 'N/A'}
-                            finalBid={auction.current_bid || auction.currentBid || auction.finalBid || 0}
-                            totalBids={auction.bid_count || auction.bidCount || auction.totalBids || 0}
-                            endedAt={auction.end_date || auction.auctionEndDate || auction.endedAt}
-                            status={auction.status === 'closed' ? 'closed' : 'open'}
-                            onViewDetails={() => router.push(`/auction/${auction.auction_id || auction.id}`)}
-                          />
-                        );
-                      })}
-                    </div>
-                  </div>
-                ) : homeownerActiveAuctions?.length === 0 ? (
-                  <EmptyState
-                    icon={DollarSign}
-                    title="No Active Auctions"
-                    description="There are currently no active auctions for your claims. Create a restoration job from your claims to start an auction."
-                    actionLabel="Start Claim"
-                    onAction={() => router.push('/start-claim')}
-                  />
-                ) : (
-                  <div className="grid gap-6 sm:gap-8 grid-cols-1 md:grid-cols-2 xl:grid-cols-3">
-                    {homeownerActiveAuctions?.map((auction: any) => {
-                      console.log('Rendering active auction card:', auction);
-                      return (
-                        <AuctionCard
-                          key={auction.auction_id || auction.id}
-                          title={auction.title || 'Untitled Auction'}
-                          scope={auction.project_type || auction.scope || 'N/A'}
-                          finalBid={auction.current_bid || auction.currentBid || auction.finalBid || 0}
-                          totalBids={auction.bid_count || auction.bidCount || auction.totalBids || 0}
-                          endedAt={auction.end_date || auction.auctionEndDate || auction.endedAt}
-                          status="open"
-                          onViewDetails={() => router.push(`/auction/${auction.auction_id || auction.id}`)}
-                        />
-                      );
-                    })}
-                  </div>
-                )}
-              </>
-            ) : homeownerTab === 'closed-auctions' ? (
-              <>
-                {auctionsLoading ? (
-                  <LoadingSkeleton />
-                ) : (homeownerClosedAuctions?.length === 0 && auctions?.length > 0) ? (
-                  <div className="space-y-4">
-                    <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
-                      <p className="text-sm text-yellow-800">
-                        Found {auctions.length} auction(s) but none match your claims. Showing all auctions for debugging:
-                      </p>
-                    </div>
-                    <div className="grid gap-6 sm:gap-8 grid-cols-1 md:grid-cols-2 xl:grid-cols-3">
-                      {auctions.slice(0, 6).map((auction: any) => {
-                        console.log('Rendering debug closed auction card:', auction);
-                        return (
-                          <AuctionCard
-                            key={auction.auction_id || auction.id}
-                            title={auction.title || 'Untitled Auction'}
-                            scope={auction.project_type || auction.scope || 'N/A'}
-                            finalBid={auction.current_bid || auction.currentBid || auction.finalBid || 0}
-                            totalBids={auction.bid_count || auction.bidCount || auction.totalBids || 0}
-                            endedAt={auction.end_date || auction.auctionEndDate || auction.endedAt}
-                            status="closed"
-                            onViewDetails={() => router.push(`/auction/${auction.auction_id || auction.id}`)}
-                          />
-                        );
-                      })}
-                    </div>
-                  </div>
-                ) : homeownerClosedAuctions?.length === 0 ? (
-                  <EmptyState
-                    icon={Archive}
-                    title="No Closed Auctions"
-                    description="You don't have any closed auctions yet. Closed auctions will appear here once they end."
-                  />
-                ) : (
-                  <div className="grid gap-6 sm:gap-8 grid-cols-1 md:grid-cols-2 xl:grid-cols-3">
-                    {homeownerClosedAuctions?.map((auction: any) => {
-                      console.log('Rendering closed auction card:', auction);
-                      return (
-                        <AuctionCard
-                          key={auction.auction_id || auction.id}
-                          title={auction.title || 'Untitled Auction'}
-                          scope={auction.project_type || auction.scope || 'N/A'}
-                          finalBid={auction.current_bid || auction.currentBid || auction.finalBid || 0}
-                          totalBids={auction.bid_count || auction.bidCount || auction.totalBids || 0}
-                          endedAt={auction.end_date || auction.auctionEndDate || auction.endedAt}
-                          status="closed"
-                          onViewDetails={() => router.push(`/auction/${auction.auction_id || auction.id}`)}
-                        />
-                      );
-                    })}
-                  </div>
-                )}
-              </>
-            ) : homeownerTab === 'claims' ? (
-              <>
-                {claimsLoading ? (
-                  <LoadingSkeleton />
-                ) : claims?.length === 0 ? (
-                  <EmptyState
-                    icon={FileText}
-                    title="No Claims Found"
-                    description="You haven't filed any claims yet. Start a new claim to get started with your recovery process."
-                    actionLabel="Start New Claim"
-                    onAction={() => router.push("/start-claim")}
-                  />
-                ) : (
-                <div className="grid gap-4 sm:gap-6 grid-cols-1 sm:grid-cols-2 md:grid-cols-3">
-                  {claims?.map((claim: any) => (
-                      <ClaimCard
-                          key={claim.id}
-                          id={claim.id}
-                          street={claim.street}
-                          city={claim.city}
-                          state={claim.state}
-                          zipCode={claim.zipCode}
-                          projectType={claim.projectType}
-                          designPlan={claim.designPlan}
-                          needsAdjuster={claim.needsAdjuster}
-                          insuranceProvider={claim.insuranceProvider ? (claim.insuranceProvider === 'statefarm' ? 'State Farm' : claim.insuranceProvider) : 'Not specified'}
-                          createdAt={claim.createdAt}
-                          updatedAt={claim.updatedAt}
-                          onViewDetails={() => router.push(`/claim/${claim.id}`)}
-                          onCreateRestoration={() => router.push(`/start-claim/create-restor/${claim.id}`)}
-                          onDelete={() => {
-                            toast("Delete functionality coming soon");
-                          }}
-                      />
-                  ))}
-                </div>
-              )}
-            </>
             ) : null}
           </div>
         </div>
         )}
+
+        {/* Pre-Launch View Details Panel */}
+        {selectedPreLaunchClaim && (
+          <div className="fixed right-0 top-0 h-screen w-[480px] bg-white border-l border-gray-200 shadow-2xl z-50 flex flex-col">
+            <div className="flex-1 overflow-y-auto">
+              {/* Header */}
+              <div className="sticky top-0 bg-white border-b border-gray-200 px-6 py-4 flex items-center justify-between z-10">
+                <h2 className="text-xl font-bold text-gray-900">Pre-Launch Project Details</h2>
+                <button
+                  onClick={() => setSelectedPreLaunchClaim(null)}
+                  className="p-2 hover:bg-gray-100 rounded-full transition-colors"
+                >
+                  <X className="h-5 w-5 text-gray-600" />
+                </button>
+              </div>
+
+              {/* Content */}
+              <div className="px-6 py-6 space-y-6">
+                {/* Title */}
+                <div>
+                  <h3 className="text-2xl font-bold text-gray-900 mb-2">
+                    {selectedPreLaunchClaim.street || 'Untitled Project'}
+                  </h3>
+                  <Badge className="bg-yellow-100 text-yellow-800 border-yellow-200 rounded-full px-2.5 py-0.5 text-xs font-medium">
+                    {selectedPreLaunchClaim.projectType || 'N/A'}
+                  </Badge>
+                </div>
+
+                {/* Location */}
+                <div className="space-y-1">
+                  <p className="text-sm text-gray-600">Location</p>
+                  <div className="flex items-center gap-2">
+                    <MapPin className="h-4 w-4 text-gray-600" />
+                    <p className="text-base font-medium text-gray-900">
+                      {selectedPreLaunchClaim.street}, {selectedPreLaunchClaim.city}, {selectedPreLaunchClaim.state} {selectedPreLaunchClaim.zipCode}
+                    </p>
+                  </div>
+                </div>
+
+                {/* Phase Dates - Placeholder for now */}
+                <div className="space-y-4 pt-4 border-t border-gray-200">
+                  <h4 className="text-lg font-semibold text-gray-900">Project Timeline</h4>
+                  <div className="space-y-3">
+                    <div className="space-y-2">
+                      <p className="text-sm text-gray-600">Phase 1 Timeline</p>
+                      <div className="flex items-center gap-4 text-sm">
+                        <div className="flex items-center gap-2">
+                          <Calendar className="h-4 w-4 text-gray-600" />
+                          <span className="font-medium text-gray-500">Start: TBD</span>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <Clock className="h-4 w-4 text-gray-600" />
+                          <span className="font-medium text-gray-500">End: TBD</span>
+                        </div>
+                      </div>
+                    </div>
+                    <div className="space-y-2">
+                      <p className="text-sm text-gray-600">Phase 2 Timeline</p>
+                      <div className="flex items-center gap-4 text-sm">
+                        <div className="flex items-center gap-2">
+                          <Calendar className="h-4 w-4 text-gray-600" />
+                          <span className="font-medium text-gray-500">Start: TBD</span>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <Clock className="h-4 w-4 text-gray-600" />
+                          <span className="font-medium text-gray-500">End: TBD</span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Calendly Scheduler */}
+                <div className="space-y-2 pt-4 border-t border-gray-200">
+                  <p className="text-sm font-semibold text-gray-900">Schedule Site Visit</p>
+                  <Button
+                    variant="outline"
+                    className="w-full border-blue-600 text-blue-600 hover:bg-blue-600 hover:text-white"
+                    onClick={() => window.open('https://calendly.com/vendle/site-visit', '_blank')}
+                  >
+                    <Calendar className="h-4 w-4 mr-2" />
+                    Schedule with Calendly
+                  </Button>
+                </div>
+
+                {/* Chat Section */}
+                <div className="space-y-2 pt-4 border-t border-gray-200">
+                  <p className="text-sm font-semibold text-gray-900">Project Chat</p>
+                  <div className="bg-gray-50 rounded-lg p-4 min-h-[200px] flex items-center justify-center">
+                    <div className="text-center">
+                      <MessageSquare className="h-8 w-8 text-gray-400 mx-auto mb-2" />
+                      <p className="text-sm text-gray-500">Chat functionality coming soon</p>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Contractors who signed NDA */}
+                <div className="space-y-3 pt-4 border-t border-gray-200">
+                  <p className="text-sm font-semibold text-gray-900">Contractors with Signed NDAs</p>
+                  <div className="space-y-2">
+                    {/* Mock NDA contractors - replace with actual data */}
+                    <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                      <div className="flex items-center gap-3">
+                        <div className="h-10 w-10 rounded-full bg-blue-600 flex items-center justify-center text-white font-semibold">
+                          AC
+                        </div>
+                        <div>
+                          <p className="font-medium text-gray-900">ABC Construction</p>
+                          <p className="text-xs text-gray-500">NDA signed on {new Date().toLocaleDateString()}</p>
+                        </div>
+                      </div>
+                      <Button
+                        size="sm"
+                        className="bg-green-600 hover:bg-green-700"
+                        onClick={() => toast.success("Contractor accepted! They can now see project details.")}
+                      >
+                        Accept
+                      </Button>
+                    </div>
+                    <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                      <div className="flex items-center gap-3">
+                        <div className="h-10 w-10 rounded-full bg-purple-600 flex items-center justify-center text-white font-semibold">
+                          XY
+                        </div>
+                        <div>
+                          <p className="font-medium text-gray-900">XYZ Builders</p>
+                          <p className="text-xs text-gray-500">NDA signed on {new Date().toLocaleDateString()}</p>
+                        </div>
+                      </div>
+                      <Button
+                        size="sm"
+                        className="bg-green-600 hover:bg-green-700"
+                        onClick={() => toast.success("Contractor accepted! They can now see project details.")}
+                      >
+                        Accept
+                      </Button>
+                    </div>
+                    <p className="text-xs text-gray-500 text-center pt-2">No other contractors have signed NDAs yet</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Recommended Contractors Panel */}
+        {showRecommendedContractors && selectedClaimForInvite && (
+          <div className="fixed right-0 top-0 h-screen w-[480px] bg-white border-l border-gray-200 shadow-2xl z-50 flex flex-col">
+            <div className="flex-1 overflow-y-auto">
+              {/* Header */}
+              <div className="sticky top-0 bg-white border-b border-gray-200 px-6 py-4 flex items-center justify-between z-10">
+                <h2 className="text-xl font-bold text-gray-900">Recommended Contractors</h2>
+                <button
+                  onClick={() => {
+                    setShowRecommendedContractors(false);
+                    setSelectedClaimForInvite(null);
+                  }}
+                  className="p-2 hover:bg-gray-100 rounded-full transition-colors"
+                >
+                  <X className="h-5 w-5 text-gray-600" />
+                </button>
+              </div>
+
+              {/* Content */}
+              <div className="px-6 py-6 space-y-4">
+                <div className="mb-4">
+                  <p className="text-sm text-gray-600">
+                    Based on project type: <span className="font-medium">{selectedClaimForInvite.projectType || 'N/A'}</span>
+                  </p>
+                </div>
+
+                {/* Mock recommended contractors - replace with actual data */}
+                <div className="space-y-3">
+                  <Card className="hover:shadow-md transition-shadow">
+                    <CardContent className="p-4">
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-3">
+                          <div className="h-12 w-12 rounded-full bg-blue-600 flex items-center justify-center text-white font-semibold text-lg">
+                            RC
+                          </div>
+                          <div>
+                            <p className="font-semibold text-gray-900">Reliable Contractors Inc.</p>
+                            <p className="text-xs text-gray-500">Specializes in {selectedClaimForInvite.projectType || 'restoration'}</p>
+                            <div className="flex items-center gap-2 mt-1">
+                              <span className="text-xs text-yellow-600">★★★★★</span>
+                              <span className="text-xs text-gray-500">(24 reviews)</span>
+                            </div>
+                          </div>
+                        </div>
+                        <Button
+                          size="sm"
+                          className="bg-blue-600 hover:bg-blue-700"
+                          onClick={() => toast.success("Invitation sent to Reliable Contractors Inc.")}
+                        >
+                          Invite to Bid
+                        </Button>
+                      </div>
+                    </CardContent>
+                  </Card>
+
+                  <Card className="hover:shadow-md transition-shadow">
+                    <CardContent className="p-4">
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-3">
+                          <div className="h-12 w-12 rounded-full bg-green-600 flex items-center justify-center text-white font-semibold text-lg">
+                            PM
+                          </div>
+                          <div>
+                            <p className="font-semibold text-gray-900">Premium Maintenance Co.</p>
+                            <p className="text-xs text-gray-500">Expert in {selectedClaimForInvite.projectType || 'restoration'} projects</p>
+                            <div className="flex items-center gap-2 mt-1">
+                              <span className="text-xs text-yellow-600">★★★★☆</span>
+                              <span className="text-xs text-gray-500">(18 reviews)</span>
+                            </div>
+                          </div>
+                        </div>
+                        <Button
+                          size="sm"
+                          className="bg-blue-600 hover:bg-blue-700"
+                          onClick={() => toast.success("Invitation sent to Premium Maintenance Co.")}
+                        >
+                          Invite to Bid
+                        </Button>
+                      </div>
+                    </CardContent>
+                  </Card>
+
+                  <Card className="hover:shadow-md transition-shadow">
+                    <CardContent className="p-4">
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-3">
+                          <div className="h-12 w-12 rounded-full bg-purple-600 flex items-center justify-center text-white font-semibold text-lg">
+                            SB
+                          </div>
+                          <div>
+                            <p className="font-semibold text-gray-900">Swift Builders LLC</p>
+                            <p className="text-xs text-gray-500">Local specialist in {selectedClaimForInvite.projectType || 'restoration'}</p>
+                            <div className="flex items-center gap-2 mt-1">
+                              <span className="text-xs text-yellow-600">★★★★★</span>
+                              <span className="text-xs text-gray-500">(31 reviews)</span>
+                            </div>
+                          </div>
+                        </div>
+                        <Button
+                          size="sm"
+                          className="bg-blue-600 hover:bg-blue-700"
+                          onClick={() => toast.success("Invitation sent to Swift Builders LLC")}
+                        >
+                          Invite to Bid
+                        </Button>
+                      </div>
+                    </CardContent>
+                  </Card>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Launch Confirmation Modal */}
+        <Dialog open={showLaunchModal} onOpenChange={setShowLaunchModal}>
+          <DialogContent className="sm:max-w-[500px]">
+            <DialogHeader>
+              <DialogTitle>Ready to Launch?</DialogTitle>
+              <DialogDescription>
+                You currently have {ndaSignedCount} provider{ndaSignedCount !== 1 ? 's' : ''} working with you.
+                {ndaSignedCount < 5 && (
+                  <span className="block mt-2 font-medium text-gray-900">
+                    We recommend inviting {5 - ndaSignedCount} more to make a competitive process.
+                  </span>
+                )}
+              </DialogDescription>
+            </DialogHeader>
+            <DialogFooter className="flex-col sm:flex-row gap-2 sm:gap-0">
+              <Button
+                variant="outline"
+                onClick={() => {
+                  if (claimToLaunch) {
+                    handleLaunch(claimToLaunch);
+                  }
+                }}
+                className="w-full sm:w-auto"
+              >
+                Continue without inviting more
+              </Button>
+              <Button
+                onClick={() => {
+                  setShowLaunchModal(false);
+                  if (claimToLaunch) {
+                    setSelectedPreLaunchClaim(null);
+                    setSelectedClaimForInvite(claimToLaunch);
+                    setShowRecommendedContractors(true);
+                  }
+                }}
+                className="w-full sm:w-auto bg-blue-600 hover:bg-blue-700"
+              >
+                Invite more
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
 
         {/* Chat Modal - Bottom Right */}
         {selectedJobForChat && (
