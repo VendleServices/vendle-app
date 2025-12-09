@@ -28,7 +28,7 @@ import {
     DollarSign,
     ArrowRight,
     ChevronRight,
-    Sparkles, Upload, X, Droplets, Flame, AlertTriangle, Hammer, Zap, Trash2, Calendar, ExternalLink, Wrench, CheckCircle
+    Sparkles, Upload, X, Droplets, Flame, AlertTriangle, Hammer, Zap, Trash2, Calendar, ExternalLink, Wrench, CheckCircle, Image
 } from "lucide-react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useApiService } from "@/services/api";
@@ -1163,7 +1163,7 @@ export default function StartClaimPage() {
 
                                 {currentStep === 3 && (
                                     <motion.div
-                                        key="step4-damage"
+                                        key="step3-damage"
                                         initial={{ opacity: 0, x: 20 }}
                                         animate={{ opacity: 1, x: 0 }}
                                         exit={{ opacity: 0, x: -20 }}
@@ -1231,7 +1231,7 @@ export default function StartClaimPage() {
 
                                 {currentStep === 4 && (
                                     <motion.div
-                                        key="step5-property"
+                                        key="step4-property"
                                         initial={{ opacity: 0, x: 20 }}
                                         animate={{ opacity: 1, x: 0 }}
                                         exit={{ opacity: 0, x: -20 }}
@@ -1330,6 +1330,67 @@ export default function StartClaimPage() {
                                             </div>
                                         </div>
 
+                                        {/* Image Upload */}
+                                        <div className="bg-white rounded-2xl shadow-sm border border-slate-200 p-8 md:p-10 mt-6">
+                                            <div className="flex items-center gap-2 mb-2">
+                                                <Image className="w-6 h-6 text-[#1a365d]" />
+                                                <h3 className="text-2xl font-bold text-slate-900">Upload Images</h3>
+                                            </div>
+                                            <p className="text-slate-600 mb-6">Upload any images or plans you'd like us to reference (optional).</p>
+
+                                            {/* Upload Area */}
+                                            <div
+                                                onDrop={handleDrop}
+                                                onDragOver={(e) => e.preventDefault()}
+                                                className="border-2 border-dashed border-slate-300 hover:border-[#1a365d] transition-all rounded-xl p-10 text-center cursor-pointer bg-slate-50/50"
+                                                onClick={() => fileInputRef.current?.click()}
+                                            >
+                                                <input
+                                                    type="file"
+                                                    multiple
+                                                    accept="image/*"
+                                                    ref={fileInputRef}
+                                                    className="hidden"
+                                                    onChange={handleFileSelect}
+                                                />
+
+                                                <div className="flex flex-col items-center justify-center">
+                                                    <div className="w-16 h-16 rounded-xl bg-[#1a365d]/10 text-[#1a365d] flex items-center justify-center mb-4">
+                                                        <Upload className="w-8 h-8" />
+                                                    </div>
+
+                                                    <p className="font-semibold text-slate-900">Click or drag files to upload</p>
+                                                    <p className="text-sm text-slate-500 mt-1">You can upload multiple images</p>
+                                                </div>
+                                            </div>
+
+                                            {/* Preview Grid */}
+                                            {uploadedImages.length > 0 && (
+                                                <div className="grid grid-cols-2 md:grid-cols-3 gap-4 mt-8">
+                                                    {uploadedImages.map((img, index) => (
+                                                        <div
+                                                            key={index}
+                                                            className="relative group rounded-xl overflow-hidden border border-slate-200 bg-white shadow-sm"
+                                                        >
+                                                            <img
+                                                                src={img.preview}
+                                                                alt="Upload preview"
+                                                                className="w-full h-32 object-cover"
+                                                            />
+
+                                                            {/* Remove Button */}
+                                                            <button
+                                                                className="absolute top-2 right-2 bg-white/90 hover:bg-white text-slate-700 rounded-full p-1 shadow-md opacity-0 group-hover:opacity-100 transition"
+                                                                onClick={() => removeImage(index)}
+                                                            >
+                                                                <X className="w-4 h-4" />
+                                                            </button>
+                                                        </div>
+                                                    ))}
+                                                </div>
+                                            )}
+                                        </div>
+
                                         <div className="flex justify-between mt-8">
                                             <Button
                                                 onClick={prevStep}
@@ -1353,7 +1414,7 @@ export default function StartClaimPage() {
 
                                 {currentStep === 5 && (
                                     <motion.div
-                                        key="step6-timeline"
+                                        key="step5-timeline"
                                         initial={{ opacity: 0, x: 20 }}
                                         animate={{ opacity: 1, x: 0 }}
                                         exit={{ opacity: 0, x: -20 }}
@@ -1475,7 +1536,7 @@ export default function StartClaimPage() {
 
                                 {currentStep === 6 && (
                                     <motion.div
-                                        key="step7-project"
+                                        key="step6-project"
                                         initial={{ opacity: 0, x: 20 }}
                                         animate={{ opacity: 1, x: 0 }}
                                         exit={{ opacity: 0, x: -20 }}
@@ -1543,7 +1604,7 @@ export default function StartClaimPage() {
 
                                 {currentStep === 7 && (
                                     <motion.div
-                                        key="step8-design"
+                                        key="step7-design"
                                         initial={{ opacity: 0, x: 20 }}
                                         animate={{ opacity: 1, x: 0 }}
                                         exit={{ opacity: 0, x: -20 }}
@@ -1611,7 +1672,7 @@ export default function StartClaimPage() {
 
                                 {currentStep === 8 && (
                                     <motion.div
-                                        key="step9-claim"
+                                        key="step8-claim"
                                         initial={{ opacity: 0, x: 20 }}
                                         animate={{ opacity: 1, x: 0 }}
                                         exit={{ opacity: 0, x: -20 }}
