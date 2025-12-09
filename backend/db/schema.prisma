@@ -45,19 +45,17 @@ enum ScheduleEventKind {
 }
 
 model User {
-  id             String        @id @default(uuid())
-  email          String        @unique
+  id             String   @id @default(uuid())
+  email          String   @unique
   femaForms      Fema[]
   claim          Claim[]
-  auction        Auction[]
-  restoration    Restoration[]
   bids           Bid[]
   userType       String?
   companyName    String?
   phoneNumber    String?
   companyWebsite String?
-  createdAt      DateTime      @default(now())
-  updatedAt      DateTime      @default(now()) @updatedAt
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @default(now()) @updatedAt
   ndas           Nda[]
 }
 
@@ -98,13 +96,26 @@ model Claim {
   phase1End              String
   phase2Start            String
   phase2End              String
+  totalJobValue          Float?
+  overheadAndProfit      Float?
+  costBasis              String?
+  materials              Float?
+  salesTaxes             Float?
+  depreciation           Float?
+  reconstructionType     String?
+  hasDeductibleFunds     Boolean    @default(false)
+  fundingSource          String?
+  additionalNotes        String?
+  aiSummary              String?
+  status                 String?    @default("Pending")
   createdAt              DateTime   @default(now())
   updatedAt              DateTime   @default(now()) @updatedAt
   user                   User       @relation(fields: [userId], references: [id], onDelete: Cascade)
   userId                 String
-  auctions               Auction[]
   images                 Image[]
   pdfs                   ClaimPdf[]
+  ndas                   Nda[]
+  bids                   Bid[]
 }
 
 model Image {
@@ -133,62 +144,17 @@ model Bid {
   profit                Float
   user                  User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   userId                String
-  auction               Auction  @relation(fields: [auctionId], references: [id], onDelete: Cascade)
-  auctionId             String
-  createdAt             DateTime @default(now())
-  updatedAt             DateTime @default(now()) @updatedAt
-}
-
-model Auction {
-  id                    String   @id @default(uuid())
-  claimId               String
-  title                 String
-  description           String?
-  startingBid           Float
-  currentBid            Float?
-  status                String   @default("NDA Required")
-  auctionEndDate        DateTime
-  totalJobValue         Float?
-  overheadAndProfit     Float?
-  costBasis             String?
-  materials             Float?
-  salesTaxes            Float?
-  depreciation          Float?
-  reconstructionType    String?
-  needs3rdPartyAdjuster Boolean  @default(false)
-  hasDeductibleFunds    Boolean  @default(false)
-  fundingSource         String?
-  insuranceEstimatePdf  String?
-  createdAt             DateTime @default(now())
-  updatedAt             DateTime @default(now()) @updatedAt
-  user                  User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  userId                String
   claim                 Claim    @relation(fields: [claimId], references: [id], onDelete: Cascade)
-  bids                  Bid[]
-  aiSummary             String?
-  ndas                  Nda[]
-}
-
-model Restoration {
-  id                        String   @id @default(uuid())
-  insuranceEstimateFilePath String
-  needsAdjuster             Boolean
-  createdAt                 DateTime @default(now())
-  updatedAt                 DateTime @default(now()) @updatedAt
-  user                      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  userId                    String
-  isRcv                     Boolean
-  overheadProfit            Boolean
-  materials                 Boolean
-  salesTaxes                Boolean
-  depreciation              Boolean
+  claimId               String
+  createdAt             DateTime @default(now())
+  updatedAt             DateTime @default(now()) @updatedAt
 }
 
 model Nda {
-  id        String  @id @default(uuid())
-  userId    String
-  user      User    @relation(fields: [userId], references: [id], onDelete: Cascade)
-  auctionId String
-  auction   Auction @relation(fields: [auctionId], references: [id], onDelete: Cascade)
-  accepted  Boolean @default(false)
+  id       String  @id @default(uuid())
+  userId   String
+  user     User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  claimId  String
+  claim    Claim   @relation(fields: [claimId], references: [id], onDelete: Cascade)
+  accepted Boolean @default(false)
 }

@@ -79,6 +79,7 @@ const verifyToken = async (req, res, next) => {
       aud: decoded.aud,
       exp: decoded.exp,
       iat: decoded.iat,
+      token
     };
 
     next();
@@ -87,11 +88,9 @@ const verifyToken = async (req, res, next) => {
   }
 }
 
-import auctionsRoutes from './api/auctions/route.ts';
 import bidsRoutes from './api/bids/route.ts';
 import claimRoutes from './api/claim/route.ts';
 import signUpRoute from './api/signup/route.ts';
-import onboardingRoutes from './api/onboarding/route.ts';
 import femaRoutes from './api/fema/route.ts';
 import setupDbRoutes from './api/setup-db/route.ts';
 import imageRoutes from './api/images/route.ts';
@@ -100,10 +99,8 @@ import ndaRoutes from './api/nda/route.ts';
 
 // API Routes
 app.use('/api/signup', signUpRoute);
-app.use('/api/auctions', verifyToken, auctionsRoutes);
 app.use('/api/bids', verifyToken, bidsRoutes);
 app.use('/api/claim', verifyToken, claimRoutes);
-app.use('/api/onboarding', onboardingRoutes);
 app.use('/api/fema', verifyToken, femaRoutes);
 app.use('/api/images', verifyToken, imageRoutes);
 app.use('/api/pdfs', verifyToken, pdfRoutes);

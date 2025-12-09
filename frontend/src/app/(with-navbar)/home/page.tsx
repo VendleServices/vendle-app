@@ -339,77 +339,6 @@ export default function HomePage() {
     enabled: !!selectedPhaseProject?.id && !!selectedPhaseProject?.phase2StartDate && !!auctions && auctions.length > 0
   });
 
-  const { homeownerActiveAuctions, homeownerClosedAuctions } = useMemo(() => {
-    if (!auctions || auctions.length === 0) {
-      return { homeownerActiveAuctions: [], homeownerClosedAuctions: [] };
-    }
-
-    if (!claims || claims.length === 0) {
-      return { homeownerActiveAuctions: [], homeownerClosedAuctions: [] };
-    }
-
-    // Get claim IDs for this homeowner
-    const claimIds = claims?.map((claim: any) => claim.id)
-
-    // Filter auctions to only those belonging to homeowner's claims and are active/open
-    const homeownerActiveAuctions = auctions?.filter((auction: any) => {
-      const claimId = auction?.claim_id
-      const endDate = new Date(auction?.end_date || "")
-      const isActive = auction?.status === 'open' && endDate > new Date()
-      const belongsToClaim = claimIds?.includes(claimId)
-      return belongsToClaim && isActive
-    }) || [];
-
-    // filter closed auctions
-    const homeownerClosedAuctions = auctions?.filter((auction: any) => {
-      const claimId = auction?.claim_id
-      const endDate = new Date(auction?.end_date)
-      const isClosed = auction.status === 'closed' || endDate <= new Date()
-
-      return claimIds.includes(claimId) && isClosed
-    }) || [];
-
-    return { homeownerActiveAuctions, homeownerClosedAuctions };
-  }, [claims, auctions])
-
-  // Calculate homeowner stats
-  const homeownerStats = useMemo(() => {
-    if (!claims || !auctions) {
-      return {
-        totalClaims: 0,
-        activeClaims: 0,
-        completedClaims: 0,
-        totalAuctions: 0,
-        activeAuctions: 0,
-        totalValue: 0
-      }
-    }
-
-    const activeClaims = claims?.filter((claim: any) => 
-      claim.status !== 'completed' && claim.status !== 'closed'
-    )?.length
-    
-    const completedClaims = claims?.filter((claim: any) => 
-      claim.status === 'completed' || claim.status === 'closed'
-    )?.length
-
-    // Count only live auctions for homeowner's claims
-    const activeAuctions = homeownerActiveAuctions.length
-
-    const totalValue = claims?.reduce((sum: number, claim: any) =>
-      sum + (claim.insuranceEstimate || 0), 0
-    )
-
-    return {
-      totalClaims: claims?.length,
-      activeClaims,
-      completedClaims,
-      totalAuctions: homeownerActiveAuctions.length,
-      activeAuctions,
-      totalValue
-    }
-  }, [claims, auctions, homeownerActiveAuctions.length])
-
   // Calculate contractor stats
   const contractorStats = useMemo(() => {
     // Calculate Phase 1 and Phase 2 contract values from projects
@@ -1239,7 +1168,7 @@ export default function HomePage() {
                               <div className="pt-2">
                                 <Button 
                                   variant="default"
-                                  className="w-full bg-blue-600 hover:bg-blue-700"
+                                  className="w-full bg-blue-600 hover:bg-blue-700 hover:text-white transition-colors"
                                   onClick={() => setSelectedPhaseProject(project)}
                                 >
                                   <Activity className="h-4 w-4 mr-2" />
@@ -1321,7 +1250,7 @@ export default function HomePage() {
                               <div className="pt-2">
                                 <Button 
                                   variant="default"
-                                  className="w-full bg-blue-600 hover:bg-blue-700"
+                                  className="w-full bg-blue-600 hover:bg-blue-700 hover:text-white transition-colors"
                                   onClick={() => setSelectedPhaseProject(project)}
                                 >
                                   <Activity className="h-4 w-4 mr-2" />
@@ -1830,7 +1759,7 @@ export default function HomePage() {
                               <div className="flex gap-2">
                                 <Button 
                                   variant="outline" 
-                                  className="flex-1"
+                                  className="flex-1 hover:text-white transition-colors"
                                   onClick={() => {
                                     setShowRecommendedContractors(false);
                                     setSelectedClaimForInvite(null);

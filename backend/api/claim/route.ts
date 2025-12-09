@@ -1,5 +1,11 @@
 import { Router } from 'express';
 import { prisma } from '../../db/prisma.js';
+import multer from 'multer';
+import { aiClaimProcessingQueue } from "../../queues/aiClaimProcessingQueue";
+
+// configure multer to store uploaded files in memory as a buffer
+const storage = multer.memoryStorage();
+const upload = multer({ storage });
 
 const router = Router();
 
@@ -70,13 +76,16 @@ router.delete('/:claimId', async (req: any, res) => {
   }
 });
 
-router.post('/', async (req: any, res) => {
+router.post('/', upload.single('file'), async (req: any, res) => {
   try {
     const user = req?.user;
 
     if (!user) {
       return res.status(401).json({ error: 'Not authorized' });
     }
+
+    const file: File = req.file;
+    await aiClaimProcessingQueue.add('process-claim-document', { file, user });
 
     const claimData = req.body;
     console.log('Creating claim with data:', claimData);
@@ -128,6 +137,32 @@ router.post('/', async (req: any, res) => {
     console.error('Error creating claim:', error);
     return res.status(500).json({ error: 'Internal server error', message: error instanceof Error ? error.message : 'Unknown error' });
   }
+});
+
+router.put("/:claimId", async (req: any, res: any) => {
+  const user = req?.user;
+
+  if (!user) {
+    return res.status(401).json({ error: "Not authorized" });
+  }
+
+  const { aiClaimSummary } = req.body;
+  const { claimId } = req.params;
+
+  if (!aiClaimSummary || typeof aiClaimSummary !== "string") {
+    return res.status(400).json({ error: "Issue with ai claim summary" });
+  }
+
+  const updatedClaim = await prisma.claim.update({
+    where: {
+      id: claimId
+    },
+    data: {
+      aiSummary: aiClaimSummary,
+    }
+  });
+
+  return res.status(200).json({ claim: updatedClaim });
 });
 
 export default router;

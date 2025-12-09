@@ -6,7 +6,9 @@
   "scripts": {
     "dev": "tsx watch server.js",
     "start": "tsx server.js",
-    "migrate": "npx prisma generate && env $(cat .env.local | xargs) npx prisma migrate dev"
+    "migrate": "npx prisma generate && env $(cat .env.local | xargs) npx prisma migrate dev",
+    "worker": "node workers/emailWorker.js",
+    "worker:dev": "tsx watch workers/aiClaimProcessingWorker.ts"
   },
   "prisma": {
     "schema": "db/schema.prisma"
@@ -18,11 +20,13 @@
     "@react-three/fiber": "^9.2.0",
     "@supabase/ssr": "^0.6.1",
     "@supabase/supabase-js": "^2.49.9",
+    "bullmq": "^5.65.1",
     "cookie-parser": "^1.4.7",
     "cors": "^2.8.5",
     "dotenv": "^16.6.1",
     "express": "^4.18.2",
     "http-proxy-middleware": "^3.0.5",
+    "ioredis": "^5.8.2",
     "jsonwebtoken": "^9.0.2",
     "multer": "^2.0.2",
     "next": "^15.4.6",
