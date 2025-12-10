@@ -1735,7 +1735,7 @@ export default function HomePage() {
                           <div className="flex items-start justify-between">
                             <div className="flex-1">
                               <CardTitle className="text-lg mb-1">
-                                {claim.street || 'Untitled Project'}
+                                {claim.title || 'Untitled Project'}
                               </CardTitle>
                               <div className="flex items-center gap-2 text-sm text-gray-600 mt-1">
                                 <MapPin className="h-4 w-4" />
@@ -2106,7 +2106,7 @@ export default function HomePage() {
                 {/* Title */}
                 <div>
                   <h3 className="text-2xl font-bold text-gray-900 mb-2">
-                    {selectedPreLaunchClaim.street || 'Untitled Project'}
+                    {selectedPreLaunchClaim.title || 'Untitled Project'}
                   </h3>
                   <Badge className="bg-yellow-100 text-yellow-800 border-yellow-200 rounded-full px-2.5 py-0.5 text-xs font-medium">
                     {selectedPreLaunchClaim.projectType || 'N/A'}
@@ -2133,11 +2133,11 @@ export default function HomePage() {
                       <div className="flex items-center gap-4 text-sm">
                         <div className="flex items-center gap-2">
                           <Calendar className="h-4 w-4 text-gray-600" />
-                          <span className="font-medium text-gray-500">Start: TBD</span>
+                          <span className="font-medium text-gray-500">Start: {selectedPreLaunchClaim.phase1Start}</span>
                         </div>
                         <div className="flex items-center gap-2">
                           <Clock className="h-4 w-4 text-gray-600" />
-                          <span className="font-medium text-gray-500">End: TBD</span>
+                          <span className="font-medium text-gray-500">End: {selectedPreLaunchClaim.phase1End}</span>
                         </div>
                       </div>
                     </div>
@@ -2146,11 +2146,11 @@ export default function HomePage() {
                       <div className="flex items-center gap-4 text-sm">
                         <div className="flex items-center gap-2">
                           <Calendar className="h-4 w-4 text-gray-600" />
-                          <span className="font-medium text-gray-500">Start: TBD</span>
+                          <span className="font-medium text-gray-500">Start: {selectedPreLaunchClaim.phase2Start}</span>
                         </div>
                         <div className="flex items-center gap-2">
                           <Clock className="h-4 w-4 text-gray-600" />
-                          <span className="font-medium text-gray-500">End: TBD</span>
+                          <span className="font-medium text-gray-500">End: {selectedPreLaunchClaim.phase2End}</span>
                         </div>
                       </div>
                     </div>

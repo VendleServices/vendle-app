@@ -85,6 +85,7 @@ model Claim {
   city                   String
   state                  String
   zipCode                String
+  title                  String
   projectType            String
   designPlan             String
   needsAdjuster          Boolean
@@ -96,16 +97,16 @@ model Claim {
   phase1End              String
   phase2Start            String
   phase2End              String
-  totalJobValue          Float?
-  overheadAndProfit      Float?
-  costBasis              String?
-  materials              Float?
-  salesTaxes             Float?
-  depreciation           Float?
-  reconstructionType     String?
+  totalJobValue          Float
+  overheadAndProfit      Float
+  costBasis              String
+  materials              Float
+  salesTaxes             Float
+  depreciation           Float
+  reconstructionType     String
   hasDeductibleFunds     Boolean    @default(false)
-  fundingSource          String?
-  additionalNotes        String?
+  fundingSource          String
+  additionalNotes        String
   aiSummary              String?
   status                 String?    @default("Pending")
   createdAt              DateTime   @default(now())

@@ -10,12 +10,12 @@ const openai = new OpenAI({
 const worker = new Worker('ai-claim-processing-queue', async job => {
     console.log('Processing job: ', job.name, job.data);
 
-    const file = job.data.file;
+    const filePath = job.data.filePath;
 
     let aiClaimSummary: any = "";
 
-    if (file) {
-        aiClaimSummary = await processClaimDocument(file);
+    if (filePath) {
+        aiClaimSummary = await processClaimDocument(filePath);
         aiClaimSummary = typeof aiClaimSummary === "object" ? aiClaimSummary?.document?.text : aiClaimSummary;
 
         const response = await openai.responses.create({
@@ -37,11 +37,14 @@ worker.on('completed', async (job, returnvalue) => {
         console.log("no token");
     }
 
+    const claimId = job.data.claimId;
+
     if (returnvalue) {
-        await fetch("http://localhost:3001/api/claim", {
+        await fetch(`http://localhost:3001/api/claim/${claimId}`, {
             method: "PUT",
             body: JSON.stringify({ aiClaimSummary: returnvalue }),
             headers: {
+                "Content-Type": "application/json",
                 ...(token && { Authorization: `Bearer ${token}` }),
             },
         });

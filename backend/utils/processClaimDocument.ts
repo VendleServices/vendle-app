@@ -2,21 +2,29 @@ import { DocumentProcessorServiceClient } from "@google-cloud/documentai";
 import path from 'path';
 import fs from 'fs';
 
-export async function processClaimDocument(file: any) {
+export async function processClaimDocument(filePath: any) {
     // sav comments for learning - file.arraybuffer reads file and converts it to binary, buffer is used to handle binary data
     // computers, apis process files as binary bytes
-    let fileBuffer: Buffer;
-    let mimeType: string;
+    // let fileBuffer: Buffer;
+    // let mimeType: string;
+    //
+    // if ('buffer' in file) {
+    //     // Multer file
+    //     fileBuffer = file.buffer;
+    //     mimeType = file?.mimetype;
+    // } else {
+    //     // Browser File
+    //     fileBuffer = Buffer.from(await file.arrayBuffer());
+    //     mimeType = file.type;
+    // }
 
-    if ('buffer' in file) {
-        // Multer file
-        fileBuffer = file.buffer;
-        mimeType = file?.mimetype;
+    if (fs.existsSync(filePath)) {
+        console.log("File exists ✅");
     } else {
-        // Browser File
-        fileBuffer = Buffer.from(await file.arrayBuffer());
-        mimeType = file.type;
+        console.log("File does NOT exist ❌");
     }
+
+    const fileBuffer = fs.readFileSync(filePath);
 
     const credentialsPath = path.join(process.cwd(), 'credentials', 'service-account.json');
     const credentials = JSON.parse(fs.readFileSync(credentialsPath, 'utf8'));
@@ -34,10 +42,14 @@ export async function processClaimDocument(file: any) {
         name: `projects/${process.env.GOOGLE_PROJECT_ID}/locations/us/processors/${process.env.GOOGLE_PROCESSOR_ID}`,
         rawDocument: {
             content: fileBuffer?.toString('base64'),
-            mimeType,
+            mimeType: "application/pdf",
         }
     };
 
-    const [result] = await client?.processDocument(request);
-    return result;
+    try {
+        const [result] = await client?.processDocument(request);
+        return result;
+    } catch (error) {
+        console.log(error);
+    }
 }

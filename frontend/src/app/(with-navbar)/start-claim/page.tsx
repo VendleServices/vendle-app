@@ -8,7 +8,6 @@ import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Textarea } from "@/components/ui/textarea";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useAuth } from "@/contexts/AuthContext";
 import { motion, AnimatePresence } from "framer-motion";
 import { AddressAutocomplete } from "@/components/AddressAutocomplete";
@@ -54,6 +53,17 @@ interface ClaimData {
   phase1End: string;
   phase2Start: string;
   phase2End: string;
+  title: string;
+  totalJobValue: number;
+  overheadAndProfit: number;
+  costBasis: string;
+  materials: number;
+  salesTaxes: number;
+  depreciation: number;
+  reconstructionType: string;
+  hasDeductibleFunds: boolean;
+  fundingSource: string;
+  additionalNotes: string;
 }
 
 export default function StartClaimPage() {
@@ -94,13 +104,13 @@ export default function StartClaimPage() {
         phase2End: '',
         contractorVisitDays: [] as string[],
     });
+
     const [projectType, setProjectType] = useState('');
     const [designPlan, setDesignPlan] = useState('');
     const [needsAdjuster, setNeedsAdjuster] = useState<boolean | null>(null);
     const [insuranceProvider, setInsuranceProvider] = useState('');
     const [paymentMethod, setPaymentMethod] = useState('');
 
-    const [uploadedPdfs, setUploadedPdfs] = useState<any[]>([]);
     const [uploadedImages, setUploadedImages] = useState<any[]>([]);
     
     // Restoration form state (replaces steps 2 and 3)
@@ -117,11 +127,12 @@ export default function StartClaimPage() {
         totalJobValue: "",
         reconstructionType: "",
         additionalNotes: "",
+        title: "",
     });
-    const [uploadedInsuranceEstimate, setUploadedInsuranceEstimate] = useState<File | null>(null);
+
+    const [uploadedInsuranceEstimatePdf, setUploadedInsuranceEstimatePdf] = useState<File | null>(null);
 
     const fileInputRef = useRef<any>(null);
-    const pdfInputRef = useRef<any>(null);
     const insuranceEstimateInputRef = useRef<HTMLInputElement>(null);
 
     const handleFileSelect = (e: any) => {
@@ -142,10 +153,6 @@ export default function StartClaimPage() {
 
         const files: File[] = Array.from(dt.files)
 
-        //.filter(
-        //             (file): file is File => file.type.startsWith("image/")
-        //         );
-
         const mapped = files?.map((file: File) => ({
             file,
             preview: URL.createObjectURL(file)
@@ -156,12 +163,11 @@ export default function StartClaimPage() {
 
     const handlePdfSelect = (e: any) => {
         const files: File[] = Array.from(e.target.files);
-        const mapped = files.map(file => ({
-            file,
-            name: file.name,
-            size: file.size
-        }));
-        setUploadedPdfs(prev => [...prev, ...mapped]);
+        const file = files?.[0];
+
+        if (file) {
+            setUploadedInsuranceEstimatePdf(file);
+        }
     };
 
     const handlePdfDrop = (e: any) => {
@@ -169,16 +175,16 @@ export default function StartClaimPage() {
         const dt = e.dataTransfer;
         if (!dt) return;
         const files: File[] = Array.from(dt.files);
-        const mapped = files?.map((file: File) => ({
-            file,
-            name: file.name,
-            size: file.size
-        }));
-        setUploadedPdfs(prev => [...prev, ...mapped]);
+        const file = files?.[0];
+
+        if (file) {
+            setUploadedInsuranceEstimatePdf(file);
+        }
     };
 
-    const removePdf = (index: number) => {
-        setUploadedPdfs(prev => prev.filter((_, i) => i !== index));
+    const removePdf = (e: any) => {
+        e.stopPropagation();
+        setUploadedInsuranceEstimatePdf(null);
     };
 
     const removeImage = (index: number) => {
@@ -190,42 +196,6 @@ export default function StartClaimPage() {
             ...prev,
             [field]: value,
         }));
-    };
-
-    const handleInsuranceEstimateUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-        if (!e.target.files || !e.target.files[0]) return;
-
-        const file = e.target.files[0];
-
-        if (file.type !== "application/pdf") {
-            toast("Invalid File Type", {
-                description: "Please upload a PDF file",
-            });
-            return;
-        }
-
-        if (file.size > 10 * 1024 * 1024) {
-            toast("File too large", {
-                description: "Max size: 10MB",
-            });
-            return;
-        }
-
-        setUploadedInsuranceEstimate(file);
-
-        try {
-            const timestamp = Date.now();
-            const { data, error } = await supabase.storage
-                .from("vendle-estimates")
-                .upload(`public/${timestamp}-${file.name}`, file);
-
-            if (error) throw error;
-
-            handleRestorationInputChange("insuranceEstimatePdf", data?.fullPath);
-            toast.success("Insurance estimate uploaded successfully");
-        } catch (error: any) {
-            toast("Upload failed", { description: error.message });
-        }
     };
     
     // FEMA form state
@@ -326,7 +296,7 @@ export default function StartClaimPage() {
 
     const submitClaimData = async (claimData: ClaimData) => {
         try {
-            const response = await apiService.post('/api/claim', claimData);
+            const response = await apiService.postWithFile('/api/claim', claimData, uploadedInsuranceEstimatePdf);
             return response;
         } catch (error) {
             console.log(error);
@@ -380,12 +350,12 @@ export default function StartClaimPage() {
 
             const pdfPaths: string[] = [];
 
-            for (const fileObj of uploadedPdfs) {
+            if (uploadedInsuranceEstimatePdf) {
                 const timestamp = Date.now();
-                const fileNameCleaned = fileObj.file.name.replace(/[^\w.-]+/g, "_");
+                const fileNameCleaned = uploadedInsuranceEstimatePdf.name.replace(/[^\w.-]+/g, "_");
                 const { data, error } = await supabase.storage
                     .from("vendle-claims")
-                    .upload(`public/${fileNameCleaned}_${timestamp}`, fileObj.file);
+                    .upload(`public/${fileNameCleaned}_${timestamp}`, uploadedInsuranceEstimatePdf);
 
                 if (!error && data) {
                     pdfPaths.push(data.fullPath);
@@ -413,6 +383,17 @@ export default function StartClaimPage() {
                 phase1End: timeline.phase1End,
                 phase2Start: timeline.phase2Start,
                 phase2End: timeline.phase2End,
+                title: restorationFormData.title,
+                totalJobValue: Number(restorationFormData.totalJobValue),
+                overheadAndProfit: Number(restorationFormData.overheadAndProfit),
+                costBasis: restorationFormData.costBasis,
+                materials: Number(restorationFormData.materials),
+                salesTaxes: Number(restorationFormData.salesTaxes),
+                depreciation: Number(restorationFormData.depreciation),
+                reconstructionType: restorationFormData.reconstructionType,
+                hasDeductibleFunds: restorationFormData.hasDeductibleFunds,
+                fundingSource: restorationFormData.fundingSource,
+                additionalNotes: restorationFormData.additionalNotes,
             };
 
             submitClaimMutation.mutate(claimData);
@@ -981,15 +962,15 @@ export default function StartClaimPage() {
                                             <p className="text-slate-600 mb-6">Upload your insurance estimate PDF.</p>
 
                                             <div className="relative flex items-center justify-center h-36 border-2 border-dashed rounded-xl border-slate-300 hover:border-[#1a365d] transition-all bg-slate-50/50 cursor-pointer" 
-                                                 onClick={() => insuranceEstimateInputRef.current?.click()}>
+                                                 onClick={() => insuranceEstimateInputRef.current?.click()} onDrop={handlePdfDrop} onDragOver={(e) => e.preventDefault()}>
                                                 <input
                                                     type="file"
                                                     accept=".pdf"
-                                                    onChange={handleInsuranceEstimateUpload}
-                                                    className="absolute inset-0 opacity-0 cursor-pointer"
+                                                    onChange={handlePdfSelect}
+                                                    className="hidden"
                                                     ref={insuranceEstimateInputRef}
                                                 />
-                                                {!uploadedInsuranceEstimate ? (
+                                                {!uploadedInsuranceEstimatePdf ? (
                                                     <div className="text-center">
                                                         <Upload className="h-8 w-8 mx-auto text-slate-600 mb-1" />
                                                         <p className="text-sm text-slate-600">Click to upload</p>
@@ -997,7 +978,8 @@ export default function StartClaimPage() {
                                                 ) : (
                                                     <div className="text-green-600 flex items-center gap-2">
                                                         <CheckCircle />
-                                                        {uploadedInsuranceEstimate.name}
+                                                        {uploadedInsuranceEstimatePdf?.name}
+                                                        <X onClick={removePdf} />
                                                     </div>
                                                 )}
                                             </div>
@@ -1099,6 +1081,18 @@ export default function StartClaimPage() {
                                             </div>
 
                                             <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
+                                                <div className="md:col-span-2 space-y-2">
+                                                    <Label className="font-medium text-slate-900">Title</Label>
+                                                    <Input
+                                                        placeholder="Give your job a title..."
+                                                        className="border-slate-300"
+                                                        value={restorationFormData.title}
+                                                        onChange={(e) =>
+                                                            handleRestorationInputChange("title", e.target.value)
+                                                        }
+                                                    />
+                                                </div>
+
                                                 <div className="space-y-2">
                                                     <Label className="font-medium text-slate-900">Total Job Value ($)</Label>
                                                     <Input

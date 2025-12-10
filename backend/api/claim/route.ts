@@ -4,7 +4,14 @@ import multer from 'multer';
 import { aiClaimProcessingQueue } from "../../queues/aiClaimProcessingQueue";
 
 // configure multer to store uploaded files in memory as a buffer
-const storage = multer.memoryStorage();
+const storage = multer.diskStorage({
+  destination: "uploads/",
+  filename: (req, file, cb) => {
+    const unique = Date.now() + "-" + Math.round(Math.random() * 1e9);
+    cb(null, unique + "-" + file.originalname);
+  },
+});
+
 const upload = multer({ storage });
 
 const router = Router();
@@ -84,9 +91,6 @@ router.post('/', upload.single('file'), async (req: any, res) => {
       return res.status(401).json({ error: 'Not authorized' });
     }
 
-    const file: File = req.file;
-    await aiClaimProcessingQueue.add('process-claim-document', { file, user });
-
     const claimData = req.body;
     console.log('Creating claim with data:', claimData);
     console.log('User ID:', user.id);
@@ -98,21 +102,31 @@ router.post('/', upload.single('file'), async (req: any, res) => {
         state: claimData.state,
         zipCode: claimData.zipCode,
         damageTypes: claimData.damageTypes,
-        hasFunctionalUtilities: claimData.hasFunctionalUtilities,
-        hasDumpster: claimData.hasDumpster,
-        isOccupied: claimData.isOccupied,
+        hasFunctionalUtilities: claimData.hasFunctionalUtilities === "true",
+        hasDumpster: claimData.hasDumpster === "true",
+        isOccupied: claimData.isOccupied === "true",
         phase1Start: claimData.phase1Start,
         phase1End: claimData.phase1End,
         phase2Start: claimData.phase2Start,
         phase2End: claimData.phase2End,
         projectType: claimData.projectType,
         designPlan: claimData.designPlan,
-        needsAdjuster: claimData.needsAdjuster,
+        needsAdjuster: claimData.needsAdjuster === "true",
         userId: user.id,
+        title: claimData.title,
+        totalJobValue: Number(claimData.totalJobValue),
+        overheadAndProfit: Number(claimData.overheadAndProfit),
+        costBasis: claimData.costBasis,
+        materials: Number(claimData.materials),
+        salesTaxes: Number(claimData.salesTaxes),
+        depreciation: Number(claimData.depreciation),
+        reconstructionType: claimData.reconstructionType,
+        fundingSource: claimData.fundingSource,
+        additionalNotes: claimData.additionalNotes,
       }
     });
 
-    const imageData = claimData?.imageUrls?.map((url: string) => ({
+    const imageData = JSON.parse(claimData?.imageUrls)?.map((url: string) => ({
       supabase_url: url,
       claimId: createdClaim.id
     })) || [];
@@ -121,7 +135,7 @@ router.post('/', upload.single('file'), async (req: any, res) => {
       data: imageData,
     });
 
-    const pdfData = claimData?.pdfUrls?.map((url: string) => ({
+    const pdfData = JSON.parse(claimData?.pdfUrls)?.map((url: string) => ({
       supabase_url: url,
       claimId: createdClaim.id
     })) || [];
@@ -130,7 +144,12 @@ router.post('/', upload.single('file'), async (req: any, res) => {
       data: pdfData,
     });
 
+    const file = req.file;
+    const filePath = file.path;
+    const mimeType = file.mimeType;
     console.log('Claim created successfully:', createdClaim.id);
+
+    await aiClaimProcessingQueue.add('process-claim-document', { filePath, mimeType, user, claimId: createdClaim.id });
 
     return res.status(201).json({ claim: createdClaim });
   } catch (error) {
