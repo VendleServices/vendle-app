@@ -44,19 +44,44 @@ enum ScheduleEventKind {
   milestone_deadline
 }
 
+enum ParticipationStatus {
+  PENDING
+  NDA_SIGNED
+  APPROVED
+  ADVANCED
+  REJECTED
+}
+
+enum PhaseStatus {
+  NOT_STARTED
+  ACTIVE
+  CLOSED
+}
+
+enum InvitationStatus {
+  PENDING
+  ACCEPTED
+  DECLINED
+}
+
 model User {
-  id             String   @id @default(uuid())
-  email          String   @unique
-  femaForms      Fema[]
-  claim          Claim[]
-  bids           Bid[]
-  userType       String?
-  companyName    String?
-  phoneNumber    String?
-  companyWebsite String?
-  createdAt      DateTime @default(now())
-  updatedAt      DateTime @default(now()) @updatedAt
-  ndas           Nda[]
+  id                String             @id @default(uuid())
+  email             String             @unique
+  femaForms         Fema[]
+  claims            Claim[]
+  bids              Bid[]
+  userType          String?
+  companyName       String?
+  phoneNumber       String?
+  companyWebsite    String?
+  createdAt         DateTime           @default(now())
+  updatedAt         DateTime           @default(now()) @updatedAt
+  ndas              Nda[]
+  claimParticipants ClaimParticipant[]
+  claimInvitations  ClaimInvitation[]
+  projects          Project[]
+
+  winningClaims Claim[] @relation("WinningContractor")
 }
 
 model Fema {
@@ -80,7 +105,7 @@ model Fema {
 }
 
 model Claim {
-  id                     String     @id @default(uuid())
+  id                     String   @id @default(uuid())
   street                 String
   city                   String
   state                  String
@@ -104,37 +129,46 @@ model Claim {
   salesTaxes             Float
   depreciation           Float
   reconstructionType     String
-  hasDeductibleFunds     Boolean    @default(false)
+  hasDeductibleFunds     Boolean  @default(false)
   fundingSource          String
   additionalNotes        String
   aiSummary              String?
-  status                 String?    @default("Pending")
-  createdAt              DateTime   @default(now())
-  updatedAt              DateTime   @default(now()) @updatedAt
-  user                   User       @relation(fields: [userId], references: [id], onDelete: Cascade)
-  userId                 String
-  images                 Image[]
-  pdfs                   ClaimPdf[]
-  ndas                   Nda[]
-  bids                   Bid[]
+  status                 String?  @default("Pending")
+  createdAt              DateTime @default(now())
+  updatedAt              DateTime @default(now()) @updatedAt
+
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  images            Image[]
+  pdfs              ClaimPdf[]
+  ndas              Nda[]
+  claimParticipants ClaimParticipant[]
+  auctionPhases     AuctionPhase[]
+  claimInvitations  ClaimInvitation[]
+
+  winnerId String?
+  winner   User?    @relation("WinningContractor", fields: [winnerId], references: [id])
+  project  Project? @relation("ClaimProject")
+  bids     Bid[]
 }
 
 model Image {
   id           String @id @default(uuid())
   supabase_url String
-  claim        Claim  @relation(fields: [claimId], references: [id], onDelete: Cascade)
   claimId      String
+  claim        Claim  @relation(fields: [claimId], references: [id], onDelete: Cascade)
 }
 
 model ClaimPdf {
   id           String @id @default(uuid())
   supabase_url String
-  claim        Claim  @relation(fields: [claimId], references: [id], onDelete: Cascade)
   claimId      String
+  claim        Claim  @relation(fields: [claimId], references: [id], onDelete: Cascade)
 }
 
 model Bid {
-  id                    String   @id @default(uuid())
+  id                    String @id @default(uuid())
   amount                Float
   budgetTotal           Float
   bidPdfPath            String
@@ -143,19 +177,84 @@ model Bid {
   laborCosts            Float
   allowance             Float
   profit                Float
-  user                  User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  userId                String
-  claim                 Claim    @relation(fields: [claimId], references: [id], onDelete: Cascade)
-  claimId               String
-  createdAt             DateTime @default(now())
-  updatedAt             DateTime @default(now()) @updatedAt
+
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  claimId String
+  claim   Claim  @relation(fields: [claimId], references: [id], onDelete: Cascade)
+
+  auctionPhaseId String
+  auctionPhase   AuctionPhase @relation(fields: [auctionPhaseId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now()) @updatedAt
 }
 
 model Nda {
-  id       String  @id @default(uuid())
-  userId   String
-  user     User    @relation(fields: [userId], references: [id], onDelete: Cascade)
-  claimId  String
-  claim    Claim   @relation(fields: [claimId], references: [id], onDelete: Cascade)
-  accepted Boolean @default(false)
+  id        String   @id @default(uuid())
+  userId    String
+  claimId   String
+  accepted  Boolean  @default(false)
+  createdAt DateTime @default(now())
+
+  user             User              @relation(fields: [userId], references: [id], onDelete: Cascade)
+  claim            Claim             @relation(fields: [claimId], references: [id], onDelete: Cascade)
+  claimParticipant ClaimParticipant?
+}
+
+model ClaimParticipant {
+  id             String              @id @default(uuid())
+  claimId        String
+  userId         String
+  status         ParticipationStatus @default(PENDING)
+  invitedBy      String?
+  auctionPhaseId String?
+  createdAt      DateTime            @default(now())
+  updatedAt      DateTime            @default(now()) @updatedAt
+
+  claim Claim @relation(fields: [claimId], references: [id], onDelete: Cascade)
+  user  User  @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  ndaId        String?       @unique
+  nda          Nda?          @relation(fields: [ndaId], references: [id])
+  auctionPhase AuctionPhase? @relation(fields: [auctionPhaseId], references: [id])
+}
+
+model AuctionPhase {
+  id        String      @id @default(uuid())
+  claimId   String
+  number    Int
+  startDate String
+  endDate   String
+  status    PhaseStatus @default(NOT_STARTED)
+
+  claim        Claim              @relation(fields: [claimId], references: [id], onDelete: Cascade)
+  bids         Bid[]
+  participants ClaimParticipant[]
+}
+
+model ClaimInvitation {
+  id           String           @id @default(uuid())
+  claimId      String
+  contractorId String
+  invitedBy    String
+  status       InvitationStatus @default(PENDING)
+  createdAt    DateTime         @default(now())
+
+  claim      Claim @relation(fields: [claimId], references: [id], onDelete: Cascade)
+  contractor User  @relation(fields: [contractorId], references: [id], onDelete: Cascade)
+}
+
+model Project {
+  id           String        @id @default(uuid())
+  contractorId String
+  status       ProjectStatus @default(DRAFT)
+
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @default(now()) @updatedAt
+  contractor User     @relation(fields: [contractorId], references: [id])
+
+  claim   Claim  @relation("ClaimProject", fields: [claimId], references: [id])
+  claimId String @unique
 }
