@@ -96,6 +96,11 @@ import setupDbRoutes from './api/setup-db/route.ts';
 import imageRoutes from './api/images/route.ts';
 import pdfRoutes from './api/pdfs/route.ts';
 import ndaRoutes from './api/nda/route.ts';
+import auctionRoutes from './api/auction/route.ts';
+import claimParticipantRoutes from './api/claimParticipants/route.ts';
+import claimInvitationRoutes from './api/claimInvitations/route.ts';
+import projectRoutes from './api/project/route.ts';
+import contractorRoutes from './api/contractor/route.ts';
 
 // API Routes
 app.use('/api/signup', signUpRoute);
@@ -105,6 +110,11 @@ app.use('/api/fema', verifyToken, femaRoutes);
 app.use('/api/images', verifyToken, imageRoutes);
 app.use('/api/pdfs', verifyToken, pdfRoutes);
 app.use('/api/nda', verifyToken, ndaRoutes);
+app.use('/api/auction', verifyToken, auctionRoutes);
+app.use('/api/claimParticipants', verifyToken, claimParticipantRoutes);
+app.use('/api/claimInvitations', verifyToken, claimInvitationRoutes);
+app.use('/api/project', verifyToken, projectRoutes);
+app.use("/api/contractor", verifyToken, contractorRoutes);
 app.use('/api/setup-db', setupDbRoutes);
 app.use('/api/analyze_contractors', verifyToken, contractorAnalysisProxy);
 

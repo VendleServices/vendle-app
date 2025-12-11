@@ -3,7 +3,7 @@ import { prisma } from '../../db/prisma.js';
 
 const router = Router();
 
-router.post("/:auctionId", async (req: any, res: any) => {
+router.post("/:claimId", async (req: any, res: any) => {
     try {
         const user = req?.user;
 
@@ -12,12 +12,12 @@ router.post("/:auctionId", async (req: any, res: any) => {
         }
 
         const userId = user.id;
-        const { auctionId } = req.params;
+        const { claimId } = req.params;
 
         const nda = await prisma.nda.create({
             data: {
                 userId,
-                auctionId,
+                claimId,
             }
         });
 
@@ -38,12 +38,12 @@ router.put("/:ndaId", async (req: any, res: any)=> {
         const body = req.body;
         const acceptedStatus: boolean = body?.acceptedStatus;
         const { ndaId } = req.params;
-        const auctionId = req.query.auctionId;
+        const claimId = req.query.claimId;
 
         const updatedNda = await prisma.nda.update({
             where: {
                 id: ndaId,
-                auctionId,
+                claimId,
             },
             data: {
                 accepted: acceptedStatus,

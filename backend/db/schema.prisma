@@ -238,7 +238,7 @@ model ClaimInvitation {
   id           String           @id @default(uuid())
   claimId      String
   contractorId String
-  invitedBy    String
+  invitedBy    String?
   status       InvitationStatus @default(PENDING)
   createdAt    DateTime         @default(now())
 

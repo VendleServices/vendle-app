@@ -31,6 +31,7 @@ router.post('/:claimId', async (req: any, res) => {
         bidPdfPath: bidData?.bidPdfPath || '',
         claimId,
         userId: user.id,
+        auctionPhaseId: bidData?.auctionPhaseId || '',
       }
     });
 
