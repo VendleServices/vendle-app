@@ -3,7 +3,7 @@ import { prisma } from '../../db/prisma.js';
 
 const router = Router();
 
-router.get("/contractors", async (req: any, res: any) => {
+router.get("/", async (req: any, res: any) => {
     try {
         const user = req?.user;
         if (!user) {

@@ -57,6 +57,7 @@ import {
   type Job, PendingNDA,
   type PhaseProject
 } from "@/data/mockHomeData";
+import { getContractorInitials } from "@/utils/helpers";
 
 interface Auction {
   auction_id: string;
@@ -361,6 +362,21 @@ export default function HomePage() {
       activeValue: (contractorMetrics.activeValueCents || 0) / 100
     }
   }, [contractorMetrics, phase1Projects, phase2Projects])
+
+  const fetchContractors = async () => {
+    try {
+      const response: any = await apiService.get('/api/contractor');
+      return response?.contractors || [];
+    } catch (error) {
+      console.log(error);
+    }
+  }
+
+  const { data: recommendedContractors } = useQuery({
+    queryKey: ['getContractors'],
+    queryFn: fetchContractors,
+    enabled: !!user?.id && isHomeowner,
+  });
 
   if (authLoading) {
     return <SplashScreen />
@@ -2258,86 +2274,34 @@ export default function HomePage() {
 
                 {/* Mock recommended contractors - replace with actual data */}
                 <div className="space-y-3">
-                  <Card className="hover:shadow-md transition-shadow">
-                    <CardContent className="p-4">
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-3">
-                          <div className="h-12 w-12 rounded-full bg-blue-600 flex items-center justify-center text-white font-semibold text-lg">
-                            RC
-                          </div>
-                          <div>
-                            <p className="font-semibold text-gray-900">Reliable Contractors Inc.</p>
-                            <p className="text-xs text-gray-500">Specializes in {selectedClaimForInvite.projectType || 'restoration'}</p>
-                            <div className="flex items-center gap-2 mt-1">
-                              <span className="text-xs text-yellow-600">★★★★★</span>
-                              <span className="text-xs text-gray-500">(24 reviews)</span>
+                  {recommendedContractors?.map((contractor: any) => (
+                      <Card className="hover:shadow-md transition-shadow" key={contractor.id}>
+                        <CardContent className="p-4">
+                          <div className="flex items-center justify-between">
+                            <div className="flex items-center gap-3">
+                              <div className="h-12 w-12 rounded-full bg-blue-600 flex items-center justify-center text-white font-semibold text-lg">
+                                {getContractorInitials(contractor?.companyName)}
+                              </div>
+                              <div>
+                                <p className="font-semibold text-gray-900">{contractor?.companyName}</p>
+                                <p className="text-xs text-gray-500">Specializes in {selectedClaimForInvite.projectType || 'restoration'}</p>
+                                <div className="flex items-center gap-2 mt-1">
+                                  <span className="text-xs text-yellow-600">★★★★★</span>
+                                  <span className="text-xs text-gray-500">(24 reviews)</span>
+                                </div>
+                              </div>
                             </div>
+                            <Button
+                                size="sm"
+                                className="bg-blue-600 hover:bg-blue-700"
+                                onClick={() => toast.success(`Invitation sent to ${contractor?.companyName}`)}
+                            >
+                              Invite to Bid
+                            </Button>
                           </div>
-                        </div>
-                        <Button
-                          size="sm"
-                          className="bg-blue-600 hover:bg-blue-700"
-                          onClick={() => toast.success("Invitation sent to Reliable Contractors Inc.")}
-                        >
-                          Invite to Bid
-                        </Button>
-                      </div>
-                    </CardContent>
-                  </Card>
-
-                  <Card className="hover:shadow-md transition-shadow">
-                    <CardContent className="p-4">
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-3">
-                          <div className="h-12 w-12 rounded-full bg-green-600 flex items-center justify-center text-white font-semibold text-lg">
-                            PM
-                          </div>
-                          <div>
-                            <p className="font-semibold text-gray-900">Premium Maintenance Co.</p>
-                            <p className="text-xs text-gray-500">Expert in {selectedClaimForInvite.projectType || 'restoration'} projects</p>
-                            <div className="flex items-center gap-2 mt-1">
-                              <span className="text-xs text-yellow-600">★★★★☆</span>
-                              <span className="text-xs text-gray-500">(18 reviews)</span>
-                            </div>
-                          </div>
-                        </div>
-                        <Button
-                          size="sm"
-                          className="bg-blue-600 hover:bg-blue-700"
-                          onClick={() => toast.success("Invitation sent to Premium Maintenance Co.")}
-                        >
-                          Invite to Bid
-                        </Button>
-                      </div>
-                    </CardContent>
-                  </Card>
-
-                  <Card className="hover:shadow-md transition-shadow">
-                    <CardContent className="p-4">
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-3">
-                          <div className="h-12 w-12 rounded-full bg-purple-600 flex items-center justify-center text-white font-semibold text-lg">
-                            SB
-                          </div>
-                          <div>
-                            <p className="font-semibold text-gray-900">Swift Builders LLC</p>
-                            <p className="text-xs text-gray-500">Local specialist in {selectedClaimForInvite.projectType || 'restoration'}</p>
-                            <div className="flex items-center gap-2 mt-1">
-                              <span className="text-xs text-yellow-600">★★★★★</span>
-                              <span className="text-xs text-gray-500">(31 reviews)</span>
-                            </div>
-                          </div>
-                        </div>
-                        <Button
-                          size="sm"
-                          className="bg-blue-600 hover:bg-blue-700"
-                          onClick={() => toast.success("Invitation sent to Swift Builders LLC")}
-                        >
-                          Invite to Bid
-                        </Button>
-                      </div>
-                    </CardContent>
-                  </Card>
+                        </CardContent>
+                      </Card>
+                  ))}
                 </div>
               </div>
             </div>

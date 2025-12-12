@@ -74,9 +74,9 @@ model User {
   companyName       String?
   phoneNumber       String?
   companyWebsite    String?
+  ndaSigned         Boolean?           @default(false)
   createdAt         DateTime           @default(now())
   updatedAt         DateTime           @default(now()) @updatedAt
-  ndas              Nda[]
   claimParticipants ClaimParticipant[]
   claimInvitations  ClaimInvitation[]
   projects          Project[]
@@ -142,7 +142,6 @@ model Claim {
 
   images            Image[]
   pdfs              ClaimPdf[]
-  ndas              Nda[]
   claimParticipants ClaimParticipant[]
   auctionPhases     AuctionPhase[]
   claimInvitations  ClaimInvitation[]
@@ -191,18 +190,6 @@ model Bid {
   updatedAt DateTime @default(now()) @updatedAt
 }
 
-model Nda {
-  id        String   @id @default(uuid())
-  userId    String
-  claimId   String
-  accepted  Boolean  @default(false)
-  createdAt DateTime @default(now())
-
-  user             User              @relation(fields: [userId], references: [id], onDelete: Cascade)
-  claim            Claim             @relation(fields: [claimId], references: [id], onDelete: Cascade)
-  claimParticipant ClaimParticipant?
-}
-
 model ClaimParticipant {
   id             String              @id @default(uuid())
   claimId        String
@@ -216,8 +203,6 @@ model ClaimParticipant {
   claim Claim @relation(fields: [claimId], references: [id], onDelete: Cascade)
   user  User  @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-  ndaId        String?       @unique
-  nda          Nda?          @relation(fields: [ndaId], references: [id])
   auctionPhase AuctionPhase? @relation(fields: [auctionPhaseId], references: [id])
 }
 
