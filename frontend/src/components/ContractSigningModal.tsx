@@ -28,8 +28,12 @@ export default function ContractSigningModal({
   const ndaUrl = "/vendle_nda.pdf"
 
   const handleSignContract = async () => {
+    if (!user?.id) {
+      return;
+    }
+
     try {
-      const signedNda = await apiService.post(`/api/nda/${jobId}`, {});
+      const signedNda = await apiService.put(`/api/contractor/${user?.id}`, {});
       return signedNda;
     } catch (error) {
       console.error('Error signing contract:', error);
@@ -45,7 +49,7 @@ export default function ContractSigningModal({
       toast.success("Successfully signed contract.", {
         description: "NDA was signed successfully!"
       });
-      queryClient.invalidateQueries({ queryKey: ["realAuctions"] });
+      queryClient.invalidateQueries({ queryKey: ["realClaims"] });
       onClose();
     }
   })

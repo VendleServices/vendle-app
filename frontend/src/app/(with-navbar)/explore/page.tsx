@@ -42,45 +42,47 @@ export default function ExplorePage() {
   const [sortBy, setSortBy] = useState("newest")
   const apiService = useApiService()
 
-  const fetchAuctions = async () => {
+  const fetchClaims = async () => {
     try {
-      const response: any = await apiService.get('/api/auctions');
-      const data = response?.data;
+      const res: any = await apiService.get(`/api/contractor/${user?.id}`);
+      const ndaSigned = res?.ndaSigned;
 
-      const activeAuctions = data?.filter((auction: any) => new Date(auction.end_date) > new Date());
-      const mappedAuctions = activeAuctions?.map((auction: any, index: number) => ({
-        id: auction.auction_id,
-        title: auction.title,
-        description: auction.description,
-        price: typeof auction.startingBid === "string" ? parseInt(auction?.startingBid || "5000") : 5000,
+      const response: any = await apiService.get('/api/claim');
+      const claims = response?.claims;
+
+      const mappedClaims = claims?.map((claim: any, index: number) => ({
+        id: claim?.id,
+        title: claim?.title,
+        description: claim?.additionalNotes,
+        price: claim?.totalJobValue,
         location: {
-          city: auction?.property_address?.split(", ")?.[1] || "",
-          state: auction?.property_address?.split(", ")?.[2] || "",
-          zipCode: auction?.property_address?.split(", ")?.[3] || ""
+          city: claim?.city || "",
+          state: claim?.state || "",
+          zipCode: claim?.zipcode || ""
         },
-        category: auction.project_type,
-        postedAt: new Date(auction.start_date),
-        deadline: new Date(auction.end_date),
-        status: auction.status,
+        category: claim?.projectType,
+        postedAt: new Date(claim?.createdAt),
+        deadline: new Date(claim?.phase2End),
+        status: claim?.status,
         homeowner: {
-          name: "Unknown",
+          name: claim?.user?.email,
           rating: 5.0
         },
-        ndaSigned: auction?.ndas?.some((nda: any) => nda?.userId === user?.id),
+        ndaSigned,
       })) || [] as JobPosting[];
-      return mappedAuctions;
+      return mappedClaims;
     } catch (error) {
       console.log(error);
     }
   }
 
-  const { data: realAuctions, error, isLoading } = useQuery({
-    queryKey: ["realAuctions"],
-    queryFn: fetchAuctions,
+  const { data: realClaims, error, isLoading } = useQuery({
+    queryKey: ["realClaims"],
+    queryFn: fetchClaims,
   });
 
   const sortedJobs = useMemo(() => {
-    const jobs: JobPosting[] = [...(realAuctions || [])];
+    const jobs: JobPosting[] = [...(realClaims || [])];
 
     const filteredJobs = jobs?.filter(job =>
         job.title?.toLowerCase().includes(searchQuery?.toLowerCase() || "")
@@ -94,7 +96,7 @@ export default function ExplorePage() {
       default:
         return filteredJobs
     }
-  }, [realAuctions, sortBy, searchQuery]);
+  }, [realClaims, sortBy, searchQuery]);
 
   const handleViewDetails = (job: JobPosting) => {
     if (!isLoggedIn) {

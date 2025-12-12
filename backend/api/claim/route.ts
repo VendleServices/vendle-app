@@ -16,7 +16,17 @@ const upload = multer({ storage });
 
 const router = Router();
 
-router.get('/', async (req: any, res) => {
+router.get("/", async (req: any, res: any) => {
+  try {
+    const claims = await prisma.claim.findMany() || [];
+
+    return res.status(200).json({ claims });
+  } catch (error) {
+    return res.status(500).json({ error: "Error fetching claims" });
+  }
+});
+
+router.get('/userClaims', async (req: any, res) => {
   try {
     const user = req?.user;
     if (!user) {
