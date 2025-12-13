@@ -32,11 +32,10 @@ import { useAuth } from "@/contexts/AuthContext";
 interface Auction {
     id: string;
     title: string;
-    description: string;
-    startingBid: number;
-    currentBid: number;
-    bid_count: number;
-    auctionEndDate: string;
+    additionalNotes: string;
+    totalJobValue: number;
+    bids: any[];
+    endDate: string;
     status: string;
     property_address?: string;
     project_type?: string;
@@ -126,7 +125,7 @@ export default function AuctionDetailsPage() {
 
     const fetchAuction = async (auctionId: string) => {
         try {
-            const response: any = await apiService.get(`/api/auctions/${auctionId}`);
+            const response: any = await apiService.get(`/api/auction/${auctionId}`);
             return response?.auction as unknown as Auction;
         } catch (error) {
             console.log(error);
@@ -158,7 +157,7 @@ export default function AuctionDetailsPage() {
         try {
             const project_details = {
                 project_type: auction?.reconstructionType,
-                project_description: auction?.aiSummary || auction?.description,
+                project_description: auction?.aiSummary || auction?.totalJobValue,
                 location: "Miami, Florida",
             };
 
@@ -316,13 +315,13 @@ export default function AuctionDetailsPage() {
                                     Restoration Auction
                                 </p>
                                 <CardTitle className="text-3xl font-bold tracking-tight text-foreground">
-                                    {auction.title}
+                                    {auction?.title}
                                 </CardTitle>
-                                {auction.reconstructionType && (
+                                {auction?.reconstructionType && (
                                     <p className="text-sm text-muted-foreground">
                                         Scope:{" "}
                                         <span className="font-medium text-foreground">
-                      {auction.reconstructionType}
+                      {auction?.reconstructionType}
                     </span>
                                     </p>
                                 )}
@@ -334,19 +333,19 @@ export default function AuctionDetailsPage() {
                                     className="flex items-center gap-1 rounded-full border-border bg-background px-3 py-1 text-xs font-medium text-muted-foreground"
                                 >
                                     <Users className="h-3.5 w-3.5" />
-                                    {auction.bid_count} bids
+                                    {auction?.bids?.length} bids
                                 </Badge>
                                 <Badge
                                     variant="outline"
                                     className="flex items-center gap-1 rounded-full border-border bg-background px-3 py-1 text-xs font-medium text-muted-foreground"
                                 >
                                     <DollarSign className="h-3.5 w-3.5" />
-                                    Current ${auction.currentBid}
+                                    Current ${auction?.bids?.[0]?.amount}
                                 </Badge>
                                 <Badge
                                     className="rounded-full bg-emerald-50 px-3 py-1 text-xs font-semibold text-emerald-700"
                                 >
-                                    {auction.status}
+                                    {auction?.status}
                                 </Badge>
                             </div>
                         </div>
@@ -369,7 +368,7 @@ export default function AuctionDetailsPage() {
                                         Description
                                     </h3>
                                     <p className="text-base leading-relaxed text-foreground">
-                                        {auction.aiSummary || auction.description}
+                                        {auction?.aiSummary || auction?.additionalNotes}
                                     </p>
                                 </section>
 
@@ -379,7 +378,7 @@ export default function AuctionDetailsPage() {
                                             Starting Bid
                                         </p>
                                         <p className="text-2xl font-semibold text-foreground">
-                                            ${auction.startingBid.toLocaleString()}
+                                            ${auction?.totalJobValue?.toLocaleString()}
                                         </p>
                                         <p className="text-xs text-muted-foreground">
                                             Minimum opening bid set by homeowner
@@ -391,7 +390,7 @@ export default function AuctionDetailsPage() {
                                             Auction Ends
                                         </p>
                                         <p className="text-base font-semibold text-foreground">
-                                            {new Date(auction.auctionEndDate).toLocaleString()}
+                                            {new Date(auction?.endDate).toLocaleString()}
                                         </p>
                                         <p className="text-xs text-muted-foreground">
                                             Bids after this time will not be accepted
@@ -399,14 +398,14 @@ export default function AuctionDetailsPage() {
                                     </div>
                                 </section>
 
-                                {auction.reconstructionType && (
+                                {auction?.reconstructionType && (
                                     <section className="space-y-3">
                                         <h3 className="text-sm font-semibold uppercase tracking-wide text-muted-foreground">
                                             Scope of Work
                                         </h3>
                                         <div className="rounded-xl border border-dashed border-border bg-background/60 p-4">
                                             <p className="text-sm text-foreground">
-                                                {auction.reconstructionType}
+                                                {auction?.reconstructionType}
                                             </p>
                                         </div>
                                     </section>
@@ -628,7 +627,7 @@ export default function AuctionDetailsPage() {
                                 <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
                                     <div className="space-y-3">
                                         <CardTitle className="text-2xl font-semibold text-foreground">
-                                            {auction.title}
+                                            {auction?.title}
                                         </CardTitle>
                                         <div className="flex flex-wrap items-center gap-2">
                                             <Badge
@@ -636,17 +635,17 @@ export default function AuctionDetailsPage() {
                                                 className="flex items-center gap-1 rounded-full border-border bg-background px-3 py-1 text-xs font-medium text-muted-foreground"
                                             >
                                                 <Users className="h-3.5 w-3.5" />
-                                                {auction.bid_count} bids
+                                                {auction?.bids?.length} bids
                                             </Badge>
                                             <Badge
                                                 variant="outline"
                                                 className="flex items-center gap-1 rounded-full border-border bg-background px-3 py-1 text-xs font-medium text-muted-foreground"
                                             >
                                                 <DollarSign className="h-3.5 w-3.5" />
-                                                Current ${auction.currentBid}
+                                                Current ${auction?.bids?.[0]?.amount}
                                             </Badge>
                                             <Badge className="rounded-full bg-emerald-50 px-3 py-1 text-xs font-semibold text-emerald-700">
-                                                {auction.status}
+                                                {auction?.status}
                                             </Badge>
                                         </div>
                                     </div>
@@ -672,7 +671,7 @@ export default function AuctionDetailsPage() {
                                                     Description
                                                 </p>
                                                 <p className="text-sm leading-relaxed text-foreground">
-                                                    {auction.aiSummary || auction.description || "N/A"}
+                                                    {auction?.aiSummary || auction?.additionalNotes || "N/A"}
                                                 </p>
                                             </div>
                                             <div className="space-y-1">
@@ -680,7 +679,7 @@ export default function AuctionDetailsPage() {
                                                     Project Type
                                                 </p>
                                                 <p className="text-sm text-foreground">
-                                                    {auction.reconstructionType || "N/A"}
+                                                    {auction?.reconstructionType || "N/A"}
                                                 </p>
                                             </div>
                                         </div>
@@ -699,7 +698,7 @@ export default function AuctionDetailsPage() {
                                                         Starting Bid
                                                     </p>
                                                     <p className="text-xl font-semibold text-foreground">
-                                                        ${auction.startingBid.toLocaleString()}
+                                                        ${auction?.totalJobValue?.toLocaleString()}
                                                     </p>
                                                 </div>
                                             </div>
@@ -712,7 +711,7 @@ export default function AuctionDetailsPage() {
                                                         Auction Ends
                                                     </p>
                                                     <p className="text-base font-semibold text-foreground">
-                                                        {new Date(auction.auctionEndDate).toLocaleString()}
+                                                        {new Date(auction?.endDate).toLocaleString()}
                                                     </p>
                                                 </div>
                                             </div>

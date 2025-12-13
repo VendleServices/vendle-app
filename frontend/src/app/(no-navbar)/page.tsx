@@ -6,10 +6,10 @@ import SplashScreen from "@/components/SplashScreen"
 
 export default function RootPage() {
   const router = useRouter()
-  const { user, isLoading } = useAuth()
+  const { user, loading } = useAuth()
 
   useEffect(() => {
-    if (!isLoading) {
+    if (!loading) {
       if (user) {
         // If user is logged in, redirect to home
         router.replace("/home")
@@ -18,7 +18,7 @@ export default function RootPage() {
         router.replace("/login")
       }
     }
-  }, [user, isLoading, router])
+  }, [user, loading, router])
 
   return <SplashScreen />
 }
