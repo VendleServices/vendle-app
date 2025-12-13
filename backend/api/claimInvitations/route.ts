@@ -3,6 +3,25 @@ import { prisma } from '../../db/prisma.js';
 
 const router = Router();
 
+router.get('/', async (req: any, res: any) => {
+    try {
+        const user = req?.user;
+        if (!user) {
+            return res.status(401).json({ error: "not authorized" });
+        }
+
+        const claimInvitations = await prisma.claimInvitation.findMany({
+            where: {
+                contractorId: user.id
+            }
+        }) || [];
+
+        return res.status(200).json({ claimInvitations });
+    } catch (error) {
+        return res.status(500).json({ error: "Error fetching invitations" });
+    }
+});
+
 router.get("/:claimId", async (req: any, res: any)=> {
     try {
         const user = req?.user;
@@ -38,11 +57,13 @@ router.post("/:claimId", async (req: any, res: any) => {
             data: {
                 claimId,
                 contractorId,
+                invitedBy: user?.id || "Anonymous",
             }
         });
 
         return res.status(201).json({ newInvitation });
     } catch (error) {
+        console.log(error);
         return res.status(500).json({ error: "Error creating claim invitation" });
     }
 });

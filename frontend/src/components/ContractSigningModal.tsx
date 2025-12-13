@@ -5,7 +5,10 @@ import { Button } from '@/components/ui/button';
 import { useAuth } from '@/contexts/AuthContext';
 import { toast } from 'sonner';
 import { useApiService } from "@/services/api";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQueryClient, useQuery } from "@tanstack/react-query";
+import { useRouter } from "next/navigation";
+import React, { useMemo } from 'react';
+import Link from 'next/link';
 
 interface ContractSigningModalProps {
   onClose: () => void;
@@ -26,6 +29,7 @@ export default function ContractSigningModal({
   const apiService = useApiService();
   const queryClient = useQueryClient();
   const ndaUrl = "/vendle_nda.pdf"
+  const router = useRouter();
 
   const handleSignContract = async () => {
     if (!user?.id) {
@@ -52,7 +56,46 @@ export default function ContractSigningModal({
       queryClient.invalidateQueries({ queryKey: ["realClaims"] });
       onClose();
     }
-  })
+  });
+
+  const handleJoinRestoration = async () => {
+    try {
+      const response: any = await apiService.post(`/api/claimParticipants/${jobId}`, {});
+      return response;
+    } catch (error) {
+      console.error(error);
+    }
+  }
+
+  const joinRestorationMutation = useMutation({
+    mutationFn: handleJoinRestoration,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["getClaimParticipants", jobId] });
+      router.push("/home");
+    }
+  });
+
+  const fetchClaimParticipants = async () => {
+    try {
+      const response: any = await apiService.get(`/api/claimParticipants/${jobId}`);
+      return response?.claimParticipants || [];
+    } catch (error) {
+      console.error(error);
+    }
+  }
+
+  const { data: claimParticipants } = useQuery({
+    queryKey: ["getClaimParticipants", jobId],
+    queryFn: fetchClaimParticipants,
+    enabled: !!user?.id,
+  });
+
+  const claimParticipantIds = useMemo(() => {
+    const claimParticipantIds = claimParticipants?.map((claimParticipant: any) => claimParticipant.userId);
+    return claimParticipantIds;
+  }, [claimParticipants]);
+
+  const alreadyJoined = claimParticipantIds?.includes(user?.id);
 
   return (
     <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
@@ -142,7 +185,11 @@ export default function ContractSigningModal({
             <div className="flex flex-col gap-y-2 items-center justify-center gap-2 text-green-600 py-2">
               <CheckCircle className="w-6 h-6" />
               <span className="font-semibold text-lg">Contract Signed Successfully!</span>
-              <span className="text-sm text-gray-600">Your request is pending approval from the homeowner.</span>
+              {alreadyJoined ? (
+                  <Link href={"/home"} className={"text-blue-600"}>Home</Link>
+              ): (
+                  <Button onClick={() => joinRestorationMutation.mutate()} disabled={joinRestorationMutation?.isPending}>Join Restoration</Button>
+              )}
             </div>
           )}
 

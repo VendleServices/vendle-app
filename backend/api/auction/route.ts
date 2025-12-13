@@ -3,6 +3,34 @@ import { prisma } from '../../db/prisma.js';
 
 const router = Router();
 
+router.get('/', async (req: any, res: any) => {
+    try {
+        const user = req?.user;
+        if (!user) {
+            return res.status(401).json({ error: "Not authorized" });
+        }
+
+        const auctions = await prisma.auctionPhase.findMany({
+            where: {
+                participants: {
+                    some: {
+                        userId: user?.id,
+                    }
+                }
+            },
+            include: {
+                claim: true,
+                participants: true,
+                bids: true,
+            }
+        });
+
+        return res.status(200).json({ auctions });
+    } catch (error) {
+        return res.status(500).json({ error: "Error fetching auctions "});
+    }
+});
+
 router.get("/:auctionId", async (req: any, res: any) => {
     try {
         const user = req?.user;

@@ -35,10 +35,9 @@ import {
   Shield,
   FileCheck
 } from "lucide-react"
-import { useQuery } from "@tanstack/react-query"
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query"
 import SplashScreen from "@/components/SplashScreen";
 import { AuctionCard } from "@/components/AuctionCard";
-import { ClaimCard } from "@/components/ClaimCard";
 import { EmptyState } from "@/components/EmptyState";
 import { LoadingSkeleton } from "@/components/LoadingSkeleton";
 import { toast } from "sonner";
@@ -59,30 +58,15 @@ import {
 } from "@/data/mockHomeData";
 import { getContractorInitials } from "@/utils/helpers";
 
-interface Auction {
-  auction_id: string;
-  claim_id: string;
-  status: string;
-  starting_bid: number;
-  current_bid: number;
-  bid_count: number;
-  end_date: string;
-  property_address?: string;
-  project_type: string;
-  design_plan?: string;
-  title: string;
-  winning_bidder?: string;
-}
-
 export default function HomePage() {
   const { user, isLoggedIn, loading: authLoading } = useAuth()
   const router = useRouter()
   const apiService = useApiService();
+  const queryClient = useQueryClient();
 
   // Contractor tab state
   const [contractorTab, setContractorTab] = useState<'pending-ndas' | 'phase-1' | 'phase-2' | 'my-jobs'>('pending-ndas');
   const [scheduleTab, setScheduleTab] = useState<'upcoming' | 'deadlines' | 'visits' | 'milestones'>('upcoming');
-  const [contractorAuctions, setContractorAuctions] = useState<Auction[]>([]);
   const [contractorAuctionLoading, setContractorAuctionLoading] = useState(false);
   const [myJobs, setMyJobs] = useState<Job[]>([]);
   const [jobsLoading, setJobsLoading] = useState(false);
@@ -209,139 +193,148 @@ export default function HomePage() {
   }, [isHomeowner, authLoading, homeownerTab]);
 
   // Fetch homeowner data
-  const { data: claims, isLoading: claimsLoading } = useQuery({
-    queryKey: ["getClaims"],
+  const { data: homeownerClaims, isLoading: claimsLoading } = useQuery({
+    queryKey: ["getUserClaims"],
     queryFn: async () => {
-      if (!user?.id) return []
-      const response: any = await apiService.get('/api/claim');
+      if (!user?.id) return [];
+      const response: any = await apiService.get('/api/claim/userClaims');
       return response?.claims || [];
     },
     enabled: !!user?.id && isHomeowner
-  })
+  });
+
+  // fetch contractor data
+  const { data: contractorClaims, isLoading: contractorClaimsLoading } = useQuery({
+    queryKey: ["getContractorClaims"],
+    queryFn: async () => {
+      if (!user?.id) return [];
+      const response: any = await apiService.get('/api/claim/contractorClaims');
+      return response?.claims || [];
+    },
+    enabled: !!user?.id && isContractor
+  });
 
   const { data: auctions, isLoading: auctionsLoading } = useQuery({
     queryKey: ["getAuctions"],
     queryFn: async () => {
-      const response: any = await apiService.get('/api/auctions');
-      return response?.data || [];
+      if (!user?.id) return [];
+      const response: any = await apiService.get('/api/auction');
+      const auctions = response?.auctions || [];
+      return auctions;
     },
     enabled: !!user?.id
   })
 
-  const { pendingNDAs, phase1Projects, phase2Projects } = useMemo(() => {
-    const pendingNDAs: PendingNDA[] = auctions?.filter((auction: any) => auction?.ndas?.some((nda: any) => nda?.userId === user?.id && !nda?.accepted))?.map((auction: any)=> (
+  const { data: contractorInvitations } = useQuery({
+    queryKey: ["getContractorInvitations"],
+    queryFn: async () => {
+      if (!user?.id) return [];
+      const response: any = await apiService.get('/api/claimInvitations');
+      return response?.claimInvitations || [];
+    },
+    enabled: !!user?.id && isContractor
+  });
+
+  const { data: homeownerInvitations } = useQuery({
+    queryKey: ["getHomeownerInvitations", selectedClaimForInvite?.id],
+    queryFn: async () => {
+      if (!user?.id) return [];
+      const response: any = await apiService.get(`/api/claimInvitations/${selectedClaimForInvite?.id}`)
+      return response?.claimInvitations || []
+    },
+    enabled: !!user?.id && isHomeowner && selectedClaimForInvite !== null && !!selectedClaimForInvite?.id
+  });
+
+  const inviteContractorMutation = useMutation({
+    mutationFn: async (contractorId: any) => {
+      const response = await apiService.post(`/api/claimInvitations/${selectedClaimForInvite?.id}`, { contractorId });
+      return response;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["getHomeownerInvitations", selectedClaimForInvite?.id ]});
+    }
+  });
+
+  const pendingNDAs = useMemo(() => {
+    const pendingNDAs: PendingNDA[] = contractorClaims?.filter((claim: any) => claim?.status === "Pending")?.map((claim: any) => (
         {
-          id: auction?.auction_id,
-          projectTitle: auction?.title,
-          address: auction?.property_address,
-          homeownerName: auction?.userEmail,
-          requestedDate: auction?.start_date,
-          status: auction?.status,
+          id: claim?.id,
+          projectTitle: claim?.title,
+          address: `${claim?.street}, ${claim?.city}, ${claim?.state}, ${claim?.zipCode}`,
+          homeownerName: claim?.user?.email,
+          requestedDate: claim?.createdAt,
+          status: claim?.status,
         }
     )) || [];
 
-    // For homeowners: filter by their claim IDs, for contractors: filter by accepted NDAs
-    const claimIds = claims?.map((claim: any) => claim.id) || [];
-    const filterFunction = isHomeowner 
-      ? (auction: any) => claimIds.includes(auction?.claim_id)
-      : (auction: any) => auction?.ndas?.find((nda: any) => nda?.userId === user?.id && nda?.accepted);
+    return pendingNDAs;
+  }, [contractorClaims]);
 
-    const phase1Projects: PhaseProject[] = auctions?.filter(filterFunction)?.map((auction: any) => ({
-      id: auction?.auction_id,
-      title: auction?.title,
-      address: auction?.property_address?.split(", ")?.[0],
-      city: auction?.property_address?.split(", ")?.[1],
-      state: auction?.property_address?.split(", ")?.[2],
-      contractValue: auction?.starting_bid,
-      phase1StartDate: auction?.phase1StartDate,
-      phase1EndDate: auction?.phase1EndDate,
-      status: auction?.phase1StartDate && auction?.phase1EndDate 
-        ? (new Date() > new Date(auction?.phase1StartDate) && new Date() < new Date(auction?.phase1EndDate) ? "Active" : "Inactive")
-        : "Pending",
-      projectType: auction?.project_type,
-      bidCount: auction?.bid_count || auction?.bidCount || 0,
-      homeownerName: auction?.homeownerName,
+  const { phase1Projects, phase2Projects } = useMemo(() => {
+    const phase1Projects: PhaseProject[] = auctions?.filter((auction: any) => auction?.number === 1)?.map((auction: any) => ({
+      id: auction?.id,
+      title: auction?.claim?.title,
+      address: auction?.claim?.street,
+      city: auction?.claim?.city,
+      state: auction?.claim?.state,
+      contractValue: auction?.claim?.totalJobValue,
+      phase1StartDate: auction?.startDate,
+      phase1EndDate: auction?.endDate,
+      status: auction?.status,
+      projectType: auction?.claim?.projectType,
+      bidCount: auction?.bids?.length || 0,
+      homeownerName: auction?.claim?.user?.email,
       homeownerPhone: '(555) 987-6543',
-      description: auction?.description,
+      description: auction?.claim?.aiSummary || auction?.claim?.additionalNotes,
       adjustmentPdf: {
         name: 'Insurance_Adjustment_Report.pdf',
-        url: auction?.insuranceEstimatePdf
+        url: "N/A"
       },
       imageUrls: [],
       files: []
     })) || [];
 
-    const phase2Projects: PhaseProject[] = auctions?.filter(filterFunction)?.map((auction: any) => ({
-      id: auction?.auction_id,
-      title: auction?.title,
-      address: auction?.property_address?.split(", ")?.[0],
-      city: auction?.property_address?.split(", ")?.[1],
-      state: auction?.property_address?.split(", ")?.[2],
-      contractValue: auction?.starting_bid,
-      phase2StartDate: auction?.phase2StartDate,
-      phase2EndDate: auction?.phase2EndDate,
-      status: auction?.phase2StartDate && auction?.phase2EndDate 
-        ? (new Date() > new Date(auction?.phase2StartDate) && new Date() < new Date(auction?.phase2EndDate) ? "Active" : "Inactive")
-        : "Pending",
-      projectType: auction?.project_type,
-      homeownerName: auction?.homeownerName,
+    const phase2Projects: PhaseProject[] = auctions?.filter((auction: any) => auction?.number === 2)?.map((auction: any) => ({
+      id: auction?.id,
+      title: auction?.claim?.title,
+      address: auction?.claim?.street,
+      city: auction?.claim?.city,
+      state: auction?.claim?.state,
+      contractValue: auction?.claim?.totalJobValue,
+      phase1StartDate: auction?.startDate,
+      phase1EndDate: auction?.endDate,
+      status: auction?.status,
+      projectType: auction?.claim?.projectType,
+      bidCount: auction?.bids?.length || 0,
+      homeownerName: auction?.claim?.user?.email,
       homeownerPhone: '(555) 987-6543',
-      description: auction?.description,
+      description: auction?.claim?.aiSummary || auction?.claim?.additionalNotes,
       adjustmentPdf: {
         name: 'Insurance_Adjustment_Report.pdf',
-        url: auction?.insuranceEstimatePdf
+        url: "N/A"
       },
       imageUrls: [],
       files: [],
       competingBids: []
     })) || [];
 
-    return { pendingNDAs, phase1Projects, phase2Projects };
-  }, [auctions, user?.id, claims, isHomeowner]);
+    return { phase1Projects, phase2Projects };
+  }, [auctions]);
 
-  // Fetch contractor data (only if contractor)
-  const { data: contractorMetrics, isLoading: metricsLoading } = useQuery({
-    queryKey: ['contracts', 'metrics'],
-    queryFn: async () => {
-      const response: any = await apiService.get('/api/contracts/metrics');
-      return response;
-    },
-    enabled: !!user?.id && isContractor
-  })
+  const existingHomeownerInvitedContractors = useMemo(() => {
+    const contractorIds = homeownerInvitations?.map((invitation: any) => invitation?.contractorId);
+    return contractorIds;
+  }, [homeownerInvitations]);
 
   // Fetch Phase 1 bids for Phase 2 projects
-  const { data: phase1Bids, isLoading: phase1BidsLoading } = useQuery({
-    queryKey: ['phase1Bids', selectedPhaseProject?.id, auctions],
-    queryFn: async () => {
-      if (!selectedPhaseProject?.id || !selectedPhaseProject?.phase2StartDate || !auctions) return null;
-      
-      // Find the current Phase 2 auction
-      const currentAuction = auctions?.find((auction: any) => auction?.auction_id === selectedPhaseProject.id);
-      if (!currentAuction?.claim_id) return null;
-      
-      // Find Phase 1 auction for this project (same claim_id, has phase1StartDate but no phase2StartDate)
-      const phase1Auction = auctions?.find((auction: any) => 
-        auction?.claim_id === currentAuction.claim_id &&
-        auction?.phase1StartDate &&
-        !auction?.phase2StartDate &&
-        auction?.auction_id !== selectedPhaseProject.id
-      );
-      
-      if (!phase1Auction?.auction_id) return null;
-      
-      try {
-        const response: any = await apiService.get(`/api/bids/${phase1Auction.auction_id}`);
-        return response?.expandedBidInfo || [];
-      } catch (error) {
-        console.error('Error fetching Phase 1 bids:', error);
-        return [];
-      }
-    },
-    enabled: !!selectedPhaseProject?.id && !!selectedPhaseProject?.phase2StartDate && !!auctions && auctions.length > 0
-  });
+  const phase1Bids: any[] = []
+  const contractorMetrics: any = null;
 
   // Calculate contractor stats
   const contractorStats = useMemo(() => {
+    if (!isContractor) {
+      return;
+    }
     // Calculate Phase 1 and Phase 2 contract values from projects
     const phase1Value = phase1Projects?.reduce((sum, project) => sum + (project.contractValue || 0), 0);
     const phase2Value = phase2Projects?.reduce((sum, project) => sum + (project.contractValue || 0), 0);
@@ -358,10 +351,10 @@ export default function HomePage() {
     return {
       phase1Value,
       phase2Value,
-      activeContracts: contractorMetrics.activeCount || 0,
-      activeValue: (contractorMetrics.activeValueCents || 0) / 100
+      activeContracts: contractorMetrics?.activeCount || 0,
+      activeValue: (contractorMetrics?.activeValueCents || 0) / 100
     }
-  }, [contractorMetrics, phase1Projects, phase2Projects])
+  }, [contractorMetrics, phase1Projects, phase2Projects, isContractor])
 
   const fetchContractors = async () => {
     try {
@@ -615,7 +608,7 @@ export default function HomePage() {
               </div>
 
               {/* Phase 1 Bidders - Only for Phase 2 projects */}
-              {selectedPhaseProject.phase2StartDate && phase1Bids && phase1Bids.length > 0 && (
+              {selectedPhaseProject.phase2StartDate && phase1Bids && phase1Bids?.length > 0 && (
                 <div className="space-y-4 pt-4 border-t border-gray-200">
                   <h4 className="text-lg font-semibold text-gray-900">Phase 1 Bidders (Ranked from Phase 1 End)</h4>
                   <div className="space-y-3">
@@ -946,7 +939,7 @@ export default function HomePage() {
                 <FileCheck className="h-4 w-4 text-muted-foreground" />
               </CardHeader>
               <CardContent>
-                <div className="text-2xl font-bold">${contractorStats.phase1Value?.toLocaleString()}</div>
+                <div className="text-2xl font-bold">${contractorStats?.phase1Value?.toLocaleString()}</div>
                 <p className="text-xs text-muted-foreground">
                   {phase1Projects?.length} active project{phase1Projects?.length !== 1 ? 's' : ''}
                 </p>
@@ -959,7 +952,7 @@ export default function HomePage() {
                 <FileCheck className="h-4 w-4 text-muted-foreground" />
               </CardHeader>
               <CardContent>
-                <div className="text-2xl font-bold">${contractorStats.phase2Value?.toLocaleString()}</div>
+                <div className="text-2xl font-bold">${contractorStats?.phase2Value?.toLocaleString()}</div>
                 <p className="text-xs text-muted-foreground">
                   {phase2Projects?.length} active project{phase2Projects?.length !== 1 ? 's' : ''}
                 </p>
@@ -972,9 +965,9 @@ export default function HomePage() {
                 <Briefcase className="h-4 w-4 text-muted-foreground" />
               </CardHeader>
               <CardContent>
-                <div className="text-2xl font-bold">{contractorStats.activeContracts}</div>
+                <div className="text-2xl font-bold">{contractorStats?.activeContracts}</div>
                 <p className="text-xs text-muted-foreground">
-                  ${contractorStats.activeValue.toLocaleString()} active value
+                  ${contractorStats?.activeValue.toLocaleString()} active value
                 </p>
               </CardContent>
             </Card>
@@ -1074,10 +1067,10 @@ export default function HomePage() {
                           <CardHeader>
                             <div className="flex items-start justify-between">
                               <div className="flex-1">
-                                <CardTitle className="text-lg mb-1">{nda.projectTitle}</CardTitle>
+                                <CardTitle className="text-lg mb-1">{nda?.projectTitle}</CardTitle>
                                 <div className="flex items-center gap-2 text-sm text-gray-600 mt-1">
                                   <MapPin className="h-4 w-4" />
-                                  <span>{nda.address}</span>
+                                  <span>{nda?.address}</span>
                                 </div>
                               </div>
                               <Badge className="bg-yellow-100 text-yellow-800 border-yellow-200">
@@ -1090,11 +1083,11 @@ export default function HomePage() {
                               <div className="space-y-2">
                                 <div className="flex items-center justify-between text-sm">
                                   <span className="text-gray-600">Homeowner:</span>
-                                  <span className="font-medium">{nda.homeownerName}</span>
+                                  <span className="font-medium">{nda?.homeownerName}</span>
                                 </div>
                                 <div className="flex items-center justify-between text-sm">
                                   <span className="text-gray-600">Requested:</span>
-                                  <span className="font-medium">{new Date(nda.requestedDate).toLocaleDateString()}</span>
+                                  <span className="font-medium">{new Date(nda?.requestedDate).toLocaleDateString()}</span>
                                 </div>
                               </div>
                               <div className="pt-2">
@@ -1430,7 +1423,7 @@ export default function HomePage() {
                 <>
                   {contractorAuctionLoading ? (
                     <LoadingSkeleton />
-                  ) : contractorAuctions?.length === 0 ? (
+                  ) : auctions?.length === 0 ? (
                     <EmptyState
                       icon={Users}
                       title="No Active Auctions"
@@ -1438,7 +1431,7 @@ export default function HomePage() {
                     />
                   ) : (
                     <div className="grid gap-6 sm:gap-8 grid-cols-1 md:grid-cols-2 xl:grid-cols-3">
-                      {contractorAuctions?.map((auction) => (
+                      {auctions?.map((auction: any) => (
                         <AuctionCard
                           key={auction.auction_id}
                           title={auction.title}
@@ -1731,7 +1724,7 @@ export default function HomePage() {
               <>
                 {claimsLoading ? (
                   <LoadingSkeleton />
-                ) : claims?.length === 0 ? (
+                ) : homeownerClaims?.length === 0 ? (
                   <EmptyState
                     icon={Building2}
                     title="No Pre-Launch Projects"
@@ -1745,7 +1738,7 @@ export default function HomePage() {
                       ? 'grid-cols-1 md:grid-cols-1' 
                       : 'grid-cols-1 md:grid-cols-2 xl:grid-cols-3'
                   }`}>
-                    {claims?.map((claim: any) => (
+                    {homeownerClaims?.map((claim: any) => (
                       <Card key={claim.id} className="hover:shadow-lg transition-shadow">
                         <CardHeader>
                           <div className="flex items-start justify-between">
@@ -2294,7 +2287,8 @@ export default function HomePage() {
                             <Button
                                 size="sm"
                                 className="bg-blue-600 hover:bg-blue-700"
-                                onClick={() => toast.success(`Invitation sent to ${contractor?.companyName}`)}
+                                disabled={existingHomeownerInvitedContractors?.includes(contractor.id)}
+                                onClick={() => inviteContractorMutation.mutate(contractor.id)}
                             >
                               Invite to Bid
                             </Button>

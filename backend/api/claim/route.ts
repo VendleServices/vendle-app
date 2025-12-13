@@ -26,6 +26,34 @@ router.get("/", async (req: any, res: any) => {
   }
 });
 
+router.get("/contractorClaims", async (req: any, res: any) => {
+  try {
+    const user = req?.user;
+    if (!user) {
+      return res.status(401).json({ error: "Not authorized" });
+    }
+
+    console.log(user?.id)
+
+    const claims = await prisma.claim.findMany({
+      where: {
+        claimParticipants: {
+          some: {
+            userId: user?.id,
+          }
+        }
+      },
+      include: {
+        claimParticipants: true,
+      }
+    }) || [];
+
+    return res.status(200).json({ claims });
+  } catch (error) {
+    return res.status(500).json({ error: "Error fetching contractor claims" });
+  }
+});
+
 router.get('/userClaims', async (req: any, res) => {
   try {
     const user = req?.user;
@@ -36,6 +64,10 @@ router.get('/userClaims', async (req: any, res) => {
     const claims = await prisma.claim.findMany({
       where: {
         userId: user.id
+      },
+      include: {
+        auctionPhases: true,
+        user: true,
       }
     }) || [];
 
@@ -57,6 +89,10 @@ router.get('/:claimId', async (req: any, res) => {
     const claim = await prisma.claim.findUnique({
       where: {
         id: claimId,
+      },
+      include: {
+        auctionPhases: true,
+        user: true,
       }
     });
 
