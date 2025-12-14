@@ -17,25 +17,25 @@ const app = express();
 const PORT = process.env.PORT || 3001;
 const CONTRACTOR_ANALYSIS_URL = 'http://localhost:8001'
 
-const contractorAnalysisProxy = createProxyMiddleware({
-  target: CONTRACTOR_ANALYSIS_URL,
-  changeOrigin: true,
-  timeout: 60000,
-  pathRewrite: {
-    '^/api/analyze_contractors': '/api/analyze_contractors'
-  },
-  logLevel: 'debug',
-  onProxyReq: (proxyReq, req, res) => {
-    console.log('Proxying request to:', proxyReq.path);
-  },
-  onError: (err, req, res) => {
-    console.error('Contractor analysis proxy error:', err.message);
-    res.status(500).json({
-      error: 'Contractor analysis service unavailable',
-      message: 'Please try again later'
-    });
-  }
-});
+// const contractorAnalysisProxy = createProxyMiddleware({
+//   target: CONTRACTOR_ANALYSIS_URL,
+//   changeOrigin: true,
+//   timeout: 60000,
+//   pathRewrite: {
+//     '^/api/analyze_contractors': '/api/analyze_contractors'
+//   },
+//   logLevel: 'debug',
+//   onProxyReq: (proxyReq, req, res) => {
+//     console.log('Proxying request to:', proxyReq.path);
+//   },
+//   onError: (err, req, res) => {
+//     console.error('Contractor analysis proxy error:', err.message);
+//     res.status(500).json({
+//       error: 'Contractor analysis service unavailable',
+//       message: 'Please try again later'
+//     });
+//   }
+// });
 
 // Middleware
 app.use(cors({
@@ -100,6 +100,7 @@ import claimParticipantRoutes from './api/claimParticipants/route.ts';
 import claimInvitationRoutes from './api/claimInvitations/route.ts';
 import projectRoutes from './api/project/route.ts';
 import contractorRoutes from './api/contractor/route.ts';
+import analyzeContractorRoutes from './api/analyzeContractors/route.ts';
 
 // API Routes
 app.use('/api/signup', signUpRoute);
@@ -114,7 +115,7 @@ app.use('/api/claimInvitations', verifyToken, claimInvitationRoutes);
 app.use('/api/project', verifyToken, projectRoutes);
 app.use("/api/contractor", verifyToken, contractorRoutes);
 app.use('/api/setup-db', setupDbRoutes);
-app.use('/api/analyze_contractors', verifyToken, contractorAnalysisProxy);
+app.use('/api/analyzeContractors', verifyToken, analyzeContractorRoutes);
 
 app.get('/api/health', (req, res) => {
   res.json({ status: 'OK', timestamp: new Date().toISOString() });
