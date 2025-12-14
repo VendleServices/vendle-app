@@ -19,6 +19,8 @@ export interface JobPosting {
   };
   imageUrl?: string;
   ndaSigned?: boolean;
+  showJoinRestoration?: boolean;
+  showViewDetails?: boolean;
 }
 
 export const mockJobs: JobPosting[] = [

@@ -18,7 +18,11 @@ const router = Router();
 
 router.get("/", async (req: any, res: any) => {
   try {
-    const claims = await prisma.claim.findMany() || [];
+    const claims = await prisma.claim.findMany({
+      include: {
+        claimParticipants: true
+      }
+    }) || [];
 
     return res.status(200).json({ claims });
   } catch (error) {

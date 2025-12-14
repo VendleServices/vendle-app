@@ -92,7 +92,7 @@ export default function ClaimPage({ params }: PageProps) {
                 <p className="mt-2 text-gray-600">
                     The requested claim could not be found or you don’t have access.
                 </p>
-                <Button onClick={() => router.push("/home")} className="mt-6">
+                <Button onClick={() => router.push("/home")} className="mt-6 hover:text-white">
                     Back to Home
                 </Button>
             </div>
@@ -113,7 +113,7 @@ export default function ClaimPage({ params }: PageProps) {
                         <Button
                             variant="ghost"
                             onClick={() => router.push("/home")}
-                            className="mb-3 gap-2"
+                            className="mb-3 gap-2 hover:text-white"
                         >
                             <ArrowLeft className="h-4 w-4" />
                             Back to Home

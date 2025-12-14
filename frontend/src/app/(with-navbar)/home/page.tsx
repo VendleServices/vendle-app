@@ -371,6 +371,37 @@ export default function HomePage() {
     enabled: !!user?.id && isHomeowner,
   });
 
+  const fetchInterestedContractors = async () => {
+    try {
+      const response: any = await apiService.get(`/api/claimParticipants/${selectedPreLaunchClaim?.id}`);
+      return response?.claimParticipants?.filter((claimParticipant: any) => claimParticipant?.status !== "APPROVED") || [];
+    } catch (error) {
+      console.log(error);
+    }
+  }
+
+  const { data: interestedContractors } = useQuery({
+    queryKey: ['getInterestedContractors', selectedPreLaunchClaim?.id],
+    queryFn: fetchInterestedContractors,
+    enabled: !!user?.id && isHomeowner && selectedPreLaunchClaim !== null && !!selectedPreLaunchClaim?.id
+  });
+
+  const acceptContractorParticipation = async (participantId: string) => {
+    try {
+      const response: any = await apiService.put(`/api/claimParticipants/status/${participantId}`, { newStatus: "APPROVED" });
+      return response;
+    } catch (error) {
+      console.log(error);
+    }
+  }
+
+  const acceptContractorMutation = useMutation({
+    mutationFn: acceptContractorParticipation,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["getInterestedContractors", selectedPreLaunchClaim?.id] });
+    }
+  });
+
   if (authLoading) {
     return <SplashScreen />
   }
@@ -1795,8 +1826,7 @@ export default function HomePage() {
                                 className="w-full bg-green-600 hover:bg-green-700"
                                 onClick={() => {
                                   // Get count of contractors who signed NDA for this claim
-                                  const claimAuction = auctions?.find((auction: any) => auction?.claim_id === claim.id);
-                                  const signedNdaCount = claimAuction?.ndas?.filter((nda: any) => nda?.accepted === true)?.length || 0;
+                                  const signedNdaCount = 0
                                   
                                   setNdaSignedCount(signedNdaCount);
                                   setClaimToLaunch(claim);
@@ -2195,42 +2225,27 @@ export default function HomePage() {
                   <p className="text-sm font-semibold text-gray-900">Contractors with Signed NDAs</p>
                   <div className="space-y-2">
                     {/* Mock NDA contractors - replace with actual data */}
-                    <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
-                      <div className="flex items-center gap-3">
-                        <div className="h-10 w-10 rounded-full bg-blue-600 flex items-center justify-center text-white font-semibold">
-                          AC
+                    {interestedContractors?.map((contractor: any) => (
+                        <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg" key={contractor.id}>
+                          <div className="flex items-center gap-3">
+                            <div className="h-10 w-10 rounded-full bg-blue-600 flex items-center justify-center text-white font-semibold">
+                              {getContractorInitials(contractor?.user?.email)}
+                            </div>
+                            <div>
+                              <p className="font-medium text-gray-900">{contractor?.user?.companyName}</p>
+                              <p className="text-xs text-gray-500">NDA signed</p>
+                            </div>
+                          </div>
+                          <Button
+                              size="sm"
+                              className="bg-green-600 hover:bg-green-700"
+                              disabled={acceptContractorMutation?.isPending}
+                              onClick={() => acceptContractorMutation.mutate(contractor.id)}
+                          >
+                            Accept
+                          </Button>
                         </div>
-                        <div>
-                          <p className="font-medium text-gray-900">ABC Construction</p>
-                          <p className="text-xs text-gray-500">NDA signed on {new Date().toLocaleDateString()}</p>
-                        </div>
-                      </div>
-                      <Button
-                        size="sm"
-                        className="bg-green-600 hover:bg-green-700"
-                        onClick={() => toast.success("Contractor accepted! They can now see project details.")}
-                      >
-                        Accept
-                      </Button>
-                    </div>
-                    <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
-                      <div className="flex items-center gap-3">
-                        <div className="h-10 w-10 rounded-full bg-purple-600 flex items-center justify-center text-white font-semibold">
-                          XY
-                        </div>
-                        <div>
-                          <p className="font-medium text-gray-900">XYZ Builders</p>
-                          <p className="text-xs text-gray-500">NDA signed on {new Date().toLocaleDateString()}</p>
-                        </div>
-                      </div>
-                      <Button
-                        size="sm"
-                        className="bg-green-600 hover:bg-green-700"
-                        onClick={() => toast.success("Contractor accepted! They can now see project details.")}
-                      >
-                        Accept
-                      </Button>
-                    </div>
+                    ))}
                     <p className="text-xs text-gray-500 text-center pt-2">No other contractors have signed NDAs yet</p>
                   </div>
                 </div>
