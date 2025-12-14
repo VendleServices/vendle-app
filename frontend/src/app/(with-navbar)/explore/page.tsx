@@ -28,8 +28,9 @@ import {
 } from "lucide-react"
 import { formatPrice, formatLocation, getTimeAgo, type JobPosting } from "@/data/mockJobs"
 import { useApiService } from "@/services/api";
-import { useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import Map from "@/components/Map";
+import Link from "next/link";
 
 export default function ExplorePage() {
   const router = useRouter()
@@ -41,6 +42,7 @@ export default function ExplorePage() {
   const [searchQuery, setSearchQuery] = useState("")
   const [sortBy, setSortBy] = useState("newest")
   const apiService = useApiService()
+  const queryClient = useQueryClient()
 
   const fetchClaims = async () => {
     try {
@@ -69,6 +71,8 @@ export default function ExplorePage() {
           rating: 5.0
         },
         ndaSigned,
+        showViewDetails: !ndaSigned,
+        showJoinRestoration: ndaSigned && !claim?.claimParticipants?.map((claimParticipant: any) => claimParticipant?.userId)?.includes(user?.id),
       })) || [] as JobPosting[];
       return mappedClaims;
     } catch (error) {
@@ -79,6 +83,23 @@ export default function ExplorePage() {
   const { data: realClaims, error, isLoading } = useQuery({
     queryKey: ["realClaims"],
     queryFn: fetchClaims,
+  });
+
+  const handleJoinRestoration = async (jobId: string) => {
+    try {
+      const response: any = await apiService.post(`/api/claimParticipants/${jobId}`, {});
+      return response;
+    } catch (error) {
+      console.error(error);
+    }
+  }
+
+  const joinRestorationMutation = useMutation({
+    mutationFn: handleJoinRestoration,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["realClaims"] });
+      router.push("/home");
+    }
   });
 
   const sortedJobs = useMemo(() => {
@@ -210,7 +231,6 @@ export default function ExplorePage() {
                       className={`group relative flex flex-col overflow-hidden rounded-2xl border-border bg-card transition-all duration-200 hover:-translate-y-0.5 hover:shadow-lg hover:border-primary/20 cursor-pointer ${
                           selectedJob?.id === job.id ? 'border-primary shadow-lg' : ''
                       }`}
-                      onClick={() => handleViewDetails(job)}
                   >
                     <CardHeader className="space-y-3 pb-4">
                       {/* Title + Category Badge */}
@@ -261,16 +281,35 @@ export default function ExplorePage() {
                     </CardContent>
 
                     <CardFooter className="pt-0">
-                      <Button
-                          className="w-full rounded-lg"
-                          onClick={(e) => {
-                            e.stopPropagation()
-                            handleViewDetails(job)
-                          }}
-                      >
-                        View Details
-                        {!isLoggedIn && <Lock className="ml-2 h-4 w-4"/>}
-                      </Button>
+                      {job?.showViewDetails ? (
+                          <Button
+                              className="w-full rounded-lg"
+                              onClick={(e) => {
+                                e.stopPropagation()
+                                handleViewDetails(job)
+                              }}
+                          >
+                            View Details
+                            {!isLoggedIn && <Lock className="ml-2 h-4 w-4"/>}
+                          </Button>
+                      ) : (
+                          job?.showJoinRestoration ? (
+                              <Button
+                                  className="w-full rounded-lg hover:text-white"
+                                  variant="outline"
+                                  disabled={joinRestorationMutation?.isPending}
+                                  onClick={() => joinRestorationMutation.mutate(job?.id)}
+                              >
+                                Join Restoration
+                              </Button>
+                          ) : (
+                              <Button asChild className="w-full rounded-lg">
+                                <Link href={`/claim/${job?.id}`}>
+                                  Claim Details
+                                </Link>
+                              </Button>
+                          )
+                      )}
                     </CardFooter>
                   </Card>
               ))}

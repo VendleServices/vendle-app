@@ -15,6 +15,9 @@ router.get("/:claimId", async (req: any, res: any) => {
         const claimParticipants = await prisma.claimParticipant.findMany({
             where: {
                 claimId
+            },
+            include: {
+                user: true
             }
         });
 
