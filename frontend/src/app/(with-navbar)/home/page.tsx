@@ -443,7 +443,7 @@ export default function HomePage() {
               {/* Contract Value */}
               <div className="space-y-1">
                 <p className="text-sm text-gray-600">Contract Value</p>
-                <p className="text-3xl font-bold text-blue-600">
+                <p className="text-3xl font-bold text-vendle-blue">
                   ${selectedJob.contractValue.toLocaleString()}
                 </p>
               </div>
@@ -536,7 +536,7 @@ export default function HomePage() {
                   </div>
                   <div className="w-full bg-gray-200 rounded-full h-2.5">
                     <div 
-                      className="bg-blue-600 h-2.5 rounded-full transition-all"
+                      className="bg-vendle-blue h-2.5 rounded-full transition-all"
                       style={{ width: `${selectedJob.progress}%` }}
                     ></div>
                   </div>
@@ -584,7 +584,7 @@ export default function HomePage() {
                               {file.type === 'pdf' ? (
                                 <File className="h-5 w-5 text-red-600" />
                               ) : file.type === 'image' ? (
-                                <ImageIcon className="h-5 w-5 text-blue-600" />
+                                <ImageIcon className="h-5 w-5 text-vendle-blue" />
                               ) : (
                                 <FileText className="h-5 w-5 text-gray-600" />
                               )}
@@ -651,7 +651,7 @@ export default function HomePage() {
                           className="flex items-center justify-between p-4 rounded-lg border border-gray-200 bg-gray-50 hover:bg-gray-100 transition-colors"
                         >
                           <div className="flex items-center gap-3">
-                            <div className="flex items-center justify-center w-8 h-8 rounded-full bg-blue-600 text-white font-semibold text-sm">
+                            <div className="flex items-center justify-center w-8 h-8 rounded-full bg-vendle-blue text-white font-semibold text-sm">
                               #{index + 1}
                             </div>
                             <div>
@@ -664,7 +664,7 @@ export default function HomePage() {
                             </div>
                           </div>
                           <div className="text-right">
-                            <p className="text-lg font-bold text-blue-600">
+                            <p className="text-lg font-bold text-vendle-blue">
                               ${bid.bid_amount?.toLocaleString() || '0'}
                             </p>
                             <p className="text-xs text-gray-500">Phase 1 Proposal</p>
@@ -697,9 +697,9 @@ export default function HomePage() {
                         {selectedPhaseProject.competingBids.length}
                       </p>
                     </div>
-                    <div className="bg-blue-50 rounded-lg p-4">
-                      <p className="text-xs text-blue-600 mb-1">Your Rank</p>
-                      <p className="text-xl font-bold text-blue-600">
+                    <div className="bg-vendle-blue/10 rounded-lg p-4">
+                      <p className="text-xs text-vendle-blue mb-1">Your Rank</p>
+                      <p className="text-xl font-bold text-vendle-blue">
                         #{selectedPhaseProject.competingBids
                           .sort((a, b) => a.bidAmount - b.bidAmount)
                           .findIndex(bid => bid.isCurrentContractor) + 1}
@@ -719,10 +719,10 @@ export default function HomePage() {
                         return (
                           <div key={bid.contractorId} className="space-y-1">
                             <div className="flex items-center justify-between text-xs">
-                              <span className={`font-medium ${bid.isCurrentContractor ? 'text-blue-600' : 'text-gray-600'}`}>
+                              <span className={`font-medium ${bid.isCurrentContractor ? 'text-vendle-blue' : 'text-gray-600'}`}>
                                 Contractor #{contractorNumber} {bid.isCurrentContractor && '(You)'}
                               </span>
-                              <span className={`font-semibold ${bid.isCurrentContractor ? 'text-blue-600' : 'text-gray-900'}`}>
+                              <span className={`font-semibold ${bid.isCurrentContractor ? 'text-vendle-blue' : 'text-gray-900'}`}>
                                 ${bid.bidAmount.toLocaleString()}
                               </span>
                             </div>
@@ -730,7 +730,7 @@ export default function HomePage() {
                               <div
                                 className={`h-6 rounded-full flex items-center justify-end pr-2 ${
                                   bid.isCurrentContractor
-                                    ? 'bg-blue-600'
+                                    ? 'bg-vendle-blue'
                                     : 'bg-gray-400'
                                 }`}
                                 style={{ width: `${percentage}%` }}
@@ -752,7 +752,7 @@ export default function HomePage() {
               {/* Contract Value */}
               <div className="space-y-1">
                 <p className="text-sm text-gray-600">Contract Value</p>
-                <p className="text-3xl font-bold text-blue-600">
+                <p className="text-3xl font-bold text-vendle-blue">
                   ${selectedPhaseProject.contractValue.toLocaleString()}
                 </p>
               </div>
@@ -832,7 +832,7 @@ export default function HomePage() {
                   <p className="text-sm font-semibold text-gray-900">Schedule Site Visit</p>
                   <Button
                     variant="outline"
-                    className="w-full border-blue-600 text-blue-600 hover:bg-blue-600 hover:text-white"
+                    className="w-full border-vendle-blue text-vendle-blue hover:bg-vendle-blue hover:text-white"
                     onClick={() => window.open('https://calendly.com/vendle/site-visit', '_blank')}
                   >
                     <Calendar className="h-4 w-4 mr-2" />
@@ -945,7 +945,7 @@ export default function HomePage() {
                 variant={user?.user_metadata?.userType === 'contractor' ? 'default' : 'secondary'}
                 className={
                   user?.user_metadata?.userType === 'contractor'
-                    ? 'bg-blue-700 text-white hover:bg-blue-800' 
+                    ? 'bg-vendle-blue/90 text-white hover:bg-blue-800' 
                     : 'bg-gray-700 text-white hover:bg-gray-800'
                 }
               >
@@ -1016,7 +1016,7 @@ export default function HomePage() {
                   onClick={() => setContractorTab('pending-ndas')}
                   className={`border-b-2 py-4 px-1 text-sm font-medium transition-colors ${
                     contractorTab === 'pending-ndas'
-                      ? 'border-blue-600 text-blue-600'
+                      ? 'border-vendle-blue text-vendle-blue'
                       : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
                   }`}
                 >
@@ -1034,7 +1034,7 @@ export default function HomePage() {
                   onClick={() => setContractorTab('phase-1')}
                   className={`border-b-2 py-4 px-1 text-sm font-medium transition-colors ${
                     contractorTab === 'phase-1'
-                      ? 'border-blue-600 text-blue-600'
+                      ? 'border-vendle-blue text-vendle-blue'
                       : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
                   }`}
                 >
@@ -1047,7 +1047,7 @@ export default function HomePage() {
                   onClick={() => setContractorTab('phase-2')}
                   className={`border-b-2 py-4 px-1 text-sm font-medium transition-colors ${
                     contractorTab === 'phase-2'
-                      ? 'border-blue-600 text-blue-600'
+                      ? 'border-vendle-blue text-vendle-blue'
                       : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
                   }`}
                 >
@@ -1065,7 +1065,7 @@ export default function HomePage() {
                   onClick={() => setContractorTab('my-jobs')}
                   className={`border-b-2 py-4 px-1 text-sm font-medium transition-colors ${
                     contractorTab === 'my-jobs'
-                      ? 'border-blue-600 text-blue-600'
+                      ? 'border-vendle-blue text-vendle-blue'
                       : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
                   }`}
                 >
@@ -1124,7 +1124,7 @@ export default function HomePage() {
                               <div className="pt-2">
                                 <Button 
                                   variant="default"
-                                  className="w-full bg-blue-600 hover:bg-blue-700"
+                                  className="w-full bg-vendle-blue hover:bg-vendle-blue/90"
                                   onClick={() => {
                                     toast("NDA review functionality coming soon");
                                   }}
@@ -1175,7 +1175,7 @@ export default function HomePage() {
                               <div className="space-y-2">
                                 <div className="flex items-center justify-between text-sm">
                                   <span className="text-gray-600">Contract Value:</span>
-                                  <span className="font-semibold text-blue-600">${project.contractValue.toLocaleString()}</span>
+                                  <span className="font-semibold text-vendle-blue">${project.contractValue.toLocaleString()}</span>
                                 </div>
                                 {project.phase1StartDate && (
                                   <div className="flex items-center justify-between text-sm">
@@ -1196,7 +1196,7 @@ export default function HomePage() {
                                       href={project.adjustmentPdf.url}
                                       target="_blank"
                                       rel="noopener noreferrer"
-                                      className="text-blue-600 hover:underline flex items-center gap-1"
+                                      className="text-vendle-blue hover:underline flex items-center gap-1"
                                       onClick={(e) => e.stopPropagation()}
                                     >
                                       <File className="h-3 w-3" />
@@ -1208,7 +1208,7 @@ export default function HomePage() {
                               <div className="pt-2">
                                 <Button 
                                   variant="default"
-                                  className="w-full bg-blue-600 hover:bg-blue-700 hover:text-white transition-colors"
+                                  className="w-full bg-vendle-blue hover:bg-vendle-blue/90 hover:text-white transition-colors"
                                   onClick={() => setSelectedPhaseProject(project)}
                                 >
                                   <Activity className="h-4 w-4 mr-2" />
@@ -1257,7 +1257,7 @@ export default function HomePage() {
                               <div className="space-y-2">
                                 <div className="flex items-center justify-between text-sm">
                                   <span className="text-gray-600">Contract Value:</span>
-                                  <span className="font-semibold text-blue-600">${project.contractValue.toLocaleString()}</span>
+                                  <span className="font-semibold text-vendle-blue">${project.contractValue.toLocaleString()}</span>
                                 </div>
                                 {project.phase2StartDate && (
                                   <div className="flex items-center justify-between text-sm">
@@ -1278,7 +1278,7 @@ export default function HomePage() {
                                       href={project.adjustmentPdf.url}
                                       target="_blank"
                                       rel="noopener noreferrer"
-                                      className="text-blue-600 hover:underline flex items-center gap-1"
+                                      className="text-vendle-blue hover:underline flex items-center gap-1"
                                       onClick={(e) => e.stopPropagation()}
                                     >
                                       <File className="h-3 w-3" />
@@ -1290,7 +1290,7 @@ export default function HomePage() {
                               <div className="pt-2">
                                 <Button 
                                   variant="default"
-                                  className="w-full bg-blue-600 hover:bg-blue-700 hover:text-white transition-colors"
+                                  className="w-full bg-vendle-blue hover:bg-vendle-blue/90 hover:text-white transition-colors"
                                   onClick={() => setSelectedPhaseProject(project)}
                                 >
                                   <Activity className="h-4 w-4 mr-2" />
@@ -1352,7 +1352,7 @@ export default function HomePage() {
                                 </div>
                                 <div className="flex items-center justify-between text-sm">
                                   <span className="text-gray-600">Contract Value:</span>
-                                  <span className="font-semibold text-blue-600">${job.contractValue.toLocaleString()}</span>
+                                  <span className="font-semibold text-vendle-blue">${job.contractValue.toLocaleString()}</span>
                                 </div>
                                 <div className="flex items-center justify-between text-sm">
                                   <span className="text-gray-600">Homeowner:</span>
@@ -1372,7 +1372,7 @@ export default function HomePage() {
                                 </div>
                                 <div className="w-full bg-gray-200 rounded-full h-2.5">
                                   <div 
-                                    className="bg-blue-600 h-2.5 rounded-full transition-all"
+                                    className="bg-vendle-blue h-2.5 rounded-full transition-all"
                                     style={{ width: `${job.progress}%` }}
                                   ></div>
                                 </div>
@@ -1405,7 +1405,7 @@ export default function HomePage() {
                               <div className="space-y-2 pt-2">
                                 <Button 
                                   variant="outline"
-                                  className="w-full border-blue-600 text-blue-600 hover:bg-blue-600 hover:text-white"
+                                  className="w-full border-vendle-blue text-vendle-blue hover:bg-vendle-blue hover:text-white"
                                   onClick={() => {
                                     setSelectedJobForChat(job);
                                     // Load mock chat history
@@ -1436,7 +1436,7 @@ export default function HomePage() {
                                 </Button>
                                 <Button 
                                   variant="default"
-                                  className="w-full bg-blue-600 hover:bg-blue-700"
+                                  className="w-full bg-vendle-blue hover:bg-vendle-blue/90"
                                   onClick={() => handleManageJob(job)}
                                 >
                                   <Activity className="h-4 w-4 mr-2" />
@@ -1486,7 +1486,7 @@ export default function HomePage() {
                       <p className="text-gray-600 mt-1">Manage all deadlines, visits, and milestones</p>
                     </div>
                     <div className="flex items-center space-x-2">
-                      <Button variant="default" size="sm" className="bg-blue-600 hover:bg-blue-700">
+                      <Button variant="default" size="sm" className="bg-vendle-blue hover:bg-vendle-blue/90">
                         <List className="h-4 w-4 mr-2" />
                         List
                       </Button>
@@ -1527,7 +1527,7 @@ export default function HomePage() {
                         onClick={() => setScheduleTab('upcoming')}
                         className={`border-b-2 py-2 px-1 text-sm font-medium ${
                           scheduleTab === 'upcoming'
-                            ? 'border-blue-500 text-blue-600'
+                            ? 'border-blue-500 text-vendle-blue'
                             : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
                         }`}
                       >
@@ -1537,7 +1537,7 @@ export default function HomePage() {
                         onClick={() => setScheduleTab('deadlines')}
                         className={`border-b-2 py-2 px-1 text-sm font-medium ${
                           scheduleTab === 'deadlines'
-                            ? 'border-blue-500 text-blue-600'
+                            ? 'border-blue-500 text-vendle-blue'
                             : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
                         }`}
                       >
@@ -1547,7 +1547,7 @@ export default function HomePage() {
                         onClick={() => setScheduleTab('visits')}
                         className={`border-b-2 py-2 px-1 text-sm font-medium ${
                           scheduleTab === 'visits'
-                            ? 'border-blue-500 text-blue-600'
+                            ? 'border-blue-500 text-vendle-blue'
                             : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
                         }`}
                       >
@@ -1557,7 +1557,7 @@ export default function HomePage() {
                         onClick={() => setScheduleTab('milestones')}
                         className={`border-b-2 py-2 px-1 text-sm font-medium ${
                           scheduleTab === 'milestones'
-                            ? 'border-blue-500 text-blue-600'
+                            ? 'border-blue-500 text-vendle-blue'
                             : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
                         }`}
                       >
@@ -1587,13 +1587,13 @@ export default function HomePage() {
                           <Card className="p-4 bg-white border border-gray-200">
                             <div className="flex items-center justify-between">
                               <div className="flex items-center space-x-4">
-                                <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
+                                <div className="w-2 h-2 bg-vendle-blue/100 rounded-full"></div>
                                 <div>
                                   <h4 className="text-sm font-medium text-gray-900">Site Visit - Kitchen Renovation</h4>
                                   <p className="text-xs text-gray-500 mt-1">Friday at 10:00 AM</p>
                                 </div>
                               </div>
-                              <Badge variant="outline" className="text-blue-600 border-blue-200 bg-blue-50 text-xs">Scheduled</Badge>
+                              <Badge variant="outline" className="text-vendle-blue border-blue-200 bg-vendle-blue/10 text-xs">Scheduled</Badge>
                             </div>
                           </Card>
                         </div>
@@ -1622,7 +1622,7 @@ export default function HomePage() {
                                 <p className="text-gray-700 mb-4">Submit Intent of Interest for bathroom renovation project</p>
                                 <div className="flex space-x-3">
                                   <Button variant="outline" size="sm">View Details</Button>
-                                  <Button size="sm" className="bg-blue-600 hover:bg-blue-700">Reschedule</Button>
+                                  <Button size="sm" className="bg-vendle-blue hover:bg-vendle-blue/90">Reschedule</Button>
                                 </div>
                               </div>
                             </div>
@@ -1645,7 +1645,7 @@ export default function HomePage() {
                                 <p className="text-gray-700 mb-4">Letter of Intent response deadline</p>
                                 <div className="flex space-x-3">
                                   <Button variant="outline" size="sm">View Details</Button>
-                                  <Button size="sm" className="bg-blue-600 hover:bg-blue-700">Reschedule</Button>
+                                  <Button size="sm" className="bg-vendle-blue hover:bg-vendle-blue/90">Reschedule</Button>
                                 </div>
                               </div>
                             </div>
@@ -1688,7 +1688,7 @@ export default function HomePage() {
                 onClick={() => setHomeownerTab('pre-launch')}
                 className={`border-b-2 py-4 px-1 text-sm font-medium transition-colors ${
                   homeownerTab === 'pre-launch'
-                    ? 'border-blue-600 text-blue-600'
+                    ? 'border-vendle-blue text-vendle-blue'
                     : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
                 }`}
               >
@@ -1706,7 +1706,7 @@ export default function HomePage() {
                 onClick={() => setHomeownerTab('phase-1')}
                 className={`border-b-2 py-4 px-1 text-sm font-medium transition-colors ${
                   homeownerTab === 'phase-1'
-                    ? 'border-blue-600 text-blue-600'
+                    ? 'border-vendle-blue text-vendle-blue'
                     : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
                 }`}
               >
@@ -1719,7 +1719,7 @@ export default function HomePage() {
                 onClick={() => setHomeownerTab('phase-2')}
                 className={`border-b-2 py-4 px-1 text-sm font-medium transition-colors ${
                   homeownerTab === 'phase-2'
-                    ? 'border-blue-600 text-blue-600'
+                    ? 'border-vendle-blue text-vendle-blue'
                     : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
                 }`}
               >
@@ -1737,7 +1737,7 @@ export default function HomePage() {
                 onClick={() => setHomeownerTab('active-rebuild')}
                 className={`border-b-2 py-4 px-1 text-sm font-medium transition-colors ${
                   homeownerTab === 'active-rebuild'
-                    ? 'border-blue-600 text-blue-600'
+                    ? 'border-vendle-blue text-vendle-blue'
                     : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
                 }`}
               >
@@ -1810,7 +1810,7 @@ export default function HomePage() {
                                 </Button>
                                 <Button 
                                   variant="default"
-                                  className="flex-1 bg-blue-600 hover:bg-blue-700"
+                                  className="flex-1 bg-vendle-blue hover:bg-vendle-blue/90"
                                   onClick={() => {
                                     setSelectedPreLaunchClaim(null);
                                     setSelectedClaimForInvite(claim);
@@ -1889,7 +1889,7 @@ export default function HomePage() {
                             <div className="space-y-2">
                               <div className="flex items-center justify-between text-sm">
                                 <span className="text-gray-600">Number of Bidders:</span>
-                                <span className="font-semibold text-blue-600">{(project as any).bidCount || 0}</span>
+                                <span className="font-semibold text-vendle-blue">{(project as any).bidCount || 0}</span>
                               </div>
                               {project.phase1StartDate && (
                                 <div className="flex items-center justify-between text-sm">
@@ -1965,7 +1965,7 @@ export default function HomePage() {
                               </div>
                               <div className="flex items-center justify-between text-sm">
                                 <span className="text-gray-600">Contract Value:</span>
-                                <span className="font-semibold text-blue-600">${project.contractValue?.toLocaleString() || '0'}</span>
+                                <span className="font-semibold text-vendle-blue">${project.contractValue?.toLocaleString() || '0'}</span>
                               </div>
                               {project.phase2StartDate && (
                                 <div className="flex items-center justify-between text-sm">
@@ -2044,7 +2044,7 @@ export default function HomePage() {
                               </div>
                               <div className="flex items-center justify-between text-sm">
                                 <span className="text-gray-600">Contract Value:</span>
-                                <span className="font-semibold text-blue-600">${project.contractValue.toLocaleString()}</span>
+                                <span className="font-semibold text-vendle-blue">${project.contractValue.toLocaleString()}</span>
                               </div>
                               <div className="flex items-center justify-between text-sm">
                                 <span className="text-gray-600">Contractor:</span>
@@ -2066,7 +2066,7 @@ export default function HomePage() {
                               </div>
                               <div className="w-full bg-gray-200 rounded-full h-2.5">
                                 <div 
-                                  className="bg-blue-600 h-2.5 rounded-full transition-all"
+                                  className="bg-vendle-blue h-2.5 rounded-full transition-all"
                                   style={{ width: `${project.progress}%` }}
                                 ></div>
                               </div>
@@ -2106,7 +2106,7 @@ export default function HomePage() {
                               </Button>
                               <Button 
                                 variant="default"
-                                className="flex-1 bg-blue-600 hover:bg-blue-700"
+                                className="flex-1 bg-vendle-blue hover:bg-vendle-blue/90"
                                 onClick={() => router.push(`/projects/${project.id}`)}
                               >
                                 <Activity className="h-4 w-4 mr-2" />
@@ -2201,7 +2201,7 @@ export default function HomePage() {
                   <p className="text-sm font-semibold text-gray-900">Schedule Site Visit</p>
                   <Button
                     variant="outline"
-                    className="w-full border-blue-600 text-blue-600 hover:bg-blue-600 hover:text-white"
+                    className="w-full border-vendle-blue text-vendle-blue hover:bg-vendle-blue hover:text-white"
                     onClick={() => window.open('https://calendly.com/vendle/site-visit', '_blank')}
                   >
                     <Calendar className="h-4 w-4 mr-2" />
@@ -2228,7 +2228,7 @@ export default function HomePage() {
                     {interestedContractors?.map((contractor: any) => (
                         <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg" key={contractor.id}>
                           <div className="flex items-center gap-3">
-                            <div className="h-10 w-10 rounded-full bg-blue-600 flex items-center justify-center text-white font-semibold">
+                            <div className="h-10 w-10 rounded-full bg-vendle-blue flex items-center justify-center text-white font-semibold">
                               {getContractorInitials(contractor?.user?.email)}
                             </div>
                             <div>
@@ -2287,7 +2287,7 @@ export default function HomePage() {
                         <CardContent className="p-4">
                           <div className="flex items-center justify-between">
                             <div className="flex items-center gap-3">
-                              <div className="h-12 w-12 rounded-full bg-blue-600 flex items-center justify-center text-white font-semibold text-lg">
+                              <div className="h-12 w-12 rounded-full bg-vendle-blue flex items-center justify-center text-white font-semibold text-lg">
                                 {getContractorInitials(contractor?.companyName)}
                               </div>
                               <div>
@@ -2301,7 +2301,7 @@ export default function HomePage() {
                             </div>
                             <Button
                                 size="sm"
-                                className="bg-blue-600 hover:bg-blue-700"
+                                className="bg-vendle-blue hover:bg-vendle-blue/90"
                                 disabled={existingHomeownerInvitedContractors?.includes(contractor.id)}
                                 onClick={() => inviteContractorMutation.mutate(contractor.id)}
                             >
@@ -2352,7 +2352,7 @@ export default function HomePage() {
                     setShowRecommendedContractors(true);
                   }
                 }}
-                className="w-full sm:w-auto bg-blue-600 hover:bg-blue-700"
+                className="w-full sm:w-auto bg-vendle-blue hover:bg-vendle-blue/90"
               >
                 Invite more
               </Button>
@@ -2389,7 +2389,7 @@ export default function HomePage() {
                   >
                     <div className={`max-w-[80%] rounded-lg p-3 ${
                       msg.sender === 'contractor'
-                        ? 'bg-blue-600 text-white'
+                        ? 'bg-vendle-blue text-white'
                         : 'bg-gray-100 text-gray-900'
                     }`}>
                       <p className="text-sm">{msg.message}</p>
@@ -2479,7 +2479,7 @@ export default function HomePage() {
               <Button
                 onClick={handleSendMessage}
                 disabled={!newMessage.trim() && chatAttachments.length === 0}
-                className="bg-blue-600 hover:bg-blue-700"
+                className="bg-vendle-blue hover:bg-vendle-blue/90"
               >
                 <Send className="h-4 w-4" />
               </Button>

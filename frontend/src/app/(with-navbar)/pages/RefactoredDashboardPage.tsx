@@ -249,7 +249,7 @@ export default function RefactoredDashboardPage() {
       >
         <div className="flex">
           {/* Sidebar */}
-          <div className={`${sidebarExpanded ? 'w-64' : 'w-16'} bg-[#0f172a] min-h-screen transition-all duration-300 ease-in-out flex flex-col`}>
+          <div className={`${sidebarExpanded ? 'w-64' : 'w-16'} bg-vendle-navy min-h-screen transition-all duration-300 ease-in-out flex flex-col`}>
             <div className={`flex-1 ${sidebarExpanded ? 'p-4' : 'p-2'}`}>
               <div className="flex items-center justify-between mb-4">
                 <Button
@@ -271,7 +271,7 @@ export default function RefactoredDashboardPage() {
                 <Button
                   variant="ghost"
                   size="icon"
-                  className="text-white hover:bg-[#1e293b] hover:text-white flex-shrink-0"
+                  className="text-white hover:bg-vendle-navy/80 hover:text-white flex-shrink-0"
                   onClick={() => setSidebarExpanded(!sidebarExpanded)}
                 >
                   {sidebarExpanded ? <ChevronLeft className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
@@ -280,7 +280,7 @@ export default function RefactoredDashboardPage() {
               
               {/* Quick Stats */}
               {sidebarExpanded && (
-                <div className="mb-4 p-3 bg-[#1e293b] rounded-lg">
+                <div className="mb-4 p-3 bg-vendle-navy/80 rounded-lg">
                   <h3 className="text-white text-xs font-medium mb-2">Quick Stats</h3>
                   <div className="space-y-1">
                     <div className="flex justify-between text-white text-xs">
@@ -305,8 +305,8 @@ export default function RefactoredDashboardPage() {
                   variant="ghost"
                   className={`w-full ${sidebarExpanded ? 'justify-start' : 'justify-center'} h-9 text-xs ${
                     activeSection === 'auctions' 
-                        ? 'bg-[#1e293b] text-white hover:bg-[#1e293b]' 
-                        : 'text-gray-200 hover:bg-[#1e293b] hover:text-white'
+                        ? 'bg-vendle-navy/80 text-white hover:bg-vendle-navy/80' 
+                        : 'text-gray-200 hover:bg-vendle-navy/80 hover:text-white'
                   }`}
                   onClick={() => setActiveSection('auctions')}
                 >
@@ -318,8 +318,8 @@ export default function RefactoredDashboardPage() {
                   variant="ghost"
                   className={`w-full ${sidebarExpanded ? 'justify-start' : 'justify-center'} h-9 text-xs ${
                     activeSection === 'closed-auctions' 
-                        ? 'bg-[#1e293b] text-white hover:bg-[#1e293b]' 
-                        : 'text-gray-200 hover:bg-[#1e293b] hover:text-white'
+                        ? 'bg-vendle-navy/80 text-white hover:bg-vendle-navy/80' 
+                        : 'text-gray-200 hover:bg-vendle-navy/80 hover:text-white'
                   }`}
                   onClick={() => setActiveSection('closed-auctions')}
                 >
@@ -332,8 +332,8 @@ export default function RefactoredDashboardPage() {
                     variant="ghost"
                     className={`w-full ${sidebarExpanded ? 'justify-start' : 'justify-center'} h-9 text-xs ${
                       activeSection === 'reviews' 
-                          ? 'bg-[#1e293b] text-white hover:bg-[#1e293b]' 
-                          : 'text-gray-200 hover:bg-[#1e293b] hover:text-white'
+                          ? 'bg-vendle-navy/80 text-white hover:bg-vendle-navy/80' 
+                          : 'text-gray-200 hover:bg-vendle-navy/80 hover:text-white'
                     }`}
                     onClick={() => setActiveSection('reviews')}
                   >
@@ -346,8 +346,8 @@ export default function RefactoredDashboardPage() {
                   variant="ghost"
                   className={`w-full ${sidebarExpanded ? 'justify-start' : 'justify-center'} h-9 text-xs ${
                     activeSection === 'claims' 
-                        ? 'bg-[#1e293b] text-white hover:bg-[#1e293b]' 
-                        : 'text-gray-200 hover:bg-[#1e293b] hover:text-white'
+                        ? 'bg-vendle-navy/80 text-white hover:bg-vendle-navy/80' 
+                        : 'text-gray-200 hover:bg-vendle-navy/80 hover:text-white'
                   }`}
                   onClick={() => setActiveSection('claims')}
                 >
@@ -357,7 +357,7 @@ export default function RefactoredDashboardPage() {
               </div>
             </div>
 
-            <div className="p-2 border-t border-[#1e293b] bg-[#0f172a]">
+            <div className="p-2 border-t border-vendle-navy/80 bg-vendle-navy">
               <div className={`flex items-center ${sidebarExpanded ? 'space-x-2' : 'justify-center'}`}>
                 <Avatar className="w-8 h-8">
                   <AvatarImage src={""} />
@@ -378,7 +378,7 @@ export default function RefactoredDashboardPage() {
                     <Button
                       variant="ghost"
                       size="icon"
-                      className="text-gray-400 hover:text-white hover:bg-[#1e293b] w-6 h-6"
+                      className="text-gray-400 hover:text-white hover:bg-vendle-navy/80 w-6 h-6"
                       onClick={async () => {
                         await logout();
                       }}

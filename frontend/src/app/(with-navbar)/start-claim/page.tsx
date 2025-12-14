@@ -448,7 +448,7 @@ export default function StartClaimPage() {
         || !femaFormData.address || !femaFormData.city || !femaFormData.state || !femaFormData.zipCode;
 
     return (
-        <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-slate-50">
+        <div className="min-h-screen bg-gradient-to-br from-muted/30 via-background to-muted/20">
             <div className="container mx-auto px-4 py-8 md:py-16">
                 <AnimatePresence mode="wait">
                     {showInsuranceCompanies ? (
@@ -615,7 +615,7 @@ export default function StartClaimPage() {
                                                 value={contactInfo.firstName}
                                                 onChange={handleContactChange}
                                                 required
-                                                className="h-12 border-slate-300 focus:border-vendle-blue focus:ring-vendle-blue/20"
+                                                className="h-12 border-vendle-gray/40 focus:border-vendle-blue focus:ring-2 focus:ring-vendle-blue/20 bg-background"
                                                 placeholder="John"
                                             />
                                         </div>
@@ -629,7 +629,7 @@ export default function StartClaimPage() {
                                                 value={contactInfo.lastName}
                                                 onChange={handleContactChange}
                                                 required
-                                                className="h-12 border-slate-300 focus:border-vendle-blue focus:ring-vendle-blue/20"
+                                                className="h-12 border-vendle-gray/40 focus:border-vendle-blue focus:ring-2 focus:ring-vendle-blue/20 bg-background"
                                                 placeholder="Doe"
                                             />
                                         </div>
@@ -739,18 +739,18 @@ export default function StartClaimPage() {
                                 >
                                     <button
                                         onClick={() => handleSelection(true)}
-                                        className="w-full group relative overflow-hidden bg-white rounded-2xl p-8 shadow-sm hover:shadow-xl border-2 border-slate-200 hover:border-vendle-blue transition-all duration-300 text-left"
+                                        className="w-full group relative overflow-hidden bg-card rounded-2xl p-8 shadow-md hover:shadow-xl border-2 border-vendle-gray/30 hover:border-vendle-blue transition-all duration-300 text-left"
                                     >
-                                        <div className="absolute inset-0 bg-gradient-to-br from-vendle-blue/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
+                                        <div className="absolute inset-0 bg-gradient-to-br from-vendle-blue/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
                                         <div className="relative">
                                             <div className="flex items-center justify-between mb-4">
-                                                <div className="w-14 h-14 rounded-xl bg-green-100 flex items-center justify-center group-hover:bg-green-200 transition-colors">
-                                                    <CheckCircle2 className="w-7 h-7 text-green-600" />
+                                                <div className="w-14 h-14 rounded-xl bg-vendle-teal/20 flex items-center justify-center group-hover:bg-vendle-teal/30 transition-colors">
+                                                    <CheckCircle2 className="w-7 h-7 text-vendle-teal" />
                                                 </div>
                                                 <ChevronRight className="w-5 h-5 text-slate-400 group-hover:text-vendle-blue group-hover:translate-x-1 transition-all" />
                                             </div>
-                                            <h3 className="text-2xl font-semibold text-slate-900 mb-2">Yes, I have, let's start recovering</h3>
-                                            <p className="text-slate-600">Start your insurance claim process</p>
+                                            <h3 className="text-2xl font-semibold text-foreground mb-2">Yes, I have, let's start recovering</h3>
+                                            <p className="text-muted-foreground">Start your insurance claim process</p>
                                         </div>
                                     </button>
                                 </motion.div>
@@ -769,8 +769,8 @@ export default function StartClaimPage() {
                                         <div className="absolute inset-0 bg-gradient-to-br from-vendle-blue/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
                                         <div className="relative">
                                             <div className="flex items-center justify-between mb-4">
-                                                <div className="w-14 h-14 rounded-xl bg-orange-100 flex items-center justify-center group-hover:bg-orange-200 transition-colors">
-                                                    <XCircle className="w-7 h-7 text-orange-600" />
+                                                <div className="w-14 h-14 rounded-xl bg-vendle-sand/30 flex items-center justify-center group-hover:bg-vendle-sand/40 transition-colors">
+                                                    <XCircle className="w-7 h-7 text-vendle-navy" />
                                                 </div>
                                                 <ChevronRight className="w-5 h-5 text-slate-400 group-hover:text-vendle-blue group-hover:translate-x-1 transition-all" />
                                             </div>
@@ -792,27 +792,28 @@ export default function StartClaimPage() {
                             className="max-w-3xl mx-auto"
                         >
                             {/* Header */}
-                            <div className="flex items-center justify-between mb-8">
+                            <div className="mb-8">
                                 <button
                                     onClick={handleBackToSelection}
-                                    className="flex items-center gap-2 text-slate-600 hover:text-slate-900 transition-colors group"
+                                    className="flex items-center gap-2 text-muted-foreground hover:text-vendle-blue transition-colors group"
                                 >
                                     <ArrowLeft className="w-4 h-4 group-hover:-translate-x-1 transition-transform" />
                                     <span className="font-medium">Back</span>
                                 </button>
-                                <div className="text-sm text-slate-500 font-medium">
-                                    Step {currentStep} of {totalSteps}
-                                </div>
                             </div>
 
                             {/* Progress Bar */}
-                            <div className="mb-8">
-                                <div className="h-2 bg-slate-200 rounded-full overflow-hidden">
+                            <div className="mb-10">
+                                <div className="flex items-center justify-between mb-3">
+                                    <span className="text-sm font-medium text-foreground">Progress</span>
+                                    <span className="text-sm font-semibold text-vendle-blue">{currentStep} of {totalSteps}</span>
+                                </div>
+                                <div className="h-3 bg-vendle-gray/30 rounded-full overflow-hidden shadow-inner">
                                     <motion.div
                                         initial={{ width: 0 }}
                                         animate={{ width: `${(currentStep / totalSteps) * 100}%` }}
-                                        transition={{ duration: 0.5 }}
-                                        className="h-full bg-gradient-to-r from-vendle-blue to-vendle-navy rounded-full"
+                                        transition={{ duration: 0.5, ease: "easeOut" }}
+                                        className="h-full bg-gradient-to-r from-vendle-blue via-vendle-teal to-vendle-blue rounded-full shadow-sm"
                                     />
                                 </div>
                             </div>
@@ -826,10 +827,17 @@ export default function StartClaimPage() {
                                         animate={{ opacity: 1, x: 0 }}
                                         exit={{ opacity: 0, x: -20 }}
                                         transition={{ duration: 0.3 }}
-                                        className="bg-white rounded-2xl shadow-sm border border-slate-200 p-8 md:p-10"
+                                        className="bg-card rounded-2xl shadow-md border border-vendle-gray/30 p-8 md:p-10 hover:shadow-lg transition-shadow"
                                     >
-                                        <h2 className="text-3xl font-bold text-slate-900 mb-2">Property Location</h2>
-                                        <p className="text-slate-600 mb-8">Where is your property located?</p>
+                                        <div className="flex items-center gap-3 mb-6">
+                                            <div className="p-3 rounded-xl bg-vendle-blue/10">
+                                                <MapPin className="w-6 h-6 text-vendle-blue" />
+                                            </div>
+                                            <div>
+                                                <h2 className="text-3xl font-bold text-foreground">Property Location</h2>
+                                                <p className="text-muted-foreground mt-1">Where is your property located?</p>
+                                            </div>
+                                        </div>
 
                                         <div className="space-y-6">
                                             <AddressAutocomplete
@@ -840,30 +848,30 @@ export default function StartClaimPage() {
                                                         street: newAddress.street
                                                     });
                                                 }}
-                                                    className="h-12 border-slate-300 focus:border-vendle-blue focus:ring-vendle-blue/20"
+                                                    className="h-12 border-vendle-gray/40 focus:border-vendle-blue focus:ring-2 focus:ring-vendle-blue/20 bg-background"
                                                     placeholder="123 Main Street"
                                                 label="Street Address"
                                                 />
 
                                             <div className="grid md:grid-cols-2 gap-6">
                                                 <div>
-                                                    <Label className="text-sm font-medium text-slate-700 mb-2 block flex items-center gap-2">
-                                                        <Building2 className="w-4 h-4" />
+                                                    <Label className="text-sm font-semibold text-foreground mb-2 block flex items-center gap-2">
+                                                        <Building2 className="w-4 h-4 text-vendle-blue" />
                                                         City
                                                     </Label>
                                                     <Input
                                                         value={address.city}
                                                         onChange={(e) => setAddress({...address, city: e.target.value})}
-                                                        className="h-12 border-slate-300 focus:border-vendle-blue focus:ring-vendle-blue/20"
+                                                        className="h-12 border-vendle-gray/40 focus:border-vendle-blue focus:ring-2 focus:ring-vendle-blue/20 bg-background"
                                                         placeholder="San Francisco"
                                                     />
                                                 </div>
                                                 <div>
-                                                    <Label className="text-sm font-medium text-slate-700 mb-2 block">State</Label>
+                                                    <Label className="text-sm font-semibold text-foreground mb-2 block">State</Label>
                                                     <select
                                                         value={address.state}
                                                         onChange={(e) => setAddress({...address, state: e.target.value})}
-                                                        className="w-full h-12 px-4 border border-slate-300 rounded-lg focus:border-vendle-blue focus:ring-2 focus:ring-vendle-blue/20 transition-colors"
+                                                        className="w-full h-12 px-4 border border-vendle-gray/40 rounded-lg focus:border-vendle-blue focus:ring-2 focus:ring-vendle-blue/20 transition-colors bg-background text-foreground"
                                                     >
                                                         <option value="">Select State</option>
                                                         <option value="AL">Alabama</option>
@@ -921,21 +929,21 @@ export default function StartClaimPage() {
                                             </div>
 
                                             <div>
-                                                <Label className="text-sm font-medium text-slate-700 mb-2 block">ZIP Code</Label>
+                                                <Label className="text-sm font-semibold text-foreground mb-2 block">ZIP Code</Label>
                                                 <Input
                                                     value={address.zip}
                                                     onChange={(e) => setAddress({...address, zip: e.target.value})}
-                                                    className="h-12 border-slate-300 focus:border-vendle-blue focus:ring-vendle-blue/20"
+                                                    className="h-12 border-vendle-gray/40 focus:border-vendle-blue focus:ring-2 focus:ring-vendle-blue/20 bg-background"
                                                     placeholder="94105"
                                                 />
                                             </div>
                                         </div>
 
-                                        <div className="flex justify-end mt-8">
+                                        <div className="flex justify-end mt-10 pt-6 border-t border-vendle-gray/20">
                                             <Button
                                                 onClick={nextStep}
                                                 disabled={!isCurrentStepValid()}
-                                                className="px-8 py-6 bg-[#1a365d] text-white hover:bg-[#1a365d]/90 disabled:opacity-50"
+                                                className="px-8 py-6 bg-vendle-blue text-white hover:bg-vendle-blue/90 disabled:opacity-50 shadow-md hover:shadow-lg transition-all"
                                             >
                                                 Continue
                                                 <ArrowRight className="w-4 h-4 ml-2" />
@@ -956,12 +964,12 @@ export default function StartClaimPage() {
                                         {/* Insurance Estimate */}
                                         <div className="bg-white rounded-2xl shadow-sm border border-slate-200 p-8 md:p-10">
                                             <div className="flex items-center gap-2 mb-2">
-                                                <FileText className="w-6 h-6 text-[#1a365d]" />
+                                                <FileText className="w-6 h-6 text-vendle-blue" />
                                                 <h2 className="text-3xl font-bold text-slate-900">Insurance Estimate</h2>
                                             </div>
                                             <p className="text-slate-600 mb-6">Upload your insurance estimate PDF.</p>
 
-                                            <div className="relative flex items-center justify-center h-36 border-2 border-dashed rounded-xl border-slate-300 hover:border-[#1a365d] transition-all bg-slate-50/50 cursor-pointer" 
+                                            <div className="relative flex items-center justify-center h-40 border-2 border-dashed rounded-xl border-vendle-gray/50 hover:border-vendle-blue transition-all bg-vendle-gray/10 hover:bg-vendle-blue/5 cursor-pointer group" 
                                                  onClick={() => insuranceEstimateInputRef.current?.click()} onDrop={handlePdfDrop} onDragOver={(e) => e.preventDefault()}>
                                                 <input
                                                     type="file"
@@ -972,14 +980,22 @@ export default function StartClaimPage() {
                                                 />
                                                 {!uploadedInsuranceEstimatePdf ? (
                                                     <div className="text-center">
-                                                        <Upload className="h-8 w-8 mx-auto text-slate-600 mb-1" />
-                                                        <p className="text-sm text-slate-600">Click to upload</p>
+                                                        <div className="w-16 h-16 rounded-xl bg-vendle-blue/10 group-hover:bg-vendle-blue/20 flex items-center justify-center mx-auto mb-3 transition-colors">
+                                                            <Upload className="h-8 w-8 text-vendle-blue" />
+                                                        </div>
+                                                        <p className="text-sm font-medium text-foreground">Click to upload or drag and drop</p>
+                                                        <p className="text-xs text-muted-foreground mt-1">PDF files only</p>
                                                     </div>
                                                 ) : (
-                                                    <div className="text-green-600 flex items-center gap-2">
-                                                        <CheckCircle />
-                                                        {uploadedInsuranceEstimatePdf?.name}
-                                                        <X onClick={removePdf} />
+                                                    <div className="flex items-center gap-3 p-4 bg-vendle-teal/10 rounded-lg border border-vendle-teal/30">
+                                                        <CheckCircle className="h-5 w-5 text-vendle-teal flex-shrink-0" />
+                                                        <span className="text-sm font-medium text-foreground flex-1">{uploadedInsuranceEstimatePdf?.name}</span>
+                                                        <button
+                                                            onClick={removePdf}
+                                                            className="p-1.5 hover:bg-vendle-gray/30 rounded-lg transition-colors"
+                                                        >
+                                                            <X className="h-4 w-4 text-muted-foreground" />
+                                                        </button>
                                                     </div>
                                                 )}
                                             </div>
@@ -988,7 +1004,7 @@ export default function StartClaimPage() {
                                         {/* Financial Breakdown */}
                                         <div className="bg-white rounded-2xl shadow-sm border border-slate-200 p-8 md:p-10">
                                             <div className="flex items-center gap-2 mb-6">
-                                                <DollarSign className="w-6 h-6 text-[#1a365d]" />
+                                                <DollarSign className="w-6 h-6 text-vendle-blue" />
                                                 <h2 className="text-3xl font-bold text-slate-900">Financial Breakdown</h2>
                                             </div>
 
@@ -1076,7 +1092,7 @@ export default function StartClaimPage() {
                                         {/* Job Posting Details */}
                                         <div className="bg-white rounded-2xl shadow-sm border border-slate-200 p-8 md:p-10">
                                             <div className="flex items-center gap-2 mb-6">
-                                                <Wrench className="w-6 h-6 text-[#1a365d]" />
+                                                <Wrench className="w-6 h-6 text-vendle-blue" />
                                                 <h2 className="text-3xl font-bold text-slate-900">Job Posting Details</h2>
                                             </div>
 
@@ -1133,11 +1149,11 @@ export default function StartClaimPage() {
                                         </div>
 
                                         {/* Navigation */}
-                                        <div className="flex justify-between mt-8">
+                                        <div className="flex justify-between mt-10 pt-6 border-t border-vendle-gray/20">
                                             <Button
                                                 onClick={prevStep}
                                                 variant="outline"
-                                                className="px-8 py-6 border-slate-300"
+                                                className="px-8 py-6 border-vendle-gray/40 hover:border-vendle-blue hover:text-vendle-blue"
                                             >
                                                 <ArrowLeft className="w-4 h-4 mr-2" />
                                                 Back
@@ -1146,7 +1162,7 @@ export default function StartClaimPage() {
                                             <Button
                                                 onClick={nextStep}
                                                 disabled={!isCurrentStepValid()}
-                                                className="px-8 py-6 bg-[#1a365d] text-white hover:bg-[#1a365d]/90 disabled:opacity-50"
+                                                className="px-8 py-6 bg-vendle-blue text-white hover:bg-vendle-blue/90 disabled:opacity-50 shadow-md hover:shadow-lg transition-all"
                                             >
                                                 Continue
                                                 <ArrowRight className="w-4 h-4 ml-2" />
@@ -1162,7 +1178,7 @@ export default function StartClaimPage() {
                                         animate={{ opacity: 1, x: 0 }}
                                         exit={{ opacity: 0, x: -20 }}
                                         transition={{ duration: 0.3 }}
-                                        className="bg-white rounded-2xl shadow-sm border border-slate-200 p-8 md:p-10"
+                                        className="bg-card rounded-2xl shadow-md border border-vendle-gray/30 p-8 md:p-10 hover:shadow-lg transition-shadow"
                                     >
                                         <h2 className="text-3xl font-bold text-slate-900 mb-2">Damage Types</h2>
                                         <p className="text-slate-600 mb-8">Select all types of damage that apply to your property</p>
@@ -1179,17 +1195,17 @@ export default function StartClaimPage() {
                                                     <button
                                                         key={type.value}
                                                         onClick={() => toggleDamageType(type.value)}
-                                                        className={`w-full p-5 rounded-xl border-2 text-left transition-all ${
+                                                        className={`w-full p-6 rounded-xl border-2 text-left transition-all ${
                                                             isSelected
-                                                                ? 'border-vendle-blue bg-vendle-blue/5 shadow-md'
-                                                                : 'border-slate-200 hover:border-slate-300 bg-white'
+                                                                ? 'border-vendle-blue bg-vendle-blue/10 shadow-lg shadow-vendle-blue/10'
+                                                                : 'border-vendle-gray/40 hover:border-vendle-blue/50 bg-card hover:bg-vendle-blue/5'
                                                         }`}
                                                     >
                                                         <div className="flex items-center gap-3">
-                                                            <div className={`w-10 h-10 rounded-lg flex items-center justify-center flex-shrink-0 ${
+                                                            <div className={`w-12 h-12 rounded-xl flex items-center justify-center flex-shrink-0 transition-all ${
                                                                 isSelected
-                                                                    ? 'bg-vendle-blue text-white'
-                                                                    : 'bg-slate-100 text-slate-600'
+                                                                    ? 'bg-vendle-blue text-white shadow-md'
+                                                                    : 'bg-vendle-gray/30 text-vendle-blue/70'
                                                             }`}>
                                                                 <type.icon className="w-5 h-5" />
                                                             </div>
@@ -1214,7 +1230,7 @@ export default function StartClaimPage() {
                                             <Button
                                                 onClick={nextStep}
                                                 disabled={!isCurrentStepValid()}
-                                                className="px-8 py-6 bg-[#1a365d] text-white hover:bg-[#1a365d]/90 disabled:opacity-50"
+                                                className="px-8 py-6 bg-vendle-blue text-white hover:bg-vendle-blue/90 disabled:opacity-50"
                                             >
                                                 Continue
                                                 <ArrowRight className="w-4 h-4 ml-2" />
@@ -1230,7 +1246,7 @@ export default function StartClaimPage() {
                                         animate={{ opacity: 1, x: 0 }}
                                         exit={{ opacity: 0, x: -20 }}
                                         transition={{ duration: 0.3 }}
-                                        className="bg-white rounded-2xl shadow-sm border border-slate-200 p-8 md:p-10"
+                                        className="bg-card rounded-2xl shadow-md border border-vendle-gray/30 p-8 md:p-10 hover:shadow-lg transition-shadow"
                                     >
                                         <h2 className="text-3xl font-bold text-slate-900 mb-2">Property Information</h2>
                                         <p className="text-slate-600 mb-8">Please answer the following questions about your property</p>
@@ -1244,10 +1260,10 @@ export default function StartClaimPage() {
                                                 <div className="flex gap-4">
                                                     <button
                                                         onClick={() => setPropertyQuestions({...propertyQuestions, hasFunctionalUtilities: true})}
-                                                        className={`flex-1 p-4 rounded-xl border-2 transition-all ${
+                                                        className={`flex-1 p-5 rounded-xl border-2 transition-all font-medium ${
                                                             propertyQuestions.hasFunctionalUtilities === true
-                                                                ? 'border-vendle-blue bg-vendle-blue/5 shadow-md'
-                                                                : 'border-slate-200 hover:border-slate-300'
+                                                                ? 'border-vendle-blue bg-vendle-blue/10 shadow-lg shadow-vendle-blue/10 text-vendle-blue'
+                                                                : 'border-vendle-gray/40 hover:border-vendle-blue/50 bg-card hover:bg-vendle-blue/5 text-foreground'
                                                         }`}
                                                     >
                                                         <div className="font-medium text-slate-900">Yes</div>
@@ -1327,7 +1343,7 @@ export default function StartClaimPage() {
                                         {/* Image Upload */}
                                         <div className="bg-white rounded-2xl shadow-sm border border-slate-200 p-8 md:p-10 mt-6">
                                             <div className="flex items-center gap-2 mb-2">
-                                                <Image className="w-6 h-6 text-[#1a365d]" />
+                                                <Image className="w-6 h-6 text-vendle-blue" />
                                                 <h3 className="text-2xl font-bold text-slate-900">Upload Images</h3>
                                             </div>
                                             <p className="text-slate-600 mb-6">Upload any images or plans you'd like us to reference (optional).</p>
@@ -1336,7 +1352,7 @@ export default function StartClaimPage() {
                                             <div
                                                 onDrop={handleDrop}
                                                 onDragOver={(e) => e.preventDefault()}
-                                                className="border-2 border-dashed border-slate-300 hover:border-[#1a365d] transition-all rounded-xl p-10 text-center cursor-pointer bg-slate-50/50"
+                                                className="border-2 border-dashed border-vendle-gray/50 hover:border-vendle-blue transition-all rounded-xl p-12 text-center cursor-pointer bg-vendle-gray/10 hover:bg-vendle-blue/5 group"
                                                 onClick={() => fileInputRef.current?.click()}
                                             >
                                                 <input
@@ -1349,12 +1365,12 @@ export default function StartClaimPage() {
                                                 />
 
                                                 <div className="flex flex-col items-center justify-center">
-                                                    <div className="w-16 h-16 rounded-xl bg-[#1a365d]/10 text-[#1a365d] flex items-center justify-center mb-4">
-                                                        <Upload className="w-8 h-8" />
+                                                    <div className="w-20 h-20 rounded-2xl bg-vendle-blue/10 group-hover:bg-vendle-blue/20 text-vendle-blue flex items-center justify-center mb-4 transition-colors shadow-sm">
+                                                        <Upload className="w-10 h-10" />
                                                     </div>
 
-                                                    <p className="font-semibold text-slate-900">Click or drag files to upload</p>
-                                                    <p className="text-sm text-slate-500 mt-1">You can upload multiple images</p>
+                                                    <p className="font-semibold text-foreground text-lg">Click or drag files to upload</p>
+                                                    <p className="text-sm text-muted-foreground mt-2">You can upload multiple images (JPG, PNG, etc.)</p>
                                                 </div>
                                             </div>
 
@@ -1362,9 +1378,11 @@ export default function StartClaimPage() {
                                             {uploadedImages.length > 0 && (
                                                 <div className="grid grid-cols-2 md:grid-cols-3 gap-4 mt-8">
                                                     {uploadedImages.map((img, index) => (
-                                                        <div
+                                                        <motion.div
                                                             key={index}
-                                                            className="relative group rounded-xl overflow-hidden border border-slate-200 bg-white shadow-sm"
+                                                            initial={{ opacity: 0, scale: 0.9 }}
+                                                            animate={{ opacity: 1, scale: 1 }}
+                                                            className="relative group rounded-xl overflow-hidden border border-vendle-gray/30 bg-card shadow-sm hover:shadow-md transition-all"
                                                         >
                                                             <img
                                                                 src={img.preview}
@@ -1374,12 +1392,18 @@ export default function StartClaimPage() {
 
                                                             {/* Remove Button */}
                                                             <button
-                                                                className="absolute top-2 right-2 bg-white/90 hover:bg-white text-slate-700 rounded-full p-1 shadow-md opacity-0 group-hover:opacity-100 transition"
-                                                                onClick={() => removeImage(index)}
+                                                                className="absolute top-2 right-2 bg-white/95 hover:bg-white text-foreground rounded-full p-1.5 shadow-lg opacity-0 group-hover:opacity-100 transition-all hover:scale-110"
+                                                                onClick={(e) => {
+                                                                    e.stopPropagation();
+                                                                    removeImage(index);
+                                                                }}
                                                             >
                                                                 <X className="w-4 h-4" />
                                                             </button>
-                                                        </div>
+                                                            <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/60 to-transparent p-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                                                                <p className="text-xs text-white truncate">{img.file.name}</p>
+                                                            </div>
+                                                        </motion.div>
                                                     ))}
                                                 </div>
                                             )}
@@ -1397,7 +1421,7 @@ export default function StartClaimPage() {
                                             <Button
                                                 onClick={nextStep}
                                                 disabled={!isCurrentStepValid()}
-                                                className="px-8 py-6 bg-[#1a365d] text-white hover:bg-[#1a365d]/90 disabled:opacity-50"
+                                                className="px-8 py-6 bg-vendle-blue text-white hover:bg-vendle-blue/90 disabled:opacity-50"
                                             >
                                                 Continue
                                                 <ArrowRight className="w-4 h-4 ml-2" />
@@ -1413,7 +1437,7 @@ export default function StartClaimPage() {
                                         animate={{ opacity: 1, x: 0 }}
                                         exit={{ opacity: 0, x: -20 }}
                                         transition={{ duration: 0.3 }}
-                                        className="bg-white rounded-2xl shadow-sm border border-slate-200 p-8 md:p-10"
+                                        className="bg-card rounded-2xl shadow-md border border-vendle-gray/30 p-8 md:p-10 hover:shadow-lg transition-shadow"
                                     >
                                         <h2 className="text-3xl font-bold text-slate-900 mb-2">Timeline & Scheduling</h2>
                                         <p className="text-slate-600 mb-8">Set your project timeline and schedule contractor visits</p>
@@ -1424,8 +1448,9 @@ export default function StartClaimPage() {
                                                     <Calendar className="w-5 h-5" />
                                                     Phase 1 Timeline
                                                 </h3>
-                                                <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-4">
-                                                    <p className="text-sm text-blue-800">
+                                                <div className="bg-vendle-teal/10 border border-vendle-teal/30 rounded-lg p-4 mb-4">
+                                                    <p className="text-sm text-vendle-navy flex items-center gap-2">
+                                                        <Sparkles className="w-4 h-4 text-vendle-teal" />
                                                         <strong>Recommendation:</strong> 2 weeks for a competitive auction process
                                                     </p>
                                                 </div>
@@ -1436,7 +1461,7 @@ export default function StartClaimPage() {
                                                             type="date"
                                                             value={timeline.phase1Start}
                                                             onChange={(e) => setTimeline({...timeline, phase1Start: e.target.value})}
-                                                            className="h-12 border-slate-300 focus:border-vendle-blue focus:ring-vendle-blue/20"
+                                                            className="h-12 border-vendle-gray/40 focus:border-vendle-blue focus:ring-2 focus:ring-vendle-blue/20 bg-background"
                                                         />
                                                     </div>
                                                     <div>
@@ -1445,7 +1470,7 @@ export default function StartClaimPage() {
                                                             type="date"
                                                             value={timeline.phase1End}
                                                             onChange={(e) => setTimeline({...timeline, phase1End: e.target.value})}
-                                                            className="h-12 border-slate-300 focus:border-vendle-blue focus:ring-vendle-blue/20"
+                                                            className="h-12 border-vendle-gray/40 focus:border-vendle-blue focus:ring-2 focus:ring-vendle-blue/20 bg-background"
                                                             min={timeline.phase1Start}
                                                         />
                                                     </div>
@@ -1469,7 +1494,7 @@ export default function StartClaimPage() {
                                                             type="date"
                                                             value={timeline.phase2Start}
                                                             onChange={(e) => setTimeline({...timeline, phase2Start: e.target.value})}
-                                                            className="h-12 border-slate-300 focus:border-vendle-blue focus:ring-vendle-blue/20"
+                                                            className="h-12 border-vendle-gray/40 focus:border-vendle-blue focus:ring-2 focus:ring-vendle-blue/20 bg-background"
                                                             min={timeline.phase1End}
                                                         />
                                                     </div>
@@ -1479,7 +1504,7 @@ export default function StartClaimPage() {
                                                             type="date"
                                                             value={timeline.phase2End}
                                                             onChange={(e) => setTimeline({...timeline, phase2End: e.target.value})}
-                                                            className="h-12 border-slate-300 focus:border-vendle-blue focus:ring-vendle-blue/20"
+                                                            className="h-12 border-vendle-gray/40 focus:border-vendle-blue focus:ring-2 focus:ring-vendle-blue/20 bg-background"
                                                             min={timeline.phase2Start}
                                                         />
                                                     </div>
@@ -1519,7 +1544,7 @@ export default function StartClaimPage() {
                                             <Button
                                                 onClick={nextStep}
                                                 disabled={!isCurrentStepValid()}
-                                                className="px-8 py-6 bg-[#1a365d] text-white hover:bg-[#1a365d]/90 disabled:opacity-50"
+                                                className="px-8 py-6 bg-vendle-blue text-white hover:bg-vendle-blue/90 disabled:opacity-50"
                                             >
                                                 Continue
                                                 <ArrowRight className="w-4 h-4 ml-2" />
@@ -1535,7 +1560,7 @@ export default function StartClaimPage() {
                                         animate={{ opacity: 1, x: 0 }}
                                         exit={{ opacity: 0, x: -20 }}
                                         transition={{ duration: 0.3 }}
-                                        className="bg-white rounded-2xl shadow-sm border border-slate-200 p-8 md:p-10"
+                                        className="bg-card rounded-2xl shadow-md border border-vendle-gray/30 p-8 md:p-10 hover:shadow-lg transition-shadow"
                                     >
                                         <h2 className="text-3xl font-bold text-slate-900 mb-2">Project Type</h2>
                                         <p className="text-slate-600 mb-8">What type of rebuild do you need?</p>
@@ -1551,21 +1576,21 @@ export default function StartClaimPage() {
                                                     onClick={() => setProjectType(option.value)}
                                                     className={`w-full p-6 rounded-xl border-2 text-left transition-all ${
                                                         projectType === option.value
-                                                            ? 'border-vendle-blue bg-vendle-blue/5 shadow-md'
-                                                            : 'border-slate-200 hover:border-slate-300 bg-white'
+                                                            ? 'border-vendle-blue bg-vendle-blue/10 shadow-lg shadow-vendle-blue/10'
+                                                            : 'border-vendle-gray/40 hover:border-vendle-blue/50 bg-card hover:bg-vendle-blue/5'
                                                     }`}
                                                 >
                                                     <div className="flex items-start gap-4">
-                                                        <div className={`w-12 h-12 rounded-lg flex items-center justify-center flex-shrink-0 ${
+                                                        <div className={`w-14 h-14 rounded-xl flex items-center justify-center flex-shrink-0 transition-all ${
                                                             projectType === option.value
-                                                                ? 'bg-vendle-blue text-white'
-                                                                : 'bg-slate-100 text-slate-600'
+                                                                ? 'bg-vendle-blue text-white shadow-md'
+                                                                : 'bg-vendle-gray/30 text-vendle-blue/70'
                                                         }`}>
                                                             <FileText className="w-6 h-6" />
                                                         </div>
                                                         <div className="flex-1">
-                                                            <h3 className="font-semibold text-slate-900 mb-1">{option.label}</h3>
-                                                            <p className="text-sm text-slate-600">{option.desc}</p>
+                                                        <h3 className="font-semibold text-foreground mb-1">{option.label}</h3>
+                                                        <p className="text-sm text-muted-foreground">{option.desc}</p>
                                                         </div>
                                                         {projectType === option.value && (
                                                             <CheckCircle2 className="w-6 h-6 text-vendle-blue flex-shrink-0" />
@@ -1587,7 +1612,7 @@ export default function StartClaimPage() {
                                             <Button
                                                 onClick={nextStep}
                                                 disabled={!isCurrentStepValid()}
-                                                className="px-8 py-6 bg-[#1a365d] text-white hover:bg-[#1a365d]/90 disabled:opacity-50"
+                                                className="px-8 py-6 bg-vendle-blue text-white hover:bg-vendle-blue/90 disabled:opacity-50"
                                             >
                                                 Continue
                                                 <ArrowRight className="w-4 h-4 ml-2" />
@@ -1603,7 +1628,7 @@ export default function StartClaimPage() {
                                         animate={{ opacity: 1, x: 0 }}
                                         exit={{ opacity: 0, x: -20 }}
                                         transition={{ duration: 0.3 }}
-                                        className="bg-white rounded-2xl shadow-sm border border-slate-200 p-8 md:p-10"
+                                        className="bg-card rounded-2xl shadow-md border border-vendle-gray/30 p-8 md:p-10 hover:shadow-lg transition-shadow"
                                     >
                                         <h2 className="text-3xl font-bold text-slate-900 mb-2">Design Approach</h2>
                                         <p className="text-slate-600 mb-8">How would you like to approach the design?</p>
@@ -1632,8 +1657,8 @@ export default function StartClaimPage() {
                                                             <FileText className="w-6 h-6" />
                                                         </div>
                                                         <div className="flex-1">
-                                                            <h3 className="font-semibold text-slate-900 mb-1">{option.label}</h3>
-                                                            <p className="text-sm text-slate-600">{option.desc}</p>
+                                                        <h3 className="font-semibold text-foreground mb-1">{option.label}</h3>
+                                                        <p className="text-sm text-muted-foreground">{option.desc}</p>
                                                         </div>
                                                         {designPlan === option.value && (
                                                             <CheckCircle2 className="w-6 h-6 text-vendle-blue flex-shrink-0" />
@@ -1655,7 +1680,7 @@ export default function StartClaimPage() {
                                             <Button
                                                 onClick={nextStep}
                                                 disabled={!isCurrentStepValid()}
-                                                className="px-8 py-6 bg-[#1a365d] text-white hover:bg-[#1a365d]/90 disabled:opacity-50"
+                                                className="px-8 py-6 bg-vendle-blue text-white hover:bg-vendle-blue/90 disabled:opacity-50"
                                             >
                                                 Continue
                                                 <ArrowRight className="w-4 h-4 ml-2" />
@@ -1671,7 +1696,7 @@ export default function StartClaimPage() {
                                         animate={{ opacity: 1, x: 0 }}
                                         exit={{ opacity: 0, x: -20 }}
                                         transition={{ duration: 0.3 }}
-                                        className="bg-white rounded-2xl shadow-sm border border-slate-200 p-8 md:p-10"
+                                        className="bg-card rounded-2xl shadow-md border border-vendle-gray/30 p-8 md:p-10 hover:shadow-lg transition-shadow"
                                     >
                                         <h2 className="text-3xl font-bold text-slate-900 mb-2">Claim Assistance</h2>
                                         <p className="text-slate-600 mb-8">Would you like assistance with your claim?</p>
@@ -1781,7 +1806,7 @@ export default function StartClaimPage() {
                                             <Button
                                                 onClick={nextStep}
                                                 disabled={!isCurrentStepValid()}
-                                                className="px-8 py-6 bg-[#1a365d] text-white hover:bg-[#1a365d]/90 disabled:opacity-50"
+                                                className="px-8 py-6 bg-vendle-blue text-white hover:bg-vendle-blue/90 disabled:opacity-50"
                                             >
                                                 Complete Setup
                                                 <ArrowRight className="w-4 h-4 ml-2" />
@@ -1833,7 +1858,7 @@ export default function StartClaimPage() {
                                                 value={femaFormData.firstName}
                                                 onChange={handleFemaChange}
                                                 required
-                                                className="h-12 border-slate-300 focus:border-vendle-blue focus:ring-vendle-blue/20"
+                                                className="h-12 border-vendle-gray/40 focus:border-vendle-blue focus:ring-2 focus:ring-vendle-blue/20 bg-background"
                                             />
                                         </div>
                                         <div>
@@ -1846,7 +1871,7 @@ export default function StartClaimPage() {
                                                 value={femaFormData.lastName}
                                                 onChange={handleFemaChange}
                                                 required
-                                                className="h-12 border-slate-300 focus:border-vendle-blue focus:ring-vendle-blue/20"
+                                                className="h-12 border-vendle-gray/40 focus:border-vendle-blue focus:ring-2 focus:ring-vendle-blue/20 bg-background"
                                             />
                                         </div>
                                     </div>
@@ -1903,7 +1928,7 @@ export default function StartClaimPage() {
                                                 value={femaFormData.city}
                                                 onChange={handleFemaChange}
                                                 required
-                                                className="h-12 border-slate-300 focus:border-vendle-blue focus:ring-vendle-blue/20"
+                                                className="h-12 border-vendle-gray/40 focus:border-vendle-blue focus:ring-2 focus:ring-vendle-blue/20 bg-background"
                                             />
                                         </div>
                                         <div>
@@ -1975,7 +2000,7 @@ export default function StartClaimPage() {
                                                 value={femaFormData.zipCode}
                                                 onChange={handleFemaChange}
                                                 required
-                                                className="h-12 border-slate-300 focus:border-vendle-blue focus:ring-vendle-blue/20"
+                                                className="h-12 border-vendle-gray/40 focus:border-vendle-blue focus:ring-2 focus:ring-vendle-blue/20 bg-background"
                                             />
                                         </div>
                                     </div>

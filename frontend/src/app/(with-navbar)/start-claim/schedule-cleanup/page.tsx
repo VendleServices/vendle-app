@@ -107,8 +107,8 @@ export default function ScheduleCleanupPage() {
                                     className={cn(
                                         "p-4 cursor-pointer transition-all",
                                         selectedContractor?.id === contractor.id
-                                            ? "border-2 border-[#1a365d]"
-                                            : "hover:border-[#1a365d]"
+                                            ? "border-2 border-vendle-blue"
+                                            : "hover:border-vendle-blue"
                                     )}
                                     onClick={() => setSelectedContractor(contractor)}
                                 >
@@ -185,8 +185,8 @@ export default function ScheduleCleanupPage() {
                                                             className={cn(
                                                                 "w-full",
                                                                 selectedTime === time
-                                                                    ? "bg-[#1a365d] text-white"
-                                                                    : "text-[#1a365d] border-[#1a365d] hover:bg-[#1a365d] hover:text-white"
+                                                                    ? "bg-vendle-blue text-white"
+                                                                    : "text-vendle-blue border-vendle-blue hover:bg-vendle-blue hover:text-white"
                                                             )}
                                                             onClick={() => setSelectedTime(time)}
                                                         >
@@ -222,7 +222,7 @@ export default function ScheduleCleanupPage() {
                             Cancel
                         </Button>
                         <Button
-                            className="bg-[#1a365d] hover:bg-[#2c5282] text-white"
+                            className="bg-vendle-blue hover:bg-vendle-blue/80 text-white"
                             onClick={handleSchedule}
                             disabled={!selectedContractor || !selectedDate || !selectedTime}
                         >

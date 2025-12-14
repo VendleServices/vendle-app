@@ -5,32 +5,32 @@
 @layer base {
   :root {
     --background: 0 0% 100%;
-    --foreground: 222.2 84% 4.9%;
+    --foreground: 210 29% 24%; /* Vendle Navy for text */
 
     --card: 0 0% 100%;
-    --card-foreground: 222.2 84% 4.9%;
+    --card-foreground: 210 29% 24%; /* Vendle Navy */
 
     --popover: 0 0% 100%;
-    --popover-foreground: 222.2 84% 4.9%;
+    --popover-foreground: 210 29% 24%; /* Vendle Navy */
 
-    --primary: 217 64% 23%;
-    --primary-foreground: 210 40% 98%;
+    --primary: 210 26% 39%; /* Vendle Blue #4A637D */
+    --primary-foreground: 0 0% 100%; /* White text on primary */
 
-    --secondary: 217 64% 23%;
-    --secondary-foreground: 222.2 47.4% 11.2%;
+    --secondary: 164 27% 49%; /* Vendle Teal #5A9E8B */
+    --secondary-foreground: 0 0% 100%; /* White text on secondary */
 
-    --muted: 210 40% 96.1%;
-    --muted-foreground: 215.4 16.3% 46.9%;
+    --muted: 0 0% 85%; /* Vendle Gray #D9D9D9 */
+    --muted-foreground: 210 16% 46%; /* Darker gray for muted text */
 
-    --accent: 217 64% 23%;
-    --accent-foreground: 222.2 47.4% 11.2%;
+    --accent: 36 50% 76%; /* Vendle Sand #E0C9A6 */
+    --accent-foreground: 210 29% 24%; /* Vendle Navy for accent text */
 
     --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: 210 40% 98%;
+    --destructive-foreground: 0 0% 100%;
 
-    --border: 214.3 31.8% 91.4%;
-    --input: 214.3 31.8% 91.4%;
-    --ring: 217 64% 23%;
+    --border: 0 0% 85%; /* Vendle Gray #D9D9D9 */
+    --input: 0 0% 85%; /* Vendle Gray #D9D9D9 */
+    --ring: 210 26% 39%; /* Vendle Blue #4A637D */
 
     --radius: 0.75rem;
 
@@ -251,7 +251,7 @@
   }
 
   .badge-accent {
-    @apply badge bg-vendle-accent/20 text-vendle-accent-foreground;
+    @apply badge bg-vendle-sand/20 text-vendle-navy;
   }
 
   /* Alert components */
@@ -393,7 +393,7 @@
   }
 
   .gradient-accent {
-    @apply bg-gradient-to-r from-vendle-accent to-vendle-teal;
+    @apply bg-gradient-to-r from-vendle-sand to-vendle-teal;
   }
 
   .gradient-subtle {
