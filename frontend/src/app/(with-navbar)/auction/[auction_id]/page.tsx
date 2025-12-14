@@ -168,18 +168,9 @@ export default function AuctionDetailsPage() {
 
             setOpenAiDialog(true);
 
-            const response: any = await fetch(
-                "http://localhost:8001/api/analyze_contractors",
-                {
-                    method: "POST",
-                    headers: {
-                        "Content-Type": "application/json",
-                    },
-                    body: JSON.stringify(analysisRequest),
-                }
-            );
+            const response: any = await apiService.post('/api/analyzeContractors', analysisRequest);
 
-            const data = await response.json();
+            const data = response?.data;
             setAiRecommendation(data?.recommendation);
             return response;
         } catch (error) {
