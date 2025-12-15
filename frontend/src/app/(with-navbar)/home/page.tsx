@@ -33,7 +33,8 @@ import {
   File,
   Image as ImageIcon,
   Shield,
-  FileCheck
+  FileCheck,
+  Mail
 } from "lucide-react"
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query"
 import SplashScreen from "@/components/SplashScreen";
@@ -42,6 +43,7 @@ import { EmptyState } from "@/components/EmptyState";
 import { LoadingSkeleton } from "@/components/LoadingSkeleton";
 import { toast } from "sonner";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import ContractorMailbox from "@/components/ContractorMailbox";
 import {
   Dialog,
   DialogContent,
@@ -84,6 +86,7 @@ export default function HomePage() {
   const [showLaunchModal, setShowLaunchModal] = useState(false);
   const [claimToLaunch, setClaimToLaunch] = useState<any | null>(null);
   const [ndaSignedCount, setNdaSignedCount] = useState(0);
+  const [showMailbox, setShowMailbox] = useState(false);
 
   // Redirect if not authenticated
   useEffect(() => {
@@ -149,15 +152,41 @@ export default function HomePage() {
     setShowFilesDropdown(false);
   };
 
-  const handleLaunch = (claim: any) => {
-    // Launch the project - create auction from claim
-    toast.success("Project launched successfully!", {
-      description: "Your project is now live and visible to contractors.",
-    });
-    setShowLaunchModal(false);
-    setClaimToLaunch(null);
-    // In real implementation, this would call an API to create the auction
-    router.push(`/start-claim/create-restor/${claim.id}`);
+  const handleLaunch = async (claim: any) => {
+    try {
+      // Create Phase 1 auction
+      const auctionResponse: any = await apiService.post(`/api/auction/${claim.id}`, {
+        number: 1,
+        startDate: claim.phase1Start,
+        endDate: claim.phase1End,
+      });
+
+      // Update claim status to Phase 1
+      await apiService.put(`/api/claim/${claim.id}`, {
+        status: "Phase 1"
+      });
+
+      toast.success("Project launched successfully!", {
+        description: "Your project is now in Phase 1 and visible to contractors.",
+      });
+      
+      setShowLaunchModal(false);
+      setClaimToLaunch(null);
+      setSelectedPreLaunchClaim(null);
+      
+      // Refresh data
+      queryClient.invalidateQueries({ queryKey: ["getUserClaims"] });
+      queryClient.invalidateQueries({ queryKey: ["getAuctions"] });
+      queryClient.invalidateQueries({ queryKey: ["getContractorClaims"] });
+      
+      // Switch to Phase 1 tab
+      setHomeownerTab('phase-1');
+    } catch (error: any) {
+      console.error('Error launching project:', error);
+      toast.error("Error launching project", {
+        description: error?.message || "Failed to launch project. Please try again.",
+      });
+    }
   };
 
   const handleFileClick = (file: any) => {
@@ -374,17 +403,32 @@ export default function HomePage() {
   const fetchInterestedContractors = async () => {
     try {
       const response: any = await apiService.get(`/api/claimParticipants/${selectedPreLaunchClaim?.id}`);
-      return response?.claimParticipants?.filter((claimParticipant: any) => claimParticipant?.status !== "APPROVED") || [];
+      const allParticipants = response?.claimParticipants || [];
+      
+      // Separate into approved and pending
+      const approved = allParticipants.filter((p: any) => p.status === "APPROVED");
+      const pending = allParticipants.filter((p: any) => p.status === "PENDING" || p.status === "NDA_SIGNED");
+      
+      // Return sorted: approved first, then pending
+      return {
+        approved,
+        pending,
+        all: [...approved, ...pending]
+      };
     } catch (error) {
       console.log(error);
+      return { approved: [], pending: [], all: [] };
     }
   }
 
-  const { data: interestedContractors } = useQuery({
+  const { data: contractorsData } = useQuery({
     queryKey: ['getInterestedContractors', selectedPreLaunchClaim?.id],
     queryFn: fetchInterestedContractors,
     enabled: !!user?.id && isHomeowner && selectedPreLaunchClaim !== null && !!selectedPreLaunchClaim?.id
   });
+
+  const approvedContractors = contractorsData?.approved || [];
+  const pendingContractors = contractorsData?.pending || [];
 
   const acceptContractorParticipation = async (participantId: string) => {
     try {
@@ -399,6 +443,7 @@ export default function HomePage() {
     mutationFn: acceptContractorParticipation,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["getInterestedContractors", selectedPreLaunchClaim?.id] });
+      queryClient.invalidateQueries({ queryKey: ["getContractorClaims"] });
     }
   });
 
@@ -938,19 +983,38 @@ export default function HomePage() {
         <div className="container mx-auto px-4 py-8 max-w-full">
           {/* Header */}
           <div className="mb-8">
-          <div className="flex items-center gap-3">
-          <h1 className="text-3xl font-bold text-gray-900">Welcome back, {user?.email || 'User'}!</h1>
-            {user?.user_metadata?.userType && (
-              <Badge 
-                variant={user?.user_metadata?.userType === 'contractor' ? 'default' : 'secondary'}
-                className={
-                  user?.user_metadata?.userType === 'contractor'
-                    ? 'bg-vendle-blue/90 text-white hover:bg-blue-800' 
-                    : 'bg-gray-700 text-white hover:bg-gray-800'
-                }
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <h1 className="text-3xl font-bold text-gray-900">Welcome back, {user?.email || 'User'}!</h1>
+              {user?.user_metadata?.userType && (
+                <Badge 
+                  variant={user?.user_metadata?.userType === 'contractor' ? 'default' : 'secondary'}
+                  className={
+                    user?.user_metadata?.userType === 'contractor'
+                      ? 'bg-vendle-blue/90 text-white hover:bg-blue-800' 
+                      : 'bg-gray-700 text-white hover:bg-gray-800'
+                  }
+                >
+                  {user?.user_metadata?.userType === 'contractor' ? 'Contractor' : 'Homeowner'}
+                </Badge>
+              )}
+            </div>
+            {/* Mailbox Button - Only for Contractors */}
+            {isContractor && (
+              <Button
+                variant="outline"
+                size="lg"
+                onClick={() => setShowMailbox(true)}
+                className="relative"
               >
-                {user?.user_metadata?.userType === 'contractor' ? 'Contractor' : 'Homeowner'}
-              </Badge>
+                <Mail className="h-5 w-5 mr-2" />
+                Mailbox
+                {contractorInvitations && contractorInvitations.filter((inv: any) => inv.status === 'PENDING').length > 0 && (
+                  <Badge className="ml-2 bg-red-500 text-white h-5 w-5 rounded-full p-0 flex items-center justify-center text-xs">
+                    {contractorInvitations.filter((inv: any) => inv.status === 'PENDING').length}
+                  </Badge>
+                )}
+              </Button>
             )}
           </div>
           <p className="text-gray-600 mt-2">
@@ -1825,17 +1889,8 @@ export default function HomePage() {
                                 variant="default"
                                 className="w-full bg-green-600 hover:bg-green-700"
                                 onClick={() => {
-                                  // Get count of contractors who signed NDA for this claim
-                                  const signedNdaCount = 0
-                                  
-                                  setNdaSignedCount(signedNdaCount);
                                   setClaimToLaunch(claim);
-                                  
-                                  if (signedNdaCount < 5) {
-                                    setShowLaunchModal(true);
-                                  } else {
-                                    handleLaunch(claim);
-                                  }
+                                  handleLaunch(claim);
                                 }}
                               >
                                 Launch
@@ -2220,35 +2275,67 @@ export default function HomePage() {
                   </div>
                 </div>
 
-                {/* Contractors who signed NDA */}
-                <div className="space-y-3 pt-4 border-t border-gray-200">
-                  <p className="text-sm font-semibold text-gray-900">Contractors with Signed NDAs</p>
-                  <div className="space-y-2">
-                    {/* Mock NDA contractors - replace with actual data */}
-                    {interestedContractors?.map((contractor: any) => (
+                {/* Accepted Contractors */}
+                {approvedContractors.length > 0 && (
+                  <div className="space-y-3 pt-4 border-t border-gray-200">
+                    <p className="text-sm font-semibold text-gray-900">Accepted Contractors</p>
+                    <div className="space-y-2">
+                      {approvedContractors.map((contractor: any) => (
+                        <div className="flex items-center justify-between p-3 bg-green-50 border border-green-200 rounded-lg" key={contractor.id}>
+                          <div className="flex items-center gap-3">
+                            <div className="h-10 w-10 rounded-full bg-green-600 flex items-center justify-center text-white font-semibold">
+                              {getContractorInitials(contractor?.user?.email)}
+                            </div>
+                            <div>
+                              <p className="font-medium text-gray-900">{contractor?.user?.companyName || contractor?.user?.email}</p>
+                              <p className="text-xs text-green-600 font-medium">✓ Accepted</p>
+                            </div>
+                          </div>
+                          <Badge className="bg-green-100 text-green-800 border-green-300">
+                            Approved
+                          </Badge>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {/* Contractors Pending Approval */}
+                {pendingContractors.length > 0 && (
+                  <div className="space-y-3 pt-4 border-t border-gray-200">
+                    <p className="text-sm font-semibold text-gray-900">Contractors Pending Approval</p>
+                    <div className="space-y-2">
+                      {pendingContractors.map((contractor: any) => (
                         <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg" key={contractor.id}>
                           <div className="flex items-center gap-3">
                             <div className="h-10 w-10 rounded-full bg-vendle-blue flex items-center justify-center text-white font-semibold">
                               {getContractorInitials(contractor?.user?.email)}
                             </div>
                             <div>
-                              <p className="font-medium text-gray-900">{contractor?.user?.companyName}</p>
-                              <p className="text-xs text-gray-500">NDA signed</p>
+                              <p className="font-medium text-gray-900">{contractor?.user?.companyName || contractor?.user?.email}</p>
+                              <p className="text-xs text-gray-500">NDA signed - Awaiting approval</p>
                             </div>
                           </div>
                           <Button
-                              size="sm"
-                              className="bg-green-600 hover:bg-green-700"
-                              disabled={acceptContractorMutation?.isPending}
-                              onClick={() => acceptContractorMutation.mutate(contractor.id)}
+                            size="sm"
+                            className="bg-green-600 hover:bg-green-700"
+                            disabled={acceptContractorMutation?.isPending}
+                            onClick={() => acceptContractorMutation.mutate(contractor.id)}
                           >
                             Accept
                           </Button>
                         </div>
-                    ))}
-                    <p className="text-xs text-gray-500 text-center pt-2">No other contractors have signed NDAs yet</p>
+                      ))}
+                    </div>
                   </div>
-                </div>
+                )}
+
+                {/* No contractors message */}
+                {approvedContractors.length === 0 && pendingContractors.length === 0 && (
+                  <div className="pt-4 border-t border-gray-200">
+                    <p className="text-xs text-gray-500 text-center py-4">No contractors have signed NDAs yet</p>
+                  </div>
+                )}
               </div>
             </div>
           </div>
@@ -2488,6 +2575,14 @@ export default function HomePage() {
         )}
         </div>
       </div>
+
+      {/* Contractor Mailbox */}
+      {isContractor && (
+        <ContractorMailbox
+          isOpen={showMailbox}
+          onClose={() => setShowMailbox(false)}
+        />
+      )}
     </div>
   )
 } 

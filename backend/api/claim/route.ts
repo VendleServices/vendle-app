@@ -215,20 +215,28 @@ router.put("/:claimId", async (req: any, res: any) => {
     return res.status(401).json({ error: "Not authorized" });
   }
 
-  const { aiClaimSummary } = req.body;
   const { claimId } = req.params;
+  const { aiClaimSummary, status } = req.body;
 
-  if (!aiClaimSummary || typeof aiClaimSummary !== "string") {
-    return res.status(400).json({ error: "Issue with ai claim summary" });
+  const updateData: any = {};
+  
+  if (aiClaimSummary && typeof aiClaimSummary === "string") {
+    updateData.aiSummary = aiClaimSummary;
+  }
+  
+  if (status && typeof status === "string") {
+    updateData.status = status;
+  }
+
+  if (Object.keys(updateData).length === 0) {
+    return res.status(400).json({ error: "No valid fields to update" });
   }
 
   const updatedClaim = await prisma.claim.update({
     where: {
       id: claimId
     },
-    data: {
-      aiSummary: aiClaimSummary,
-    }
+    data: updateData
   });
 
   return res.status(200).json({ claim: updatedClaim });

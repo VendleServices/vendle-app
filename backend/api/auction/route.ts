@@ -93,17 +93,42 @@ router.post("/:claimId", async (req: any, res: any) => {
         const { claimId } = req.params;
         const { number, startDate, endDate } = req.body;
 
+        // Create the auction phase
         const newAuction = await prisma.auctionPhase.create({
             data: {
                 claimId,
                 number,
                 startDate,
                 endDate,
+                status: "ACTIVE",
             }
         });
 
+        // Get all approved contractors for this claim
+        const approvedParticipants = await prisma.claimParticipant.findMany({
+            where: {
+                claimId,
+                status: "APPROVED"
+            }
+        });
+
+        // Add approved contractors as participants to the auction phase
+        if (approvedParticipants.length > 0) {
+            await prisma.claimParticipant.updateMany({
+                where: {
+                    id: {
+                        in: approvedParticipants.map(p => p.id)
+                    }
+                },
+                data: {
+                    auctionPhaseId: newAuction.id
+                }
+            });
+        }
+
         return res.status(201).json({ newAuction });
     } catch (error) {
+        console.log(error);
         return res.status(500).json({ error: "Error creating auction" });
     }
 });

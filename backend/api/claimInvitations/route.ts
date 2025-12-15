@@ -13,6 +13,17 @@ router.get('/', async (req: any, res: any) => {
         const claimInvitations = await prisma.claimInvitation.findMany({
             where: {
                 contractorId: user.id
+            },
+            include: {
+                claim: {
+                    include: {
+                        user: {
+                            select: {
+                                email: true
+                            }
+                        }
+                    }
+                }
             }
         }) || [];
 
@@ -65,6 +76,66 @@ router.post("/:claimId", async (req: any, res: any) => {
     } catch (error) {
         console.log(error);
         return res.status(500).json({ error: "Error creating claim invitation" });
+    }
+});
+
+router.put("/:invitationId/accept", async (req: any, res: any) => {
+    try {
+        const user = req?.user;
+        if (!user) {
+            return res.status(401).json({ error: "Not authorized" });
+        }
+
+        const { invitationId } = req.params;
+
+        // Update invitation status to ACCEPTED
+        const updatedInvitation = await prisma.claimInvitation.update({
+            where: {
+                id: invitationId
+            },
+            data: {
+                status: "ACCEPTED"
+            }
+        });
+
+        // Create claim participant
+        const participant = await prisma.claimParticipant.create({
+            data: {
+                claimId: updatedInvitation.claimId,
+                userId: user.id,
+                invitedBy: updatedInvitation.invitedBy,
+            }
+        });
+
+        return res.status(200).json({ invitation: updatedInvitation, participant });
+    } catch (error) {
+        console.log(error);
+        return res.status(500).json({ error: "Error accepting invitation" });
+    }
+});
+
+router.put("/:invitationId/decline", async (req: any, res: any) => {
+    try {
+        const user = req?.user;
+        if (!user) {
+            return res.status(401).json({ error: "Not authorized" });
+        }
+
+        const { invitationId } = req.params;
+
+        const updatedInvitation = await prisma.claimInvitation.update({
+            where: {
+                id: invitationId
+            },
+            data: {
+                status: "DECLINED"
+            }
+        });
+
+        return res.status(200).json({ invitation: updatedInvitation });
+    } catch (error) {
+        console.log(error);
+        return res.status(500).json({ error: "Error declining invitation" });
     }
 });
 
