@@ -47,6 +47,7 @@ router.get("/:auctionId", async (req: any, res: any) => {
             include: {
                 claim: true,
                 bids: true,
+                participants: true,
             }
         });
 
@@ -99,11 +100,34 @@ router.post("/:claimId", async (req: any, res: any) => {
                 number,
                 startDate,
                 endDate,
+                status: "ACTIVE"
             }
         });
 
+        const approvedParticipants = await prisma.claimParticipant.findMany({
+            where: {
+                claimId,
+                status: "APPROVED"
+            }
+        }) || [];
+
+        // assign approved claim participants to this newly created auctionPhase
+        if (approvedParticipants?.length > 0) {
+            await prisma.claimParticipant.updateMany({
+                where: {
+                    id: {
+                        in: approvedParticipants?.map((p: any) => p.id)
+                    }
+                },
+                data: {
+                    auctionPhaseId: newAuction.id
+                }
+            })
+        }
+
         return res.status(201).json({ newAuction });
     } catch (error) {
+        console.log(error);
         return res.status(500).json({ error: "Error creating auction" });
     }
 });
