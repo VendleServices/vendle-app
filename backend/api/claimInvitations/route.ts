@@ -13,6 +13,17 @@ router.get('/', async (req: any, res: any) => {
         const claimInvitations = await prisma.claimInvitation.findMany({
             where: {
                 contractorId: user.id
+            },
+            include: {
+                claim: {
+                    include: {
+                        user: {
+                            select: {
+                                email: true
+                            }
+                        }
+                    }
+                }
             }
         }) || [];
 
@@ -65,6 +76,42 @@ router.post("/:claimId", async (req: any, res: any) => {
     } catch (error) {
         console.log(error);
         return res.status(500).json({ error: "Error creating claim invitation" });
+    }
+});
+
+router.put("/:invitationId", async (req: any, res: any) => {
+    try {
+        const user = req?.user;
+        if (!user) {
+            return res.status(401).json({ error: "Not authorized" });
+        }
+
+        const { invitationId } = req.params;
+        const { invitationAccepted } = req.body;
+
+        const updatedInvitation = await prisma.claimInvitation.update({
+            where: {
+                id: invitationId,
+            },
+            data: {
+                status: invitationAccepted ? 'ACCEPTED' : "DECLINED"
+            }
+        });
+
+        if (invitationAccepted) {
+            await prisma.claimParticipant.create({
+                data: {
+                    claimId: updatedInvitation.claimId,
+                    userId: user.id,
+                    invitedBy: updatedInvitation?.invitedBy
+                }
+            });
+        }
+
+        return res.status(200).json({ updatedInvitation });
+    } catch (error) {
+        console.log(error);
+        return res.status(500).json({ error: "Error updating invitation status "})
     }
 });
 
