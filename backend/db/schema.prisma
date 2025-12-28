@@ -52,6 +52,12 @@ enum ParticipationStatus {
   REJECTED
 }
 
+enum ClaimStatus {
+  PENDING
+  ACTIVE
+  CLOSED
+}
+
 enum PhaseStatus {
   NOT_STARTED
   ACTIVE
@@ -105,7 +111,7 @@ model Fema {
 }
 
 model Claim {
-  id                     String   @id @default(uuid())
+  id                     String      @id @default(uuid())
   street                 String
   city                   String
   state                  String
@@ -129,13 +135,13 @@ model Claim {
   salesTaxes             Float
   depreciation           Float
   reconstructionType     String
-  hasDeductibleFunds     Boolean  @default(false)
+  hasDeductibleFunds     Boolean     @default(false)
   fundingSource          String
   additionalNotes        String
   aiSummary              String?
-  status                 String?  @default("Pending")
-  createdAt              DateTime @default(now())
-  updatedAt              DateTime @default(now()) @updatedAt
+  status                 ClaimStatus @default(PENDING)
+  createdAt              DateTime    @default(now())
+  updatedAt              DateTime    @default(now()) @updatedAt
 
   userId String
   user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)

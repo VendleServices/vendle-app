@@ -126,7 +126,7 @@ export default function AuctionDetailsPage() {
     const fetchAuction = async (auctionId: string) => {
         try {
             const response: any = await apiService.get(`/api/auction/${auctionId}`);
-            return response?.auction as unknown as Auction;
+            return response?.totalAuction as unknown as Auction;
         } catch (error) {
             console.log(error);
         }
@@ -148,7 +148,7 @@ export default function AuctionDetailsPage() {
     });
 
     const { data: bids, isLoading: bidsLoading } = useQuery({
-        queryKey: ["getBids"],
+        queryKey: ["getBids", auction_id],
         queryFn: () => fetchBids(auction_id),
         enabled: !!auction_id,
     });
@@ -227,7 +227,7 @@ export default function AuctionDetailsPage() {
         mutationFn: handleSubmitBid,
         onSuccess: () => {
             queryClient.invalidateQueries({
-                queryKey: ["getBids"],
+                queryKey: ["getBids", auction_id],
             });
             setBidData(initialBidDefaults);
             toast("Successfully submitted bid", {

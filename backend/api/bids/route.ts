@@ -4,7 +4,7 @@ import { prisma } from "../../db/prisma";
 const router = Router();
 
 // POST /api/bids - Create new bid
-router.post('/:claimId', async (req: any, res) => {
+router.post('/:auctionId', async (req: any, res) => {
   try {
     const user = req?.user;
 
@@ -12,12 +12,26 @@ router.post('/:claimId', async (req: any, res) => {
       return res.status(401).json({ error: "User not authorized" });
     }
 
-    const { claimId } = req.params;
-    if (!claimId) {
+    const { auctionId } = req.params;
+    if (!auctionId) {
         return res.status(404).json({ error: "Auction not found "});
     }
 
+    const auction = await prisma.auctionPhase.findUnique({
+      where: {
+        id: auctionId,
+      },
+      include: {
+        claim: true,
+      }
+    });
+
+    if (!auction) {
+      return res.status(404).json({ error: "Auction not found "});
+    }
+
     const bidData = req.body;
+    const claimId = auction?.claim?.id;
 
     const bid = await prisma.bid.create({
       data: {
@@ -31,7 +45,7 @@ router.post('/:claimId', async (req: any, res) => {
         bidPdfPath: bidData?.bidPdfPath || '',
         claimId,
         userId: user.id,
-        auctionPhaseId: bidData?.auctionPhaseId || '',
+        auctionPhaseId: auctionId || '',
       }
     });
 
@@ -42,18 +56,18 @@ router.post('/:claimId', async (req: any, res) => {
   }
 });
 
-router.get('/:claimId', async (req: any, res) => {
+router.get('/:auctionId', async (req: any, res) => {
   try {
     const user = req?.user;
     if (!user) {
       return res.status(401).json({ error: "User not authorized" });
     }
 
-    const { claimId } = req.params;
+    const { auctionId } = req.params;
 
     const bids = await prisma.bid.findMany({
       where: {
-        claimId,
+        auctionPhaseId: auctionId,
       },
       include: {
         user: true,

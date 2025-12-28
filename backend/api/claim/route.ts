@@ -19,6 +19,9 @@ const router = Router();
 router.get("/", async (req: any, res: any) => {
   try {
     const claims = await prisma.claim.findMany({
+      where: {
+        status: "PENDING"
+      },
       include: {
         claimParticipants: true
       }
@@ -45,7 +48,8 @@ router.get("/contractorClaims", async (req: any, res: any) => {
           some: {
             userId: user?.id,
           }
-        }
+        },
+        status: "PENDING"
       },
       include: {
         claimParticipants: true,
@@ -67,7 +71,8 @@ router.get('/userClaims', async (req: any, res) => {
 
     const claims = await prisma.claim.findMany({
       where: {
-        userId: user.id
+        userId: user.id,
+        status: "PENDING"
       },
       include: {
         auctionPhases: true,
