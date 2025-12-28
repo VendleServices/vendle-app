@@ -103,7 +103,8 @@ router.put("/:invitationId", async (req: any, res: any) => {
                 data: {
                     claimId: updatedInvitation.claimId,
                     userId: user.id,
-                    invitedBy: updatedInvitation?.invitedBy
+                    invitedBy: updatedInvitation?.invitedBy,
+                    status: "APPROVED"
                 }
             });
         }

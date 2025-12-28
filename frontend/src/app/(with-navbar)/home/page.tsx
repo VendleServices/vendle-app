@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Input } from "@/components/ui/input"
 import { useApiService } from "@/services/api";
+import Link from "next/link";
 import {
   Building2,
   FileText,
@@ -57,12 +58,15 @@ import {
   type PhaseProject
 } from "@/data/mockHomeData";
 import { getContractorInitials } from "@/utils/helpers";
+import { createClient } from "@/auth/client";
+import { getSupabaseDownloadUrl } from "@/utils/helpers";
 
 export default function HomePage() {
   const { user, isLoggedIn, loading: authLoading } = useAuth()
   const router = useRouter()
   const apiService = useApiService();
   const queryClient = useQueryClient();
+  const supabase = createClient();
 
   // Contractor tab state
   const [contractorTab, setContractorTab] = useState<'pending-ndas' | 'phase-1' | 'phase-2' | 'my-jobs'>('pending-ndas');
@@ -148,43 +152,6 @@ export default function HomePage() {
     setSelectedJob(null);
     setSelectedPhaseProject(null);
     setShowFilesDropdown(false);
-  };
-
-  const handleLaunch = async (claim: any) => {
-    try {
-      // Create Phase 1 auction
-      const auctionResponse: any = await apiService.post(`/api/auction/${claim.id}`, {
-        number: 1,
-        startDate: claim.phase1Start,
-        endDate: claim.phase1End,
-      });
-
-      // Update claim status to Phase 1
-      await apiService.put(`/api/claim/${claim.id}`, {
-        status: "Phase 1"
-      });
-
-      toast.success("Project launched successfully!", {
-        description: "Your project is now in Phase 1 and visible to contractors.",
-      });
-
-      setShowLaunchModal(false);
-      setClaimToLaunch(null);
-      setSelectedPreLaunchClaim(null);
-
-      // Refresh data
-      queryClient.invalidateQueries({ queryKey: ["getUserClaims"] });
-      queryClient.invalidateQueries({ queryKey: ["getAuctions"] });
-      queryClient.invalidateQueries({ queryKey: ["getContractorClaims"] });
-
-      // Switch to Phase 1 tab
-      setHomeownerTab('phase-1');
-    } catch (error: any) {
-      console.error('Error launching project:', error);
-      toast.error("Error launching project", {
-        description: error?.message || "Failed to launch project. Please try again.",
-      });
-    }
   };
 
   const handleFileClick = (file: any) => {
@@ -283,7 +250,7 @@ export default function HomePage() {
   });
 
   const pendingNDAs = useMemo(() => {
-    const pendingNDAs: PendingNDA[] = contractorClaims?.filter((claim: any) => claim?.status === "Pending")?.map((claim: any) => (
+    const pendingNDAs: PendingNDA[] = contractorClaims?.map((claim: any) => (
         {
           id: claim?.id,
           projectTitle: claim?.title,
@@ -315,7 +282,7 @@ export default function HomePage() {
       description: auction?.claim?.aiSummary || auction?.claim?.additionalNotes,
       adjustmentPdf: {
         name: 'Insurance_Adjustment_Report.pdf',
-        url: "N/A"
+        url: getSupabaseDownloadUrl(supabase, auction?.claim?.pdfs?.[0]?.supabase_url || "")
       },
       imageUrls: [],
       files: []
@@ -338,7 +305,7 @@ export default function HomePage() {
       description: auction?.claim?.aiSummary || auction?.claim?.additionalNotes,
       adjustmentPdf: {
         name: 'Insurance_Adjustment_Report.pdf',
-        url: "N/A"
+        url: getSupabaseDownloadUrl(supabase, auction?.claim?.pdfs?.[0]?.supabase_url || "")
       },
       imageUrls: [],
       files: [],
@@ -346,7 +313,7 @@ export default function HomePage() {
     })) || [];
 
     return { phase1Projects, phase2Projects };
-  }, [auctions]);
+  }, [auctions, supabase]);
 
   const existingHomeownerInvitedContractors = useMemo(() => {
     const contractorIds = homeownerInvitations?.map((invitation: any) => invitation?.contractorId);
@@ -444,6 +411,39 @@ export default function HomePage() {
       queryClient.invalidateQueries({ queryKey: ["getContractorClaims"] });
     }
   });
+
+  const handleLaunch = async (claim: any) => {
+    try {
+      // Create Phase 1 auction
+      const auctionResponse: any = await apiService.post(`/api/auction/${claim.id}`, {
+        number: 1,
+        startDate: claim.phase1Start,
+        endDate: claim.phase1End,
+      });
+    } catch (error: any) {
+      console.error('Error launching project:', error);
+      toast.error("Error launching project", {
+        description: error?.message || "Failed to launch project. Please try again.",
+      });
+    }
+  };
+
+  const launchAuctionPhaseOneMutation = useMutation({
+    mutationFn: handleLaunch,
+    onSuccess: () => {
+      setShowLaunchModal(false);
+      setClaimToLaunch(null);
+      setSelectedPreLaunchClaim(null);
+
+      // Refresh data
+      queryClient.invalidateQueries({ queryKey: ["getUserClaims"] });
+      queryClient.invalidateQueries({ queryKey: ["getAuctions"] });
+      queryClient.invalidateQueries({ queryKey: ["getContractorClaims"] });
+
+      // Switch to Phase 1 tab
+      setHomeownerTab('phase-1');
+    }
+  })
 
   if (authLoading) {
     return <SplashScreen />
@@ -972,6 +972,12 @@ export default function HomePage() {
                         </p>
                       </div>
                   )}
+
+                  <Button asChild>
+                    <Link href={`/auction/${selectedPhaseProject.id}`}>
+                      Place Bid
+                    </Link>
+                  </Button>
                 </div>
               </div>
             </div>
@@ -1888,7 +1894,7 @@ export default function HomePage() {
                                                 className="w-full bg-green-600 hover:bg-green-700"
                                                 onClick={() => {
                                                   setClaimToLaunch(claim);
-                                                  handleLaunch(claim);
+                                                  launchAuctionPhaseOneMutation.mutate(claim);
                                                 }}
                                             >
                                               Launch
@@ -1942,7 +1948,7 @@ export default function HomePage() {
                                           <div className="space-y-2">
                                             <div className="flex items-center justify-between text-sm">
                                               <span className="text-gray-600">Number of Bidders:</span>
-                                              <span className="font-semibold text-vendle-blue">{(project as any).bidCount || 0}</span>
+                                              <span className="font-semibold text-vendle-blue">{(project as any)?.bidCount || 0}</span>
                                             </div>
                                             {project.phase1StartDate && (
                                                 <div className="flex items-center justify-between text-sm">

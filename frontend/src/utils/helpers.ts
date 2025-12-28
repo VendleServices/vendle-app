@@ -6,3 +6,12 @@ export const getContractorInitials= (name: string) => {
 
     return `${nameArray[0][0]?.toUpperCase()}${nameArray[1][0]?.toUpperCase()}`;
 }
+
+export const getSupabaseDownloadUrl = (supabase: any, url: any) => {
+    const { data } = supabase.storage
+        .from("vendle-claims")
+        .getPublicUrl(url);
+
+    const pdfUrl = data?.publicUrl || '';
+    return pdfUrl;
+}

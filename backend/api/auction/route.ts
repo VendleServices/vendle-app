@@ -10,20 +10,54 @@ router.get('/', async (req: any, res: any) => {
             return res.status(401).json({ error: "Not authorized" });
         }
 
-        const auctions = await prisma.auctionPhase.findMany({
+        const dbUser = await prisma.user.findUnique({
             where: {
-                participants: {
-                    some: {
-                        userId: user?.id,
-                    }
-                }
-            },
-            include: {
-                claim: true,
-                participants: true,
-                bids: true,
+                id: user.id,
             }
         });
+
+        const isHomeowner = dbUser?.userType === "homeowner";
+
+        let auctions = [];
+
+        if (isHomeowner) {
+            auctions = await prisma.auctionPhase.findMany({
+                where: {
+                    claim: {
+                        user: {
+                            id: user.id,
+                        }
+                    }
+                },
+                include: {
+                    claim: {
+                        include: {
+                            user: true,
+                        },
+                    },
+                    bids: true,
+                },
+            })
+        } else {
+            auctions = await prisma.auctionPhase.findMany({
+                where: {
+                    participants: {
+                        some: {
+                            userId: user?.id,
+                        }
+                    }
+                },
+                include: {
+                    claim: {
+                        include: {
+                            pdfs: true,
+                        }
+                    },
+                    participants: true,
+                    bids: true,
+                }
+            });
+        }
 
         return res.status(200).json({ auctions });
     } catch (error) {
@@ -45,7 +79,11 @@ router.get("/:auctionId", async (req: any, res: any) => {
                 id: auctionId,
             },
             include: {
-                claim: true,
+                claim: {
+                    include: {
+                        pdfs: true,
+                    }
+                },
                 bids: true,
                 participants: true,
             }
@@ -94,6 +132,15 @@ router.post("/:claimId", async (req: any, res: any) => {
         const { claimId } = req.params;
         const { number, startDate, endDate } = req.body;
 
+        await prisma.claim.update({
+            where: {
+                id: claimId
+            },
+            data: {
+                status: "ACTIVE"
+            }
+        });
+        
         const newAuction = await prisma.auctionPhase.create({
             data: {
                 claimId,
