@@ -29,9 +29,15 @@ router.get("/", async (req: any, res: any) => {
             userId: userId,
           },
         },
+        claimInvitations: {
+          none: {
+            contractorId: userId,
+          },
+        },
       },
       include: {
-        claimParticipants: true
+        claimParticipants: true,
+        claimInvitations: true,
       }
     }) || [];
 

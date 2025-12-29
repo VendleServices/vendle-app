@@ -362,7 +362,7 @@ export default function HomePage() {
   const { data: recommendedContractors } = useQuery({
     queryKey: ['getContractors'],
     queryFn: fetchContractors,
-    enabled: !!user?.id && isHomeowner && selectedClaimForInvite,
+    enabled: !!user?.id && isHomeowner && !!selectedClaimForInvite?.id,
   });
 
   const fetchInterestedContractors = async () => {
