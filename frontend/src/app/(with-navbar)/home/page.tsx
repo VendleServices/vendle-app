@@ -352,7 +352,7 @@ export default function HomePage() {
 
   const fetchContractors = async () => {
     try {
-      const response: any = await apiService.get('/api/contractor');
+      const response: any = await apiService.get(`/api/contractor?claimId=${selectedClaimForInvite?.id}`);
       return response?.contractors || [];
     } catch (error) {
       console.log(error);
@@ -362,7 +362,7 @@ export default function HomePage() {
   const { data: recommendedContractors } = useQuery({
     queryKey: ['getContractors'],
     queryFn: fetchContractors,
-    enabled: !!user?.id && isHomeowner,
+    enabled: !!user?.id && isHomeowner && selectedClaimForInvite,
   });
 
   const fetchInterestedContractors = async () => {

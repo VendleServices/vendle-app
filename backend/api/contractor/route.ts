@@ -10,9 +10,26 @@ router.get("/", async (req: any, res: any) => {
             return res.status(401).json({ error: "Not authorized" });
         }
 
+        const { claimId } = req.query;
+
+        if (!claimId) {
+            return res.status(400).json({ error: "invalid claimId" });
+        }
+        
+        const existingParticipants = await prisma.claimParticipant.findMany({
+            where: {
+                claimId
+            }
+        }) || [];
+
+        const claimParticipantIds = existingParticipants?.map((participant: any) => participant?.userId) || [];
+
         const contractors = await prisma.user.findMany({
             where: {
                 userType: "contractor",
+                id: {
+                    notIn: claimParticipantIds,
+                },
             }
         }) || [];
 

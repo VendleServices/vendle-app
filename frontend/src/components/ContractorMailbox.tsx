@@ -86,8 +86,7 @@ export default function ContractorMailbox({ isOpen, onClose }: ContractorMailbox
             const response: any = await apiService.get('/api/claimInvitations');
             const invitations: ClaimInvitation[] = response?.claimInvitations || [];
 
-            // Filter out ACCEPTED and DECLINED invitations - only show PENDING
-            return invitations.filter((inv: ClaimInvitation) => inv.status === 'PENDING');
+            return invitations;
         },
         enabled: !!user?.id && isOpen,
     });
