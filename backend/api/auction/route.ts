@@ -172,6 +172,14 @@ router.post("/:claimId", async (req: any, res: any) => {
             })
         }
 
+        // invalidate invitations
+
+        await prisma.claimInvitation.deleteMany({
+            where: {
+                claimId
+            }
+        });
+
         return res.status(201).json({ newAuction });
     } catch (error) {
         console.log(error);
