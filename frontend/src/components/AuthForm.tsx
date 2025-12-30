@@ -116,22 +116,22 @@ const AuthForm = ({ type }: Props) => {
 
     return (
         <FadeTransition>
-            <div className="w-full max-w-md bg-white rounded-2xl shadow-medium p-8">
-                    <div className="mb-8 text-center">
-                        <h1 className="text-2xl font-bold text-vendle-navy">
+            <div className="w-full max-w-full sm:max-w-md bg-white rounded-2xl shadow-medium p-4 sm:p-6 lg:p-8">
+                    <div className="mb-6 sm:mb-8 text-center">
+                        <h1 className="text-xl sm:text-2xl font-bold text-vendle-navy">
                             {type === 'login' ? 'Welcome Back' : 'Create Your Account'}
                         </h1>
-                        <p className="text-vendle-navy/70 mt-2">
+                        <p className="text-sm sm:text-base text-vendle-navy/70 mt-2">
                             {type === 'login'
                                 ? 'Sign in to continue your recovery journey'
                                 : 'Join thousands rebuilding with confidence'}
                         </p>
                     </div>
 
-                    <div className="space-y-4 mb-6">
+                    <div className="space-y-3 sm:space-y-4 mb-4 sm:mb-6">
                         <button
                             onClick={() => handleSocialAuth('Google')}
-                            className="w-full flex items-center justify-center gap-2 bg-white border border-gray-300 text-vendle-navy font-medium px-4 py-2.5 rounded-lg hover:bg-gray-50 transition-colors"
+                            className="w-full flex items-center justify-center gap-2 bg-white border border-gray-300 text-vendle-navy font-medium px-3 sm:px-4 py-2 sm:py-2.5 rounded-lg hover:bg-gray-50 transition-colors text-sm sm:text-base"
                             disabled={isLoading}
                         >
                             <svg className="h-5 w-5" viewBox="0 0 24 24">
@@ -161,7 +161,7 @@ const AuthForm = ({ type }: Props) => {
 
                         <button
                             onClick={() => handleSocialAuth('Microsoft')}
-                            className="w-full flex items-center justify-center gap-2 bg-white border border-gray-300 text-vendle-navy font-medium px-4 py-2.5 rounded-lg hover:bg-gray-50 transition-colors"
+                            className="w-full flex items-center justify-center gap-2 bg-white border border-gray-300 text-vendle-navy font-medium px-3 sm:px-4 py-2 sm:py-2.5 rounded-lg hover:bg-gray-50 transition-colors text-sm sm:text-base"
                             disabled={isLoading}
                         >
                             <svg className="h-5 w-5" viewBox="0 0 24 24">

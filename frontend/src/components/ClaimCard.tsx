@@ -56,8 +56,8 @@ export function ClaimCard({
       onHoverEnd={() => setIsHovered(false)}
       className="h-full"
     >
-      <Card className="group relative h-full rounded-2xl border bg-card shadow-md hover:shadow-lg transition-all duration-300 cursor-pointer hover:translate-y-[-2px]">
-        <CardContent className="p-4 sm:p-6 h-full flex flex-col">
+      <Card className="group relative h-full rounded-2xl border border-border/50 bg-card shadow-subtle hover:shadow-strong hover:border-primary/20 transition-all duration-200 cursor-pointer hover:translate-y-[-2px]">
+        <CardContent className="p-4 sm:p-5 lg:p-6 h-full flex flex-col">
           {/* Header Section */}
           <div className="mb-4">
             <div className="flex items-start justify-between gap-3 mb-3">
@@ -69,9 +69,9 @@ export function ClaimCard({
                   {insuranceProvider || "No provider specified"}
                 </p>
               </div>
-              <Badge 
-                variant="secondary" 
-                className={`capitalize text-xs px-3 py-1 rounded-full font-medium ${getDamageTypeColor(projectType)}`}
+              <Badge
+                variant="secondary"
+                className={`capitalize text-[10px] sm:text-xs px-2 sm:px-3 py-0.5 sm:py-1 rounded-full font-medium shadow-sm ${getDamageTypeColor(projectType)}`}
               >
                 {projectType}
               </Badge>
@@ -83,7 +83,7 @@ export function ClaimCard({
           {/* Metadata Section */}
           <div className="flex-1 space-y-3 mb-6">
             <div className="flex items-center gap-3">
-              <Calendar className="h-4 w-4 text-muted-foreground flex-shrink-0" />
+              <Calendar className="h-4 w-4 sm:h-5 sm:w-5 text-muted-foreground flex-shrink-0" />
               <span className="text-sm text-muted-foreground">Filed:</span>
               <span className="text-sm font-medium text-foreground">
                 {formatDate(createdAt)}
@@ -94,7 +94,7 @@ export function ClaimCard({
               <>
                 <Separator />
                 <div className="flex items-center gap-3">
-                  <Clock className="h-4 w-4 text-muted-foreground flex-shrink-0" />
+                  <Clock className="h-4 w-4 sm:h-5 sm:w-5 text-muted-foreground flex-shrink-0" />
                   <span className="text-sm text-muted-foreground">Last Updated:</span>
                   <span className="text-sm font-medium text-foreground">
                     {formatDate(updatedAt)}
@@ -107,7 +107,7 @@ export function ClaimCard({
               <>
                 <Separator />
                 <div className="flex items-center gap-3">
-                  <Compass className="h-4 w-4 text-muted-foreground flex-shrink-0" />
+                  <Compass className="h-4 w-4 sm:h-5 sm:w-5 text-muted-foreground flex-shrink-0" />
                   <span className="text-sm text-muted-foreground">Design Plan:</span>
                   <span className="text-sm font-medium text-foreground">{designPlan}</span>
                 </div>
@@ -116,11 +116,11 @@ export function ClaimCard({
 
             <Separator />
             <div className="flex items-center gap-3">
-              <User className="h-4 w-4 text-muted-foreground flex-shrink-0" />
+              <User className="h-4 w-4 sm:h-5 sm:w-5 text-muted-foreground flex-shrink-0" />
               <span className="text-sm text-muted-foreground">Needs Adjuster:</span>
-              <Badge 
-                variant={needsAdjuster ? "default" : "secondary"} 
-                className={`text-xs ${needsAdjuster ? "bg-amber-100 text-amber-800 hover:bg-amber-200" : "bg-gray-100 text-gray-600"}`}
+              <Badge
+                variant={needsAdjuster ? "default" : "secondary"}
+                className={`text-[10px] sm:text-xs px-2 sm:px-2.5 py-0.5 shadow-sm ${needsAdjuster ? "bg-amber-100 text-amber-800 hover:bg-amber-200" : "bg-gray-100 text-gray-600"}`}
               >
                 {needsAdjuster ? "Yes" : "No"}
               </Badge>
@@ -130,14 +130,14 @@ export function ClaimCard({
           <Separator className="mb-4" />
 
           {/* Actions Section */}
-          <div className="flex flex-col sm:flex-row items-center gap-2">
+          <div className="flex flex-col sm:flex-row items-center gap-2 sm:gap-3">
             <Button
                 variant="default"
                 size="sm"
                 onClick={onCreateRestoration}
-                className="flex-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 whitespace-nowrap p-2"
+                className="w-full sm:flex-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 whitespace-nowrap p-2"
             >
-              <ArrowRight className="h-4 w-4 flex-shrink-0" />
+              <ArrowRight className="h-4 w-4 sm:h-5 sm:w-5 flex-shrink-0" />
               <span className="truncate">Create Restoration</span>
             </Button>
 
@@ -145,9 +145,9 @@ export function ClaimCard({
                 variant="ghost"
                 size="sm"
                 onClick={onViewDetails}
-                className="flex-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 whitespace-nowrap hover:bg-primary hover:text-white transition-colors p-2"
+                className="w-full sm:flex-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 whitespace-nowrap hover:bg-primary hover:text-white transition-colors p-2"
             >
-              <Eye className="h-4 w-4 flex-shrink-0" />
+              <Eye className="h-4 w-4 sm:h-5 sm:w-5 flex-shrink-0" />
               <span className="truncate">View Details</span>
             </Button>
           </div>

@@ -33,6 +33,16 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useApiService } from "@/services/api";
 import { toast } from "sonner";
 import { createClient } from "@/auth/client";
+import { StepIndicator } from "@/components/start-claim/StepIndicator";
+import { NavigationButtons } from "@/components/start-claim/NavigationButtons";
+import { Step1Location } from "@/components/start-claim/steps/Step1Location";
+import { Step2Restoration } from "@/components/start-claim/steps/Step2Restoration";
+import { Step3DamageTypes } from "@/components/start-claim/steps/Step3DamageTypes";
+import { Step4Property } from "@/components/start-claim/steps/Step4Property";
+import { Step5Timeline } from "@/components/start-claim/steps/Step5Timeline";
+import { Step6ProjectType } from "@/components/start-claim/steps/Step6ProjectType";
+import { Step7DesignPlan } from "@/components/start-claim/steps/Step7DesignPlan";
+import { Step8ClaimAssistance } from "@/components/start-claim/steps/Step8ClaimAssistance";
 
 interface ClaimData {
   userId: string;
@@ -802,21 +812,8 @@ export default function StartClaimPage() {
                                 </button>
                             </div>
 
-                            {/* Progress Bar */}
-                            <div className="mb-10">
-                                <div className="flex items-center justify-between mb-3">
-                                    <span className="text-sm font-medium text-foreground">Progress</span>
-                                    <span className="text-sm font-semibold text-vendle-blue">{currentStep} of {totalSteps}</span>
-                                </div>
-                                <div className="h-3 bg-vendle-gray/30 rounded-full overflow-hidden shadow-inner">
-                                    <motion.div
-                                        initial={{ width: 0 }}
-                                        animate={{ width: `${(currentStep / totalSteps) * 100}%` }}
-                                        transition={{ duration: 0.5, ease: "easeOut" }}
-                                        className="h-full bg-gradient-to-r from-vendle-blue via-vendle-teal to-vendle-blue rounded-full shadow-sm"
-                                    />
-                                </div>
-                            </div>
+                            {/* Step Indicator */}
+                            <StepIndicator currentStep={currentStep} totalSteps={totalSteps} />
 
                             {/* Step Content */}
                             <AnimatePresence mode="wait">
@@ -827,128 +824,19 @@ export default function StartClaimPage() {
                                         animate={{ opacity: 1, x: 0 }}
                                         exit={{ opacity: 0, x: -20 }}
                                         transition={{ duration: 0.3 }}
-                                        className="bg-card rounded-2xl shadow-md border border-vendle-gray/30 p-8 md:p-10 hover:shadow-lg transition-shadow"
                                     >
-                                        <div className="flex items-center gap-3 mb-6">
-                                            <div className="p-3 rounded-xl bg-vendle-blue/10">
-                                                <MapPin className="w-6 h-6 text-vendle-blue" />
-                                            </div>
-                                            <div>
-                                                <h2 className="text-3xl font-bold text-foreground">Property Location</h2>
-                                                <p className="text-muted-foreground mt-1">Where is your property located?</p>
-                                            </div>
-                                        </div>
+                                        <Step1Location
+                                            address={address}
+                                            onAddressChange={setAddress}
+                                        />
 
-                                        <div className="space-y-6">
-                                            <AddressAutocomplete
-                                                    value={address.street}
-                                                onChange={(newAddress) => {
-                                                    setAddress({
-                                                        ...address,
-                                                        street: newAddress.street
-                                                    });
-                                                }}
-                                                    className="h-12 border-vendle-gray/40 focus:border-vendle-blue focus:ring-2 focus:ring-vendle-blue/20 bg-background"
-                                                    placeholder="123 Main Street"
-                                                label="Street Address"
-                                                />
-
-                                            <div className="grid md:grid-cols-2 gap-6">
-                                                <div>
-                                                    <Label className="text-sm font-semibold text-foreground mb-2 block flex items-center gap-2">
-                                                        <Building2 className="w-4 h-4 text-vendle-blue" />
-                                                        City
-                                                    </Label>
-                                                    <Input
-                                                        value={address.city}
-                                                        onChange={(e) => setAddress({...address, city: e.target.value})}
-                                                        className="h-12 border-vendle-gray/40 focus:border-vendle-blue focus:ring-2 focus:ring-vendle-blue/20 bg-background"
-                                                        placeholder="San Francisco"
-                                                    />
-                                                </div>
-                                                <div>
-                                                    <Label className="text-sm font-semibold text-foreground mb-2 block">State</Label>
-                                                    <select
-                                                        value={address.state}
-                                                        onChange={(e) => setAddress({...address, state: e.target.value})}
-                                                        className="w-full h-12 px-4 border border-vendle-gray/40 rounded-lg focus:border-vendle-blue focus:ring-2 focus:ring-vendle-blue/20 transition-colors bg-background text-foreground"
-                                                    >
-                                                        <option value="">Select State</option>
-                                                        <option value="AL">Alabama</option>
-                                                        <option value="AK">Alaska</option>
-                                                        <option value="AZ">Arizona</option>
-                                                        <option value="AR">Arkansas</option>
-                                                        <option value="CA">California</option>
-                                                        <option value="CO">Colorado</option>
-                                                        <option value="CT">Connecticut</option>
-                                                        <option value="DE">Delaware</option>
-                                                        <option value="FL">Florida</option>
-                                                        <option value="GA">Georgia</option>
-                                                        <option value="HI">Hawaii</option>
-                                                        <option value="ID">Idaho</option>
-                                                        <option value="IL">Illinois</option>
-                                                        <option value="IN">Indiana</option>
-                                                        <option value="IA">Iowa</option>
-                                                        <option value="KS">Kansas</option>
-                                                        <option value="KY">Kentucky</option>
-                                                        <option value="LA">Louisiana</option>
-                                                        <option value="ME">Maine</option>
-                                                        <option value="MD">Maryland</option>
-                                                        <option value="MA">Massachusetts</option>
-                                                        <option value="MI">Michigan</option>
-                                                        <option value="MN">Minnesota</option>
-                                                        <option value="MS">Mississippi</option>
-                                                        <option value="MO">Missouri</option>
-                                                        <option value="MT">Montana</option>
-                                                        <option value="NE">Nebraska</option>
-                                                        <option value="NV">Nevada</option>
-                                                        <option value="NH">New Hampshire</option>
-                                                        <option value="NJ">New Jersey</option>
-                                                        <option value="NM">New Mexico</option>
-                                                        <option value="NY">New York</option>
-                                                        <option value="NC">North Carolina</option>
-                                                        <option value="ND">North Dakota</option>
-                                                        <option value="OH">Ohio</option>
-                                                        <option value="OK">Oklahoma</option>
-                                                        <option value="OR">Oregon</option>
-                                                        <option value="PA">Pennsylvania</option>
-                                                        <option value="RI">Rhode Island</option>
-                                                        <option value="SC">South Carolina</option>
-                                                        <option value="SD">South Dakota</option>
-                                                        <option value="TN">Tennessee</option>
-                                                        <option value="TX">Texas</option>
-                                                        <option value="UT">Utah</option>
-                                                        <option value="VT">Vermont</option>
-                                                        <option value="VA">Virginia</option>
-                                                        <option value="WA">Washington</option>
-                                                        <option value="WV">West Virginia</option>
-                                                        <option value="WI">Wisconsin</option>
-                                                        <option value="WY">Wyoming</option>
-                                                    </select>
-                                                </div>
-                                            </div>
-
-                                            <div>
-                                                <Label className="text-sm font-semibold text-foreground mb-2 block">ZIP Code</Label>
-                                                <Input
-                                                    value={address.zip}
-                                                    onChange={(e) => setAddress({...address, zip: e.target.value})}
-                                                    className="h-12 border-vendle-gray/40 focus:border-vendle-blue focus:ring-2 focus:ring-vendle-blue/20 bg-background"
-                                                    placeholder="94105"
-                                                />
-                                            </div>
-                                        </div>
-
-                                        <div className="flex justify-end mt-10 pt-6 border-t border-vendle-gray/20">
-                                            <Button
-                                                onClick={nextStep}
-                                                disabled={!isCurrentStepValid()}
-                                                className="px-8 py-6 bg-vendle-blue text-white hover:bg-vendle-blue/90 disabled:opacity-50 shadow-md hover:shadow-lg transition-all"
-                                            >
-                                                Continue
-                                                <ArrowRight className="w-4 h-4 ml-2" />
-                                            </Button>
-                                        </div>
+                                        <NavigationButtons
+                                            currentStep={currentStep}
+                                            totalSteps={totalSteps}
+                                            onBack={prevStep}
+                                            onNext={nextStep}
+                                            isValid={isCurrentStepValid()}
+                                        />
                                     </motion.div>
                                 )}
 
@@ -959,215 +847,22 @@ export default function StartClaimPage() {
                                         animate={{ opacity: 1, x: 0 }}
                                         exit={{ opacity: 0, x: -20 }}
                                         transition={{ duration: 0.3 }}
-                                        className="space-y-6"
                                     >
-                                        {/* Insurance Estimate */}
-                                        <div className="bg-white rounded-2xl shadow-sm border border-slate-200 p-8 md:p-10">
-                                            <div className="flex items-center gap-2 mb-2">
-                                                <FileText className="w-6 h-6 text-vendle-blue" />
-                                                <h2 className="text-3xl font-bold text-slate-900">Insurance Estimate</h2>
-                                            </div>
-                                            <p className="text-slate-600 mb-6">Upload your insurance estimate PDF.</p>
+                                        <Step2Restoration
+                                            formData={restorationFormData}
+                                            onFormChange={handleRestorationInputChange}
+                                            uploadedFile={uploadedInsuranceEstimatePdf}
+                                            onFileUpload={(file) => setUploadedInsuranceEstimatePdf(file)}
+                                            onFileRemove={() => setUploadedInsuranceEstimatePdf(null)}
+                                        />
 
-                                            <div className="relative flex items-center justify-center h-40 border-2 border-dashed rounded-xl border-vendle-gray/50 hover:border-vendle-blue transition-all bg-vendle-gray/10 hover:bg-vendle-blue/5 cursor-pointer group" 
-                                                 onClick={() => insuranceEstimateInputRef.current?.click()} onDrop={handlePdfDrop} onDragOver={(e) => e.preventDefault()}>
-                                                <input
-                                                    type="file"
-                                                    accept=".pdf"
-                                                    onChange={handlePdfSelect}
-                                                    className="hidden"
-                                                    ref={insuranceEstimateInputRef}
-                                                />
-                                                {!uploadedInsuranceEstimatePdf ? (
-                                                    <div className="text-center">
-                                                        <div className="w-16 h-16 rounded-xl bg-vendle-blue/10 group-hover:bg-vendle-blue/20 flex items-center justify-center mx-auto mb-3 transition-colors">
-                                                            <Upload className="h-8 w-8 text-vendle-blue" />
-                                                        </div>
-                                                        <p className="text-sm font-medium text-foreground">Click to upload or drag and drop</p>
-                                                        <p className="text-xs text-muted-foreground mt-1">PDF files only</p>
-                                                    </div>
-                                                ) : (
-                                                    <div className="flex items-center gap-3 p-4 bg-vendle-teal/10 rounded-lg border border-vendle-teal/30">
-                                                        <CheckCircle className="h-5 w-5 text-vendle-teal flex-shrink-0" />
-                                                        <span className="text-sm font-medium text-foreground flex-1">{uploadedInsuranceEstimatePdf?.name}</span>
-                                                        <button
-                                                            onClick={removePdf}
-                                                            className="p-1.5 hover:bg-vendle-gray/30 rounded-lg transition-colors"
-                                                        >
-                                                            <X className="h-4 w-4 text-muted-foreground" />
-                                                        </button>
-                                                    </div>
-                                                )}
-                                            </div>
-                                        </div>
-
-                                        {/* Financial Breakdown */}
-                                        <div className="bg-white rounded-2xl shadow-sm border border-slate-200 p-8 md:p-10">
-                                            <div className="flex items-center gap-2 mb-6">
-                                                <DollarSign className="w-6 h-6 text-vendle-blue" />
-                                                <h2 className="text-3xl font-bold text-slate-900">Financial Breakdown</h2>
-                                            </div>
-
-                                            <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
-                                                <div className="space-y-4">
-                                                    <div className="space-y-1.5">
-                                                        <Label className="font-medium text-slate-900">Cost Basis</Label>
-                                                        <RadioGroup
-                                                            value={restorationFormData.costBasis}
-                                                            onValueChange={(v) => handleRestorationInputChange("costBasis", v)}
-                                                            className="space-y-2"
-                                                        >
-                                                            <div className="flex items-center gap-2">
-                                                                <RadioGroupItem id="rcv" value="RCV" />
-                                                                <Label htmlFor="rcv" className="font-normal cursor-pointer">Replacement Cost Value (RCV)</Label>
-                                                            </div>
-                                                            <div className="flex items-center gap-2">
-                                                                <RadioGroupItem id="acv" value="ACV" />
-                                                                <Label htmlFor="acv" className="font-normal cursor-pointer">Actual Cash Value (ACV)</Label>
-                                                            </div>
-                                                        </RadioGroup>
-                                                    </div>
-
-                                                    <div className="space-y-1.5">
-                                                        <Label className="font-medium text-slate-900">Deductible</Label>
-                                                        <RadioGroup
-                                                            value={restorationFormData.hasDeductibleFunds.toString()}
-                                                            onValueChange={(v) =>
-                                                                handleRestorationInputChange("hasDeductibleFunds", v === "true")
-                                                            }
-                                                            className="space-y-2"
-                                                        >
-                                                            <div className="flex items-center gap-2">
-                                                                <RadioGroupItem id="fund-yes" value="true" />
-                                                                <Label htmlFor="fund-yes" className="font-normal cursor-pointer">I have deductible funds</Label>
-                                                            </div>
-                                                            <div className="flex items-center gap-2">
-                                                                <RadioGroupItem id="fund-no" value="false" />
-                                                                <Label htmlFor="fund-no" className="font-normal cursor-pointer">Need additional funding</Label>
-                                                            </div>
-                                                        </RadioGroup>
-                                                    </div>
-
-                                                    {!restorationFormData.hasDeductibleFunds && (
-                                                        <div className="ml-4 mt-2 border-l-2 border-slate-200 pl-4 space-y-2">
-                                                            <RadioGroup
-                                                                value={restorationFormData.fundingSource}
-                                                                onValueChange={(v) => handleRestorationInputChange("fundingSource", v)}
-                                                            >
-                                                                {["FEMA", "Insurance", "SBA"].map((src) => (
-                                                                    <div key={src} className="flex items-center gap-2">
-                                                                        <RadioGroupItem id={src} value={src} />
-                                                                        <Label htmlFor={src} className="font-normal cursor-pointer">{src} Assistance</Label>
-                                                                    </div>
-                                                                ))}
-                                                            </RadioGroup>
-                                                        </div>
-                                                    )}
-                                                </div>
-
-                                                <div className="space-y-4">
-                                                    {[
-                                                        ["materials", "Materials Cost ($)"],
-                                                        ["overheadAndProfit", "Overhead & Profit ($)"],
-                                                        ["salesTaxes", "Sales Taxes ($)"],
-                                                        ["depreciation", "Depreciation ($)"],
-                                                    ].map(([key, label]) => (
-                                                        <div key={key} className="space-y-1.5">
-                                                            <Label className="font-medium text-slate-900">{label}</Label>
-                                                            <Input
-                                                                type="number"
-                                                                placeholder="0.00"
-                                                                value={(restorationFormData as any)[key]}
-                                                                onChange={(e) =>
-                                                                    handleRestorationInputChange(key as any, e.target.value)
-                                                                }
-                                                                className="border-slate-300"
-                                                            />
-                                                        </div>
-                                                    ))}
-                                                </div>
-                                            </div>
-                                        </div>
-
-                                        {/* Job Posting Details */}
-                                        <div className="bg-white rounded-2xl shadow-sm border border-slate-200 p-8 md:p-10">
-                                            <div className="flex items-center gap-2 mb-6">
-                                                <Wrench className="w-6 h-6 text-vendle-blue" />
-                                                <h2 className="text-3xl font-bold text-slate-900">Job Posting Details</h2>
-                                            </div>
-
-                                            <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
-                                                <div className="md:col-span-2 space-y-2">
-                                                    <Label className="font-medium text-slate-900">Title</Label>
-                                                    <Input
-                                                        placeholder="Give your job a title..."
-                                                        className="border-slate-300"
-                                                        value={restorationFormData.title}
-                                                        onChange={(e) =>
-                                                            handleRestorationInputChange("title", e.target.value)
-                                                        }
-                                                    />
-                                                </div>
-
-                                                <div className="space-y-2">
-                                                    <Label className="font-medium text-slate-900">Total Job Value ($)</Label>
-                                                    <Input
-                                                        type="number"
-                                                        placeholder="0.00"
-                                                        value={restorationFormData.totalJobValue}
-                                                        onChange={(e) =>
-                                                            handleRestorationInputChange("totalJobValue", e.target.value)
-                                                        }
-                                                        className="border-slate-300"
-                                                    />
-                                                </div>
-
-                                                <div className="space-y-2">
-                                                    <Label className="font-medium text-slate-900">Reconstruction Type</Label>
-                                                    <Input
-                                                        placeholder="e.g. Fire damage restoration"
-                                                        value={restorationFormData.reconstructionType}
-                                                        onChange={(e) =>
-                                                            handleRestorationInputChange("reconstructionType", e.target.value)
-                                                        }
-                                                        className="border-slate-300"
-                                                    />
-                                                </div>
-
-                                                <div className="md:col-span-2 space-y-2">
-                                                    <Label className="font-medium text-slate-900">Additional Notes</Label>
-                                                    <Textarea
-                                                        placeholder="Add any relevant details..."
-                                                        className="min-h-[120px] border-slate-300"
-                                                        value={restorationFormData.additionalNotes}
-                                                        onChange={(e) =>
-                                                            handleRestorationInputChange("additionalNotes", e.target.value)
-                                                        }
-                                                    />
-                                                </div>
-                                            </div>
-                                        </div>
-
-                                        {/* Navigation */}
-                                        <div className="flex justify-between mt-10 pt-6 border-t border-vendle-gray/20">
-                                            <Button
-                                                onClick={prevStep}
-                                                variant="outline"
-                                                className="px-8 py-6 border-vendle-gray/40 hover:border-vendle-blue hover:text-vendle-blue"
-                                            >
-                                                <ArrowLeft className="w-4 h-4 mr-2" />
-                                                Back
-                                            </Button>
-
-                                            <Button
-                                                onClick={nextStep}
-                                                disabled={!isCurrentStepValid()}
-                                                className="px-8 py-6 bg-vendle-blue text-white hover:bg-vendle-blue/90 disabled:opacity-50 shadow-md hover:shadow-lg transition-all"
-                                            >
-                                                Continue
-                                                <ArrowRight className="w-4 h-4 ml-2" />
-                                            </Button>
-                                        </div>
+                                        <NavigationButtons
+                                            currentStep={currentStep}
+                                            totalSteps={totalSteps}
+                                            onBack={prevStep}
+                                            onNext={nextStep}
+                                            isValid={isCurrentStepValid()}
+                                        />
                                     </motion.div>
                                 )}
 
@@ -1178,64 +873,19 @@ export default function StartClaimPage() {
                                         animate={{ opacity: 1, x: 0 }}
                                         exit={{ opacity: 0, x: -20 }}
                                         transition={{ duration: 0.3 }}
-                                        className="bg-card rounded-2xl shadow-md border border-vendle-gray/30 p-8 md:p-10 hover:shadow-lg transition-shadow"
                                     >
-                                        <h2 className="text-3xl font-bold text-slate-900 mb-2">Damage Types</h2>
-                                        <p className="text-slate-600 mb-8">Select all types of damage that apply to your property</p>
+                                        <Step3DamageTypes
+                                            damageTypes={damageTypes}
+                                            onToggleDamageType={toggleDamageType}
+                                        />
 
-                                        <div className="grid md:grid-cols-2 gap-4">
-                                            {[
-                                                { value: 'water', label: 'Water Damage', icon: Droplets },
-                                                { value: 'fire-smoke', label: 'Fire/Smoke Damage', icon: Flame },
-                                                { value: 'mold', label: 'Mold', icon: AlertTriangle },
-                                                { value: 'impact-structural', label: 'Impact/Structural', icon: Hammer },
-                                            ].map((type) => {
-                                                const isSelected = damageTypes.includes(type.value);
-                                                return (
-                                                    <button
-                                                        key={type.value}
-                                                        onClick={() => toggleDamageType(type.value)}
-                                                        className={`w-full p-6 rounded-xl border-2 text-left transition-all ${
-                                                            isSelected
-                                                                ? 'border-vendle-blue bg-vendle-blue/10 shadow-lg shadow-vendle-blue/10'
-                                                                : 'border-vendle-gray/40 hover:border-vendle-blue/50 bg-card hover:bg-vendle-blue/5'
-                                                        }`}
-                                                    >
-                                                        <div className="flex items-center gap-3">
-                                                            <div className={`w-12 h-12 rounded-xl flex items-center justify-center flex-shrink-0 transition-all ${
-                                                                isSelected
-                                                                    ? 'bg-vendle-blue text-white shadow-md'
-                                                                    : 'bg-vendle-gray/30 text-vendle-blue/70'
-                                                            }`}>
-                                                                <type.icon className="w-5 h-5" />
-                                                            </div>
-                                                            <div className="flex-1 min-w-0">
-                                                                <h3 className="text-base font-semibold text-slate-900 leading-tight">{type.label}</h3>
-                                                            </div>
-                                                        </div>
-                                                    </button>
-                                                );
-                                            })}
-                                        </div>
-
-                                        <div className="flex justify-between mt-8">
-                                            <Button
-                                                onClick={prevStep}
-                                                variant="outline"
-                                                className="px-8 py-6 border-slate-300"
-                                            >
-                                                <ArrowLeft className="w-4 h-4 mr-2" />
-                                                Back
-                                            </Button>
-                                            <Button
-                                                onClick={nextStep}
-                                                disabled={!isCurrentStepValid()}
-                                                className="px-8 py-6 bg-vendle-blue text-white hover:bg-vendle-blue/90 disabled:opacity-50"
-                                            >
-                                                Continue
-                                                <ArrowRight className="w-4 h-4 ml-2" />
-                                            </Button>
-                                        </div>
+                                        <NavigationButtons
+                                            currentStep={currentStep}
+                                            totalSteps={totalSteps}
+                                            onBack={prevStep}
+                                            onNext={nextStep}
+                                            isValid={isCurrentStepValid()}
+                                        />
                                     </motion.div>
                                 )}
 
@@ -1246,187 +896,32 @@ export default function StartClaimPage() {
                                         animate={{ opacity: 1, x: 0 }}
                                         exit={{ opacity: 0, x: -20 }}
                                         transition={{ duration: 0.3 }}
-                                        className="bg-card rounded-2xl shadow-md border border-vendle-gray/30 p-8 md:p-10 hover:shadow-lg transition-shadow"
                                     >
-                                        <h2 className="text-3xl font-bold text-slate-900 mb-2">Property Information</h2>
-                                        <p className="text-slate-600 mb-8">Please answer the following questions about your property</p>
+                                        <Step4Property
+                                            questions={propertyQuestions}
+                                            onQuestionChange={(field, value) =>
+                                                setPropertyQuestions({...propertyQuestions, [field]: value})
+                                            }
+                                            images={uploadedImages}
+                                            onImageUpload={(files) => {
+                                                const mapped = files.map(file => ({
+                                                    file,
+                                                    preview: URL.createObjectURL(file)
+                                                }));
+                                                setUploadedImages(prev => [...prev, ...mapped]);
+                                            }}
+                                            onImageRemove={(index) => {
+                                                setUploadedImages(prev => prev.filter((_, i) => i !== index));
+                                            }}
+                                        />
 
-                                        <div className="space-y-6">
-                                            <div>
-                                                <Label className="text-lg font-semibold text-slate-900 mb-4 block flex items-center gap-2">
-                                                    <Zap className="w-5 h-5" />
-                                                    Is there functional electricity and water?
-                                                </Label>
-                                                <div className="flex gap-4">
-                                                    <button
-                                                        onClick={() => setPropertyQuestions({...propertyQuestions, hasFunctionalUtilities: true})}
-                                                        className={`flex-1 p-5 rounded-xl border-2 transition-all font-medium ${
-                                                            propertyQuestions.hasFunctionalUtilities === true
-                                                                ? 'border-vendle-blue bg-vendle-blue/10 shadow-lg shadow-vendle-blue/10 text-vendle-blue'
-                                                                : 'border-vendle-gray/40 hover:border-vendle-blue/50 bg-card hover:bg-vendle-blue/5 text-foreground'
-                                                        }`}
-                                                    >
-                                                        <div className="font-medium text-slate-900">Yes</div>
-                                                    </button>
-                                                    <button
-                                                        onClick={() => setPropertyQuestions({...propertyQuestions, hasFunctionalUtilities: false})}
-                                                        className={`flex-1 p-4 rounded-xl border-2 transition-all ${
-                                                            propertyQuestions.hasFunctionalUtilities === false
-                                                                ? 'border-vendle-blue bg-vendle-blue/5 shadow-md'
-                                                                : 'border-slate-200 hover:border-slate-300'
-                                                        }`}
-                                                    >
-                                                        <div className="font-medium text-slate-900">No</div>
-                                                    </button>
-                                                </div>
-                                            </div>
-
-                                            <div>
-                                                <Label className="text-lg font-semibold text-slate-900 mb-4 block flex items-center gap-2">
-                                                    <Trash2 className="w-5 h-5" />
-                                                    Is there a dumpster within the immediate area?
-                                                </Label>
-                                                <div className="flex gap-4">
-                                                    <button
-                                                        onClick={() => setPropertyQuestions({...propertyQuestions, hasDumpster: true})}
-                                                        className={`flex-1 p-4 rounded-xl border-2 transition-all ${
-                                                            propertyQuestions.hasDumpster === true
-                                                                ? 'border-vendle-blue bg-vendle-blue/5 shadow-md'
-                                                                : 'border-slate-200 hover:border-slate-300'
-                                                        }`}
-                                                    >
-                                                        <div className="font-medium text-slate-900">Yes</div>
-                                                    </button>
-                                                    <button
-                                                        onClick={() => setPropertyQuestions({...propertyQuestions, hasDumpster: false})}
-                                                        className={`flex-1 p-4 rounded-xl border-2 transition-all ${
-                                                            propertyQuestions.hasDumpster === false
-                                                                ? 'border-vendle-blue bg-vendle-blue/5 shadow-md'
-                                                                : 'border-slate-200 hover:border-slate-300'
-                                                        }`}
-                                                    >
-                                                        <div className="font-medium text-slate-900">No</div>
-                                                    </button>
-                                                </div>
-                                            </div>
-
-                                            <div>
-                                                <Label className="text-lg font-semibold text-slate-900 mb-4 block flex items-center gap-2">
-                                                    <Home className="w-5 h-5" />
-                                                    Is the property occupied?
-                                                </Label>
-                                                <div className="flex gap-4">
-                                                    <button
-                                                        onClick={() => setPropertyQuestions({...propertyQuestions, isOccupied: true})}
-                                                        className={`flex-1 p-4 rounded-xl border-2 transition-all ${
-                                                            propertyQuestions.isOccupied === true
-                                                                ? 'border-vendle-blue bg-vendle-blue/5 shadow-md'
-                                                                : 'border-slate-200 hover:border-slate-300'
-                                                        }`}
-                                                    >
-                                                        <div className="font-medium text-slate-900">Yes</div>
-                                                    </button>
-                                                    <button
-                                                        onClick={() => setPropertyQuestions({...propertyQuestions, isOccupied: false})}
-                                                        className={`flex-1 p-4 rounded-xl border-2 transition-all ${
-                                                            propertyQuestions.isOccupied === false
-                                                                ? 'border-vendle-blue bg-vendle-blue/5 shadow-md'
-                                                                : 'border-slate-200 hover:border-slate-300'
-                                                        }`}
-                                                    >
-                                                        <div className="font-medium text-slate-900">No</div>
-                                                    </button>
-                                                </div>
-                                            </div>
-                                        </div>
-
-                                        {/* Image Upload */}
-                                        <div className="bg-white rounded-2xl shadow-sm border border-slate-200 p-8 md:p-10 mt-6">
-                                            <div className="flex items-center gap-2 mb-2">
-                                                <Image className="w-6 h-6 text-vendle-blue" />
-                                                <h3 className="text-2xl font-bold text-slate-900">Upload Images</h3>
-                                            </div>
-                                            <p className="text-slate-600 mb-6">Upload any images or plans you'd like us to reference (optional).</p>
-
-                                            {/* Upload Area */}
-                                            <div
-                                                onDrop={handleDrop}
-                                                onDragOver={(e) => e.preventDefault()}
-                                                className="border-2 border-dashed border-vendle-gray/50 hover:border-vendle-blue transition-all rounded-xl p-12 text-center cursor-pointer bg-vendle-gray/10 hover:bg-vendle-blue/5 group"
-                                                onClick={() => fileInputRef.current?.click()}
-                                            >
-                                                <input
-                                                    type="file"
-                                                    multiple
-                                                    accept="image/*"
-                                                    ref={fileInputRef}
-                                                    className="hidden"
-                                                    onChange={handleFileSelect}
-                                                />
-
-                                                <div className="flex flex-col items-center justify-center">
-                                                    <div className="w-20 h-20 rounded-2xl bg-vendle-blue/10 group-hover:bg-vendle-blue/20 text-vendle-blue flex items-center justify-center mb-4 transition-colors shadow-sm">
-                                                        <Upload className="w-10 h-10" />
-                                                    </div>
-
-                                                    <p className="font-semibold text-foreground text-lg">Click or drag files to upload</p>
-                                                    <p className="text-sm text-muted-foreground mt-2">You can upload multiple images (JPG, PNG, etc.)</p>
-                                                </div>
-                                            </div>
-
-                                            {/* Preview Grid */}
-                                            {uploadedImages.length > 0 && (
-                                                <div className="grid grid-cols-2 md:grid-cols-3 gap-4 mt-8">
-                                                    {uploadedImages.map((img, index) => (
-                                                        <motion.div
-                                                            key={index}
-                                                            initial={{ opacity: 0, scale: 0.9 }}
-                                                            animate={{ opacity: 1, scale: 1 }}
-                                                            className="relative group rounded-xl overflow-hidden border border-vendle-gray/30 bg-card shadow-sm hover:shadow-md transition-all"
-                                                        >
-                                                            <img
-                                                                src={img.preview}
-                                                                alt="Upload preview"
-                                                                className="w-full h-32 object-cover"
-                                                            />
-
-                                                            {/* Remove Button */}
-                                                            <button
-                                                                className="absolute top-2 right-2 bg-white/95 hover:bg-white text-foreground rounded-full p-1.5 shadow-lg opacity-0 group-hover:opacity-100 transition-all hover:scale-110"
-                                                                onClick={(e) => {
-                                                                    e.stopPropagation();
-                                                                    removeImage(index);
-                                                                }}
-                                                            >
-                                                                <X className="w-4 h-4" />
-                                                            </button>
-                                                            <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/60 to-transparent p-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                                                                <p className="text-xs text-white truncate">{img.file.name}</p>
-                                                            </div>
-                                                        </motion.div>
-                                                    ))}
-                                                </div>
-                                            )}
-                                        </div>
-
-                                        <div className="flex justify-between mt-8">
-                                            <Button
-                                                onClick={prevStep}
-                                                variant="outline"
-                                                className="px-8 py-6 border-slate-300"
-                                            >
-                                                <ArrowLeft className="w-4 h-4 mr-2" />
-                                                Back
-                                            </Button>
-                                            <Button
-                                                onClick={nextStep}
-                                                disabled={!isCurrentStepValid()}
-                                                className="px-8 py-6 bg-vendle-blue text-white hover:bg-vendle-blue/90 disabled:opacity-50"
-                                            >
-                                                Continue
-                                                <ArrowRight className="w-4 h-4 ml-2" />
-                                            </Button>
-                                        </div>
+                                        <NavigationButtons
+                                            currentStep={currentStep}
+                                            totalSteps={totalSteps}
+                                            onBack={prevStep}
+                                            onNext={nextStep}
+                                            isValid={isCurrentStepValid()}
+                                        />
                                     </motion.div>
                                 )}
 
@@ -1437,119 +932,22 @@ export default function StartClaimPage() {
                                         animate={{ opacity: 1, x: 0 }}
                                         exit={{ opacity: 0, x: -20 }}
                                         transition={{ duration: 0.3 }}
-                                        className="bg-card rounded-2xl shadow-md border border-vendle-gray/30 p-8 md:p-10 hover:shadow-lg transition-shadow"
                                     >
-                                        <h2 className="text-3xl font-bold text-slate-900 mb-2">Timeline & Scheduling</h2>
-                                        <p className="text-slate-600 mb-8">Set your project timeline and schedule contractor visits</p>
+                                        <Step5Timeline
+                                            timeline={timeline}
+                                            onTimelineChange={(field, value) =>
+                                                setTimeline({...timeline, [field]: value})
+                                            }
+                                            propertyAddress={address.street}
+                                        />
 
-                                        <div className="space-y-8">
-                                            <div>
-                                                <h3 className="text-xl font-semibold text-slate-900 mb-4 flex items-center gap-2">
-                                                    <Calendar className="w-5 h-5" />
-                                                    Phase 1 Timeline
-                                                </h3>
-                                                <div className="bg-vendle-teal/10 border border-vendle-teal/30 rounded-lg p-4 mb-4">
-                                                    <p className="text-sm text-vendle-navy flex items-center gap-2">
-                                                        <Sparkles className="w-4 h-4 text-vendle-teal" />
-                                                        <strong>Recommendation:</strong> 2 weeks for a competitive auction process
-                                                    </p>
-                                                </div>
-                                                <div className="grid md:grid-cols-2 gap-4">
-                                                    <div>
-                                                        <Label className="text-sm font-medium text-slate-700 mb-2 block">Start Date</Label>
-                                                        <Input
-                                                            type="date"
-                                                            value={timeline.phase1Start}
-                                                            onChange={(e) => setTimeline({...timeline, phase1Start: e.target.value})}
-                                                            className="h-12 border-vendle-gray/40 focus:border-vendle-blue focus:ring-2 focus:ring-vendle-blue/20 bg-background"
-                                                        />
-                                                    </div>
-                                                    <div>
-                                                        <Label className="text-sm font-medium text-slate-700 mb-2 block">End Date</Label>
-                                                        <Input
-                                                            type="date"
-                                                            value={timeline.phase1End}
-                                                            onChange={(e) => setTimeline({...timeline, phase1End: e.target.value})}
-                                                            className="h-12 border-vendle-gray/40 focus:border-vendle-blue focus:ring-2 focus:ring-vendle-blue/20 bg-background"
-                                                            min={timeline.phase1Start}
-                                                        />
-                                                    </div>
-                                                </div>
-                                            </div>
-
-                                            <div>
-                                                <h3 className="text-xl font-semibold text-slate-900 mb-4 flex items-center gap-2">
-                                                    <Calendar className="w-5 h-5" />
-                                                    Phase 2 Timeline
-                                                </h3>
-                                                <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-4">
-                                                    <p className="text-sm text-blue-800">
-                                                        <strong>Recommendation:</strong> 1 week for a competitive auction process
-                                                    </p>
-                                                </div>
-                                                <div className="grid md:grid-cols-2 gap-4">
-                                                    <div>
-                                                        <Label className="text-sm font-medium text-slate-700 mb-2 block">Start Date</Label>
-                                                        <Input
-                                                            type="date"
-                                                            value={timeline.phase2Start}
-                                                            onChange={(e) => setTimeline({...timeline, phase2Start: e.target.value})}
-                                                            className="h-12 border-vendle-gray/40 focus:border-vendle-blue focus:ring-2 focus:ring-vendle-blue/20 bg-background"
-                                                            min={timeline.phase1End}
-                                                        />
-                                                    </div>
-                                                    <div>
-                                                        <Label className="text-sm font-medium text-slate-700 mb-2 block">End Date</Label>
-                                                        <Input
-                                                            type="date"
-                                                            value={timeline.phase2End}
-                                                            onChange={(e) => setTimeline({...timeline, phase2End: e.target.value})}
-                                                            className="h-12 border-vendle-gray/40 focus:border-vendle-blue focus:ring-2 focus:ring-vendle-blue/20 bg-background"
-                                                            min={timeline.phase2Start}
-                                                        />
-                                                    </div>
-                                                </div>
-                                            </div>
-
-                                            <div>
-                                                <h3 className="text-xl font-semibold text-slate-900 mb-4 flex items-center gap-2">
-                                                    <Calendar className="w-5 h-5" />
-                                                    Contractor Site Visits
-                                                </h3>
-                                                <p className="text-slate-600 mb-4">Schedule when contractors can visit your property</p>
-                                                <Button
-                                                    onClick={() => {
-                                                        const calendlyUrl = `https://calendly.com/your-calendly-link?text=${encodeURIComponent(`Site Visit - ${address.street}`)}`;
-                                                        window.open(calendlyUrl, '_blank');
-                                                    }}
-                                                    variant="outline"
-                                                    className="w-full border-vendle-blue text-vendle-blue hover:bg-vendle-blue hover:text-white"
-                                                >
-                                                    <Calendar className="h-4 w-4 mr-2" />
-                                                    Open Calendly to Schedule Visits
-                                                    <ExternalLink className="h-4 w-4 ml-2" />
-                                                </Button>
-                                            </div>
-                                        </div>
-
-                                        <div className="flex justify-between mt-8">
-                                            <Button
-                                                onClick={prevStep}
-                                                variant="outline"
-                                                className="px-8 py-6 border-slate-300"
-                                            >
-                                                <ArrowLeft className="w-4 h-4 mr-2" />
-                                                Back
-                                            </Button>
-                                            <Button
-                                                onClick={nextStep}
-                                                disabled={!isCurrentStepValid()}
-                                                className="px-8 py-6 bg-vendle-blue text-white hover:bg-vendle-blue/90 disabled:opacity-50"
-                                            >
-                                                Continue
-                                                <ArrowRight className="w-4 h-4 ml-2" />
-                                            </Button>
-                                        </div>
+                                        <NavigationButtons
+                                            currentStep={currentStep}
+                                            totalSteps={totalSteps}
+                                            onBack={prevStep}
+                                            onNext={nextStep}
+                                            isValid={isCurrentStepValid()}
+                                        />
                                     </motion.div>
                                 )}
 
@@ -1560,64 +958,19 @@ export default function StartClaimPage() {
                                         animate={{ opacity: 1, x: 0 }}
                                         exit={{ opacity: 0, x: -20 }}
                                         transition={{ duration: 0.3 }}
-                                        className="bg-card rounded-2xl shadow-md border border-vendle-gray/30 p-8 md:p-10 hover:shadow-lg transition-shadow"
                                     >
-                                        <h2 className="text-3xl font-bold text-slate-900 mb-2">Project Type</h2>
-                                        <p className="text-slate-600 mb-8">What type of rebuild do you need?</p>
+                                        <Step6ProjectType
+                                            selectedType={projectType}
+                                            onTypeChange={setProjectType}
+                                        />
 
-                                        <div className="space-y-4">
-                                            {[
-                                                { value: 'full', label: 'Full Reconstruction', desc: 'Complete rebuild of a severely damaged structure' },
-                                                { value: 'partial', label: 'Partial Rebuild', desc: 'Repair and reconstruction of specific damaged areas' },
-                                                { value: 'new', label: 'New Construction', desc: 'Building a new home, not related to disaster recovery' }
-                                            ].map((option) => (
-                                                <button
-                                                    key={option.value}
-                                                    onClick={() => setProjectType(option.value)}
-                                                    className={`w-full p-6 rounded-xl border-2 text-left transition-all ${
-                                                        projectType === option.value
-                                                            ? 'border-vendle-blue bg-vendle-blue/10 shadow-lg shadow-vendle-blue/10'
-                                                            : 'border-vendle-gray/40 hover:border-vendle-blue/50 bg-card hover:bg-vendle-blue/5'
-                                                    }`}
-                                                >
-                                                    <div className="flex items-start gap-4">
-                                                        <div className={`w-14 h-14 rounded-xl flex items-center justify-center flex-shrink-0 transition-all ${
-                                                            projectType === option.value
-                                                                ? 'bg-vendle-blue text-white shadow-md'
-                                                                : 'bg-vendle-gray/30 text-vendle-blue/70'
-                                                        }`}>
-                                                            <FileText className="w-6 h-6" />
-                                                        </div>
-                                                        <div className="flex-1">
-                                                        <h3 className="font-semibold text-foreground mb-1">{option.label}</h3>
-                                                        <p className="text-sm text-muted-foreground">{option.desc}</p>
-                                                        </div>
-                                                        {projectType === option.value && (
-                                                            <CheckCircle2 className="w-6 h-6 text-vendle-blue flex-shrink-0" />
-                                                        )}
-                                                    </div>
-                                                </button>
-                                            ))}
-                                        </div>
-
-                                        <div className="flex justify-between mt-8">
-                                            <Button
-                                                onClick={prevStep}
-                                                variant="outline"
-                                                className="px-8 py-6 border-slate-300"
-                                            >
-                                                <ArrowLeft className="w-4 h-4 mr-2" />
-                                                Back
-                                            </Button>
-                                            <Button
-                                                onClick={nextStep}
-                                                disabled={!isCurrentStepValid()}
-                                                className="px-8 py-6 bg-vendle-blue text-white hover:bg-vendle-blue/90 disabled:opacity-50"
-                                            >
-                                                Continue
-                                                <ArrowRight className="w-4 h-4 ml-2" />
-                                            </Button>
-                                        </div>
+                                        <NavigationButtons
+                                            currentStep={currentStep}
+                                            totalSteps={totalSteps}
+                                            onBack={prevStep}
+                                            onNext={nextStep}
+                                            isValid={isCurrentStepValid()}
+                                        />
                                     </motion.div>
                                 )}
 
@@ -1628,64 +981,19 @@ export default function StartClaimPage() {
                                         animate={{ opacity: 1, x: 0 }}
                                         exit={{ opacity: 0, x: -20 }}
                                         transition={{ duration: 0.3 }}
-                                        className="bg-card rounded-2xl shadow-md border border-vendle-gray/30 p-8 md:p-10 hover:shadow-lg transition-shadow"
                                     >
-                                        <h2 className="text-3xl font-bold text-slate-900 mb-2">Design Approach</h2>
-                                        <p className="text-slate-600 mb-8">How would you like to approach the design?</p>
+                                        <Step7DesignPlan
+                                            selectedPlan={designPlan}
+                                            onPlanChange={setDesignPlan}
+                                        />
 
-                                        <div className="space-y-4">
-                                            {[
-                                                { value: 'existing', label: 'Use Existing Plan', desc: 'Rebuild using plans of the original structure' },
-                                                { value: 'modify', label: 'Modify Existing Plan', desc: 'Make changes to the original design while rebuilding' },
-                                                { value: 'custom', label: 'Create New Custom Design', desc: 'Work with architects to create a completely new design' }
-                                            ].map((option) => (
-                                                <button
-                                                    key={option.value}
-                                                    onClick={() => setDesignPlan(option.value)}
-                                                    className={`w-full p-6 rounded-xl border-2 text-left transition-all ${
-                                                        designPlan === option.value
-                                                            ? 'border-vendle-blue bg-vendle-blue/5 shadow-md'
-                                                            : 'border-slate-200 hover:border-slate-300 bg-white'
-                                                    }`}
-                                                >
-                                                    <div className="flex items-start gap-4">
-                                                        <div className={`w-12 h-12 rounded-lg flex items-center justify-center flex-shrink-0 ${
-                                                            designPlan === option.value
-                                                                ? 'bg-vendle-blue text-white'
-                                                                : 'bg-slate-100 text-slate-600'
-                                                        }`}>
-                                                            <FileText className="w-6 h-6" />
-                                                        </div>
-                                                        <div className="flex-1">
-                                                        <h3 className="font-semibold text-foreground mb-1">{option.label}</h3>
-                                                        <p className="text-sm text-muted-foreground">{option.desc}</p>
-                                                        </div>
-                                                        {designPlan === option.value && (
-                                                            <CheckCircle2 className="w-6 h-6 text-vendle-blue flex-shrink-0" />
-                                                        )}
-                                                    </div>
-                                                </button>
-                                            ))}
-                                        </div>
-
-                                        <div className="flex justify-between mt-8">
-                                            <Button
-                                                onClick={prevStep}
-                                                variant="outline"
-                                                className="px-8 py-6 border-slate-300"
-                                            >
-                                                <ArrowLeft className="w-4 h-4 mr-2" />
-                                                Back
-                                            </Button>
-                                            <Button
-                                                onClick={nextStep}
-                                                disabled={!isCurrentStepValid()}
-                                                className="px-8 py-6 bg-vendle-blue text-white hover:bg-vendle-blue/90 disabled:opacity-50"
-                                            >
-                                                Continue
-                                                <ArrowRight className="w-4 h-4 ml-2" />
-                                            </Button>
-                                        </div>
+                                        <NavigationButtons
+                                            currentStep={currentStep}
+                                            totalSteps={totalSteps}
+                                            onBack={prevStep}
+                                            onNext={nextStep}
+                                            isValid={isCurrentStepValid()}
+                                        />
                                     </motion.div>
                                 )}
 
@@ -1696,122 +1004,20 @@ export default function StartClaimPage() {
                                         animate={{ opacity: 1, x: 0 }}
                                         exit={{ opacity: 0, x: -20 }}
                                         transition={{ duration: 0.3 }}
-                                        className="bg-card rounded-2xl shadow-md border border-vendle-gray/30 p-8 md:p-10 hover:shadow-lg transition-shadow"
                                     >
-                                        <h2 className="text-3xl font-bold text-slate-900 mb-2">Claim Assistance</h2>
-                                        <p className="text-slate-600 mb-8">Would you like assistance with your claim?</p>
+                                        <Step8ClaimAssistance
+                                            needsAdjuster={needsAdjuster}
+                                            onAdjusterChange={setNeedsAdjuster}
+                                        />
 
-                                        <div className="space-y-4">
-                                            <button
-                                                onClick={() => setNeedsAdjuster(true)}
-                                                className={`w-full p-6 rounded-xl border-2 text-left transition-all ${
-                                                    needsAdjuster === true
-                                                        ? 'border-vendle-blue bg-vendle-blue/5 shadow-md'
-                                                        : 'border-slate-200 hover:border-slate-300 bg-white'
-                                                }`}
-                                            >
-                                                <div className="flex items-start gap-4">
-                                                    <div className={`w-12 h-12 rounded-lg flex items-center justify-center flex-shrink-0 ${
-                                                        needsAdjuster === true
-                                                            ? 'bg-vendle-blue text-white'
-                                                            : 'bg-slate-100 text-slate-600'
-                                                    }`}>
-                                                        <Users className="w-6 h-6" />
-                                                    </div>
-                                                    <div className="flex-1">
-                                                        <h3 className="font-semibold text-slate-900 mb-1">Yes, I'd like adjuster assistance</h3>
-                                                        <p className="text-sm text-slate-600">Our certified adjusters will review your claim and negotiate with your insurance company.</p>
-                                                    </div>
-                                                    {needsAdjuster === true && (
-                                                        <CheckCircle2 className="w-6 h-6 text-vendle-blue flex-shrink-0" />
-                                                    )}
-                                                </div>
-                                            </button>
-
-                                            <button
-                                                onClick={() => setNeedsAdjuster(false)}
-                                                className={`w-full p-6 rounded-xl border-2 text-left transition-all ${
-                                                    needsAdjuster === false
-                                                        ? 'border-vendle-blue bg-vendle-blue/5 shadow-md'
-                                                        : 'border-slate-200 hover:border-slate-300 bg-white'
-                                                }`}
-                                            >
-                                                <div className="flex items-start gap-4">
-                                                    <div className={`w-12 h-12 rounded-lg flex items-center justify-center flex-shrink-0 ${
-                                                        needsAdjuster === false
-                                                            ? 'bg-vendle-blue text-white'
-                                                            : 'bg-slate-100 text-slate-600'
-                                                    }`}>
-                                                        <DollarSign className="w-6 h-6" />
-                                                    </div>
-                                                    <div className="flex-1">
-                                                        <h3 className="font-semibold text-slate-900 mb-1">No, I'll proceed without an adjuster</h3>
-                                                        <p className="text-sm text-slate-600">I'm satisfied with my current insurance estimate.</p>
-                                                    </div>
-                                                    {needsAdjuster === false && (
-                                                        <CheckCircle2 className="w-6 h-6 text-vendle-blue flex-shrink-0" />
-                                                    )}
-                                                </div>
-                                            </button>
-                                        </div>
-
-                                        {needsAdjuster === false && (
-                                            <motion.div
-                                                initial={{ opacity: 0, height: 0 }}
-                                                animate={{ opacity: 1, height: 'auto' }}
-                                                className="mt-6 space-y-4 pt-6 border-t border-slate-200"
-                                            >
-                                                <div>
-                                                    <Label className="text-sm font-medium text-slate-700 mb-2 block">Insurance Provider</Label>
-                                                    <select
-                                                        value={insuranceProvider}
-                                                        onChange={(e) => setInsuranceProvider(e.target.value)}
-                                                        className="w-full h-12 px-4 border border-slate-300 rounded-lg focus:border-vendle-blue focus:ring-2 focus:ring-vendle-blue/20"
-                                                    >
-                                                        <option value="">Select Provider</option>
-                                                        <option value="allstate">Allstate</option>
-                                                        <option value="statefarm">State Farm</option>
-                                                        <option value="geico">GEICO</option>
-                                                        <option value="progressive">Progressive</option>
-                                                        <option value="usaa">USAA</option>
-                                                        <option value="other">Other</option>
-                                                    </select>
-                                                </div>
-                                                <div>
-                                                    <Label className="text-sm font-medium text-slate-700 mb-2 block">Payment Method</Label>
-                                                    <select
-                                                        value={paymentMethod}
-                                                        onChange={(e) => setPaymentMethod(e.target.value)}
-                                                        className="w-full h-12 px-4 border border-slate-300 rounded-lg focus:border-vendle-blue focus:ring-2 focus:ring-vendle-blue/20"
-                                                    >
-                                                        <option value="">Select Payment Method</option>
-                                                        <option value="insurance">Insurance Claim</option>
-                                                        <option value="cash">Cash/Savings</option>
-                                                        <option value="loan">Home Reconstruction Loan</option>
-                                                        <option value="mixed">Mixed Funding Sources</option>
-                                                    </select>
-                                                </div>
-                                            </motion.div>
-                                        )}
-
-                                        <div className="flex justify-between mt-8">
-                                            <Button
-                                                onClick={prevStep}
-                                                variant="outline"
-                                                className="px-8 py-6 border-slate-300"
-                                            >
-                                                <ArrowLeft className="w-4 h-4 mr-2" />
-                                                Back
-                                            </Button>
-                                            <Button
-                                                onClick={nextStep}
-                                                disabled={!isCurrentStepValid()}
-                                                className="px-8 py-6 bg-vendle-blue text-white hover:bg-vendle-blue/90 disabled:opacity-50"
-                                            >
-                                                Complete Setup
-                                                <ArrowRight className="w-4 h-4 ml-2" />
-                                            </Button>
-                                        </div>
+                                        <NavigationButtons
+                                            currentStep={currentStep}
+                                            totalSteps={totalSteps}
+                                            onBack={prevStep}
+                                            onNext={completeOnboarding}
+                                            isValid={isCurrentStepValid()}
+                                            isSubmitting={submitClaimMutation.isPending}
+                                        />
                                     </motion.div>
                                 )}
                             </AnimatePresence>

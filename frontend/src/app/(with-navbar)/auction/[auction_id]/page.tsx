@@ -2,7 +2,8 @@
 import React, { useState, useRef } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { Loader2, Users, DollarSign, Clock, Mail, Phone, FileText, Upload, X } from "lucide-react";
+import { motion } from "framer-motion";
+import { Loader2, Users, DollarSign, Clock, Mail, Phone, FileText, Upload, X, Gavel, Wrench, Info, ArrowRight, Eye, Trash2, Check, Star, ArrowDown, SortDesc, Calculator, Sparkles } from "lucide-react";
 import { toast } from "sonner";
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -24,10 +25,17 @@ import {
     SelectContent,
     SelectItem,
 } from "@/components/ui/select";
+import {
+    Accordion,
+    AccordionContent,
+    AccordionItem,
+    AccordionTrigger,
+} from "@/components/ui/accordion";
 
 import { useApiService } from "@/services/api";
 import { createClient } from "@/auth/client";
 import { useAuth } from "@/contexts/AuthContext";
+import { cn } from "@/lib/utils";
 
 interface Auction {
     id: string;
@@ -247,7 +255,7 @@ export default function AuctionDetailsPage() {
 
     if (loading) {
         return (
-            <div className="flex min-h-screen items-center justify-center bg-muted/30 pl-32">
+            <div className="flex min-h-screen items-center justify-center bg-muted/30 lg:pl-32">
                 <div className="space-y-4 text-center">
                     <Loader2 className="mx-auto h-12 w-12 animate-spin text-[hsl(217,64%,23%)]" />
                     <p className="text-lg text-foreground">Loading auction details...</p>
@@ -258,8 +266,8 @@ export default function AuctionDetailsPage() {
 
     if (!auction) {
         return (
-            <div className="flex min-h-screen flex-col items-center justify-center bg-muted/30 pl-32">
-                <Card className="border-border bg-card p-8 text-center shadow-md">
+            <div className="flex min-h-screen flex-col items-center justify-center bg-muted/30 lg:pl-32">
+                <Card className="border-border bg-card p-6 sm:p-8 text-center shadow-md">
                     <p className="mb-4 text-xl font-semibold text-foreground">
                         Auction not found.
                     </p>
@@ -284,8 +292,8 @@ export default function AuctionDetailsPage() {
     const allowance = Number(bidData.allowance || 0);
 
     return (
-        <div className="min-h-screen bg-muted/30 pl-32">
-            <main className="mx-auto max-w-7xl px-8 py-10">
+        <div className="min-h-screen bg-muted/30 lg:pl-32">
+            <main className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-6 sm:py-10">
                 {/* Top back + title row */}
                 <div className="mb-6 flex items-center justify-between gap-4">
                     <Button
@@ -297,51 +305,70 @@ export default function AuctionDetailsPage() {
                     </Button>
                 </div>
 
-                {/* Main header card */}
-                <Card className="mb-8 border-border bg-card shadow-md">
-                    <CardHeader className="space-y-4 pb-5">
-                        <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
-                            <div className="space-y-2">
-                                <p className="text-xs font-medium uppercase tracking-[0.18em] text-muted-foreground">
-                                    Restoration Auction
-                                </p>
-                                <CardTitle className="text-3xl font-bold tracking-tight text-foreground">
-                                    {auction?.title}
-                                </CardTitle>
-                                {auction?.reconstructionType && (
-                                    <p className="text-sm text-muted-foreground">
-                                        Scope:{" "}
-                                        <span className="font-medium text-foreground">
-                      {auction?.reconstructionType}
-                    </span>
-                                    </p>
+                {/* Enhanced header with gradient background */}
+                <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-white via-vendle-blue/5 to-vendle-teal/5 border-2 border-vendle-gray/20 shadow-xl mb-8">
+                    {/* Subtle background pattern */}
+                    <div className="absolute inset-0 opacity-5" style={{
+                        backgroundImage: `url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%234A637D' fill-opacity='1'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")`
+                    }} />
+
+                    <div className="relative p-8 lg:p-10">
+                        <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6">
+                            {/* Left: Title & metadata */}
+                            <div className="space-y-4">
+                                <div className="flex items-center gap-2">
+                                    <Badge variant="outline" className="uppercase tracking-wider text-xs font-bold text-vendle-blue border-vendle-blue/30 bg-vendle-blue/5">
+                                        <Gavel className="w-3 h-3 mr-1" />
+                                        Live Auction
+                                    </Badge>
+                                </div>
+
+                                <h1 className="text-4xl lg:text-5xl font-bold tracking-tight text-foreground">
+                                    {auction.title}
+                                </h1>
+
+                                {auction.reconstructionType && (
+                                    <div className="flex items-center gap-2 text-lg text-muted-foreground">
+                                        <Wrench className="w-5 h-5 text-vendle-blue" />
+                                        <span>{auction.reconstructionType}</span>
+                                    </div>
                                 )}
                             </div>
 
-                            <div className="flex flex-wrap items-center gap-2 md:justify-end">
-                                <Badge
-                                    variant="outline"
-                                    className="flex items-center gap-1 rounded-full border-border bg-background px-3 py-1 text-xs font-medium text-muted-foreground"
-                                >
-                                    <Users className="h-3.5 w-3.5" />
-                                    {auction?.bids?.length} bids
-                                </Badge>
-                                <Badge
-                                    variant="outline"
-                                    className="flex items-center gap-1 rounded-full border-border bg-background px-3 py-1 text-xs font-medium text-muted-foreground"
-                                >
-                                    <DollarSign className="h-3.5 w-3.5" />
-                                    Current ${auction?.bids?.[0]?.amount}
-                                </Badge>
-                                <Badge
-                                    className="rounded-full bg-emerald-50 px-3 py-1 text-xs font-semibold text-emerald-700"
-                                >
-                                    {auction?.status}
-                                </Badge>
+                            {/* Right: Stats cards */}
+                            <div className="grid grid-cols-2 lg:grid-cols-3 gap-4">
+                                {/* Bid count */}
+                                <div className="p-4 rounded-xl bg-white/80 backdrop-blur-sm border border-vendle-gray/30 shadow-md">
+                                    <div className="flex items-center gap-2 text-muted-foreground text-xs mb-1">
+                                        <Users className="w-3.5 h-3.5" />
+                                        <span className="uppercase tracking-wide font-medium">Bids</span>
+                                    </div>
+                                    <p className="text-2xl font-bold text-foreground">{bids?.length || 0}</p>
+                                </div>
+
+                                {/* Lowest bid */}
+                                <div className="p-4 rounded-xl bg-gradient-to-br from-vendle-blue/10 to-vendle-teal/10 border border-vendle-blue/20 shadow-md">
+                                    <div className="flex items-center gap-2 text-vendle-blue text-xs mb-1">
+                                        <DollarSign className="w-3.5 h-3.5" />
+                                        <span className="uppercase tracking-wide font-medium">Lowest Bid</span>
+                                    </div>
+                                    <p className="text-2xl font-bold text-vendle-blue">
+                                        {bids?.[0] ? `$${bids[0].bid_amount.toLocaleString()}` : 'N/A'}
+                                    </p>
+                                </div>
+
+                                {/* Status */}
+                                <div className="p-4 rounded-xl bg-emerald-50 border border-emerald-200 shadow-md col-span-2 lg:col-span-1">
+                                    <div className="flex items-center gap-2 text-emerald-700 text-xs mb-1">
+                                        <Clock className="w-3.5 h-3.5" />
+                                        <span className="uppercase tracking-wide font-medium">Status</span>
+                                    </div>
+                                    <p className="text-lg font-bold text-emerald-700 capitalize">{auction.status}</p>
+                                </div>
                             </div>
                         </div>
-                    </CardHeader>
-                </Card>
+                    </div>
+                </div>
 
                 {isContractor ? (
                     // CONTRACTOR VIEW — SIDE-BY-SIDE
@@ -404,210 +431,240 @@ export default function AuctionDetailsPage() {
                             </CardContent>
                         </Card>
 
-                        {/* RIGHT: Bid form with sticky summary */}
-                        <Card className="relative flex h-full flex-col border-border bg-card shadow-md">
-                            <CardHeader className="rounded-t-xl bg-[hsl(217,64%,23%)] pb-5 text-white">
-                                <CardTitle className="text-xl font-semibold">
-                                    Submit Your Bid
-                                </CardTitle>
-                                <p className="mt-1 text-xs text-white/80">
-                                    Provide your full job pricing breakdown and upload your estimate.
+                        {/* RIGHT: Enhanced bid submission form */}
+                        <div className="sticky top-6 h-fit">
+                            {/* Header with gradient */}
+                            <div className="rounded-t-2xl bg-gradient-to-r from-vendle-blue to-vendle-teal p-6 text-white">
+                                <div className="flex items-center justify-between mb-2">
+                                    <h2 className="text-2xl font-bold">Submit Your Bid</h2>
+                                    <Badge className="bg-white/20 text-white border-white/30">
+                                        <Clock className="w-3 h-3 mr-1" />
+                                        Live
+                                    </Badge>
+                                </div>
+                                <p className="text-white/90 text-sm">
+                                    Complete all fields and upload your detailed estimate
                                 </p>
-                            </CardHeader>
+                            </div>
 
-                            <CardContent className="flex-1 space-y-5 pt-6">
-                                <form className="space-y-5" onSubmit={onSubmit}>
-                                    <div className="space-y-2">
-                                        <Label
-                                            htmlFor="amount"
-                                            className="text-sm font-medium text-foreground"
-                                        >
-                                            Bid Amount *
-                                        </Label>
+                            {/* Form body */}
+                            <form onSubmit={onSubmit} className="bg-white rounded-b-2xl border-2 border-t-0 border-vendle-gray/20 p-6 space-y-6 shadow-xl">
+                                {/* Main bid amount - hero input */}
+                                <div className="p-6 rounded-xl bg-gradient-to-br from-vendle-blue/5 to-vendle-teal/5 border-2 border-vendle-blue/20">
+                                    <Label className="text-base font-bold text-foreground mb-3 block flex items-center gap-2">
+                                        <DollarSign className="w-5 h-5 text-vendle-blue" />
+                                        Total Bid Amount
+                                    </Label>
+                                    <div className="relative">
+                                        <span className="absolute left-4 top-1/2 -translate-y-1/2 text-3xl font-bold text-vendle-blue">
+                                            $
+                                        </span>
                                         <Input
-                                            id="amount"
+                                            type="number"
                                             name="amount"
-                                            placeholder="Enter your total bid"
-                                            className="h-11 border-border text-base font-semibold text-foreground focus-visible:ring-[hsl(217,64%,23%)]"
                                             value={bidData.amount}
                                             onChange={handleBidDataChange}
+                                            className="h-16 pl-12 text-3xl font-bold border-2 border-vendle-blue/30 focus:border-vendle-blue focus:ring-4 focus:ring-vendle-blue/20 bg-white rounded-xl"
+                                            placeholder="0"
+                                            required
                                         />
-                                        <p className="text-xs text-muted-foreground">
-                                            This is the total amount you are bidding for the full scope
-                                            of work.
-                                        </p>
                                     </div>
+                                    <p className="text-xs text-muted-foreground mt-2 flex items-center gap-1">
+                                        <Info className="w-3 h-3" />
+                                        This is your total project cost
+                                    </p>
+                                </div>
 
-                                    <div className="grid grid-cols-2 gap-3">
-                                        <div className="space-y-2">
-                                            <Label
-                                                htmlFor="budgetTotal"
-                                                className="text-xs font-medium text-muted-foreground"
-                                            >
-                                                Materials
-                                            </Label>
-                                            <Input
-                                                id="budgetTotal"
-                                                name="budgetTotal"
-                                                className="h-10 border-border text-sm text-foreground focus-visible:ring-[hsl(217,64%,23%)]"
-                                                value={bidData.budgetTotal}
-                                                onChange={handleBidDataChange}
-                                            />
-                                        </div>
-                                        <div className="space-y-2">
-                                            <Label
-                                                htmlFor="laborCosts"
-                                                className="text-xs font-medium text-muted-foreground"
-                                            >
-                                                Labor Costs
-                                            </Label>
-                                            <Input
-                                                id="laborCosts"
-                                                name="laborCosts"
-                                                className="h-10 border-border text-sm text-foreground focus-visible:ring-[hsl(217,64%,23%)]"
-                                                value={bidData.laborCosts}
-                                                onChange={handleBidDataChange}
-                                            />
-                                        </div>
-                                    </div>
-
-                                    <div className="grid grid-cols-2 gap-3">
-                                        <div className="space-y-2">
-                                            <Label
-                                                htmlFor="subContractorExpenses"
-                                                className="text-xs font-medium text-muted-foreground"
-                                            >
-                                                Subcontractor Expenses
-                                            </Label>
-                                            <Input
-                                                id="subContractorExpenses"
-                                                name="subContractorExpenses"
-                                                className="h-10 border-border text-sm text-foreground focus-visible:ring-[hsl(217,64%,23%)]"
-                                                value={bidData.subContractorExpenses}
-                                                onChange={handleBidDataChange}
-                                            />
-                                        </div>
-                                        <div className="space-y-2">
-                                            <Label
-                                                htmlFor="overhead"
-                                                className="text-xs font-medium text-muted-foreground"
-                                            >
-                                                Overhead
-                                            </Label>
-                                            <Input
-                                                id="overhead"
-                                                name="overhead"
-                                                className="h-10 border-border text-sm text-foreground focus-visible:ring-[hsl(217,64%,23%)]"
-                                                value={bidData.overhead}
-                                                onChange={handleBidDataChange}
-                                            />
-                                        </div>
-                                    </div>
-
-                                    <div className="grid grid-cols-2 gap-3">
-                                        <div className="space-y-2">
-                                            <Label
-                                                htmlFor="allowance"
-                                                className="text-xs font-medium text-muted-foreground"
-                                            >
-                                                Allowance
-                                            </Label>
-                                            <Input
-                                                id="allowance"
-                                                name="allowance"
-                                                className="h-10 border-border text-sm text-foreground focus-visible:ring-[hsl(217,64%,23%)]"
-                                                value={bidData.allowance}
-                                                onChange={handleBidDataChange}
-                                            />
-                                        </div>
-                                        <div className="space-y-2">
-                                            <Label
-                                                htmlFor="profit"
-                                                className="text-xs font-medium text-muted-foreground"
-                                            >
-                                                Profit
-                                            </Label>
-                                            <Input
-                                                id="profit"
-                                                name="profit"
-                                                className="h-10 border-border text-sm text-foreground focus-visible:ring-[hsl(217,64%,23%)]"
-                                                value={bidData.profit}
-                                                onChange={handleBidDataChange}
-                                            />
-                                        </div>
-                                    </div>
-
-                                    {/* Upload area */}
-                                    {!uploadedFile ? (
-                                        <div className="flex h-20 w-full cursor-pointer items-center justify-center rounded-xl border-2 border-dashed border-border bg-muted/60 px-4 py-3 text-center transition-colors hover:border-[hsl(217,64%,23%)] hover:bg-muted">
-                                            <div className="flex flex-col items-center gap-1">
-                        <span
-                            className="flex items-center gap-2 text-xs font-medium text-[hsl(217,64%,23%)]"
-                            onClick={handleClick}
-                        >
-                          <Upload className="h-4 w-4" />
-                          Click to upload your PDF estimate
-                        </span>
-                                                <p className="text-[10px] text-muted-foreground">
-                                                    PDF only, max 10 MB
-                                                </p>
-                                                <Input
-                                                    ref={fileInputRef}
-                                                    type="file"
-                                                    accept=".pdf"
-                                                    onChange={handleFileUpload}
-                                                    className="hidden"
-                                                />
+                                {/* Cost breakdown - collapsible */}
+                                <Accordion type="single" collapsible>
+                                    <AccordionItem value="breakdown" className="border-none">
+                                        <AccordionTrigger className="py-3 px-4 hover:bg-muted/50 rounded-lg">
+                                            <div className="flex items-center gap-2 text-sm font-semibold">
+                                                <Calculator className="w-4 h-4 text-vendle-blue" />
+                                                Cost Breakdown (Optional)
                                             </div>
+                                        </AccordionTrigger>
+                                        <AccordionContent className="pt-4 space-y-4">
+                                            <div className="grid grid-cols-2 gap-3">
+                                                <div className="space-y-2">
+                                                    <Label className="text-xs font-medium text-muted-foreground">
+                                                        Materials
+                                                    </Label>
+                                                    <div className="relative">
+                                                        <DollarSign className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-muted-foreground" />
+                                                        <Input
+                                                            type="number"
+                                                            name="budgetTotal"
+                                                            value={bidData.budgetTotal}
+                                                            onChange={handleBidDataChange}
+                                                            className="h-11 pl-9 text-sm rounded-lg"
+                                                            placeholder="0"
+                                                        />
+                                                    </div>
+                                                </div>
+                                                <div className="space-y-2">
+                                                    <Label className="text-xs font-medium text-muted-foreground">
+                                                        Labor Costs
+                                                    </Label>
+                                                    <div className="relative">
+                                                        <DollarSign className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-muted-foreground" />
+                                                        <Input
+                                                            type="number"
+                                                            name="laborCosts"
+                                                            value={bidData.laborCosts}
+                                                            onChange={handleBidDataChange}
+                                                            className="h-11 pl-9 text-sm rounded-lg"
+                                                            placeholder="0"
+                                                        />
+                                                    </div>
+                                                </div>
+                                                <div className="space-y-2">
+                                                    <Label className="text-xs font-medium text-muted-foreground">
+                                                        Subcontractor Expenses
+                                                    </Label>
+                                                    <div className="relative">
+                                                        <DollarSign className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-muted-foreground" />
+                                                        <Input
+                                                            type="number"
+                                                            name="subContractorExpenses"
+                                                            value={bidData.subContractorExpenses}
+                                                            onChange={handleBidDataChange}
+                                                            className="h-11 pl-9 text-sm rounded-lg"
+                                                            placeholder="0"
+                                                        />
+                                                    </div>
+                                                </div>
+                                                <div className="space-y-2">
+                                                    <Label className="text-xs font-medium text-muted-foreground">
+                                                        Overhead
+                                                    </Label>
+                                                    <div className="relative">
+                                                        <DollarSign className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-muted-foreground" />
+                                                        <Input
+                                                            type="number"
+                                                            name="overhead"
+                                                            value={bidData.overhead}
+                                                            onChange={handleBidDataChange}
+                                                            className="h-11 pl-9 text-sm rounded-lg"
+                                                            placeholder="0"
+                                                        />
+                                                    </div>
+                                                </div>
+                                                <div className="space-y-2">
+                                                    <Label className="text-xs font-medium text-muted-foreground">
+                                                        Profit
+                                                    </Label>
+                                                    <div className="relative">
+                                                        <DollarSign className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-muted-foreground" />
+                                                        <Input
+                                                            type="number"
+                                                            name="profit"
+                                                            value={bidData.profit}
+                                                            onChange={handleBidDataChange}
+                                                            className="h-11 pl-9 text-sm rounded-lg"
+                                                            placeholder="0"
+                                                        />
+                                                    </div>
+                                                </div>
+                                                <div className="space-y-2">
+                                                    <Label className="text-xs font-medium text-muted-foreground">
+                                                        Allowance
+                                                    </Label>
+                                                    <div className="relative">
+                                                        <DollarSign className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-muted-foreground" />
+                                                        <Input
+                                                            type="number"
+                                                            name="allowance"
+                                                            value={bidData.allowance}
+                                                            onChange={handleBidDataChange}
+                                                            className="h-11 pl-9 text-sm rounded-lg"
+                                                            placeholder="0"
+                                                        />
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </AccordionContent>
+                                    </AccordionItem>
+                                </Accordion>
+
+                                {/* File upload - enhanced */}
+                                <div className="space-y-3">
+                                    <Label className="text-sm font-semibold flex items-center gap-2">
+                                        <FileText className="w-4 h-4 text-vendle-blue" />
+                                        Detailed Estimate (PDF Required)
+                                    </Label>
+
+                                    {!uploadedFile ? (
+                                        <div
+                                            onClick={handleClick}
+                                            className="relative group cursor-pointer"
+                                        >
+                                            <div className="rounded-xl border-2 border-dashed border-vendle-gray/50 hover:border-vendle-blue p-8 transition-all bg-gradient-to-br from-vendle-blue/5 to-transparent group-hover:from-vendle-blue/10">
+                                                <div className="flex flex-col items-center text-center">
+                                                    <div className="w-14 h-14 rounded-xl bg-vendle-blue/10 group-hover:bg-vendle-blue/20 flex items-center justify-center mb-3 transition-colors">
+                                                        <Upload className="w-7 h-7 text-vendle-blue" />
+                                                    </div>
+                                                    <p className="text-sm font-medium text-foreground mb-1">
+                                                        Click to upload or drag & drop
+                                                    </p>
+                                                    <p className="text-xs text-muted-foreground">
+                                                        PDF only, max 10 MB
+                                                    </p>
+                                                </div>
+                                            </div>
+                                            <Input
+                                                ref={fileInputRef}
+                                                type="file"
+                                                onChange={handleFileUpload}
+                                                accept=".pdf"
+                                                className="hidden"
+                                            />
                                         </div>
                                     ) : (
-                                        <div className="flex h-16 w-full items-center justify-between rounded-xl border border-border bg-muted px-4">
-                                            <div className="flex items-center gap-2 text-sm text-foreground">
-                                                <FileText className="h-4 w-4 text-[hsl(217,64%,23%)]" />
-                                                <span className="truncate">{uploadedFile?.name}</span>
+                                        <div className="p-4 rounded-xl bg-vendle-teal/10 border-2 border-vendle-teal/30">
+                                            <div className="flex items-center gap-3">
+                                                <div className="w-12 h-12 rounded-lg bg-vendle-teal/20 flex items-center justify-center flex-shrink-0">
+                                                    <FileText className="w-6 h-6 text-vendle-teal" />
+                                                </div>
+                                                <div className="flex-1 min-w-0">
+                                                    <p className="text-sm font-medium text-foreground truncate">
+                                                        {uploadedFile.name}
+                                                    </p>
+                                                    <p className="text-xs text-muted-foreground">
+                                                        {(uploadedFile.size / 1024 / 1024).toFixed(2)} MB
+                                                    </p>
+                                                </div>
+                                                <button
+                                                    type="button"
+                                                    onClick={() => setUploadedFile(null)}
+                                                    className="p-2 rounded-lg hover:bg-red-50 transition-colors group/remove"
+                                                >
+                                                    <X className="w-5 h-5 text-muted-foreground group-hover/remove:text-red-600" />
+                                                </button>
                                             </div>
-                                            <X
-                                                className="h-4 w-4 cursor-pointer text-muted-foreground hover:text-foreground"
-                                                onClick={() => setUploadedFile(null)}
-                                            />
                                         </div>
                                     )}
+                                </div>
 
-                                    {/* Sticky summary + submit */}
-                                    <div className="sticky bottom-0 mt-6 space-y-3 border-t border-border bg-card pt-4">
-                                        <div className="flex items-center justify-between gap-4 text-sm">
-                                            <div className="space-y-1">
-                                                <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
-                                                    Bid Summary
-                                                </p>
-                                                <p className="text-sm text-muted-foreground">
-                                                    Materials ${materials.toLocaleString()} • Labor $
-                                                    {labor.toLocaleString()} • Subs ${subs.toLocaleString()}
-                                                </p>
-                                                <p className="text-xs text-muted-foreground">
-                                                    Overhead ${overhead.toLocaleString()} • Profit $
-                                                    {profit.toLocaleString()} • Allowance $
-                                                    {allowance.toLocaleString()}
-                                                </p>
-                                            </div>
-                                            <div className="text-right">
-                                                <p className="text-xs text-muted-foreground">Your Bid</p>
-                                                <p className="text-xl font-semibold text-foreground">
-                                                    ${bidAmount.toLocaleString()}
-                                                </p>
-                                            </div>
-                                        </div>
+                                {/* Submit button with shimmer */}
+                                <Button
+                                    type="submit"
+                                    size="lg"
+                                    disabled={submitBidDataMutation.isPending}
+                                    className="w-full h-14 rounded-xl bg-gradient-to-r from-vendle-blue to-vendle-teal hover:shadow-2xl hover:shadow-vendle-blue/30 text-white font-bold text-lg transition-all group relative overflow-hidden"
+                                >
+                                    <span className="relative z-10">
+                                        {submitBidDataMutation.isPending ? 'Submitting...' : 'Submit Bid'}
+                                    </span>
+                                    <ArrowRight className="w-5 h-5 ml-2 group-hover:translate-x-1 transition-transform relative z-10" />
 
-                                        <Button
-                                            type="submit"
-                                            className="mt-1 h-11 w-full rounded-full bg-[hsl(217,64%,23%)] text-sm font-semibold text-white hover:bg-[hsl(217,64%,18%)]"
-                                        >
-                                            Submit Bid
-                                        </Button>
-                                    </div>
-                                </form>
-                            </CardContent>
-                        </Card>
+                                    {/* Shimmer effect */}
+                                    {!submitBidDataMutation.isPending && (
+                                        <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-1000" />
+                                    )}
+                                </Button>
+                            </form>
+                        </div>
                     </div>
                 ) : (
                     // HOMEOWNER VIEW
@@ -712,171 +769,288 @@ export default function AuctionDetailsPage() {
                             </CardContent>
                         </Card>
 
-                        {/* Bidders */}
-                        <Card className="border-border bg-card shadow-md">
-                            <CardHeader className="border-b border-border pb-5">
-                                <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
-                                    <div className="flex items-center gap-3">
-                                        <Users className="h-6 w-6 text-[hsl(217,64%,23%)]" />
-                                        <CardTitle className="text-xl font-semibold text-foreground">
+                        {/* Enhanced Bidders Section */}
+                        <div className="space-y-6">
+                            {/* Toolbar */}
+                            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+                                <div className="flex items-center gap-3">
+                                    <Users className="w-6 h-6 text-vendle-blue" />
+                                    <div>
+                                        <h2 className="text-2xl font-bold text-foreground">
                                             Current Bidders
-                                            {bids?.length ? (
-                                                <span className="ml-2 text-base font-normal text-muted-foreground">
-                          ({bids.length})
-                        </span>
-                                            ) : null}
-                                        </CardTitle>
-                                    </div>
-                                    <div className="flex flex-wrap items-center gap-3">
-                                        <Select defaultValue="lowest_bid">
-                                            <SelectTrigger className="h-9 w-[200px] rounded-full border-border bg-background text-xs text-muted-foreground focus:ring-0">
-                                                <SelectValue placeholder="Sort bidders" />
-                                            </SelectTrigger>
-                                            <SelectContent>
-                                                <SelectItem value="lowest_bid">
-                                                    Sort by Lowest Bid
-                                                </SelectItem>
-                                                <SelectItem value="highest_rating">
-                                                    Sort by Highest Rating
-                                                </SelectItem>
-                                                <SelectItem value="most_reviews">
-                                                    Sort by Most Reviews
-                                                </SelectItem>
-                                                <SelectItem value="company_name">
-                                                    Sort by Company Name
-                                                </SelectItem>
-                                            </SelectContent>
-                                        </Select>
-                                        <Button
-                                            variant="outline"
-                                            className="h-9 rounded-full border-border text-xs text-muted-foreground hover:bg-muted"
-                                        >
-                                            Add Test Bids
-                                        </Button>
+                                        </h2>
+                                        <p className="text-sm text-muted-foreground">
+                                            {bids?.length || 0} contractors competing for your project
+                                        </p>
                                     </div>
                                 </div>
-                            </CardHeader>
-                            <CardContent className="p-6">
-                                {bidsLoading ? (
-                                    <div className="flex items-center justify-center py-16">
-                                        <div className="space-y-4 text-center">
-                                            <Loader2 className="mx-auto h-8 w-8 animate-spin text-[hsl(217,64%,23%)]" />
-                                            <p className="text-sm text-foreground">Loading bids...</p>
-                                        </div>
+
+                                <div className="flex items-center gap-3">
+                                    {/* Sort dropdown */}
+                                    <Select defaultValue="lowest_bid">
+                                        <SelectTrigger className="w-[220px] h-11 border-2 border-vendle-gray/30 hover:border-vendle-blue/50 bg-white shadow-sm">
+                                            <div className="flex items-center gap-2">
+                                                <SortDesc className="w-4 h-4 text-vendle-blue" />
+                                                <SelectValue placeholder="Sort by..." />
+                                            </div>
+                                        </SelectTrigger>
+                                        <SelectContent>
+                                            <SelectItem value="lowest_bid">
+                                                <div className="flex items-center gap-2">
+                                                    <ArrowDown className="w-4 h-4 text-vendle-teal" />
+                                                    <span>Lowest Bid First</span>
+                                                </div>
+                                            </SelectItem>
+                                            <SelectItem value="highest_rating">
+                                                <div className="flex items-center gap-2">
+                                                    <Star className="w-4 h-4 text-yellow-500" />
+                                                    <span>Highest Rating</span>
+                                                </div>
+                                            </SelectItem>
+                                        </SelectContent>
+                                    </Select>
+
+                                    {/* AI Recommendation button */}
+                                    <Button
+                                        onClick={() => askVendleAIMutation.mutate()}
+                                        disabled={askVendleAIMutation.isPending}
+                                        className="bg-gradient-to-r from-vendle-blue to-vendle-teal shadow-lg hover:shadow-xl"
+                                    >
+                                        <Sparkles className="w-4 h-4 mr-2" />
+                                        {askVendleAIMutation.isPending ? 'Analyzing...' : 'Ask Vendle AI'}
+                                    </Button>
+                                </div>
+                            </div>
+
+                            {/* Bid cards grid */}
+                            {bidsLoading ? (
+                                <div className="flex items-center justify-center py-16">
+                                    <div className="space-y-4 text-center">
+                                        <Loader2 className="mx-auto h-12 w-12 animate-spin text-vendle-blue" />
+                                        <p className="text-lg text-foreground">Loading bids...</p>
                                     </div>
-                                ) : bids?.length === 0 ? (
-                                    <div className="py-16 text-center">
-                                        <Users className="mx-auto mb-4 h-16 w-16 text-muted-foreground/30" />
-                                        <p className="mb-1 text-lg font-semibold text-foreground">
-                                            No bids yet
-                                        </p>
-                                        <p className="text-sm text-muted-foreground">
-                                            Waiting for contractors to submit competitive bids.
-                                        </p>
-                                    </div>
-                                ) : (
-                                    <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-3">
-                                        {bids?.map((bid) => (
-                                            <Card
-                                                key={bid.contractor_id}
-                                                className="border-border bg-background shadow-sm transition-shadow hover:shadow-md"
-                                            >
-                                                <CardContent className="space-y-4 p-5">
+                                </div>
+                            ) : bids?.length === 0 ? (
+                                <div className="py-16 text-center">
+                                    <Users className="mx-auto mb-4 h-16 w-16 text-muted-foreground/30" />
+                                    <p className="mb-1 text-lg font-semibold text-foreground">
+                                        No bids yet
+                                    </p>
+                                    <p className="text-sm text-muted-foreground">
+                                        Waiting for contractors to submit competitive bids.
+                                    </p>
+                                </div>
+                            ) : (
+                                <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-3">
+                                    {bids?.map((bid, index) => (
+                                        <motion.div
+                                            key={bid.contractor_id}
+                                            initial={{ opacity: 0, y: 20 }}
+                                            animate={{ opacity: 1, y: 0 }}
+                                            transition={{ delay: index * 0.1 }}
+                                            className="group relative"
+                                        >
+                                            {/* Ranking badge for top 3 */}
+                                            {index < 3 && (
+                                                <div className="absolute -top-3 -right-3 z-10">
+                                                    <div className={cn(
+                                                        "w-10 h-10 rounded-full flex items-center justify-center shadow-lg font-bold text-white text-sm",
+                                                        index === 0 ? "bg-gradient-to-br from-yellow-400 to-yellow-600" :
+                                                        index === 1 ? "bg-gradient-to-br from-gray-300 to-gray-500" :
+                                                        "bg-gradient-to-br from-orange-400 to-orange-600"
+                                                    )}>
+                                                        #{index + 1}
+                                                    </div>
+                                                </div>
+                                            )}
+
+                                            <Card className="border-2 border-vendle-gray/30 hover:border-vendle-blue/50 hover:shadow-2xl transition-all overflow-hidden group-hover:-translate-y-1 duration-300 h-full">
+                                                {/* Header with contractor info */}
+                                                <div className="p-6 bg-gradient-to-br from-vendle-blue/5 to-vendle-teal/5 border-b-2 border-vendle-gray/20">
                                                     <div className="flex items-start gap-4">
-                                                        <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-[hsl(217,64%,23%)]">
-                              <span className="text-lg font-semibold text-white">
-                                {(bid.company_name || bid.contractor_name)?.charAt(0)}
-                              </span>
+                                                        {/* Avatar */}
+                                                        <div className="relative flex-shrink-0">
+                                                            <div className="w-16 h-16 rounded-xl bg-gradient-to-br from-vendle-blue to-vendle-teal flex items-center justify-center text-white text-xl font-bold shadow-lg">
+                                                                {(bid.company_name || bid.contractor_name).charAt(0)}
+                                                            </div>
+                                                            {/* Verified badge */}
+                                                            <div className="absolute -bottom-1 -right-1 w-6 h-6 rounded-full bg-vendle-teal border-2 border-white flex items-center justify-center">
+                                                                <Check className="w-3 h-3 text-white" />
+                                                            </div>
                                                         </div>
-                                                        <div className="min-w-0 flex-1">
-                                                            <p className="truncate text-sm font-semibold text-foreground">
+
+                                                        {/* Info */}
+                                                        <div className="flex-1 min-w-0">
+                                                            <h3 className="text-lg font-bold text-foreground truncate mb-1">
                                                                 {bid.company_name || "Independent Contractor"}
-                                                            </p>
-                                                            <p className="truncate text-xs text-muted-foreground">
+                                                            </h3>
+                                                            <p className="text-sm text-muted-foreground truncate">
                                                                 {bid.contractor_name}
                                                             </p>
                                                         </div>
                                                     </div>
+                                                </div>
 
-                                                    <div className="space-y-2 text-sm">
-                                                        <div className="flex items-center gap-2 text-muted-foreground">
-                                                            <Mail className="h-4 w-4 text-[hsl(217,64%,23%)]" />
-                                                            <span className="truncate">{bid.email}</span>
-                                                        </div>
-                                                        {bid.phone_number && (
-                                                            <div className="flex items-center gap-2 text-muted-foreground">
-                                                                <Phone className="h-4 w-4 text-[hsl(217,64%,23%)]" />
-                                                                <span>{bid.phone_number}</span>
+                                                {/* Body */}
+                                                <div className="p-6 space-y-4">
+                                                    {/* Contact info */}
+                                                    <div className="space-y-3">
+                                                        <a
+                                                            href={`mailto:${bid.email}`}
+                                                            className="flex items-center gap-3 p-3 rounded-lg hover:bg-muted/50 transition-colors group/contact"
+                                                        >
+                                                            <div className="w-9 h-9 rounded-lg bg-vendle-blue/10 flex items-center justify-center flex-shrink-0">
+                                                                <Mail className="w-4 h-4 text-vendle-blue" />
                                                             </div>
+                                                            <span className="text-sm text-muted-foreground truncate group-hover/contact:text-vendle-blue">
+                                                                {bid.email}
+                                                            </span>
+                                                        </a>
+
+                                                        {bid.phone_number && (
+                                                            <a
+                                                                href={`tel:${bid.phone_number}`}
+                                                                className="flex items-center gap-3 p-3 rounded-lg hover:bg-muted/50 transition-colors group/contact"
+                                                            >
+                                                                <div className="w-9 h-9 rounded-lg bg-vendle-teal/10 flex items-center justify-center flex-shrink-0">
+                                                                    <Phone className="w-4 h-4 text-vendle-teal" />
+                                                                </div>
+                                                                <span className="text-sm text-muted-foreground group-hover/contact:text-vendle-teal">
+                                                                    {bid.phone_number}
+                                                                </span>
+                                                            </a>
                                                         )}
                                                     </div>
 
-                                                    <div className="space-y-3 border-t border-border pt-4">
-                                                        <div className="flex items-end justify-between">
+                                                    {/* Bid amount - hero section */}
+                                                    <div className="p-5 rounded-xl bg-gradient-to-br from-vendle-blue/10 via-vendle-teal/5 to-transparent border-2 border-vendle-blue/20">
+                                                        <div className="flex items-end justify-between mb-2">
                                                             <div>
-                                                                <p className="text-xs text-muted-foreground">
+                                                                <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide mb-1">
                                                                     Bid Amount
                                                                 </p>
-                                                                <p className="text-2xl font-semibold text-foreground">
+                                                                <p className="text-3xl font-bold text-foreground">
                                                                     ${bid.bid_amount.toLocaleString()}
                                                                 </p>
                                                             </div>
-                                                        </div>
-                                                        <div className="flex gap-2">
-                                                            <Button
-                                                                variant="outline"
-                                                                size="sm"
-                                                                className="flex-1 rounded-full border-border text-xs text-muted-foreground hover:bg-muted"
-                                                            >
-                                                                View Profile
-                                                            </Button>
-                                                            <Button
-                                                                size="sm"
-                                                                className="flex-1 rounded-full bg-emerald-600 text-xs font-semibold text-white hover:bg-emerald-700"
-                                                            >
-                                                                Accept Bid
-                                                            </Button>
+                                                            {index === 0 && (
+                                                                <Badge className="bg-vendle-teal text-white">
+                                                                    Lowest Bid
+                                                                </Badge>
+                                                            )}
                                                         </div>
                                                     </div>
-                                                </CardContent>
+
+                                                    {/* Action buttons */}
+                                                    <div className="grid grid-cols-2 gap-3 pt-2">
+                                                        <Button
+                                                            variant="outline"
+                                                            size="sm"
+                                                            className="border-2 border-vendle-gray/30 hover:border-vendle-blue hover:bg-vendle-blue/5 font-medium"
+                                                        >
+                                                            <Eye className="w-4 h-4 mr-2" />
+                                                            Details
+                                                        </Button>
+                                                        <Button
+                                                            size="sm"
+                                                            className="bg-gradient-to-r from-emerald-600 to-emerald-700 hover:from-emerald-700 hover:to-emerald-800 text-white shadow-lg hover:shadow-xl font-bold"
+                                                        >
+                                                            <Check className="w-4 h-4 mr-2" />
+                                                            Accept
+                                                        </Button>
+                                                    </div>
+                                                </div>
                                             </Card>
-                                        ))}
-                                    </div>
-                                )}
-                            </CardContent>
-                        </Card>
+                                        </motion.div>
+                                    ))}
+                                </div>
+                            )}
+                        </div>
                     </div>
                 )}
 
-                {/* AI Suggestion Dialog */}
+                {/* Enhanced AI Recommendation Dialog */}
                 <Dialog open={openAiDialog} onOpenChange={setOpenAiDialog}>
-                    <DialogContent className="flex flex-col items-center gap-4 border-border bg-card">
-                        <DialogHeader className="w-full text-center">
-                            <DialogTitle className="text-base font-semibold text-foreground">
-                                AI Suggestion
-                            </DialogTitle>
-                        </DialogHeader>
-                        {!aiRecommendation ? (
-                            <div className="flex flex-col items-center justify-center gap-4 py-4">
-                                <Loader2 className="h-8 w-8 animate-spin text-[hsl(217,64%,23%)]" />
-                                <p className="text-sm text-foreground">
-                                    Loading AI recommendation...
-                                </p>
+                    <DialogContent className="max-w-3xl max-h-[80vh] overflow-hidden p-0 gap-0 border-2 border-vendle-blue/20 shadow-2xl">
+                        {/* Header with gradient */}
+                        <div className="relative overflow-hidden bg-gradient-to-r from-vendle-blue to-vendle-teal p-6 text-white">
+                            {/* Background pattern */}
+                            <div className="absolute inset-0 opacity-10" style={{
+                                backgroundImage: `url("data:image/svg+xml,%3Csvg width='20' height='20' viewBox='0 0 20 20' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='%23ffffff' fill-opacity='1'%3E%3Ccircle cx='3' cy='3' r='3'/%3E%3Ccircle cx='13' cy='13' r='3'/%3E%3C/g%3E%3C/svg%3E")`
+                            }} />
+
+                            <div className="relative flex items-center gap-4">
+                                <div className="w-14 h-14 rounded-xl bg-white/20 backdrop-blur-sm flex items-center justify-center">
+                                    <Sparkles className="w-7 h-7 text-white animate-pulse" />
+                                </div>
+                                <div>
+                                    <DialogTitle className="text-2xl font-bold text-white mb-1">
+                                        Vendle AI Recommendation
+                                    </DialogTitle>
+                                    <p className="text-white/90 text-sm">
+                                        Analyzing bids to find the best match for your project
+                                    </p>
+                                </div>
                             </div>
-                        ) : (
-                            <div className="max-h-80 w-full overflow-y-auto rounded-md bg-muted p-4 text-sm leading-relaxed text-foreground">
-                                {aiRecommendation}
-                            </div>
-                        )}
-                        <DialogFooter className="w-full">
+                        </div>
+
+                        {/* Content */}
+                        <div className="p-6">
+                            {!aiRecommendation ? (
+                                /* Loading state */
+                                <div className="flex flex-col items-center justify-center py-12">
+                                    <motion.div
+                                        animate={{ rotate: 360 }}
+                                        transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
+                                        className="w-16 h-16 rounded-full border-4 border-vendle-gray/20 border-t-vendle-blue mb-6"
+                                    />
+
+                                    <div className="space-y-3 text-center">
+                                        <h3 className="text-lg font-semibold text-foreground">
+                                            Analyzing contractor bids...
+                                        </h3>
+                                        <div className="space-y-2 text-sm text-muted-foreground">
+                                            <p className="flex items-center justify-center gap-2">
+                                                <Check className="w-4 h-4 text-vendle-teal" />
+                                                Comparing pricing structures
+                                            </p>
+                                            <p className="flex items-center justify-center gap-2">
+                                                <Check className="w-4 h-4 text-vendle-teal" />
+                                                Evaluating contractor experience
+                                            </p>
+                                            <p className="flex items-center justify-center gap-2">
+                                                <Loader2 className="w-4 h-4 animate-spin text-vendle-blue" />
+                                                Generating personalized recommendation
+                                            </p>
+                                        </div>
+                                    </div>
+                                </div>
+                            ) : (
+                                /* Recommendation content */
+                                <div className="space-y-6">
+                                    <div className="prose prose-sm max-w-none">
+                                        <div className="text-foreground leading-relaxed p-6 rounded-xl bg-muted/30 border border-vendle-gray/30">
+                                            {aiRecommendation}
+                                        </div>
+                                    </div>
+                                </div>
+                            )}
+                        </div>
+
+                        {/* Footer */}
+                        <div className="p-6 border-t border-vendle-gray/20 bg-muted/20 flex items-center justify-between">
+                            <p className="text-xs text-muted-foreground flex items-center gap-1">
+                                <Info className="w-3 h-3" />
+                                AI recommendation based on {bids?.length || 0} bids
+                            </p>
                             <Button
+                                onClick={() => setOpenAiDialog(false)}
                                 variant="outline"
-                                onClick={handleCloseDialog}
-                                className="ml-auto rounded-full border-border text-sm text-muted-foreground hover:bg-muted"
+                                className="border-2 border-vendle-gray/30 hover:border-vendle-blue hover:bg-vendle-blue/5"
                             >
                                 Close
                             </Button>
-                        </DialogFooter>
+                        </div>
                     </DialogContent>
                 </Dialog>
             </main>

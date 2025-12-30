@@ -119,7 +119,7 @@ export default function Reviews() {
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -20 }}
             transition={{ duration: 0.3 }}
-            className="min-h-screen bg-gray-50 pl-32"
+            className="min-h-screen bg-gray-50 lg:pl-32"
         >
             <div className="max-w-4xl mx-auto px-8 py-8">
                 {/* Header */}

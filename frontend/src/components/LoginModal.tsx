@@ -102,7 +102,7 @@ export default function LoginModal({ isOpen, onClose }: LoginModalProps) {
       />
 
       {/* Modal */}
-      <div className="relative bg-white rounded-2xl shadow-2xl w-full max-w-md mx-4 p-8 max-h-[90vh] overflow-auto">
+      <div className="relative bg-white rounded-2xl shadow-2xl w-full max-w-[95vw] sm:max-w-md mx-4 p-4 sm:p-6 lg:p-8 max-h-[90vh] overflow-auto">
         {/* Close button */}
         <button
           onClick={onClose}
@@ -117,8 +117,8 @@ export default function LoginModal({ isOpen, onClose }: LoginModalProps) {
         </div>
 
         {/* Title */}
-        <div className="text-center mb-8">
-          <h2 className="text-2xl font-bold text-gray-900 mb-2">
+        <div className="text-center mb-6 sm:mb-8">
+          <h2 className="text-xl sm:text-2xl font-bold text-gray-900 mb-2">
             {mode === 'login' ? 'Welcome Back' : 'Create Account'}
           </h2>
           <p className="text-sm text-gray-600">
@@ -178,11 +178,11 @@ export default function LoginModal({ isOpen, onClose }: LoginModalProps) {
 
           {/* User Type Selection - Only show during signup */}
           {mode === 'signup' && (
-            <div className="mb-6">
+            <div className="mb-4 sm:mb-6">
               <label className="block text-sm font-medium text-gray-700 mb-3">
                 I am a...
               </label>
-              <div className="grid grid-cols-2 gap-3">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 {/* Homeowner Option */}
                 <button
                   type="button"

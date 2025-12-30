@@ -76,7 +76,7 @@ export default function ClaimPage({ params }: PageProps) {
 
     if (isLoading) {
         return (
-            <div className="min-h-screen bg-muted/30 pl-32 flex items-center justify-center">
+            <div className="min-h-screen bg-muted/30 lg:pl-32 flex items-center justify-center">
                 <div className="animate-pulse w-full max-w-3xl space-y-4 p-6">
                     <div className="h-6 bg-vendle-gray/30 rounded w-1/3"></div>
                     <div className="h-48 bg-vendle-gray/30 rounded"></div>
@@ -87,7 +87,7 @@ export default function ClaimPage({ params }: PageProps) {
 
     if (!claim) {
         return (
-            <div className="min-h-screen bg-muted/30 pl-32 p-10">
+            <div className="min-h-screen bg-muted/30 lg:pl-32 p-6 sm:p-10">
                 <h1 className="text-3xl font-bold text-foreground">Claim Not Found</h1>
                 <p className="mt-2 text-muted-foreground">
                     The requested claim could not be found or you don't have access.
@@ -100,12 +100,12 @@ export default function ClaimPage({ params }: PageProps) {
     }
 
     return (
-        <div className="min-h-screen bg-muted/30 pl-32 py-12">
+        <div className="min-h-screen bg-muted/30 lg:pl-32 py-8 sm:py-12">
             <motion.div
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.3 }}
-                className="max-w-6xl mx-auto space-y-8"
+                className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 space-y-6 sm:space-y-8"
             >
                 {/* Header */}
                 <div className="flex items-start justify-between">

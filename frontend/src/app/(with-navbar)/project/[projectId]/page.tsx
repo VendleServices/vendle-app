@@ -39,8 +39,8 @@ export default function ProjectDetailsPage() {
 
   return (
     <div className="flex min-h-screen bg-muted/30">
-      <main className="flex-1 pl-32">
-        <div className="mx-auto max-w-5xl px-6 py-8 lg:px-8 lg:py-10">
+      <main className="flex-1 lg:pl-32">
+        <div className="mx-auto max-w-5xl px-4 sm:px-6 lg:px-8 py-6 sm:py-8 lg:py-10">
           {/* Back Button */}
           <Button
             variant="ghost"

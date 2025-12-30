@@ -75,7 +75,6 @@ export default function HomePage() {
   const [myJobs, setMyJobs] = useState<Job[]>([]);
   const [jobsLoading, setJobsLoading] = useState(false);
   const [selectedJob, setSelectedJob] = useState<Job | null>(null);
-  const [selectedPhaseProject, setSelectedPhaseProject] = useState<PhaseProject | null>(null);
   const [showFilesDropdown, setShowFilesDropdown] = useState(false);
 
   // Homeowner tab state
@@ -150,7 +149,6 @@ export default function HomePage() {
 
   const handleClosePanel = () => {
     setSelectedJob(null);
-    setSelectedPhaseProject(null);
     setShowFilesDropdown(false);
   };
 
@@ -454,7 +452,7 @@ export default function HomePage() {
   }
 
   return (
-      <div className="min-h-screen bg-gray-50 pl-32 overflow-x-hidden">
+      <div className="min-h-screen bg-gray-50 lg:pl-32 overflow-x-hidden">
         {/* Right Side Detail Panel */}
         {selectedJob && (
             <div className="fixed right-0 top-0 h-screen w-1/2 bg-white border-l border-gray-200 shadow-2xl z-50 flex flex-col">
@@ -652,338 +650,7 @@ export default function HomePage() {
             </div>
         )}
 
-        {/* Phase Project Detail Panel */}
-        {selectedPhaseProject && (
-            <div className="fixed right-0 top-0 h-screen w-1/2 bg-white border-l border-gray-200 shadow-2xl z-50 flex flex-col">
-              <div className="flex-1 overflow-y-auto">
-                {/* Header */}
-                <div className="sticky top-0 bg-white border-b border-gray-200 px-6 py-4 flex items-center justify-between z-10">
-                  <h2 className="text-xl font-bold text-gray-900">
-                    {selectedPhaseProject.phase1StartDate ? 'Phase 1' : 'Phase 2'} Project Details
-                  </h2>
-                  <button
-                      onClick={handleClosePanel}
-                      className="p-2 hover:bg-gray-100 rounded-full transition-colors"
-                  >
-                    <X className="h-5 w-5 text-gray-600" />
-                  </button>
-                </div>
-
-                {/* Content */}
-                <div className="px-6 py-6 space-y-6">
-                  {/* Title */}
-                  <div>
-                    <h3 className="text-2xl font-bold text-gray-900 mb-2">
-                      {selectedPhaseProject.title}
-                    </h3>
-                    <Badge className="bg-blue-100 text-blue-800 border-blue-200 rounded-full px-2.5 py-0.5 text-xs font-medium">
-                      {selectedPhaseProject.projectType}
-                    </Badge>
-                  </div>
-
-                  {/* Phase 1 Bidders - Only for Phase 2 projects */}
-                  {selectedPhaseProject.phase2StartDate && phase1Bids && phase1Bids?.length > 0 && (
-                      <div className="space-y-4 pt-4 border-t border-gray-200">
-                        <h4 className="text-lg font-semibold text-gray-900">Phase 1 Bidders (Ranked from Phase 1 End)</h4>
-                        <div className="space-y-3">
-                          {phase1Bids
-                              .sort((a: any, b: any) => a.bid_amount - b.bid_amount)
-                              .map((bid: any, index: number) => (
-                                  <div
-                                      key={bid.contractor_id || index}
-                                      className="flex items-center justify-between p-4 rounded-lg border border-gray-200 bg-gray-50 hover:bg-gray-100 transition-colors"
-                                  >
-                                    <div className="flex items-center gap-3">
-                                      <div className="flex items-center justify-center w-8 h-8 rounded-full bg-vendle-blue text-white font-semibold text-sm">
-                                        #{index + 1}
-                                      </div>
-                                      <div>
-                                        <p className="font-semibold text-gray-900">
-                                          {bid.company_name || bid.contractor_name || `Contractor ${index + 1}`}
-                                        </p>
-                                        {bid.contractor_name && bid.contractor_name !== bid.company_name && (
-                                            <p className="text-xs text-gray-500">{bid.contractor_name}</p>
-                                        )}
-                                      </div>
-                                    </div>
-                                    <div className="text-right">
-                                      <p className="text-lg font-bold text-vendle-blue">
-                                        ${bid.bid_amount?.toLocaleString() || '0'}
-                                      </p>
-                                      <p className="text-xs text-gray-500">Phase 1 Proposal</p>
-                                    </div>
-                                  </div>
-                              ))}
-                        </div>
-                      </div>
-                  )}
-
-                  {/* Phase 2 Dashboard - Only for Phase 2 */}
-                  {selectedPhaseProject.phase2StartDate && selectedPhaseProject.competingBids && (
-                      <div className="space-y-4 pt-4 border-t border-gray-200">
-                        <h4 className="text-lg font-semibold text-gray-900">Current Phase 2 Bidders</h4>
-
-                        {/* Analytics Summary */}
-                        <div className="grid grid-cols-3 gap-4 mb-4">
-                          <div className="bg-gray-50 rounded-lg p-4">
-                            <p className="text-xs text-gray-600 mb-1">Mean Bid</p>
-                            <p className="text-xl font-bold text-gray-900">
-                              ${Math.round(
-                                selectedPhaseProject.competingBids?.reduce((sum, bid) => sum + bid.bidAmount, 0) /
-                                selectedPhaseProject.competingBids.length
-                            )?.toLocaleString()}
-                            </p>
-                          </div>
-                          <div className="bg-gray-50 rounded-lg p-4">
-                            <p className="text-xs text-gray-600 mb-1">Total Bidders</p>
-                            <p className="text-xl font-bold text-gray-900">
-                              {selectedPhaseProject.competingBids.length}
-                            </p>
-                          </div>
-                          <div className="bg-vendle-blue/10 rounded-lg p-4">
-                            <p className="text-xs text-vendle-blue mb-1">Your Rank</p>
-                            <p className="text-xl font-bold text-vendle-blue">
-                              #{selectedPhaseProject.competingBids
-                                .sort((a, b) => a.bidAmount - b.bidAmount)
-                                .findIndex(bid => bid.isCurrentContractor) + 1}
-                            </p>
-                          </div>
-                        </div>
-
-                        {/* Bar Chart */}
-                        <div className="space-y-2">
-                          <p className="text-sm font-medium text-gray-700 mb-3">Bid Comparison</p>
-                          {selectedPhaseProject.competingBids
-                              .sort((a, b) => a.bidAmount - b.bidAmount)
-                              .map((bid, index) => {
-                                const maxBid = Math.max(...selectedPhaseProject.competingBids!.map(b => b.bidAmount));
-                                const percentage = (bid.bidAmount / maxBid) * 100;
-                                const contractorNumber = index + 1;
-                                return (
-                                    <div key={bid.contractorId} className="space-y-1">
-                                      <div className="flex items-center justify-between text-xs">
-                              <span className={`font-medium ${bid.isCurrentContractor ? 'text-vendle-blue' : 'text-gray-600'}`}>
-                                Contractor #{contractorNumber} {bid.isCurrentContractor && '(You)'}
-                              </span>
-                                        <span className={`font-semibold ${bid.isCurrentContractor ? 'text-vendle-blue' : 'text-gray-900'}`}>
-                                ${bid.bidAmount.toLocaleString()}
-                              </span>
-                                      </div>
-                                      <div className="w-full bg-gray-200 rounded-full h-6 relative">
-                                        <div
-                                            className={`h-6 rounded-full flex items-center justify-end pr-2 ${
-                                                bid.isCurrentContractor
-                                                    ? 'bg-vendle-blue'
-                                                    : 'bg-gray-400'
-                                            }`}
-                                            style={{ width: `${percentage}%` }}
-                                        >
-                                          {bid.isCurrentContractor && (
-                                              <span className="text-xs text-white font-medium">
-                                    #{index + 1}
-                                  </span>
-                                          )}
-                                        </div>
-                                      </div>
-                                    </div>
-                                );
-                              })}
-                        </div>
-                      </div>
-                  )}
-
-                  {/* Contract Value */}
-                  <div className="space-y-1">
-                    <p className="text-sm text-gray-600">Contract Value</p>
-                    <p className="text-3xl font-bold text-vendle-blue">
-                      ${selectedPhaseProject.contractValue.toLocaleString()}
-                    </p>
-                  </div>
-
-                  {/* Location */}
-                  <div className="space-y-1">
-                    <p className="text-sm text-gray-600">Location</p>
-                    <div className="flex items-center gap-2">
-                      <MapPin className="h-4 w-4 text-gray-600" />
-                      <p className="text-base font-medium text-gray-900">
-                        {selectedPhaseProject.address}, {selectedPhaseProject.city}, {selectedPhaseProject.state}
-                      </p>
-                    </div>
-                  </div>
-
-                  {/* Phase Dates */}
-                  {selectedPhaseProject.phase1StartDate && (
-                      <div className="space-y-2">
-                        <p className="text-sm text-gray-600">Phase 1 Timeline</p>
-                        <div className="flex items-center gap-4 text-sm">
-                          <div className="flex items-center gap-2">
-                            <Calendar className="h-4 w-4 text-gray-600" />
-                            <span className="font-medium">
-                        Start: {new Date(selectedPhaseProject.phase1StartDate).toLocaleDateString()}
-                      </span>
-                          </div>
-                          <div className="flex items-center gap-2">
-                            <Clock className="h-4 w-4 text-gray-600" />
-                            <span className="font-medium">
-                        End: {new Date(selectedPhaseProject.phase1EndDate!).toLocaleDateString()}
-                      </span>
-                          </div>
-                        </div>
-                      </div>
-                  )}
-                  {selectedPhaseProject.phase2StartDate && (
-                      <div className="space-y-2">
-                        <p className="text-sm text-gray-600">Phase 2 Timeline</p>
-                        <div className="flex items-center gap-4 text-sm">
-                          <div className="flex items-center gap-2">
-                            <Calendar className="h-4 w-4 text-gray-600" />
-                            <span className="font-medium">
-                        Start: {new Date(selectedPhaseProject.phase2StartDate).toLocaleDateString()}
-                      </span>
-                          </div>
-                          <div className="flex items-center gap-2">
-                            <Clock className="h-4 w-4 text-gray-600" />
-                            <span className="font-medium">
-                        End: {new Date(selectedPhaseProject.phase2EndDate!).toLocaleDateString()}
-                      </span>
-                          </div>
-                        </div>
-                      </div>
-                  )}
-
-                  {/* Images */}
-                  {selectedPhaseProject.imageUrls && selectedPhaseProject.imageUrls.length > 0 && (
-                      <div className="space-y-2">
-                        <p className="text-sm text-gray-600">Project Photos</p>
-                        <div className="grid grid-cols-2 gap-2">
-                          {selectedPhaseProject.imageUrls.map((url, index) => (
-                              <div key={index} className="relative rounded-lg overflow-hidden border border-gray-200">
-                                <img
-                                    src={url}
-                                    alt={`Project photo ${index + 1}`}
-                                    className="w-full h-32 object-cover"
-                                />
-                              </div>
-                          ))}
-                        </div>
-                      </div>
-                  )}
-
-                  {/* Calendly Scheduler - Only for Phase 1 */}
-                  {selectedPhaseProject.phase1StartDate && (
-                      <div className="space-y-2 pt-4 border-t border-gray-200">
-                        <p className="text-sm font-semibold text-gray-900">Schedule Site Visit</p>
-                        <Button
-                            variant="outline"
-                            className="w-full border-vendle-blue text-vendle-blue hover:bg-vendle-blue hover:text-white"
-                            onClick={() => window.open('https://calendly.com/vendle/site-visit', '_blank')}
-                        >
-                          <Calendar className="h-4 w-4 mr-2" />
-                          Schedule with Calendly
-                        </Button>
-                      </div>
-                  )}
-
-                  {/* Related Files */}
-                  {selectedPhaseProject.files && selectedPhaseProject.files.length > 0 && (
-                      <div className="space-y-2 pt-4 border-t border-gray-200">
-                        <p className="text-sm font-semibold text-gray-900">Related Files</p>
-                        <div className="space-y-2">
-                          {selectedPhaseProject.files.map((file) => (
-                              <div
-                                  key={file.id}
-                                  className="flex items-center justify-between p-3 bg-gray-50 rounded-lg border border-gray-200 hover:bg-gray-100 transition-colors"
-                              >
-                                <div className="flex items-center gap-3">
-                                  <File className="h-5 w-5 text-gray-600" />
-                                  <span className="text-sm font-medium text-gray-900">{file.name}</span>
-                                </div>
-                                <Button
-                                    variant="ghost"
-                                    size="sm"
-                                    onClick={() => window.open(file.url, '_blank')}
-                                >
-                                  <Download className="h-4 w-4" />
-                                </Button>
-                              </div>
-                          ))}
-                        </div>
-                      </div>
-                  )}
-
-                  {/* Adjustment PDF */}
-                  {selectedPhaseProject.adjustmentPdf && (
-                      <div className="space-y-2 pt-4 border-t border-gray-200">
-                        <p className="text-sm font-semibold text-gray-900">Insurance Adjustment Document</p>
-                        <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg border border-gray-200">
-                          <div className="flex items-center gap-3">
-                            <File className="h-5 w-5 text-gray-600" />
-                            <span className="text-sm font-medium text-gray-900">
-                        {selectedPhaseProject.adjustmentPdf.name}
-                      </span>
-                          </div>
-                          <Button
-                              variant="outline"
-                              size="sm"
-                              onClick={() => window.open(selectedPhaseProject.adjustmentPdf!.url, '_blank')}
-                          >
-                            <Download className="h-4 w-4 mr-2" />
-                            View PDF
-                          </Button>
-                        </div>
-                      </div>
-                  )}
-
-                  {/* Contact Information */}
-                  <div className="space-y-3 pt-4 border-t border-gray-200">
-                    <p className="text-sm font-semibold text-gray-900">Contact Homeowner</p>
-                    <div className="flex items-center gap-3 p-4 bg-gray-50 rounded-lg border border-gray-200">
-                      <div className="p-2 bg-gray-100 rounded-lg">
-                        <Users className="h-5 w-5 text-gray-600" />
-                      </div>
-                      <div className="flex-1">
-                        <p className="text-xs text-gray-600 mb-1">Homeowner Name</p>
-                        <p className="text-base font-medium text-gray-900">
-                          {selectedPhaseProject.homeownerName}
-                        </p>
-                      </div>
-                    </div>
-                    {selectedPhaseProject.homeownerPhone && (
-                        <div className="flex items-center gap-3 p-4 bg-gray-50 rounded-lg border border-gray-200">
-                          <div className="p-2 bg-gray-100 rounded-lg">
-                            <Phone className="h-5 w-5 text-gray-600" />
-                          </div>
-                          <div className="flex-1">
-                            <p className="text-xs text-gray-600 mb-1">Phone Number</p>
-                            <p className="text-base font-medium text-gray-900">
-                              {selectedPhaseProject.homeownerPhone}
-                            </p>
-                          </div>
-                        </div>
-                    )}
-                  </div>
-
-                  {/* Description */}
-                  {selectedPhaseProject.description && (
-                      <div className="space-y-2 pt-4 border-t border-gray-200">
-                        <p className="text-sm font-semibold text-gray-900">Description</p>
-                        <p className="text-sm text-gray-700 leading-relaxed">
-                          {selectedPhaseProject.description}
-                        </p>
-                      </div>
-                  )}
-
-                  <Button asChild>
-                    <Link href={`/auction/${selectedPhaseProject.id}`}>
-                      Place Bid
-                    </Link>
-                  </Button>
-                </div>
-              </div>
-            </div>
-        )}
-
-        <div className={`transition-all duration-300 ${selectedJob || selectedPhaseProject ? 'pr-[50%]' : ''}`}>
+        <div className={`transition-all duration-300 ${selectedJob ? 'pr-[50%]' : ''}`}>
           <div className="container mx-auto px-4 py-8 max-w-full">
             {/* Header */}
             <div className="mb-8">
@@ -1075,7 +742,7 @@ export default function HomePage() {
 
             {/* Contractor Tabs and Content */}
             {isContractor ? (
-                <div className={`space-y-6 transition-all duration-300 ${selectedJob || selectedPhaseProject ? 'pr-[480px]' : ''}`}>
+                <div className={`space-y-6 transition-all duration-300 ${selectedJob ? 'pr-[480px]' : ''}`}>
                   {/* Tab Navigation */}
                   <div className="border-b border-gray-200">
                     <nav className="-mb-px flex space-x-8">
@@ -1218,7 +885,7 @@ export default function HomePage() {
                               />
                           ) : (
                               <div className={`grid gap-6 sm:gap-8 transition-all duration-300 ${
-                                  selectedJob || selectedPhaseProject
+                                  selectedJob
                                       ? 'grid-cols-1 md:grid-cols-1'
                                       : 'grid-cols-1 md:grid-cols-2 xl:grid-cols-3'
                               }`}>
@@ -1277,7 +944,7 @@ export default function HomePage() {
                                             <Button
                                                 variant="default"
                                                 className="w-full bg-vendle-blue hover:bg-vendle-blue/90 hover:text-white transition-colors"
-                                                onClick={() => setSelectedPhaseProject(project)}
+                                                onClick={() => router.push(`/auction/${project.id}`)}
                                             >
                                               <Activity className="h-4 w-4 mr-2" />
                                               View Details
@@ -1300,7 +967,7 @@ export default function HomePage() {
                               />
                           ) : (
                               <div className={`grid gap-6 sm:gap-8 transition-all duration-300 ${
-                                  selectedJob || selectedPhaseProject
+                                  selectedJob
                                       ? 'grid-cols-1 md:grid-cols-1'
                                       : 'grid-cols-1 md:grid-cols-2 xl:grid-cols-3'
                               }`}>
@@ -1359,7 +1026,7 @@ export default function HomePage() {
                                             <Button
                                                 variant="default"
                                                 className="w-full bg-vendle-blue hover:bg-vendle-blue/90 hover:text-white transition-colors"
-                                                onClick={() => setSelectedPhaseProject(project)}
+                                                onClick={() => router.push(`/auction/${project.id}`)}
                                             >
                                               <Activity className="h-4 w-4 mr-2" />
                                               View Details
