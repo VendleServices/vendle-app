@@ -89,6 +89,7 @@ export default function AuctionDetailsPage() {
     const [aiRecommendation, setAiRecommendation] = useState<string>("");
     const [openAiDialog, setOpenAiDialog] = useState(false);
     const fileInputRef = useRef<HTMLInputElement>(null);
+    const [selectedForPhase2, setSelectedForPhase2] = useState<Set<string>>(new Set());
 
     const isContractor = user?.user_metadata?.userType === "contractor";
 
@@ -251,6 +252,31 @@ export default function AuctionDetailsPage() {
     const onSubmit = (event: React.FormEvent) => {
         event.preventDefault();
         submitBidDataMutation.mutate(auction_id);
+    };
+
+    const handleTogglePhase2Selection = (contractorId: string) => {
+        setSelectedForPhase2(prev => {
+            const newSet = new Set(prev);
+            if (newSet.has(contractorId)) {
+                newSet.delete(contractorId);
+                toast.success("Contractor removed from Phase 2 selection");
+            } else {
+                newSet.add(contractorId);
+                toast.success("Contractor selected for Phase 2");
+            }
+            return newSet;
+        });
+    };
+
+    const handleCreatePhase2Auction = () => {
+        const selectedCount = selectedForPhase2.size;
+        const selectedIds = Array.from(selectedForPhase2);
+
+        toast.success("Phase 2 Auction Creation", {
+            description: `Ready to create Phase 2 auction with ${selectedCount} selected contractor${selectedCount !== 1 ? 's' : ''}`,
+        });
+
+        console.log("Selected contractor IDs for Phase 2:", selectedIds);
     };
 
     if (loading) {
@@ -697,14 +723,6 @@ export default function AuctionDetailsPage() {
                                             </Badge>
                                         </div>
                                     </div>
-                                    {!isContractor && (
-                                        <Button
-                                            onClick={() => askVendleAIMutation.mutate()}
-                                            className="rounded-full bg-[hsl(217,64%,23%)] px-5 text-sm font-medium text-white hover:bg-[hsl(217,64%,18%)]"
-                                        >
-                                            Ask Vendle
-                                        </Button>
-                                    )}
                                 </div>
                             </CardHeader>
                             <CardContent className="p-8">
@@ -781,11 +799,16 @@ export default function AuctionDetailsPage() {
                                         </h2>
                                         <p className="text-sm text-muted-foreground">
                                             {bids?.length || 0} contractors competing for your project
+                                            {selectedForPhase2.size > 0 && (
+                                                <span className="ml-2 text-vendle-blue font-semibold">
+                                                    • {selectedForPhase2.size} selected for Phase 2
+                                                </span>
+                                            )}
                                         </p>
                                     </div>
                                 </div>
 
-                                <div className="flex items-center gap-3">
+                                <div className="flex items-center gap-3 flex-wrap">
                                     {/* Sort dropdown */}
                                     <Select defaultValue="lowest_bid">
                                         <SelectTrigger className="w-[220px] h-11 border-2 border-vendle-gray/30 hover:border-vendle-blue/50 bg-white shadow-sm">
@@ -818,6 +841,21 @@ export default function AuctionDetailsPage() {
                                     >
                                         <Sparkles className="w-4 h-4 mr-2" />
                                         {askVendleAIMutation.isPending ? 'Analyzing...' : 'Ask Vendle AI'}
+                                    </Button>
+
+                                    {/* Create Phase 2 Auction button - Homeowners only */}
+                                    <Button
+                                        onClick={handleCreatePhase2Auction}
+                                        disabled={selectedForPhase2.size === 0}
+                                        className="bg-gradient-to-r from-emerald-600 to-emerald-700 hover:from-emerald-700 hover:to-emerald-800 text-white shadow-lg hover:shadow-xl font-bold disabled:opacity-50 disabled:cursor-not-allowed"
+                                    >
+                                        <Gavel className="w-4 h-4 mr-2" />
+                                        Create Phase 2 Auction
+                                        {selectedForPhase2.size > 0 && (
+                                            <Badge className="ml-2 bg-white/20 text-white border-white/30">
+                                                {selectedForPhase2.size}
+                                            </Badge>
+                                        )}
                                     </Button>
                                 </div>
                             </div>
@@ -941,22 +979,23 @@ export default function AuctionDetailsPage() {
                                                         </div>
                                                     </div>
 
-                                                    {/* Action buttons */}
-                                                    <div className="grid grid-cols-2 gap-3 pt-2">
-                                                        <Button
-                                                            variant="outline"
-                                                            size="sm"
-                                                            className="border-2 border-vendle-gray/30 hover:border-vendle-blue hover:bg-vendle-blue/5 font-medium"
-                                                        >
-                                                            <Eye className="w-4 h-4 mr-2" />
-                                                            Details
-                                                        </Button>
+                                                    {/* Action button */}
+                                                    <div className="pt-2">
                                                         <Button
                                                             size="sm"
-                                                            className="bg-gradient-to-r from-emerald-600 to-emerald-700 hover:from-emerald-700 hover:to-emerald-800 text-white shadow-lg hover:shadow-xl font-bold"
+                                                            onClick={() => handleTogglePhase2Selection(bid.contractor_id)}
+                                                            className={cn(
+                                                                "w-full font-bold shadow-lg hover:shadow-xl transition-all",
+                                                                selectedForPhase2.has(bid.contractor_id)
+                                                                    ? "bg-gradient-to-r from-vendle-blue to-vendle-teal text-white hover:from-vendle-blue/90 hover:to-vendle-teal/90"
+                                                                    : "bg-white border-2 border-vendle-blue text-vendle-blue hover:bg-vendle-blue/5"
+                                                            )}
                                                         >
-                                                            <Check className="w-4 h-4 mr-2" />
-                                                            Accept
+                                                            <Check className={cn(
+                                                                "w-4 h-4 mr-2",
+                                                                selectedForPhase2.has(bid.contractor_id) ? "opacity-100" : "opacity-0"
+                                                            )} />
+                                                            {selectedForPhase2.has(bid.contractor_id) ? "Selected for Phase 2" : "Select for Phase 2"}
                                                         </Button>
                                                     </div>
                                                 </div>
