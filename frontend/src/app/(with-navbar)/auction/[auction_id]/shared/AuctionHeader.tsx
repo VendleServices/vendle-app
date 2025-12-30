@@ -1,0 +1,106 @@
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { Gavel, Wrench, Users, DollarSign, Clock } from "lucide-react";
+import { cn } from "@/lib/utils";
+import { AuctionHeaderProps } from "../types";
+
+export function AuctionHeader({
+  auction,
+  bidsCount,
+  lowestBid,
+  isPhase1,
+  isPhase2,
+  onBack
+}: AuctionHeaderProps) {
+  return (
+    <>
+      {/* Top back + title row */}
+      <div className="mb-6 flex items-center justify-between gap-4">
+        <Button
+          variant="ghost"
+          className="h-9 rounded-full px-3 text-sm text-muted-foreground hover:bg-muted"
+          onClick={onBack}
+        >
+          ← Back to Auctions
+        </Button>
+      </div>
+
+      {/* Enhanced header with gradient background */}
+      <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-white via-vendle-blue/5 to-vendle-teal/5 border-2 border-vendle-gray/20 shadow-xl mb-8">
+        {/* Subtle background pattern */}
+        <div
+          className="absolute inset-0 opacity-5"
+          style={{
+            backgroundImage: `url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%234A637D' fill-opacity='1'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")`,
+          }}
+        />
+
+        <div className="relative p-8 lg:p-10">
+          <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6">
+            {/* Left: Title & metadata */}
+            <div className="space-y-4">
+              <div className="flex items-center gap-2">
+                <Badge variant="outline" className="uppercase tracking-wider text-xs font-bold text-vendle-blue border-vendle-blue/30 bg-vendle-blue/5">
+                  <Gavel className="w-3 h-3 mr-1" />
+                  Live Auction
+                </Badge>
+                {/* Phase indicator */}
+                <Badge
+                  className={cn(
+                    "uppercase tracking-wider text-xs font-bold",
+                    isPhase1 ? "bg-blue-500 text-white" : "bg-green-500 text-white"
+                  )}
+                >
+                  Phase {auction?.number || 1}
+                </Badge>
+              </div>
+
+              <h1 className="text-4xl lg:text-5xl font-bold tracking-tight text-foreground">
+                {auction.title}
+              </h1>
+
+              {auction.reconstructionType && (
+                <div className="flex items-center gap-2 text-lg text-muted-foreground">
+                  <Wrench className="w-5 h-5 text-vendle-blue" />
+                  <span>{auction.reconstructionType}</span>
+                </div>
+              )}
+            </div>
+
+            {/* Right: Stats cards */}
+            <div className="grid grid-cols-2 lg:grid-cols-3 gap-4">
+              {/* Bid count */}
+              <div className="p-4 rounded-xl bg-white/80 backdrop-blur-sm border border-vendle-gray/30 shadow-md">
+                <div className="flex items-center gap-2 text-muted-foreground text-xs mb-1">
+                  <Users className="w-3.5 h-3.5" />
+                  <span className="uppercase tracking-wide font-medium">Bids</span>
+                </div>
+                <p className="text-2xl font-bold text-foreground">{bidsCount || 0}</p>
+              </div>
+
+              {/* Lowest bid */}
+              <div className="p-4 rounded-xl bg-gradient-to-br from-vendle-blue/10 to-vendle-teal/10 border border-vendle-blue/20 shadow-md">
+                <div className="flex items-center gap-2 text-vendle-blue text-xs mb-1">
+                  <DollarSign className="w-3.5 h-3.5" />
+                  <span className="uppercase tracking-wide font-medium">Lowest Bid</span>
+                </div>
+                <p className="text-2xl font-bold text-vendle-blue">
+                  {lowestBid ? `$${lowestBid.toLocaleString()}` : "N/A"}
+                </p>
+              </div>
+
+              {/* Status */}
+              <div className="p-4 rounded-xl bg-emerald-50 border border-emerald-200 shadow-md col-span-2 lg:col-span-1">
+                <div className="flex items-center gap-2 text-emerald-700 text-xs mb-1">
+                  <Clock className="w-3.5 h-3.5" />
+                  <span className="uppercase tracking-wide font-medium">Status</span>
+                </div>
+                <p className="text-lg font-bold text-emerald-700 capitalize">{auction.status}</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </>
+  );
+}
