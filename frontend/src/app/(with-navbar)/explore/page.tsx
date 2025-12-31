@@ -26,6 +26,7 @@ import {
   X,
   Phone,
   MessageSquare,
+  Loader2,
 } from "lucide-react"
 import { formatPrice, formatLocation, getTimeAgo, type JobPosting } from "@/data/mockJobs"
 import { useApiService } from "@/services/api";
@@ -163,6 +164,18 @@ export default function ExplorePage() {
     }
   }
 
+  // Loading state
+  if (isLoading) {
+    return (
+      <div className="flex min-h-screen items-center justify-center bg-muted/30 lg:pl-32">
+        <div className="space-y-4 text-center">
+          <Loader2 className="mx-auto h-12 w-12 animate-spin text-[hsl(217,64%,23%)]" />
+          <p className="text-lg text-foreground">Loading opportunities...</p>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <>
       {/* Main Layout */}
@@ -234,23 +247,32 @@ export default function ExplorePage() {
                       </Button>
                   )}
                 </div>
-            ) : (<div className="grid gap-5 sm:grid-cols-2 xl:grid-cols-3">
+            ) : (<div className="grid gap-4 sm:gap-6 lg:gap-8 sm:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 transition-all duration-300">
               {sortedJobs?.map((job) => (
-                  <Card
+                  <motion.div
                       key={job.id}
-                      className={`group relative flex flex-col overflow-hidden rounded-2xl border-border bg-card transition-all duration-200 hover:-translate-y-0.5 hover:shadow-lg hover:border-primary/20 cursor-pointer ${
-                          selectedJob?.id === job.id ? 'border-primary shadow-lg' : ''
+                      initial={{ opacity: 0, y: 20 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      whileHover={{ y: -4 }}
+                      transition={{ duration: 0.2 }}
+                  >
+                  <Card
+                      className={`group relative flex flex-col h-full overflow-hidden rounded-2xl border-2 bg-white transition-all duration-300 cursor-pointer shadow-lg hover:shadow-2xl ${
+                          selectedJob?.id === job.id ? 'border-[#4A637D] shadow-2xl' : 'border-[#D9D9D9] hover:border-[#4A637D]/50'
                       }`}
                   >
-                    <CardHeader className="space-y-3 pb-4">
+                    {/* Gradient overlay header */}
+                    <div className="absolute top-0 left-0 right-0 h-1.5 bg-gradient-to-r from-[#2C3E50] via-[#4A637D] to-[#5A9E8B]" />
+
+                    <CardHeader className="space-y-3 pb-4 pt-6">
                       {/* Title + Category Badge */}
                       <div className="flex items-start justify-between gap-3">
-                        <h3 className="line-clamp-2 text-lg font-semibold leading-snug tracking-tight">
+                        <h3 className="line-clamp-2 text-xl font-bold leading-snug tracking-tight group-hover:text-[#4A637D] transition-colors">
                           {job.title}
                         </h3>
                         <Badge
                             variant="secondary"
-                            className="shrink-0 rounded-full px-2.5 py-0.5 text-xs font-medium text-white"
+                            className="shrink-0 rounded-full px-3 py-1 text-xs font-bold text-white bg-gradient-to-r from-[#4A637D] to-[#5A9E8B] shadow-sm"
                         >
                           {job.category}
                         </Badge>
@@ -263,29 +285,29 @@ export default function ExplorePage() {
                     </CardHeader>
 
                     <CardContent className="flex-1 space-y-4 pb-4">
-                      {/* Budget */}
-                      <div className="space-y-0.5">
+                      {/* Budget - Highlighted */}
+                      <div className="p-4 rounded-xl bg-gradient-to-br from-[#4A637D]/10 to-[#5A9E8B]/5 border-2 border-[#4A637D]/20 shadow-sm">
+                        <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-1">Budget</p>
                         <div className="flex items-baseline gap-1.5">
-                        <span className="text-2xl font-semibold tracking-tight text-primary">
-                          {formatPrice(job.price)}
-                        </span>
+                          <span className="text-3xl font-bold tracking-tight text-[#4A637D]">
+                            {formatPrice(job.price)}
+                          </span>
                         </div>
-                        <p className="text-xs text-muted-foreground">Budget</p>
                       </div>
 
                       {/* Meta Info: Location + Posted Date */}
-                      <div className="space-y-2 pt-1">
+                      <div className="space-y-3 p-3 rounded-lg bg-[#D9D9D9]/20 border border-[#D9D9D9]">
                         <div className="flex items-start gap-2">
-                          <MapPin className="mt-0.5 h-4 w-4 shrink-0 text-muted-foreground"/>
-                          <span className="text-sm leading-tight text-foreground">
-                          {formatLocation(job.location)}
-                        </span>
+                          <MapPin className="mt-0.5 h-4 w-4 shrink-0 text-[#4A637D]"/>
+                          <span className="text-sm leading-tight text-foreground font-medium">
+                            {formatLocation(job.location)}
+                          </span>
                         </div>
                         <div className="flex items-center gap-2">
-                          <Calendar className="h-4 w-4 shrink-0 text-muted-foreground"/>
+                          <Calendar className="h-4 w-4 shrink-0 text-[#4A637D]"/>
                           <span className="text-sm text-muted-foreground">
-                          Posted {getTimeAgo(job.postedAt)}
-                        </span>
+                            Posted {getTimeAgo(job.postedAt)}
+                          </span>
                         </div>
                       </div>
                     </CardContent>
@@ -293,7 +315,7 @@ export default function ExplorePage() {
                     <CardFooter className="pt-0">
                       {job?.showViewDetails ? (
                           <Button
-                              className="w-full rounded-lg"
+                              className="w-full rounded-lg bg-gradient-to-r from-[#2C3E50] via-[#4A637D] to-[#5A9E8B] hover:from-[#2C3E50]/90 hover:via-[#4A637D]/90 hover:to-[#5A9E8B]/90 shadow-md hover:shadow-lg transition-all font-semibold"
                               onClick={(e) => {
                                 e.stopPropagation()
                                 handleViewDetails(job)
@@ -305,7 +327,7 @@ export default function ExplorePage() {
                       ) : (
                           job?.showJoinRestoration ? (
                               <Button
-                                  className="w-full rounded-lg hover:text-white"
+                                  className="w-full rounded-lg border-2 border-[#4A637D]/30 hover:border-[#4A637D] hover:bg-[#4A637D] hover:text-white transition-all shadow-sm font-semibold"
                                   variant="outline"
                                   disabled={joinRestorationMutation?.isPending}
                                   onClick={() => joinRestorationMutation.mutate(job?.id)}
@@ -313,7 +335,7 @@ export default function ExplorePage() {
                                 Join Restoration
                               </Button>
                           ) : (
-                              <Button asChild className="w-full rounded-lg">
+                              <Button asChild className="w-full rounded-lg bg-gradient-to-r from-[#2C3E50] via-[#4A637D] to-[#5A9E8B] hover:from-[#2C3E50]/90 hover:via-[#4A637D]/90 hover:to-[#5A9E8B]/90 shadow-md hover:shadow-lg transition-all font-semibold">
                                 <Link href={`/claim/${job?.id}`}>
                                   Claim Details
                                 </Link>
@@ -322,6 +344,7 @@ export default function ExplorePage() {
                       )}
                     </CardFooter>
                   </Card>
+                  </motion.div>
               ))}
             </div>)}
           </div>

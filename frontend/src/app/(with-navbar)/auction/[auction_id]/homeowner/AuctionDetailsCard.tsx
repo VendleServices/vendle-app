@@ -5,11 +5,11 @@ import { AuctionDetailsCardProps } from "../types";
 
 export function AuctionDetailsCard({ auction }: AuctionDetailsCardProps) {
   return (
-    <Card className="border-border bg-card shadow-md">
-      <CardHeader className="border-b border-border pb-6">
+    <Card className="shadow-lg border-2 border-vendle-gray/20 hover:shadow-xl transition-all duration-300 bg-gradient-to-br from-white to-gray-50/50">
+      <CardHeader className="border-b-2 border-vendle-gray/10 pb-6 bg-gradient-to-r from-vendle-blue/5 to-transparent">
         <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
           <div className="space-y-3">
-            <CardTitle className="text-2xl font-semibold text-foreground">
+            <CardTitle className="text-3xl font-bold text-foreground tracking-tight">
               {auction?.title}
             </CardTitle>
             <div className="flex flex-wrap items-center gap-2">
@@ -27,7 +27,7 @@ export function AuctionDetailsCard({ auction }: AuctionDetailsCardProps) {
                 <DollarSign className="h-3.5 w-3.5" />
                 Current ${auction?.bids?.[0]?.amount}
               </Badge>
-              <Badge className="rounded-full bg-emerald-50 px-3 py-1 text-xs font-semibold text-emerald-700">
+              <Badge className="rounded-full bg-[#5A9E8B]/10 px-3 py-1 text-xs font-semibold text-[#5A9E8B] border border-[#5A9E8B]/30">
                 {auction?.status}
               </Badge>
             </div>
@@ -37,10 +37,10 @@ export function AuctionDetailsCard({ auction }: AuctionDetailsCardProps) {
       <CardContent className="p-8">
         <div className="grid gap-8 md:grid-cols-2">
           <div className="space-y-5">
-            <h3 className="border-b border-border pb-2 text-sm font-semibold uppercase tracking-wide text-muted-foreground">
+            <h3 className="border-b-2 border-vendle-blue/20 pb-3 text-sm font-bold uppercase tracking-wider text-vendle-blue">
               Project Description
             </h3>
-            <div className="space-y-4 rounded-xl bg-muted p-4">
+            <div className="space-y-4 rounded-xl bg-gradient-to-br from-vendle-blue/5 to-transparent p-5 border border-vendle-gray/20 shadow-sm">
               <div className="space-y-1">
                 <p className="text-xs font-semibold text-muted-foreground">
                   Description
@@ -60,13 +60,13 @@ export function AuctionDetailsCard({ auction }: AuctionDetailsCardProps) {
             </div>
           </div>
           <div className="space-y-5">
-            <h3 className="border-b border-border pb-2 text-sm font-semibold uppercase tracking-wide text-muted-foreground">
+            <h3 className="border-b-2 border-vendle-teal/20 pb-3 text-sm font-bold uppercase tracking-wider text-vendle-teal">
               Auction Details
             </h3>
             <div className="space-y-4">
-              <div className="flex items-center rounded-xl border border-border bg-background p-4">
-                <div className="mr-4 flex h-10 w-10 items-center justify-center rounded-full bg-[hsl(217,64%,23%)]/10">
-                  <DollarSign className="h-5 w-5 text-[hsl(217,64%,23%)]" />
+              <div className="flex items-center rounded-xl border-2 border-vendle-blue/20 bg-gradient-to-r from-vendle-blue/5 to-transparent p-5 shadow-sm hover:shadow-md transition-shadow">
+                <div className="mr-4 flex h-12 w-12 items-center justify-center rounded-xl bg-vendle-blue/20 shadow-sm">
+                  <DollarSign className="h-6 w-6 text-vendle-blue" />
                 </div>
                 <div>
                   <p className="text-xs font-semibold text-muted-foreground">
@@ -77,9 +77,9 @@ export function AuctionDetailsCard({ auction }: AuctionDetailsCardProps) {
                   </p>
                 </div>
               </div>
-              <div className="flex items-center rounded-xl border border-border bg-background p-4">
-                <div className="mr-4 flex h-10 w-10 items-center justify-center rounded-full bg-red-50">
-                  <Clock className="h-5 w-5 text-red-600" />
+              <div className="flex items-center rounded-xl border-2 border-[#4A637D]/20 bg-gradient-to-r from-[#4A637D]/5 to-transparent p-5 shadow-sm hover:shadow-md transition-shadow">
+                <div className="mr-4 flex h-12 w-12 items-center justify-center rounded-xl bg-[#4A637D]/20 shadow-sm">
+                  <Clock className="h-6 w-6 text-[#4A637D]" />
                 </div>
                 <div>
                   <p className="text-xs font-semibold text-muted-foreground">

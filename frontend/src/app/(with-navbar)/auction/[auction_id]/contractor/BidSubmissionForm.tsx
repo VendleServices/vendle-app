@@ -20,7 +20,8 @@ export function BidSubmissionForm({
   isSubmitting,
   fileInputRef,
   onFileClick,
-  onFileRemove
+  onFileRemove,
+  disableSubmit
 }: BidSubmissionFormProps) {
   return (
     <>
@@ -236,7 +237,7 @@ export function BidSubmissionForm({
         <Button
           type="submit"
           size="lg"
-          disabled={isSubmitting}
+          disabled={isSubmitting || disableSubmit}
           className="w-full h-14 rounded-xl bg-gradient-to-r from-vendle-blue to-vendle-teal hover:shadow-2xl hover:shadow-vendle-blue/30 text-white font-bold text-lg transition-all group relative overflow-hidden"
         >
           <span className="relative z-10">

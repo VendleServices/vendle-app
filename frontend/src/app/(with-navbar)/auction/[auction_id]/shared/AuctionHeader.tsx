@@ -48,7 +48,7 @@ export function AuctionHeader({
                 <Badge
                   className={cn(
                     "uppercase tracking-wider text-xs font-bold",
-                    isPhase1 ? "bg-blue-500 text-white" : "bg-green-500 text-white"
+                    isPhase1 ? "bg-[#4A637D] text-white" : "bg-[#5A9E8B] text-white"
                   )}
                 >
                   Phase {auction?.number || 1}
@@ -90,12 +90,12 @@ export function AuctionHeader({
               </div>
 
               {/* Status */}
-              <div className="p-4 rounded-xl bg-emerald-50 border border-emerald-200 shadow-md col-span-2 lg:col-span-1">
-                <div className="flex items-center gap-2 text-emerald-700 text-xs mb-1">
+              <div className="p-4 rounded-xl bg-[#5A9E8B]/10 border border-[#5A9E8B]/30 shadow-md col-span-2 lg:col-span-1">
+                <div className="flex items-center gap-2 text-[#5A9E8B] text-xs mb-1">
                   <Clock className="w-3.5 h-3.5" />
                   <span className="uppercase tracking-wide font-medium">Status</span>
                 </div>
-                <p className="text-lg font-bold text-emerald-700 capitalize">{auction.status}</p>
+                <p className="text-lg font-bold text-[#2C3E50] capitalize">{auction.status}</p>
               </div>
             </div>
           </div>

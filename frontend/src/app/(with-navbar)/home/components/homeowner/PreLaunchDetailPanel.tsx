@@ -124,7 +124,7 @@ export function PreLaunchDetailPanel({
                   <div key={contractor.id} className="flex items-center gap-3 p-3 bg-green-50 rounded-lg border border-green-200">
                     <CheckCircle className="h-5 w-5 text-green-600" />
                     <div className="flex-1">
-                      <p className="font-medium text-gray-900">{contractor.companyName}</p>
+                      <p className="font-medium text-gray-900">{contractor?.user?.companyName}</p>
                       <p className="text-xs text-gray-500">Accepted</p>
                     </div>
                   </div>
@@ -142,12 +142,11 @@ export function PreLaunchDetailPanel({
                   <div key={contractor.id} className="flex items-center gap-3 p-3 bg-yellow-50 rounded-lg border border-yellow-200">
                     <XCircle className="h-5 w-5 text-yellow-600" />
                     <div className="flex-1">
-                      <p className="font-medium text-gray-900">{contractor.companyName}</p>
-                      <p className="text-xs text-gray-500">Waiting for NDA signature</p>
+                      <p className="font-medium text-gray-900">{contractor.user.companyName}</p>
                     </div>
                     <Button
                       size="sm"
-                      onClick={() => onAcceptContractor(contractor.participantId)}
+                      onClick={() => onAcceptContractor(contractor.id)}
                     >
                       Accept
                     </Button>

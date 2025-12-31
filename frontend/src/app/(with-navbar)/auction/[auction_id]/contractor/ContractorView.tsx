@@ -1,6 +1,7 @@
 import { ProjectOverviewCard } from "./ProjectOverviewCard";
 import { BidSubmissionForm } from "./BidSubmissionForm";
 import { Phase2BidActions } from "./Phase2BidActions";
+import { Phase1BidsRanking } from "./Phase1BidsRanking";
 import { ContractorViewProps } from "../types";
 
 export function ContractorView({
@@ -14,15 +15,20 @@ export function ContractorView({
   onSubmitBid,
   isSubmitting,
   fileInputRef,
-  mockPhase1Bid,
+  contractorPhase1Bid,
   adjustingBid,
   adjustedBidData,
+  phase1Bids,
   onConfirmBid,
   onAdjustBid,
   onSubmitAdjustedBid,
   onWithdraw,
   onCancelAdjust,
-  setAdjustedBidData
+  setAdjustedBidData,
+  disableWithdrawBid,
+  disableConfirmBid,
+  disableAdjustBid,
+  disableSubmit
 }: ContractorViewProps) {
   const handleFileClick = () => {
     fileInputRef.current?.click();
@@ -34,8 +40,13 @@ export function ContractorView({
 
   return (
     <div className="grid gap-8 lg:grid-cols-[minmax(0,2fr)_minmax(0,1.25fr)]">
-      {/* LEFT: Project details */}
-      <ProjectOverviewCard auction={auction} />
+      {/* LEFT: Project details and Phase 1 bids ranking */}
+      <div className="space-y-8">
+        <ProjectOverviewCard auction={auction} />
+
+        {/* Phase 1 Bids Ranking - Only show in Phase 2 */}
+        {isPhase2 && <Phase1BidsRanking phase1Bids={phase1Bids} />}
+      </div>
 
       {/* RIGHT: Bid submission or Phase 2 actions */}
       <div className="sticky top-6 h-fit">
@@ -50,10 +61,11 @@ export function ContractorView({
             fileInputRef={fileInputRef}
             onFileClick={handleFileClick}
             onFileRemove={handleFileRemove}
+            disableSubmit={disableSubmit}
           />
         ) : (
           <Phase2BidActions
-            mockPhase1Bid={mockPhase1Bid}
+            contractorPhase1Bid={contractorPhase1Bid}
             adjustingBid={adjustingBid}
             adjustedBidData={adjustedBidData}
             onConfirmBid={onConfirmBid}
@@ -62,6 +74,9 @@ export function ContractorView({
             onWithdraw={onWithdraw}
             onCancelAdjust={onCancelAdjust}
             setAdjustedBidData={setAdjustedBidData}
+            disableConfirmBid={disableConfirmBid}
+            disableAdjustBid={disableAdjustBid}
+            disableWithdrawBid={disableWithdrawBid}
           />
         )}
       </div>

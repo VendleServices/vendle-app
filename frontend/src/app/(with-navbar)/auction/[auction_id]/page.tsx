@@ -16,7 +16,7 @@ import { AuctionHeader } from "./shared/AuctionHeader";
 import { AIRecommendationDialog } from "./shared/AIRecommendationDialog";
 import { ContractorView } from "./contractor/ContractorView";
 import { HomeownerView } from "./homeowner/HomeownerView";
-import { Auction, Bid } from "./types";
+import { Auction } from "./types";
 
 const initialBidDefaults = {
   amount: 0,
@@ -48,31 +48,11 @@ export default function AuctionDetailsPage() {
 
   const isContractor = user?.user_metadata?.userType === "contractor";
 
-  // Mock Phase 1 bid for contractor in Phase 2 (replace with actual data fetch)
-  const mockPhase1Bid = {
-    bid_amount: 75000,
-    budgetTotal: 45000,
-    laborCosts: 20000,
-    subContractorExpenses: 5000,
-    overhead: 3000,
-    profit: 2000,
-    allowance: 0,
-  };
-
   // Data fetching
   const fetchAuction = async (auctionId: string) => {
     try {
       const response: any = await apiService.get(`/api/auction/${auctionId}`);
       return response?.totalAuction as unknown as Auction;
-    } catch (error) {
-      console.log(error);
-    }
-  };
-
-  const fetchBids = async (auctionId: string) => {
-    try {
-      const response: any = await apiService.get(`/api/bids/${auctionId}`);
-      return (response?.expandedBidInfo as unknown as Bid[]) || [];
     } catch (error) {
       console.log(error);
     }
@@ -84,11 +64,11 @@ export default function AuctionDetailsPage() {
     enabled: !!auction_id,
   });
 
-  const { data: bids, isLoading: bidsLoading } = useQuery({
-    queryKey: ["getBids", auction_id],
-    queryFn: () => fetchBids(auction_id),
-    enabled: !!auction_id,
-  });
+  const allPhaseOneBids = auction?.phase1Bids || [];
+  const contractorPhase1Bid = allPhaseOneBids?.find((bid: any) => bid?.userId === user?.id);
+  const disableConfirmContractor = auction?.bids?.find((bid: any) => bid?.userId === user?.id && bid?.amount === contractorPhase1Bid?.amount);
+  const disableAdjustContractor = auction?.bids?.find((bid: any) => bid?.userId === user?.id);
+  const claimId = auction?.claimId;
 
   // Event handlers
   const handleCloseDialog = () => {
@@ -140,40 +120,87 @@ export default function AuctionDetailsPage() {
     });
   };
 
-  const handleConfirmPhase1Bid = () => {
-    toast.success("Bid Confirmed", {
-      description: "Your Phase 1 bid has been confirmed for Phase 2",
-    });
-    console.log("Confirmed Phase 1 bid:", mockPhase1Bid);
+  const handleConfirmPhase1Bid = async () => {
+    try {
+      const response = await apiService.post(`/api/bids/${auction_id}`, { ...contractorPhase1Bid });
+      return response;
+    } catch (error) {
+      console.log(error);
+      return null;
+    }
   };
+
+  const confirmPhase1BidMutation = useMutation({
+    mutationFn: handleConfirmPhase1Bid,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["getAuction", auction_id] });
+      toast.success("Bid Confirmed", {
+        description: "Your Phase 1 bid has been confirmed for Phase 2",
+      });
+    }
+  })
 
   const handleAdjustBid = () => {
     setAdjustingBid(true);
     setAdjustedBidData({
-      amount: mockPhase1Bid.bid_amount,
-      budgetTotal: mockPhase1Bid.budgetTotal,
-      laborCosts: mockPhase1Bid.laborCosts,
-      subContractorExpenses: mockPhase1Bid.subContractorExpenses,
-      overhead: mockPhase1Bid.overhead,
-      profit: mockPhase1Bid.profit,
-      allowance: mockPhase1Bid.allowance,
+      amount: contractorPhase1Bid?.amount,
+      budgetTotal: contractorPhase1Bid?.budgetTotal,
+      laborCosts: contractorPhase1Bid?.laborCosts,
+      subContractorExpenses: contractorPhase1Bid?.subContractorExpenses,
+      overhead: contractorPhase1Bid?.overhead,
+      profit: contractorPhase1Bid?.profit,
+      allowance: contractorPhase1Bid?.allowance,
     });
   };
 
-  const handleSubmitAdjustedBid = () => {
-    toast.success("Bid Adjusted", {
-      description: "Your adjusted bid has been submitted for Phase 2",
-    });
-    console.log("Adjusted bid:", adjustedBidData);
-    setAdjustingBid(false);
+  const handleSubmitAdjustedBid = async () => {
+    try {
+      const body = {
+        ...adjustedBidData,
+        bidPdfPath: contractorPhase1Bid?.bidPdfPath,
+      };
+
+      const response = await apiService.post(`/api/bids/${auction_id}`, body);
+      return response;
+    } catch (error) {
+      console.log(error);
+      return null;
+    }
   };
 
-  const handleWithdraw = () => {
-    toast.info("Withdrawn from Auction", {
-      description: "You have withdrawn from this Phase 2 auction",
-    });
-    console.log("Withdrawn from auction");
+  const adjustBidMutation = useMutation({
+    mutationFn: handleSubmitAdjustedBid,
+    onSuccess: () => {
+      setAdjustingBid(false);
+      queryClient.invalidateQueries({ queryKey: ["getAuction", auction_id] });
+      toast.success("Bid Adjusted", {
+        description: "Your adjusted bid has been submitted for Phase 2",
+      });
+    }
+  })
+
+  const handleWithdraw = async () => {
+    const claimParticipantId = auction?.participants?.find((participant: any) => participant?.id === user?.id);
+
+    if (claimParticipantId) {
+      const response = await apiService.put(`/api/claimParticipants/${auction_id}/withdraw/${claimParticipantId}`, {});
+      return response;
+    }
+
+    return null;
   };
+
+  const withdrawMutation = useMutation({
+    mutationFn: handleWithdraw,
+    onSuccess: () => {
+      toast.info("Withdrawn from Auction", {
+        description: "You have withdrawn from this Phase 2 auction",
+      });
+      queryClient.invalidateQueries({ queryKey: ["getAuctions"] });
+      queryClient.invalidateQueries({ queryKey: ["getAuction", auction_id] });
+      router.push("/home");
+    }
+  });
 
   const handleAcceptBid = (contractorId: string, bidAmount: number) => {
     toast.success("Bid Accepted", {
@@ -193,7 +220,7 @@ export default function AuctionDetailsPage() {
 
       const analysisRequest = {
         project_details,
-        contractor_bids: bids,
+        contractor_bids: auction?.expandedBidInfo,
       };
 
       setOpenAiDialog(true);
@@ -257,9 +284,10 @@ export default function AuctionDetailsPage() {
     mutationFn: handleSubmitBid,
     onSuccess: () => {
       queryClient.invalidateQueries({
-        queryKey: ["getBids", auction_id],
+        queryKey: ["getAuction", auction_id],
       });
       setBidData(initialBidDefaults);
+      setUploadedFile(null);
       toast("Successfully submitted bid", {
         description:
           "Your bid has been sent to the homeowner. You shall be contacted if your bid is accepted",
@@ -299,7 +327,9 @@ export default function AuctionDetailsPage() {
   // Derived state
   const isPhase2 = auction?.number === 2;
   const isPhase1 = auction?.number === 1;
-  const lowestBid = bids?.[0]?.bid_amount;
+  const expandedBidInfo = auction?.expandedBidInfo || [];
+  expandedBidInfo?.sort((a: any, b: any) => a?.bid_amount - b?.bid_amount);
+  const lowestBid = expandedBidInfo?.[0]?.bid_amount;
 
   // Loading state
   if (loading) {
@@ -336,12 +366,25 @@ export default function AuctionDetailsPage() {
         {/* Auction Header */}
         <AuctionHeader
           auction={auction}
-          bidsCount={bids?.length || 0}
+          bidsCount={auction?.bids?.length || 0}
           lowestBid={lowestBid}
           isPhase1={isPhase1}
           isPhase2={isPhase2}
           onBack={() => router.back()}
         />
+
+        {/* View Claim Button */}
+        {claimId && (
+          <div className="mb-6">
+            <Button
+              onClick={() => router.push(`/claim/${claimId}`)}
+              variant="outline"
+              className="border-2 border-[#4A637D] text-[#4A637D] hover:bg-[#4A637D] hover:text-white font-semibold shadow-sm"
+            >
+              View Project Details
+            </Button>
+          </div>
+        )}
 
         {/* Conditional View: Contractor or Homeowner */}
         {isContractor ? (
@@ -355,22 +398,27 @@ export default function AuctionDetailsPage() {
             onFileUpload={handleFileUpload}
             onSubmitBid={onSubmit}
             isSubmitting={submitBidDataMutation.isPending}
+            disableSubmit={disableAdjustContractor}
             fileInputRef={fileInputRef}
-            mockPhase1Bid={mockPhase1Bid}
+            contractorPhase1Bid={contractorPhase1Bid}
             adjustingBid={adjustingBid}
             adjustedBidData={adjustedBidData}
-            onConfirmBid={handleConfirmPhase1Bid}
+            phase1Bids={allPhaseOneBids}
+            onConfirmBid={() => confirmPhase1BidMutation.mutate()}
+            disableConfirmBid={confirmPhase1BidMutation.isPending || disableConfirmContractor || disableAdjustContractor}
             onAdjustBid={handleAdjustBid}
-            onSubmitAdjustedBid={handleSubmitAdjustedBid}
-            onWithdraw={handleWithdraw}
+            disableAdjustBid={disableAdjustContractor || adjustBidMutation.isPending || disableConfirmContractor}
+            onSubmitAdjustedBid={() => adjustBidMutation.mutate()}
+            onWithdraw={() => withdrawMutation.mutate()}
+            disableWithdrawBid={withdrawMutation.isPending}
             onCancelAdjust={() => setAdjustingBid(false)}
             setAdjustedBidData={setAdjustedBidData}
           />
         ) : (
           <HomeownerView
             auction={auction}
-            bids={bids || []}
-            bidsLoading={bidsLoading}
+            bids={auction?.expandedBidInfo || []}
+            bidsLoading={loading}
             isPhase1={isPhase1}
             selectedForPhase2={selectedForPhase2}
             onTogglePhase2Selection={handleTogglePhase2Selection}
@@ -388,7 +436,7 @@ export default function AuctionDetailsPage() {
           onClose={handleCloseDialog}
           recommendation={aiRecommendation}
           isLoading={askVendleAIMutation.isPending}
-          bidCount={bids?.length || 0}
+          bidCount={auction?.bids?.length || 0}
         />
       </main>
     </div>

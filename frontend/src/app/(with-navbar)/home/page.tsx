@@ -255,7 +255,7 @@ export default function HomePage() {
       description: auction?.claim?.aiSummary || auction?.claim?.additionalNotes,
       adjustmentPdf: {
         name: 'Insurance_Adjustment_Report.pdf',
-        url: getSupabaseDownloadUrl(supabase, auction?.claim?.pdfs?.[0]?.supabase_url || "")
+        url: getSupabaseDownloadUrl(supabase, auction?.claim?.pdfs?.[0]?.supabase_url|| "")
       },
       imageUrls: [],
       files: []

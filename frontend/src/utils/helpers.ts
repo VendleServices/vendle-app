@@ -8,9 +8,10 @@ export const getContractorInitials= (name: string) => {
 }
 
 export const getSupabaseDownloadUrl = (supabase: any, url: any) => {
+    const cleanPath = url?.replace(/^vendle-claims\//, "");
     const { data } = supabase.storage
         .from("vendle-claims")
-        .getPublicUrl(url);
+        .getPublicUrl(cleanPath);
 
     const pdfUrl = data?.publicUrl || '';
     return pdfUrl;

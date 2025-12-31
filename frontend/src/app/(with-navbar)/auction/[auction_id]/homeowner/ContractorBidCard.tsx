@@ -28,10 +28,10 @@ export function ContractorBidCard({
             className={cn(
               "w-10 h-10 rounded-full flex items-center justify-center shadow-lg font-bold text-white text-sm",
               index === 0
-                ? "bg-gradient-to-br from-yellow-400 to-yellow-600"
+                ? "bg-gradient-to-br from-[#2C3E50] to-[#4A637D]"
                 : index === 1
-                ? "bg-gradient-to-br from-gray-300 to-gray-500"
-                : "bg-gradient-to-br from-orange-400 to-orange-600"
+                ? "bg-gradient-to-br from-[#4A637D] to-[#5A9E8B]"
+                : "bg-gradient-to-br from-[#5A9E8B] to-[#5A9E8B]/80"
             )}
           >
             #{index + 1}
@@ -141,7 +141,7 @@ export function ContractorBidCard({
               <Button
                 size="sm"
                 onClick={onAccept}
-                className="w-full bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800 text-white font-bold shadow-lg hover:shadow-xl"
+                className="w-full bg-gradient-to-r from-[#5A9E8B] to-[#5A9E8B]/90 hover:from-[#5A9E8B]/90 hover:to-[#5A9E8B]/80 text-white font-bold shadow-lg hover:shadow-xl"
               >
                 <Check className="w-4 h-4 mr-2" />
                 Accept Bid

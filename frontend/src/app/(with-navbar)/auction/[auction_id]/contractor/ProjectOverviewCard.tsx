@@ -4,13 +4,13 @@ import { ProjectOverviewCardProps } from "../types";
 
 export function ProjectOverviewCard({ auction }: ProjectOverviewCardProps) {
   return (
-    <Card className="border-border bg-card shadow-md">
-      <CardHeader className="border-b border-border pb-5">
-        <h2 className="text-lg font-semibold text-foreground">Project Overview</h2>
+    <Card className="shadow-lg border-2 border-vendle-gray/20 hover:shadow-xl transition-all duration-300 bg-gradient-to-br from-white to-gray-50/50">
+      <CardHeader className="border-b-2 border-vendle-gray/10 pb-5 bg-gradient-to-r from-vendle-blue/5 to-transparent">
+        <h2 className="text-2xl font-bold text-foreground">Project Overview</h2>
       </CardHeader>
       <CardContent className="space-y-8 pt-6">
         <section className="space-y-3">
-          <h3 className="text-sm font-semibold uppercase tracking-wide text-muted-foreground">
+          <h3 className="text-sm font-bold uppercase tracking-wider text-vendle-blue border-b-2 border-vendle-blue/20 pb-2">
             Description
           </h3>
           <p className="text-base leading-relaxed text-foreground">
@@ -19,11 +19,11 @@ export function ProjectOverviewCard({ auction }: ProjectOverviewCardProps) {
         </section>
 
         <section className="grid gap-4 md:grid-cols-2">
-          <div className="space-y-3 rounded-xl bg-muted p-4">
-            <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
+          <div className="space-y-3 rounded-xl bg-gradient-to-br from-vendle-blue/10 to-transparent p-5 border-2 border-vendle-blue/20 shadow-sm hover:shadow-md transition-shadow">
+            <p className="text-xs font-bold uppercase tracking-wide text-vendle-blue">
               Starting Bid
             </p>
-            <p className="text-2xl font-semibold text-foreground">
+            <p className="text-3xl font-bold text-foreground">
               ${auction?.totalJobValue?.toLocaleString()}
             </p>
             <p className="text-xs text-muted-foreground">
@@ -31,11 +31,11 @@ export function ProjectOverviewCard({ auction }: ProjectOverviewCardProps) {
             </p>
           </div>
 
-          <div className="space-y-3 rounded-xl bg-muted p-4">
-            <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
+          <div className="space-y-3 rounded-xl bg-gradient-to-br from-[#4A637D]/10 to-transparent p-5 border-2 border-[#4A637D]/20 shadow-sm hover:shadow-md transition-shadow">
+            <p className="text-xs font-bold uppercase tracking-wide text-[#4A637D]">
               Auction Ends
             </p>
-            <p className="text-base font-semibold text-foreground">
+            <p className="text-lg font-bold text-foreground">
               {new Date(auction?.endDate).toLocaleString()}
             </p>
             <p className="text-xs text-muted-foreground">
@@ -46,11 +46,11 @@ export function ProjectOverviewCard({ auction }: ProjectOverviewCardProps) {
 
         {auction?.reconstructionType && (
           <section className="space-y-3">
-            <h3 className="text-sm font-semibold uppercase tracking-wide text-muted-foreground">
+            <h3 className="text-sm font-bold uppercase tracking-wider text-vendle-teal border-b-2 border-vendle-teal/20 pb-2">
               Scope of Work
             </h3>
-            <div className="rounded-xl border border-dashed border-border bg-background/60 p-4">
-              <p className="text-sm text-foreground">{auction?.reconstructionType}</p>
+            <div className="rounded-xl border-2 border-vendle-teal/20 bg-gradient-to-br from-vendle-teal/5 to-transparent p-5 shadow-sm">
+              <p className="text-sm text-foreground font-medium">{auction?.reconstructionType}</p>
             </div>
           </section>
         )}

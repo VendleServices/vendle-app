@@ -94,6 +94,32 @@ router.put("/status/:claimParticipantId", async (req: any, res: any) => {
     } catch (error) {
         return res.status(500).json({ error: "Error updating status of claim participant" });
     }
+});
+
+router.put("/:auctionId/withdraw/:claimParticipantId", async (req: any, res: any) => {
+    try {
+        const user = req?.user;
+        if(!user?.id) {
+            return res.status(401).json({ error: "Not authorized" });
+        }
+
+        const { auctionId, claimParticipantId } = req.params;
+
+        await prisma.claimParticipant.update({
+            where: {
+                id: claimParticipantId,
+                userId: user.id,
+                auctionPhaseId: auctionId
+            },
+            data: {
+                auctionPhaseId: null
+            }
+        });
+
+        return res.status(200).json({ message: "Withdrew contractor from auction" });
+    } catch (error) {
+        return res.status(500).json({ error: "Error withdrawing claim participant from auction" });
+    }
 })
 
 export default router;

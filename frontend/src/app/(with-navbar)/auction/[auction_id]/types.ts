@@ -3,7 +3,7 @@ export interface Auction {
   title: string;
   additionalNotes: string;
   totalJobValue: number;
-  bids: any[];
+  bids: any;
   endDate: string;
   status: string;
   number: number; // 1 for Phase 1, 2 for Phase 2
@@ -12,6 +12,10 @@ export interface Auction {
   design_plan?: string;
   reconstructionType?: string;
   aiSummary?: string;
+  phase1Bids?: any;
+  expandedBidInfo?: any;
+  participants?: any;
+  claimId?: any;
 }
 
 export interface Bid {
@@ -87,15 +91,20 @@ export interface ContractorViewProps {
   isSubmitting: boolean;
   fileInputRef: React.RefObject<HTMLInputElement>;
   // Phase 2 props
-  mockPhase1Bid: Phase1Bid;
+  contractorPhase1Bid: any;
   adjustingBid: boolean;
   adjustedBidData: BidData;
+  phase1Bids: Phase1BidRanking[];
   onConfirmBid: () => void;
   onAdjustBid: () => void;
   onSubmitAdjustedBid: () => void;
   onWithdraw: () => void;
   onCancelAdjust: () => void;
   setAdjustedBidData: (data: BidData) => void;
+  disableConfirmBid: boolean;
+  disableAdjustBid: boolean;
+  disableWithdrawBid: boolean;
+  disableSubmit: boolean;
 }
 
 export interface ProjectOverviewCardProps {
@@ -112,10 +121,11 @@ export interface BidSubmissionFormProps {
   fileInputRef: React.RefObject<HTMLInputElement>;
   onFileClick: () => void;
   onFileRemove: () => void;
+  disableSubmit: boolean;
 }
 
 export interface Phase2BidActionsProps {
-  mockPhase1Bid: Phase1Bid;
+  contractorPhase1Bid: any;
   adjustingBid: boolean;
   adjustedBidData: BidData;
   onConfirmBid: () => void;
@@ -124,6 +134,9 @@ export interface Phase2BidActionsProps {
   onWithdraw: () => void;
   onCancelAdjust: () => void;
   setAdjustedBidData: (data: BidData) => void;
+  disableConfirmBid: boolean;
+  disableAdjustBid: boolean;
+  disableWithdrawBid: boolean;
 }
 
 export interface HomeownerViewProps {
@@ -160,4 +173,15 @@ export interface ContractorBidCardProps {
   isSelected: boolean;
   onToggleSelection: () => void;
   onAccept: () => void;
+}
+
+export interface Phase1BidRanking {
+  amount: number;
+  user: {
+    email: string;
+  };
+}
+
+export interface Phase1BidsRankingProps {
+  phase1Bids: Phase1BidRanking[];
 }

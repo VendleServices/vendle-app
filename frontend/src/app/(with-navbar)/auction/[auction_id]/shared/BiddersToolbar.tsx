@@ -54,7 +54,7 @@ export function BiddersToolbar({
             </SelectItem>
             <SelectItem value="highest_rating">
               <div className="flex items-center gap-2">
-                <Star className="w-4 h-4 text-yellow-500" />
+                <Star className="w-4 h-4 text-[#E0C9A6]" />
                 <span>Highest Rating</span>
               </div>
             </SelectItem>
@@ -76,7 +76,7 @@ export function BiddersToolbar({
           <Button
             onClick={onCreatePhase2}
             disabled={selectedCount === 0 || isCreatingPhase2}
-            className="bg-gradient-to-r from-emerald-600 to-emerald-700 hover:from-emerald-700 hover:to-emerald-800 text-white shadow-lg hover:shadow-xl font-bold disabled:opacity-50 disabled:cursor-not-allowed"
+            className="bg-gradient-to-r from-[#5A9E8B] to-[#5A9E8B]/90 hover:from-[#5A9E8B]/90 hover:to-[#5A9E8B]/80 text-white shadow-lg hover:shadow-xl font-bold disabled:opacity-50 disabled:cursor-not-allowed"
           >
             <Gavel className="w-4 h-4 mr-2" />
             Create Phase 2 Auction

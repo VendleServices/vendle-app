@@ -1,8 +1,9 @@
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { MapPin, FileText } from "lucide-react";
+import { MapPin, FileText, User, Calendar, AlertCircle } from "lucide-react";
 import { PendingNDA } from "../types";
+import { motion } from "framer-motion";
 
 interface PendingNDACardProps {
   nda: PendingNDA;
@@ -11,45 +12,71 @@ interface PendingNDACardProps {
 
 export function PendingNDACard({ nda, onReviewNDA }: PendingNDACardProps) {
   return (
-    <Card className="hover:shadow-lg transition-shadow">
-      <CardHeader>
-        <div className="flex items-start justify-between">
-          <div className="flex-1">
-            <CardTitle className="text-lg mb-1">{nda.projectTitle}</CardTitle>
-            <div className="flex items-center gap-2 text-sm text-gray-600 mt-1">
-              <MapPin className="h-4 w-4" />
-              <span>{nda.address}</span>
+    <motion.div
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      whileHover={{ y: -4 }}
+      transition={{ duration: 0.2 }}
+    >
+      <Card className="h-full shadow-lg border-2 border-[#D9D9D9] hover:border-[#4A637D]/50 hover:shadow-2xl transition-all duration-300 bg-white overflow-hidden group">
+        {/* Gradient overlay header */}
+        <div className="absolute top-0 left-0 right-0 h-1.5 bg-gradient-to-r from-[#2C3E50] via-[#4A637D] to-[#5A9E8B]" />
+
+        <CardHeader className="pb-4 pt-6">
+          <div className="flex items-start justify-between gap-3">
+            <div className="flex-1 min-w-0">
+              <div className="flex items-center gap-2 mb-2">
+                <div className="p-2 rounded-lg bg-[#D9D9D9]/30 shadow-sm">
+                  <FileText className="h-4 w-4 text-[#4A637D]" />
+                </div>
+                <Badge className="bg-[#E0C9A6]/30 text-[#2C3E50] border-[#E0C9A6] shadow-sm">
+                  <AlertCircle className="w-3 h-3 mr-1" />
+                  Action Required
+                </Badge>
+              </div>
+              <CardTitle className="text-xl font-bold mb-2 truncate group-hover:text-[#4A637D] transition-colors">
+                {nda.projectTitle}
+              </CardTitle>
+              <div className="flex items-start gap-2 text-sm text-muted-foreground">
+                <MapPin className="h-4 w-4 mt-0.5 flex-shrink-0 text-[#4A637D]" />
+                <span className="line-clamp-2">{nda.address}</span>
+              </div>
             </div>
           </div>
-          <Badge className="bg-yellow-100 text-yellow-800 border-yellow-200">
-            Pending
-          </Badge>
-        </div>
-      </CardHeader>
-      <CardContent>
-        <div className="space-y-4">
-          <div className="space-y-2">
+        </CardHeader>
+
+        <CardContent className="space-y-4">
+          {/* Info section */}
+          <div className="space-y-3 p-4 rounded-xl bg-[#D9D9D9]/20 border border-[#D9D9D9]">
             <div className="flex items-center justify-between text-sm">
-              <span className="text-gray-600">Homeowner:</span>
-              <span className="font-medium">{nda.homeownerName}</span>
+              <div className="flex items-center gap-2 text-muted-foreground">
+                <User className="h-3.5 w-3.5" />
+                <span className="font-medium">Homeowner</span>
+              </div>
+              <span className="font-semibold text-foreground">{nda.homeownerName}</span>
             </div>
             <div className="flex items-center justify-between text-sm">
-              <span className="text-gray-600">Requested:</span>
-              <span className="font-medium">{new Date(nda.requestedDate).toLocaleDateString()}</span>
+              <div className="flex items-center gap-2 text-muted-foreground">
+                <Calendar className="h-3.5 w-3.5" />
+                <span className="font-medium">Requested</span>
+              </div>
+              <span className="font-semibold text-foreground">{new Date(nda.requestedDate).toLocaleDateString()}</span>
             </div>
           </div>
+
+          {/* Action button */}
           <div className="pt-2">
             <Button
               variant="default"
-              className="w-full bg-vendle-blue hover:bg-vendle-blue/90"
+              className="w-full bg-gradient-to-r from-[#2C3E50] via-[#4A637D] to-[#5A9E8B] hover:from-[#2C3E50]/90 hover:via-[#4A637D]/90 hover:to-[#5A9E8B]/90 shadow-md hover:shadow-lg transition-all font-bold"
               onClick={onReviewNDA}
             >
               <FileText className="h-4 w-4 mr-2" />
-              Review NDA
+              Review & Sign NDA
             </Button>
           </div>
-        </div>
-      </CardContent>
-    </Card>
+        </CardContent>
+      </Card>
+    </motion.div>
   );
 }

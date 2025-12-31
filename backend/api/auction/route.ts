@@ -86,14 +86,54 @@ router.get("/:auctionId", async (req: any, res: any) => {
                         pdfs: true,
                     }
                 },
-                bids: true,
+                bids: {
+                    include: {
+                        user: true,
+                    }
+                },
                 participants: true,
             }
         });
 
+        const expandedBidInfo = auction?.bids?.map((bid: any) => ({
+            contractor_id: bid?.userId,
+            contractor_name: '',
+            bid_amount: bid?.amount,
+            bid_description: '',
+            phone_number: bid?.user?.companyWebsite,
+            email: bid?.user?.email,
+            company_name: bid?.user?.companyName,
+            company_website: bid?.user.phoneNumber,
+            license_number: null,
+            years_experience: null,
+        })) || [];
+
+        let phase1Bids: any = []
+
+        if (auction?.number === 2) {
+            const claimId = auction?.claimId;
+            const auctionPhaseOne = await prisma.auctionPhase.findFirst({
+                where: {
+                    claimId,
+                    number: 1
+                },
+                include: {
+                    bids: {
+                        include: {
+                            user: true,
+                        }
+                    },
+                }
+            });
+
+            phase1Bids = auctionPhaseOne?.bids || [];
+        }
+
         const totalAuction = {
             ...auction?.claim,
             ...auction,
+            phase1Bids: phase1Bids,
+            expandedBidInfo
         }
 
         return res.status(200).json({ totalAuction });

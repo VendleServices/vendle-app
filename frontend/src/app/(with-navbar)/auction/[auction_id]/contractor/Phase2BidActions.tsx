@@ -6,7 +6,7 @@ import { Check, Calculator, Trash2, Info, DollarSign } from "lucide-react";
 import { Phase2BidActionsProps } from "../types";
 
 export function Phase2BidActions({
-  mockPhase1Bid,
+  contractorPhase1Bid,
   adjustingBid,
   adjustedBidData,
   onConfirmBid,
@@ -14,12 +14,15 @@ export function Phase2BidActions({
   onSubmitAdjustedBid,
   onWithdraw,
   onCancelAdjust,
-  setAdjustedBidData
+  setAdjustedBidData,
+  disableConfirmBid,
+  disableAdjustBid,
+  disableWithdrawBid
 }: Phase2BidActionsProps) {
   return (
     <>
       {/* Header with gradient */}
-      <div className="rounded-t-2xl bg-gradient-to-r from-green-600 to-green-700 p-6 text-white">
+      <div className="rounded-t-2xl bg-gradient-to-r from-[#2C3E50] via-[#4A637D] to-[#5A9E8B] p-6 text-white">
         <div className="flex items-center justify-between mb-2">
           <h2 className="text-2xl font-bold">Your Phase 1 Bid</h2>
           <Badge className="bg-white/20 text-white border-white/30">
@@ -37,19 +40,19 @@ export function Phase2BidActions({
         {!adjustingBid ? (
           <>
             {/* Current bid display */}
-            <div className="p-6 rounded-xl bg-gradient-to-br from-green-50 to-emerald-50 border-2 border-green-200">
+            <div className="p-6 rounded-xl bg-gradient-to-br from-[#4A637D]/10 to-[#5A9E8B]/5 border-2 border-[#4A637D]/20">
               <div className="space-y-4">
                 <div>
                   <p className="text-sm font-medium text-muted-foreground mb-2">
                     Your Phase 1 Bid Amount
                   </p>
                   <p className="text-4xl font-bold text-foreground">
-                    ${mockPhase1Bid.bid_amount.toLocaleString()}
+                    ${contractorPhase1Bid?.amount?.toLocaleString()}
                   </p>
                 </div>
 
                 {/* Cost breakdown */}
-                <div className="pt-4 border-t border-green-200 space-y-2">
+                <div className="pt-4 border-t border-[#D9D9D9] space-y-2">
                   <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-3">
                     Cost Breakdown
                   </p>
@@ -57,37 +60,37 @@ export function Phase2BidActions({
                     <div>
                       <p className="text-muted-foreground">Materials</p>
                       <p className="font-semibold text-foreground">
-                        ${mockPhase1Bid.budgetTotal.toLocaleString()}
+                        ${contractorPhase1Bid?.budgetTotal.toLocaleString()}
                       </p>
                     </div>
                     <div>
                       <p className="text-muted-foreground">Labor</p>
                       <p className="font-semibold text-foreground">
-                        ${mockPhase1Bid.laborCosts.toLocaleString()}
+                        ${contractorPhase1Bid?.laborCosts.toLocaleString()}
                       </p>
                     </div>
                     <div>
                       <p className="text-muted-foreground">Subcontractors</p>
                       <p className="font-semibold text-foreground">
-                        ${mockPhase1Bid.subContractorExpenses.toLocaleString()}
+                        ${contractorPhase1Bid?.subContractorExpenses.toLocaleString()}
                       </p>
                     </div>
                     <div>
                       <p className="text-muted-foreground">Overhead</p>
                       <p className="font-semibold text-foreground">
-                        ${mockPhase1Bid.overhead.toLocaleString()}
+                        ${contractorPhase1Bid?.overhead.toLocaleString()}
                       </p>
                     </div>
                     <div>
                       <p className="text-muted-foreground">Profit</p>
                       <p className="font-semibold text-foreground">
-                        ${mockPhase1Bid.profit.toLocaleString()}
+                        ${contractorPhase1Bid?.profit.toLocaleString()}
                       </p>
                     </div>
                     <div>
                       <p className="text-muted-foreground">Allowance</p>
                       <p className="font-semibold text-foreground">
-                        ${mockPhase1Bid.allowance.toLocaleString()}
+                        ${contractorPhase1Bid?.allowance.toLocaleString()}
                       </p>
                     </div>
                   </div>
@@ -98,14 +101,16 @@ export function Phase2BidActions({
             {/* Action buttons */}
             <div className="space-y-3">
               <Button
+                disabled={disableConfirmBid}
                 onClick={onConfirmBid}
-                className="w-full h-12 bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800 text-white font-bold shadow-lg hover:shadow-xl"
+                className="w-full h-12 bg-gradient-to-r from-[#2C3E50] via-[#4A637D] to-[#5A9E8B] hover:from-[#2C3E50]/90 hover:via-[#4A637D]/90 hover:to-[#5A9E8B]/90 text-white font-bold shadow-lg hover:shadow-xl"
               >
                 <Check className="w-5 h-5 mr-2" />
                 Confirm Phase 1 Bid
               </Button>
 
               <Button
+                disabled={disableAdjustBid}
                 onClick={onAdjustBid}
                 variant="outline"
                 className="w-full h-12 border-2 border-vendle-blue text-vendle-blue hover:bg-vendle-blue hover:text-white font-bold"
@@ -115,6 +120,7 @@ export function Phase2BidActions({
               </Button>
 
               <Button
+                disabled={disableWithdrawBid}
                 onClick={onWithdraw}
                 variant="outline"
                 className="w-full h-12 border-2 border-red-500 text-red-600 hover:bg-red-50 font-bold"
@@ -127,8 +133,8 @@ export function Phase2BidActions({
         ) : (
           // Adjust bid form
           <div className="space-y-6">
-            <div className="p-4 rounded-xl bg-blue-50 border-2 border-blue-200">
-              <p className="text-sm font-semibold text-blue-900 flex items-center gap-2">
+            <div className="p-4 rounded-xl bg-[#4A637D]/10 border-2 border-[#4A637D]/20">
+              <p className="text-sm font-semibold text-[#2C3E50] flex items-center gap-2">
                 <Info className="w-4 h-4" />
                 Adjust your bid amounts below
               </p>

@@ -31,6 +31,7 @@ router.post('/:auctionId', async (req: any, res) => {
     }
 
     const bidData = req.body;
+    debugger;
     const claimId = auction?.claim?.id;
 
     const bid = await prisma.bid.create({

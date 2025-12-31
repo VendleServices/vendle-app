@@ -4,13 +4,14 @@ import { useRouter } from "next/navigation";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/contexts/AuthContext";
-import { MapPin, Calendar, FileText, Clock, LayoutIcon, ArrowLeft, ShieldQuestionIcon } from "lucide-react";
+import { MapPin, Calendar, FileText, Clock, LayoutIcon, ShieldQuestionIcon, Loader2 } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { use } from "react";
 import { useApiService } from "@/services/api";
 import { createClient } from "@/auth/client";
 import Image from "next/image";
 import { motion } from "framer-motion";
+import { ClaimHeader } from "./shared/ClaimHeader";
 
 interface PageProps {
     params: Promise<{
@@ -74,68 +75,53 @@ export default function ClaimPage({ params }: PageProps) {
         enabled: !!claimId,
     });
 
+    // Loading state
     if (isLoading) {
         return (
-            <div className="min-h-screen bg-muted/30 lg:pl-32 flex items-center justify-center">
-                <div className="animate-pulse w-full max-w-3xl space-y-4 p-6">
-                    <div className="h-6 bg-vendle-gray/30 rounded w-1/3"></div>
-                    <div className="h-48 bg-vendle-gray/30 rounded"></div>
+            <div className="flex min-h-screen items-center justify-center bg-muted/30 lg:pl-32">
+                <div className="space-y-4 text-center">
+                    <Loader2 className="mx-auto h-12 w-12 animate-spin text-[#4A637D]" />
+                    <p className="text-lg text-foreground">Loading project details...</p>
                 </div>
             </div>
         );
     }
 
+    // Not found state
     if (!claim) {
         return (
-            <div className="min-h-screen bg-muted/30 lg:pl-32 p-6 sm:p-10">
-                <h1 className="text-3xl font-bold text-foreground">Claim Not Found</h1>
-                <p className="mt-2 text-muted-foreground">
-                    The requested claim could not be found or you don't have access.
-                </p>
-                <Button onClick={() => router.push("/home")} className="mt-6">
-                    Back to Home
-                </Button>
+            <div className="flex min-h-screen flex-col items-center justify-center bg-muted/30 lg:pl-32">
+                <Card className="border-border bg-card p-6 sm:p-8 text-center shadow-md">
+                    <p className="mb-4 text-xl font-semibold text-foreground">Project not found.</p>
+                    <Button
+                        className="mt-2 bg-gradient-to-r from-[#2C3E50] via-[#4A637D] to-[#5A9E8B] text-white hover:from-[#2C3E50]/90 hover:via-[#4A637D]/90 hover:to-[#5A9E8B]/90"
+                        onClick={() => router.push("/home")}
+                    >
+                        Go to Home
+                    </Button>
+                </Card>
             </div>
         );
     }
 
     return (
-        <div className="min-h-screen bg-muted/30 lg:pl-32 py-8 sm:py-12">
-            <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.3 }}
-                className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 space-y-6 sm:space-y-8"
-            >
-                {/* Header */}
-                <div className="flex items-start justify-between">
-                    <div>
-                        <Button
-                            variant="ghost"
-                            onClick={() => router.push("/home")}
-                            className="mb-4 gap-2 text-muted-foreground hover:text-vendle-blue"
-                        >
-                            <ArrowLeft className="h-4 w-4" />
-                            Back to Home
-                        </Button>
-                        <h1 className="text-4xl font-bold tracking-tight text-foreground">
-                            Claim Details
-                        </h1>
-                        <p className="text-sm text-muted-foreground mt-2">
-                            Review the details and uploaded documentation.
-                        </p>
-                    </div>
-                </div>
+        <div className="min-h-screen bg-muted/30 lg:pl-32">
+            <main className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-6 sm:py-10">
+                {/* Claim Header */}
+                <ClaimHeader
+                    claim={claim}
+                    onBack={() => router.push("/home")}
+                />
 
                 {/* Claim Info */}
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                    <Card className="shadow-sm border border-vendle-gray/30 hover:shadow-md transition-shadow">
-                        <CardHeader className="border-b border-vendle-gray/20">
-                            <CardTitle className="text-foreground flex items-center gap-2">
-                                <div className="p-2 rounded-lg bg-vendle-blue/10">
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+                    <Card className="shadow-lg border-2 border-vendle-gray/20 hover:shadow-xl hover:border-vendle-blue/30 transition-all duration-300 bg-gradient-to-br from-white to-gray-50/50">
+                        <CardHeader className="border-b-2 border-vendle-gray/10 bg-gradient-to-r from-vendle-blue/5 to-transparent">
+                            <CardTitle className="text-foreground flex items-center gap-3">
+                                <div className="p-2.5 rounded-xl bg-vendle-blue/15 shadow-sm">
                                     <MapPin className="h-5 w-5 text-vendle-blue" />
                                 </div>
-                                Property Info
+                                <span className="text-xl">Property Info</span>
                             </CardTitle>
                         </CardHeader>
                         <CardContent className="space-y-4 pt-6">
@@ -190,13 +176,13 @@ export default function ClaimPage({ params }: PageProps) {
                         </CardContent>
                     </Card>
 
-                    <Card className="shadow-sm border border-vendle-gray/30 hover:shadow-md transition-shadow">
-                        <CardHeader className="border-b border-vendle-gray/20">
-                            <CardTitle className="text-foreground flex items-center gap-2">
-                                <div className="p-2 rounded-lg bg-vendle-teal/10">
+                    <Card className="shadow-lg border-2 border-vendle-gray/20 hover:shadow-xl hover:border-vendle-teal/30 transition-all duration-300 bg-gradient-to-br from-white to-gray-50/50">
+                        <CardHeader className="border-b-2 border-vendle-gray/10 bg-gradient-to-r from-vendle-teal/5 to-transparent">
+                            <CardTitle className="text-foreground flex items-center gap-3">
+                                <div className="p-2.5 rounded-xl bg-vendle-teal/15 shadow-sm">
                                     <LayoutIcon className="h-5 w-5 text-vendle-teal" />
                                 </div>
-                                Project Specifications
+                                <span className="text-xl">Project Specifications</span>
                             </CardTitle>
                         </CardHeader>
                         <CardContent className="space-y-4 pt-6">
@@ -246,13 +232,13 @@ export default function ClaimPage({ params }: PageProps) {
 
                 {/* Pdfs */}
                 {claimPdfs?.length > 0 && (
-                    <Card className="shadow-sm border border-vendle-gray/30 hover:shadow-md transition-shadow">
-                        <CardHeader className="border-b border-vendle-gray/20">
-                            <CardTitle className="text-foreground flex items-center gap-2">
-                                <div className="p-2 rounded-lg bg-vendle-sand/20">
-                                    <FileText className="h-5 w-5 text-vendle-navy" />
+                    <Card className="shadow-lg border-2 border-vendle-gray/20 hover:shadow-xl hover:border-vendle-blue/30 transition-all duration-300 bg-gradient-to-br from-white to-gray-50/50 mb-6">
+                        <CardHeader className="border-b-2 border-vendle-gray/10 bg-gradient-to-r from-[#4A637D]/5 to-transparent">
+                            <CardTitle className="text-foreground flex items-center gap-3">
+                                <div className="p-2.5 rounded-xl bg-[#4A637D]/15 shadow-sm">
+                                    <FileText className="h-5 w-5 text-[#4A637D]" />
                                 </div>
-                                Property Documentation
+                                <span className="text-xl">Property Documentation</span>
                             </CardTitle>
                         </CardHeader>
                         <CardContent className="pt-6">
@@ -275,52 +261,52 @@ export default function ClaimPage({ params }: PageProps) {
                 )}
 
                 {/* Images */}
-                <Card className="shadow-sm border border-vendle-gray/30 hover:shadow-md transition-shadow">
-                    <CardHeader className="border-b border-vendle-gray/20">
-                        <CardTitle className="text-foreground flex items-center gap-2">
-                            <div className="p-2 rounded-lg bg-vendle-blue/10">
-                                <FileText className="h-5 w-5 text-vendle-blue" />
+                <Card className="shadow-lg border-2 border-vendle-gray/20 hover:shadow-xl hover:border-vendle-teal/30 transition-all duration-300 bg-gradient-to-br from-white to-gray-50/50">
+                    <CardHeader className="border-b-2 border-vendle-gray/10 bg-gradient-to-r from-vendle-teal/5 to-transparent">
+                        <CardTitle className="text-foreground flex items-center gap-3">
+                            <div className="p-2.5 rounded-xl bg-vendle-teal/15 shadow-sm">
+                                <FileText className="h-5 w-5 text-vendle-teal" />
                             </div>
-                            Property Images
+                            <span className="text-xl">Property Images</span>
                         </CardTitle>
                     </CardHeader>
                     <CardContent className="pt-6">
                         {images?.length ? (
                             <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
                                 {images.map((url: string, i: number) => (
-                                    <motion.div 
-                                        key={i} 
-                                        className="relative w-full aspect-square rounded-lg overflow-hidden border border-vendle-gray/30 group cursor-pointer hover:border-vendle-blue transition-all"
-                                        whileHover={{ scale: 1.02 }}
+                                    <motion.div
+                                        key={i}
+                                        className="relative w-full aspect-square rounded-xl overflow-hidden border-2 border-vendle-gray/20 group cursor-pointer hover:border-vendle-teal shadow-md hover:shadow-xl transition-all duration-300"
+                                        whileHover={{ scale: 1.03 }}
                                         transition={{ duration: 0.2 }}
                                     >
                                         <Image
                                             src={url}
                                             alt={`Property image ${i + 1}`}
                                             fill
-                                            className="object-cover group-hover:scale-105 transition-transform duration-300"
+                                            className="object-cover group-hover:scale-110 transition-transform duration-300"
                                         />
-                                        <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity">
-                                            <div className="absolute bottom-2 left-2 text-white text-xs font-medium">
-                                                Image {i + 1}
+                                        <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                                            <div className="absolute bottom-3 left-3 text-white">
+                                                <p className="text-xs font-semibold tracking-wide">Image {i + 1}</p>
                                             </div>
                                         </div>
                                     </motion.div>
                                 ))}
                             </div>
                         ) : (
-                            <div className="text-center py-12">
-                                <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-vendle-gray/20 mb-4">
-                                    <FileText className="h-8 w-8 text-vendle-gray" />
+                            <div className="text-center py-16">
+                                <div className="inline-flex items-center justify-center w-20 h-20 rounded-full bg-gradient-to-br from-vendle-gray/10 to-vendle-gray/5 mb-4 shadow-inner">
+                                    <FileText className="h-10 w-10 text-vendle-gray/50" />
                                 </div>
-                                <p className="text-muted-foreground text-sm">
-                                    No images uploaded for this claim yet.
+                                <p className="text-muted-foreground text-sm font-medium">
+                                    No images uploaded for this project yet.
                                 </p>
                             </div>
                         )}
                     </CardContent>
                 </Card>
-            </motion.div>
+            </main>
         </div>
     );
 }
