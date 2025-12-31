@@ -116,24 +116,30 @@ const AuthForm = ({ type }: Props) => {
 
     return (
         <FadeTransition>
-            <div className="w-full max-w-full sm:max-w-md bg-white rounded-2xl shadow-medium p-4 sm:p-6 lg:p-8">
-                    <div className="mb-6 sm:mb-8 text-center">
-                        <h1 className="text-xl sm:text-2xl font-bold text-vendle-navy">
-                            {type === 'login' ? 'Welcome Back' : 'Create Your Account'}
-                        </h1>
-                        <p className="text-sm sm:text-base text-vendle-navy/70 mt-2">
-                            {type === 'login'
-                                ? 'Sign in to continue your recovery journey'
-                                : 'Join thousands rebuilding with confidence'}
-                        </p>
-                    </div>
+            <div className="w-full max-w-full sm:max-w-md bg-white rounded-2xl shadow-2xl border-2 border-[#D9D9D9]/30 overflow-hidden">
+                    {/* Gradient header accent */}
+                    <div className="h-2 bg-gradient-to-r from-[#2C3E50] via-[#4A637D] to-[#5A9E8B]" />
 
-                    <div className="space-y-3 sm:space-y-4 mb-4 sm:mb-6">
-                        <button
-                            onClick={() => handleSocialAuth('Google')}
-                            className="w-full flex items-center justify-center gap-2 bg-white border border-gray-300 text-vendle-navy font-medium px-3 sm:px-4 py-2 sm:py-2.5 rounded-lg hover:bg-gray-50 transition-colors text-sm sm:text-base"
-                            disabled={isLoading}
-                        >
+                    <div className="p-6 sm:p-8 lg:p-10">
+                        <div className="mb-8 text-center">
+                            <h1 className="text-2xl sm:text-3xl font-bold text-[#2C3E50] mb-2">
+                                {type === 'login' ? 'Welcome Back' : 'Create Your Account'}
+                            </h1>
+                            <p className="text-sm sm:text-base text-[#2C3E50]/70">
+                                {type === 'login'
+                                    ? 'Sign in to continue your recovery journey'
+                                    : type === 'contractorsignup'
+                                    ? 'Join as a contractor and grow your business'
+                                    : 'Join thousands rebuilding with confidence'}
+                            </p>
+                        </div>
+
+                        <div className="space-y-3 mb-6">
+                            <button
+                                onClick={() => handleSocialAuth('Google')}
+                                className="w-full flex items-center justify-center gap-2 bg-white border-2 border-[#D9D9D9] text-[#2C3E50] font-semibold px-4 py-3 rounded-lg hover:bg-[#D9D9D9]/10 hover:border-[#4A637D]/50 transition-all shadow-sm hover:shadow-md text-sm sm:text-base"
+                                disabled={isLoading}
+                            >
                             <svg className="h-5 w-5" viewBox="0 0 24 24">
                                 <path
                                     fill="currentColor"
@@ -159,11 +165,11 @@ const AuthForm = ({ type }: Props) => {
                             Continue with Google
                         </button>
 
-                        <button
-                            onClick={() => handleSocialAuth('Microsoft')}
-                            className="w-full flex items-center justify-center gap-2 bg-white border border-gray-300 text-vendle-navy font-medium px-3 sm:px-4 py-2 sm:py-2.5 rounded-lg hover:bg-gray-50 transition-colors text-sm sm:text-base"
-                            disabled={isLoading}
-                        >
+                            <button
+                                onClick={() => handleSocialAuth('Microsoft')}
+                                className="w-full flex items-center justify-center gap-2 bg-white border-2 border-[#D9D9D9] text-[#2C3E50] font-semibold px-4 py-3 rounded-lg hover:bg-[#D9D9D9]/10 hover:border-[#4A637D]/50 transition-all shadow-sm hover:shadow-md text-sm sm:text-base"
+                                disabled={isLoading}
+                            >
                             <svg className="h-5 w-5" viewBox="0 0 24 24">
                                 <path
                                     fill="#f25022"
@@ -183,188 +189,189 @@ const AuthForm = ({ type }: Props) => {
                                 />
                             </svg>
                             Continue with Microsoft
-                        </button>
-                    </div>
-
-                    <div className="relative flex items-center my-6">
-                        <div className="flex-grow border-t border-gray-300"></div>
-                        <span className="mx-4 text-sm text-gray-500">or</span>
-                        <div className="flex-grow border-t border-gray-300"></div>
-                    </div>
-
-                    <form onSubmit={handleSubmit} className="space-y-5">
-                        {type === 'contractorsignup' ? (
-                            <div>
-                                <label htmlFor="companyName" className="block text-sm font-medium text-vendle-navy mb-1">
-                                    Company Name
-                                </label>
-                                <div className="relative">
-                                <span className="absolute inset-y-0 left-0 flex items-center pl-3 text-vendle-navy/50">
-                                  <Building2 className="h-5 w-5" />
-                                </span>
-                                    <input
-                                        id="companyName"
-                                        type="companyName"
-                                        name="companyName"
-                                        className="w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-vendle-blue/20 focus:border-vendle-blue transition-colors"
-                                        placeholder="Enter Company Name"
-                                        disabled={isPending}
-                                    />
-                                </div>
-                            </div>
-                        ) : null}
-                        {type === 'contractorsignup' ? (
-                            <div>
-                                <label htmlFor="companyWebsite" className="block text-sm font-medium text-vendle-navy mb-1">
-                                    Company Website
-                                </label>
-                                <div className="relative">
-                                <span className="absolute inset-y-0 left-0 flex items-center pl-3 text-vendle-navy/50">
-                                  <Computer className="h-5 w-5" />
-                                </span>
-                                    <input
-                                        id="companyWebsite"
-                                        type="companyWebsite"
-                                        name="companyWebsite"
-                                        className="w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-vendle-blue/20 focus:border-vendle-blue transition-colors"
-                                        placeholder="Enter Company Website"
-                                        disabled={isPending}
-                                    />
-                                </div>
-                            </div>
-                        ) : null}
-                        {type === 'contractorsignup' ? (
-                            <div>
-                                <label htmlFor="phoneNumber" className="block text-sm font-medium text-vendle-navy mb-1">
-                                    Phone Number
-                                </label>
-                                <div className="relative">
-                                <span className="absolute inset-y-0 left-0 flex items-center pl-3 text-vendle-navy/50">
-                                  <Phone className="h-5 w-5" />
-                                </span>
-                                    <input
-                                        id="phoneNumber"
-                                        type="phoneNumber"
-                                        name="phoneNumber"
-                                        className="w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-vendle-blue/20 focus:border-vendle-blue transition-colors"
-                                        placeholder="Enter Phone Number"
-                                        disabled={isPending}
-                                    />
-                                </div>
-                            </div>
-                        ) : null}
-                        <div>
-                            <label htmlFor="email" className="block text-sm font-medium text-vendle-navy mb-1">
-                                Email
-                            </label>
-                            <div className="relative">
-                                <span className="absolute inset-y-0 left-0 flex items-center pl-3 text-vendle-navy/50">
-                                  <Mail className="h-5 w-5" />
-                                </span>
-                                <input
-                                    id="email"
-                                    type="email"
-                                    name="email"
-                                    className="w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-vendle-blue/20 focus:border-vendle-blue transition-colors"
-                                    placeholder="Enter your email"
-                                    disabled={isPending}
-                                />
-                            </div>
+                            </button>
                         </div>
 
-                        <div>
-                            <label htmlFor="password" className="block text-sm font-medium text-vendle-navy mb-1">
-                                Password
-                            </label>
-                            <div className="relative">
-                                <span className="absolute inset-y-0 left-0 flex items-center pl-3 text-vendle-navy/50">
-                                  <Lock className="h-5 w-5" />
-                                </span>
-                                <input
-                                    id="password"
-                                    type={showPassword ? "text" : "password"}
-                                    name="password"
-                                    className="w-full pl-10 pr-10 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-vendle-blue/20 focus:border-vendle-blue transition-colors"
-                                    placeholder="Enter your password"
-                                    disabled={isPending}
-                                />
-                                <button
-                                    type="button"
-                                    onClick={toggleShowPassword}
-                                    className="absolute inset-y-0 right-0 flex items-center pr-3 text-vendle-navy/50 hover:text-vendle-navy transition-colors"
-                                >
-                                    {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
-                                </button>
-                            </div>
+                        <div className="relative flex items-center my-6">
+                            <div className="flex-grow border-t border-[#D9D9D9]"></div>
+                            <span className="mx-4 text-sm font-medium text-[#2C3E50]/50">or</span>
+                            <div className="flex-grow border-t border-[#D9D9D9]"></div>
                         </div>
 
-                        {type === 'signup' && (
+                        <form onSubmit={handleSubmit} className="space-y-5">
+                            {type === 'contractorsignup' ? (
+                                <div>
+                                    <label htmlFor="companyName" className="block text-sm font-semibold text-[#2C3E50] mb-2">
+                                        Company Name
+                                    </label>
+                                    <div className="relative">
+                                        <span className="absolute inset-y-0 left-0 flex items-center pl-3 text-[#4A637D]">
+                                            <Building2 className="h-5 w-5" />
+                                        </span>
+                                        <input
+                                            id="companyName"
+                                            type="text"
+                                            name="companyName"
+                                            className="w-full pl-10 pr-4 py-3 border-2 border-[#D9D9D9] rounded-lg focus:ring-2 focus:ring-[#4A637D]/20 focus:border-[#4A637D] transition-all bg-white hover:border-[#4A637D]/50"
+                                            placeholder="Enter Company Name"
+                                            disabled={isPending}
+                                        />
+                                    </div>
+                                </div>
+                            ) : null}
+                            {type === 'contractorsignup' ? (
+                                <div>
+                                    <label htmlFor="companyWebsite" className="block text-sm font-semibold text-[#2C3E50] mb-2">
+                                        Company Website
+                                    </label>
+                                    <div className="relative">
+                                        <span className="absolute inset-y-0 left-0 flex items-center pl-3 text-[#4A637D]">
+                                            <Computer className="h-5 w-5" />
+                                        </span>
+                                        <input
+                                            id="companyWebsite"
+                                            type="text"
+                                            name="companyWebsite"
+                                            className="w-full pl-10 pr-4 py-3 border-2 border-[#D9D9D9] rounded-lg focus:ring-2 focus:ring-[#4A637D]/20 focus:border-[#4A637D] transition-all bg-white hover:border-[#4A637D]/50"
+                                            placeholder="Enter Company Website"
+                                            disabled={isPending}
+                                        />
+                                    </div>
+                                </div>
+                            ) : null}
+                            {type === 'contractorsignup' ? (
+                                <div>
+                                    <label htmlFor="phoneNumber" className="block text-sm font-semibold text-[#2C3E50] mb-2">
+                                        Phone Number
+                                    </label>
+                                    <div className="relative">
+                                        <span className="absolute inset-y-0 left-0 flex items-center pl-3 text-[#4A637D]">
+                                            <Phone className="h-5 w-5" />
+                                        </span>
+                                        <input
+                                            id="phoneNumber"
+                                            type="tel"
+                                            name="phoneNumber"
+                                            className="w-full pl-10 pr-4 py-3 border-2 border-[#D9D9D9] rounded-lg focus:ring-2 focus:ring-[#4A637D]/20 focus:border-[#4A637D] transition-all bg-white hover:border-[#4A637D]/50"
+                                            placeholder="Enter Phone Number"
+                                            disabled={isPending}
+                                        />
+                                    </div>
+                                </div>
+                            ) : null}
                             <div>
-                                <label htmlFor="confirmPassword" className="block text-sm font-medium text-vendle-navy mb-1">
-                                    Confirm Password
+                                <label htmlFor="email" className="block text-sm font-semibold text-[#2C3E50] mb-2">
+                                    Email
                                 </label>
                                 <div className="relative">
-                                      <span className="absolute inset-y-0 left-0 flex items-center pl-3 text-vendle-navy/50">
+                                    <span className="absolute inset-y-0 left-0 flex items-center pl-3 text-[#4A637D]">
+                                        <Mail className="h-5 w-5" />
+                                    </span>
+                                    <input
+                                        id="email"
+                                        type="email"
+                                        name="email"
+                                        className="w-full pl-10 pr-4 py-3 border-2 border-[#D9D9D9] rounded-lg focus:ring-2 focus:ring-[#4A637D]/20 focus:border-[#4A637D] transition-all bg-white hover:border-[#4A637D]/50"
+                                        placeholder="Enter your email"
+                                        disabled={isPending}
+                                    />
+                                </div>
+                            </div>
+
+                            <div>
+                                <label htmlFor="password" className="block text-sm font-semibold text-[#2C3E50] mb-2">
+                                    Password
+                                </label>
+                                <div className="relative">
+                                    <span className="absolute inset-y-0 left-0 flex items-center pl-3 text-[#4A637D]">
                                         <Lock className="h-5 w-5" />
-                                      </span>
+                                    </span>
                                     <input
-                                        id="confirmPassword"
+                                        id="password"
                                         type={showPassword ? "text" : "password"}
-                                        name="confirmPassword"
-                                        className="w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-vendle-blue/20 focus:border-vendle-blue transition-colors"
-                                        placeholder="Confirm your password"
+                                        name="password"
+                                        className="w-full pl-10 pr-10 py-3 border-2 border-[#D9D9D9] rounded-lg focus:ring-2 focus:ring-[#4A637D]/20 focus:border-[#4A637D] transition-all bg-white hover:border-[#4A637D]/50"
+                                        placeholder="Enter your password"
                                         disabled={isPending}
                                     />
+                                    <button
+                                        type="button"
+                                        onClick={toggleShowPassword}
+                                        className="absolute inset-y-0 right-0 flex items-center pr-3 text-[#4A637D] hover:text-[#2C3E50] transition-colors"
+                                    >
+                                        {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
+                                    </button>
                                 </div>
                             </div>
-                        )}
 
-                        {type === 'login' && (
-                            <div className="flex justify-end">
-                                <button
-                                    type="button"
-                                    className="text-sm text-vendle-blue hover:text-vendle-blue/80 transition-colors"
-                                >
-                                    Forgot password?
-                                </button>
-                            </div>
-                        )}
+                            {type === 'signup' && (
+                                <div>
+                                    <label htmlFor="confirmPassword" className="block text-sm font-semibold text-[#2C3E50] mb-2">
+                                        Confirm Password
+                                    </label>
+                                    <div className="relative">
+                                        <span className="absolute inset-y-0 left-0 flex items-center pl-3 text-[#4A637D]">
+                                            <Lock className="h-5 w-5" />
+                                        </span>
+                                        <input
+                                            id="confirmPassword"
+                                            type={showPassword ? "text" : "password"}
+                                            name="confirmPassword"
+                                            className="w-full pl-10 pr-4 py-3 border-2 border-[#D9D9D9] rounded-lg focus:ring-2 focus:ring-[#4A637D]/20 focus:border-[#4A637D] transition-all bg-white hover:border-[#4A637D]/50"
+                                            placeholder="Confirm your password"
+                                            disabled={isPending}
+                                        />
+                                    </div>
+                                </div>
+                            )}
 
-                        <Button
-                            type="submit"
-                            variant="primary"
-                            className="w-full py-3"
-                            loading={isPending}
-                        >
-                            {type === 'login' ? 'Sign In' : 'Create Account'}
-                        </Button>
-                    </form>
+                            {type === 'login' && (
+                                <div className="flex justify-end">
+                                    <button
+                                        type="button"
+                                        className="text-sm font-medium text-[#4A637D] hover:text-[#2C3E50] transition-colors"
+                                    >
+                                        Forgot password?
+                                    </button>
+                                </div>
+                            )}
 
-                    <div className="mt-6 text-center">
-                        <p className="text-vendle-navy/70">
-                            {type === 'login' ? "Don't have an account? " : "Already have an account? "}
-                            <Link
-                                href={type === "login" ? "/signup" : "/"}
-                                className="text-vendle-blue font-medium hover:text-vendle-blue/80 transition-colors"
+                            <Button
+                                type="submit"
+                                variant="primary"
+                                className="w-full py-3 sm:py-3.5 text-base sm:text-lg font-semibold bg-gradient-to-r from-[#2C3E50] via-[#4A637D] to-[#5A9E8B] hover:from-[#2C3E50]/90 hover:via-[#4A637D]/90 hover:to-[#5A9E8B]/90 shadow-lg hover:shadow-xl transition-all"
+                                loading={isPending}
                             >
-                                {type === 'login' ? 'Sign up' : 'Sign in'}
-                            </Link>
-                        </p>
-                    </div>
+                                {type === 'login' ? 'Sign In' : 'Create Account'}
+                            </Button>
+                        </form>
 
-                    {type === 'login' && (
-                        <div className="mt-6 text-center">
-                            <p className="text-sm text-vendle-navy/70">
-                                Are you a contractor?{' '}
-                                <Link 
-                                    href="/contractor-signup"
-                                    className="text-vendle-blue hover:text-vendle-blue/80 font-medium"
+                        <div className="mt-8 text-center">
+                            <p className="text-sm sm:text-base text-[#2C3E50]/70">
+                                {type === 'login' ? "Don't have an account? " : "Already have an account? "}
+                                <Link
+                                    href={type === "login" ? "/signup" : "/"}
+                                    className="text-[#4A637D] font-semibold hover:text-[#2C3E50] transition-colors"
                                 >
-                                    Sign Up As Contractor
+                                    {type === 'login' ? 'Sign up' : 'Sign in'}
                                 </Link>
                             </p>
                         </div>
-                    )}
+
+                        {type === 'login' && (
+                            <div className="mt-4 text-center pb-2">
+                                <p className="text-sm text-[#2C3E50]/70">
+                                    Are you a contractor?{' '}
+                                    <Link
+                                        href="/contractor-signup"
+                                        className="text-[#4A637D] hover:text-[#2C3E50] font-semibold transition-colors"
+                                    >
+                                        Sign Up As Contractor
+                                    </Link>
+                                </p>
+                            </div>
+                        )}
+                    </div>
                 </div>
             </FadeTransition>
     );
