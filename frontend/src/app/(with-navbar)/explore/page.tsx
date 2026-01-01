@@ -66,7 +66,7 @@ export default function ExplorePage() {
       const mappedClaims = claims?.map((claim: any, index: number) => ({
         id: claim?.id,
         title: claim?.title,
-        description: claim?.additionalNotes,
+        description: claim?.aiSummary || claim?.additionalNotes,
         price: claim?.totalJobValue,
         location: {
           city: claim?.city || "",
@@ -82,7 +82,7 @@ export default function ExplorePage() {
           rating: 5.0
         },
         ndaSigned,
-        showViewDetails: !ndaSigned,
+        showViewDetails: true,
         showJoinRestoration: ndaSigned && !claim?.claimParticipants?.map((claimParticipant: any) => claimParticipant?.userId)?.includes(user?.id),
       })) || [] as JobPosting[];
       return mappedClaims;
@@ -139,8 +139,12 @@ export default function ExplorePage() {
     setSelectedJob(job)
   }
 
-  const handleViewOpportunity = () => {
-    if (selectedJob) {
+  const handleViewOpportunity = (ndaSigned: boolean) => {
+    if (ndaSigned && selectedJob) {
+      router.push(`/claim/${selectedJob.id}`)
+    }
+
+    if (selectedJob && !ndaSigned) {
       setShowContractModal(true)
     }
   }
@@ -314,33 +318,34 @@ export default function ExplorePage() {
 
                     <CardFooter className="pt-0">
                       {job?.showViewDetails ? (
-                          <Button
-                              className="w-full rounded-lg bg-[#4A637D] hover:bg-[#4A637D]/90 shadow-md hover:shadow-lg transition-all font-semibold"
-                              onClick={(e) => {
-                                e.stopPropagation()
-                                handleViewDetails(job)
-                              }}
-                          >
-                            View Details
-                            {!isLoggedIn && <Lock className="ml-2 h-4 w-4"/>}
-                          </Button>
+                          <div className="w-full flex flex-col items-center gap-2">
+                            <Button
+                                className="w-full rounded-lg bg-[#4A637D] hover:bg-[#4A637D]/90 shadow-md hover:shadow-lg transition-all font-semibold"
+                                onClick={(e) => {
+                                  e.stopPropagation()
+                                  handleViewDetails(job)
+                                }}
+                            >
+                              View Details
+                              {!isLoggedIn && <Lock className="ml-2 h-4 w-4"/>}
+                            </Button>
+                            {job?.showJoinRestoration ? (
+                                <Button
+                                    className="w-full rounded-lg border-2 border-[#4A637D]/30 hover:border-[#4A637D] hover:bg-[#4A637D] hover:text-white transition-all shadow-sm font-semibold"
+                                    variant="outline"
+                                    disabled={joinRestorationMutation?.isPending}
+                                    onClick={() => joinRestorationMutation.mutate(job?.id)}
+                                >
+                                  Join Restoration
+                                </Button>
+                            ) : null}
+                          </div>
                       ) : (
-                          job?.showJoinRestoration ? (
-                              <Button
-                                  className="w-full rounded-lg border-2 border-[#4A637D]/30 hover:border-[#4A637D] hover:bg-[#4A637D] hover:text-white transition-all shadow-sm font-semibold"
-                                  variant="outline"
-                                  disabled={joinRestorationMutation?.isPending}
-                                  onClick={() => joinRestorationMutation.mutate(job?.id)}
-                              >
-                                Join Restoration
-                              </Button>
-                          ) : (
-                              <Button asChild className="w-full rounded-lg bg-[#4A637D] hover:bg-[#4A637D]/90 shadow-md hover:shadow-lg transition-all font-semibold">
-                                <Link href={`/claim/${job?.id}`}>
-                                  Claim Details
-                                </Link>
-                              </Button>
-                          )
+                          <Button asChild className="w-full rounded-lg bg-[#4A637D] hover:bg-[#4A637D]/90 shadow-md hover:shadow-lg transition-all font-semibold">
+                            <Link href={`/claim/${job?.id}`}>
+                              Claim Details
+                            </Link>
+                          </Button>
                       )}
                     </CardFooter>
                   </Card>
@@ -521,7 +526,7 @@ export default function ExplorePage() {
                   <div className="sticky bottom-0 bg-white border-t border-border px-4 py-4 shadow-lg">
                     <Button
                       className="w-full rounded-lg h-12 text-base font-medium"
-                      onClick={handleViewOpportunity}
+                      onClick={() => handleViewOpportunity(!!selectedJob?.ndaSigned)}
                     >
                       View Opportunity
                       {!isLoggedIn && <Lock className="ml-2 h-4 w-4"/>}
@@ -680,7 +685,7 @@ export default function ExplorePage() {
             <div className="sticky bottom-0 bg-white border-t border-border px-6 py-4 shadow-lg">
               <Button
                 className="w-full rounded-lg h-12 text-base font-medium"
-                onClick={handleViewOpportunity}
+                onClick={() => handleViewOpportunity(!!selectedJob?.ndaSigned)}
               >
                 View Opportunity
                 {!isLoggedIn && <Lock className="ml-2 h-4 w-4"/>}
