@@ -121,8 +121,8 @@ export function PreLaunchDetailPanel({
               <p className="text-sm font-semibold text-gray-900">Accepted Contractors</p>
               <div className="space-y-2">
                 {approvedContractors.map((contractor: any) => (
-                  <div key={contractor.id} className="flex items-center gap-3 p-3 bg-green-50 rounded-lg border border-green-200">
-                    <CheckCircle className="h-5 w-5 text-green-600" />
+                  <div key={contractor.id} className="flex items-center gap-3 p-3 bg-vendle-teal/5 rounded-lg border border-vendle-teal/20">
+                    <CheckCircle className="h-5 w-5 text-vendle-teal" />
                     <div className="flex-1">
                       <p className="font-medium text-gray-900">{contractor?.user?.companyName}</p>
                       <p className="text-xs text-gray-500">Accepted</p>

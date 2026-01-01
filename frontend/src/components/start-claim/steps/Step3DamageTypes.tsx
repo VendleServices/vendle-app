@@ -71,7 +71,7 @@ export function Step3DamageTypes({ damageTypes, onToggleDamageType }: Step3Damag
               className={cn(
                 "relative p-6 rounded-2xl border-2 text-center transition-all overflow-hidden h-full",
                 isSelected
-                  ? "border-vendle-blue bg-gradient-to-br from-vendle-blue/10 via-vendle-teal/5 to-transparent shadow-xl shadow-vendle-blue/20"
+                  ? "border-vendle-blue bg-vendle-blue/10 shadow-xl shadow-vendle-blue/20"
                   : "border-vendle-gray/30 bg-white hover:border-vendle-blue/50 hover:shadow-lg"
               )}
             >
@@ -79,7 +79,7 @@ export function Step3DamageTypes({ damageTypes, onToggleDamageType }: Step3Damag
               {isSelected && (
                 <motion.div
                   layoutId="damage-selection"
-                  className="absolute left-0 top-0 right-0 h-1.5 bg-gradient-to-r from-vendle-blue via-vendle-teal to-vendle-blue"
+                  className="absolute left-0 top-0 right-0 h-1.5 bg-vendle-blue"
                 />
               )}
 
@@ -95,7 +95,7 @@ export function Step3DamageTypes({ damageTypes, onToggleDamageType }: Step3Damag
                   className={cn(
                     "w-20 h-20 rounded-2xl flex items-center justify-center transition-all relative",
                     isSelected
-                      ? "bg-gradient-to-br from-vendle-blue to-vendle-teal shadow-lg"
+                      ? "bg-vendle-blue shadow-lg"
                       : "bg-vendle-gray/20"
                   )}
                 >

@@ -19,7 +19,7 @@ export function AIRecommendationDialog({
     <Dialog open={open} onOpenChange={onClose}>
       <DialogContent className="max-w-3xl max-h-[80vh] overflow-hidden p-0 gap-0 border-2 border-vendle-blue/20 shadow-2xl">
         {/* Header with gradient */}
-        <div className="relative overflow-hidden bg-gradient-to-r from-vendle-blue to-vendle-teal p-6 text-white">
+        <div className="relative overflow-hidden bg-vendle-blue p-6 text-white">
           {/* Background pattern */}
           <div
             className="absolute inset-0 opacity-10"

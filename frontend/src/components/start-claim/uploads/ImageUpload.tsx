@@ -48,7 +48,7 @@ export function ImageUpload({
         onClick={() => imageInputRef.current?.click()}
         onDrop={handleDrop}
         onDragOver={(e) => e.preventDefault()}
-        className="w-full p-8 rounded-2xl border-2 border-dashed border-vendle-gray/50 hover:border-vendle-blue bg-gradient-to-br from-vendle-blue/5 to-transparent hover:from-vendle-blue/10 transition-all group cursor-pointer"
+        className="w-full p-8 rounded-2xl border-2 border-dashed border-vendle-gray/50 hover:border-vendle-blue bg-vendle-blue/5 hover:bg-vendle-blue/10 transition-all group cursor-pointer"
       >
         <div className="flex flex-col items-center">
           <div className="w-14 h-14 rounded-xl bg-vendle-blue/10 group-hover:bg-vendle-blue/20 flex items-center justify-center mb-3 transition-colors">
@@ -107,7 +107,7 @@ export function ImageUpload({
                 </div>
 
                 {/* File name badge */}
-                <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 to-transparent p-3">
+                <div className="absolute bottom-0 left-0 right-0 bg-black/60 p-3">
                   <p className="text-xs text-white font-medium truncate">{img.file.name}</p>
                 </div>
               </motion.div>

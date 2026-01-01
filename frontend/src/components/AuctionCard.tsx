@@ -133,7 +133,7 @@ export function AuctionCard({
 function getStatusColor(status: string) {
   switch (status.toLowerCase()) {
     case "open":
-      return "bg-green-100 text-green-800 hover:bg-green-200 border-green-200";
+      return "bg-vendle-teal/10 text-vendle-teal hover:bg-vendle-teal/15 border-vendle-teal/20";
     case "closed":
       return "bg-blue-100 text-blue-800 hover:bg-blue-200 border-blue-200";
     case "cancelled":

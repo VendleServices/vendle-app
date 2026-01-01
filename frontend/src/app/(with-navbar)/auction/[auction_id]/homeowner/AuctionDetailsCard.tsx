@@ -5,8 +5,8 @@ import { AuctionDetailsCardProps } from "../types";
 
 export function AuctionDetailsCard({ auction }: AuctionDetailsCardProps) {
   return (
-    <Card className="shadow-lg border-2 border-vendle-gray/20 hover:shadow-xl transition-all duration-300 bg-gradient-to-br from-white to-gray-50/50">
-      <CardHeader className="border-b-2 border-vendle-gray/10 pb-6 bg-gradient-to-r from-vendle-blue/5 to-transparent">
+    <Card className="shadow-lg border-2 border-vendle-gray/20 hover:shadow-xl transition-all duration-300 bg-white">
+      <CardHeader className="border-b-2 border-vendle-gray/10 pb-6 bg-vendle-blue/5">
         <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
           <div className="space-y-3">
             <CardTitle className="text-3xl font-bold text-foreground tracking-tight">
@@ -27,7 +27,7 @@ export function AuctionDetailsCard({ auction }: AuctionDetailsCardProps) {
                 <DollarSign className="h-3.5 w-3.5" />
                 Current ${auction?.bids?.[0]?.amount}
               </Badge>
-              <Badge className="rounded-full bg-[#5A9E8B]/10 px-3 py-1 text-xs font-semibold text-[#5A9E8B] border border-[#5A9E8B]/30">
+              <Badge className="rounded-full bg-[#4A637D]/10 px-3 py-1 text-xs font-semibold text-[#4A637D] border border-[#4A637D]/30">
                 {auction?.status}
               </Badge>
             </div>
@@ -40,7 +40,7 @@ export function AuctionDetailsCard({ auction }: AuctionDetailsCardProps) {
             <h3 className="border-b-2 border-vendle-blue/20 pb-3 text-sm font-bold uppercase tracking-wider text-vendle-blue">
               Project Description
             </h3>
-            <div className="space-y-4 rounded-xl bg-gradient-to-br from-vendle-blue/5 to-transparent p-5 border border-vendle-gray/20 shadow-sm">
+            <div className="space-y-4 rounded-xl bg-vendle-blue/5 p-5 border border-vendle-gray/20 shadow-sm">
               <div className="space-y-1">
                 <p className="text-xs font-semibold text-muted-foreground">
                   Description
@@ -60,11 +60,11 @@ export function AuctionDetailsCard({ auction }: AuctionDetailsCardProps) {
             </div>
           </div>
           <div className="space-y-5">
-            <h3 className="border-b-2 border-vendle-teal/20 pb-3 text-sm font-bold uppercase tracking-wider text-vendle-teal">
+            <h3 className="border-b-2 border-vendle-blue/20 pb-3 text-sm font-bold uppercase tracking-wider text-vendle-blue">
               Auction Details
             </h3>
             <div className="space-y-4">
-              <div className="flex items-center rounded-xl border-2 border-vendle-blue/20 bg-gradient-to-r from-vendle-blue/5 to-transparent p-5 shadow-sm hover:shadow-md transition-shadow">
+              <div className="flex items-center rounded-xl border-2 border-vendle-blue/20 bg-vendle-blue/5 p-5 shadow-sm hover:shadow-md transition-shadow">
                 <div className="mr-4 flex h-12 w-12 items-center justify-center rounded-xl bg-vendle-blue/20 shadow-sm">
                   <DollarSign className="h-6 w-6 text-vendle-blue" />
                 </div>
@@ -77,7 +77,7 @@ export function AuctionDetailsCard({ auction }: AuctionDetailsCardProps) {
                   </p>
                 </div>
               </div>
-              <div className="flex items-center rounded-xl border-2 border-[#4A637D]/20 bg-gradient-to-r from-[#4A637D]/5 to-transparent p-5 shadow-sm hover:shadow-md transition-shadow">
+              <div className="flex items-center rounded-xl border-2 border-[#4A637D]/20 bg-[#4A637D]/5 p-5 shadow-sm hover:shadow-md transition-shadow">
                 <div className="mr-4 flex h-12 w-12 items-center justify-center rounded-xl bg-[#4A637D]/20 shadow-sm">
                   <Clock className="h-6 w-6 text-[#4A637D]" />
                 </div>

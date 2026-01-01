@@ -86,7 +86,7 @@ const OnboardingCard = ({
           className="mb-6 text-center"
           variants={contentVariants}
         >
-          <h2 className="text-3xl font-bold text-vendle-navy mb-3 bg-gradient-to-r from-vendle-navy to-vendle-blue bg-clip-text text-transparent">
+          <h2 className="text-3xl font-bold text-vendle-navy mb-3 text-vendle-navy">
             {title}
           </h2>
           {subtitle && (
@@ -129,7 +129,7 @@ const OnboardingCard = ({
               onClick={onNext}
               disabled={isNextDisabled}
               className={cn(
-                "group px-6 py-2.5 bg-gradient-to-r from-vendle-blue to-vendle-navy text-white font-medium rounded-lg shadow-md transition-all flex items-center gap-2",
+                "group px-6 py-2.5 bg-vendle-blue text-white font-medium rounded-lg shadow-md transition-all flex items-center gap-2",
                 isNextDisabled 
                   ? "opacity-50 cursor-not-allowed" 
                   : "hover:shadow-lg hover:scale-[1.02] active:scale-[0.98]"

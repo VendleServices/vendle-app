@@ -28,7 +28,7 @@ const statusConfig = {
     icon: Users,
     label: "Active",
     variant: "default" as const,
-    className: "bg-green-100 text-green-700 hover:bg-green-200",
+    className: "bg-vendle-teal/10 text-vendle-teal hover:bg-vendle-teal/15",
   },
 };
 

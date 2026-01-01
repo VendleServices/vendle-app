@@ -22,7 +22,7 @@ export default function LoginPage() {
 
   // If user is not logged in, show login page
   return (
-    <div className="min-h-screen bg-gradient-to-br from-white via-[#D9D9D9]/10 to-[#4A637D]/5 relative overflow-hidden">
+    <div className="min-h-screen bg-white relative overflow-hidden">
       {/* Subtle background pattern */}
       <div
         className="absolute inset-0 opacity-[0.02]"

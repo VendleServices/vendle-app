@@ -65,7 +65,7 @@ export function BiddersToolbar({
         <Button
           onClick={onAskAI}
           disabled={isAskingAI}
-          className="bg-gradient-to-r from-vendle-blue to-vendle-teal shadow-lg hover:shadow-xl"
+          className="bg-vendle-blue shadow-lg hover:shadow-xl"
         >
           <Sparkles className="w-4 h-4 mr-2" />
           {isAskingAI ? "Analyzing..." : "Ask Vendle AI"}
@@ -76,7 +76,7 @@ export function BiddersToolbar({
           <Button
             onClick={onCreatePhase2}
             disabled={selectedCount === 0 || isCreatingPhase2}
-            className="bg-gradient-to-r from-[#5A9E8B] to-[#5A9E8B]/90 hover:from-[#5A9E8B]/90 hover:to-[#5A9E8B]/80 text-white shadow-lg hover:shadow-xl font-bold disabled:opacity-50 disabled:cursor-not-allowed"
+            className="bg-[#5A9E8B] hover:bg-[#5A9E8B]/90 text-white shadow-lg hover:shadow-xl font-bold disabled:opacity-50 disabled:cursor-not-allowed"
           >
             <Gavel className="w-4 h-4 mr-2" />
             Create Phase 2 Auction

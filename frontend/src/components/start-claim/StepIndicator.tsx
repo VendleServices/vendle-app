@@ -86,7 +86,7 @@ export function StepIndicator({ currentStep, totalSteps }: StepIndicatorProps) {
                 className={cn(
                   "relative z-10 w-14 h-14 rounded-full flex items-center justify-center transition-all",
                   isCompleted && "bg-vendle-teal shadow-lg shadow-vendle-teal/30",
-                  isCurrent && "bg-gradient-to-br from-vendle-blue to-vendle-teal shadow-xl shadow-vendle-blue/40 ring-4 ring-vendle-blue/20 animate-pulse",
+                  isCurrent && "bg-vendle-blue shadow-xl shadow-vendle-blue/40 ring-4 ring-vendle-blue/20 animate-pulse",
                   isUpcoming && "bg-vendle-gray/30 border-2 border-vendle-gray/50"
                 )}
               >
@@ -107,7 +107,7 @@ export function StepIndicator({ currentStep, totalSteps }: StepIndicatorProps) {
                     initial={{ width: 0 }}
                     animate={{ width: isCompleted ? "100%" : "0%" }}
                     transition={{ duration: 0.3, ease: "easeOut" }}
-                    className="h-full bg-gradient-to-r from-vendle-blue to-vendle-teal"
+                    className="h-full bg-vendle-teal"
                   />
                 </div>
               )}
@@ -128,7 +128,7 @@ export function StepIndicator({ currentStep, totalSteps }: StepIndicatorProps) {
               className={cn(
                 "w-12 h-12 rounded-full flex items-center justify-center transition-all",
                 isCompleted && "bg-vendle-teal",
-                isCurrent && "bg-gradient-to-br from-vendle-blue to-vendle-teal ring-4 ring-vendle-blue/20",
+                isCurrent && "bg-vendle-blue ring-4 ring-vendle-blue/20",
                 !isCompleted && !isCurrent && "bg-vendle-gray/30 border-2 border-vendle-gray/50"
               )}
             >

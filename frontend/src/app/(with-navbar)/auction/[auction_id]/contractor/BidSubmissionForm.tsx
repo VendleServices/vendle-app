@@ -26,7 +26,7 @@ export function BidSubmissionForm({
   return (
     <>
       {/* Header with gradient */}
-      <div className="rounded-t-2xl bg-gradient-to-r from-vendle-blue to-vendle-teal p-6 text-white">
+      <div className="rounded-t-2xl bg-vendle-blue p-6 text-white">
         <div className="flex items-center justify-between mb-2">
           <h2 className="text-2xl font-bold">Submit Your Bid</h2>
           <Badge className="bg-white/20 text-white border-white/30">
@@ -42,7 +42,7 @@ export function BidSubmissionForm({
       {/* Form body */}
       <form onSubmit={onSubmit} className="bg-white rounded-b-2xl border-2 border-t-0 border-vendle-gray/20 p-6 space-y-6 shadow-xl">
         {/* Main bid amount - hero input */}
-        <div className="p-6 rounded-xl bg-gradient-to-br from-vendle-blue/5 to-vendle-teal/5 border-2 border-vendle-blue/20">
+        <div className="p-6 rounded-xl bg-vendle-blue/5 border-2 border-vendle-blue/20">
           <Label className="text-base font-bold text-foreground mb-3 block flex items-center gap-2">
             <DollarSign className="w-5 h-5 text-vendle-blue" />
             Total Bid Amount
@@ -188,7 +188,7 @@ export function BidSubmissionForm({
 
           {!uploadedFile ? (
             <div onClick={onFileClick} className="relative group cursor-pointer">
-              <div className="rounded-xl border-2 border-dashed border-vendle-gray/50 hover:border-vendle-blue p-8 transition-all bg-gradient-to-br from-vendle-blue/5 to-transparent group-hover:from-vendle-blue/10">
+              <div className="rounded-xl border-2 border-dashed border-vendle-gray/50 hover:border-vendle-blue p-8 transition-all bg-vendle-blue/5 group-hover:bg-vendle-blue/10">
                 <div className="flex flex-col items-center text-center">
                   <div className="w-14 h-14 rounded-xl bg-vendle-blue/10 group-hover:bg-vendle-blue/20 flex items-center justify-center mb-3 transition-colors">
                     <Upload className="w-7 h-7 text-vendle-blue" />
@@ -238,7 +238,7 @@ export function BidSubmissionForm({
           type="submit"
           size="lg"
           disabled={isSubmitting || disableSubmit}
-          className="w-full h-14 rounded-xl bg-gradient-to-r from-vendle-blue to-vendle-teal hover:shadow-2xl hover:shadow-vendle-blue/30 text-white font-bold text-lg transition-all group relative overflow-hidden"
+          className="w-full h-14 rounded-xl bg-vendle-blue hover:shadow-2xl hover:shadow-vendle-blue/30 text-white font-bold text-lg transition-all group relative overflow-hidden"
         >
           <span className="relative z-10">
             {isSubmitting ? "Submitting..." : "Submit Bid"}
@@ -247,7 +247,7 @@ export function BidSubmissionForm({
 
           {/* Shimmer effect */}
           {!isSubmitting && (
-            <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-1000" />
+            <div className="absolute inset-0 bg-white/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
           )}
         </Button>
       </form>

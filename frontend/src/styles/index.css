@@ -273,7 +273,7 @@
   }
 
   .alert-success {
-    @apply alert bg-green-50 border-green-400 text-green-800;
+    @apply alert bg-vendle-teal/10 border-vendle-teal text-vendle-teal;
   }
 
   .alert-warning {
@@ -396,17 +396,17 @@
     box-shadow: var(--shadow-inner-subtle);
   }
 
-  /* Gradient utilities */
-  .gradient-primary {
-    @apply bg-gradient-to-r from-vendle-blue to-vendle-teal;
+  /* Solid color utilities - no gradients */
+  .bg-vendle-blue-solid {
+    @apply bg-vendle-blue;
   }
 
-  .gradient-accent {
-    @apply bg-gradient-to-r from-vendle-sand to-vendle-teal;
+  .bg-vendle-teal-solid {
+    @apply bg-vendle-teal;
   }
 
-  .gradient-subtle {
-    @apply bg-gradient-to-b from-white to-vendle-gray/5;
+  .bg-vendle-navy-solid {
+    @apply bg-vendle-navy;
   }
 
   /* Interactive states */
@@ -590,16 +590,4 @@
   }
 }
 
-@keyframes bg-move {
-  0% { background-position: 0% 50%; }
-  50% { background-position: 100% 50%; }
-  100% { background-position: 0% 50%; }
-}
-
-.bg-animated-smoke {
-  background: linear-gradient(120deg, #232526 0%, #414345 50%, #232526 100%);
-  background-size: 200% 200%;
-  animation: bg-move 12s ease-in-out infinite;
-  filter: blur(2px);
-  opacity: 0.9;
-}
+/* Removed animated gradient - using solid colors instead */

@@ -117,8 +117,8 @@ const AuthForm = ({ type }: Props) => {
     return (
         <FadeTransition>
             <div className="w-full max-w-full sm:max-w-md bg-white rounded-2xl shadow-2xl border-2 border-[#D9D9D9]/30 overflow-hidden">
-                    {/* Gradient header accent */}
-                    <div className="h-2 bg-gradient-to-r from-[#2C3E50] via-[#4A637D] to-[#5A9E8B]" />
+                    {/* Solid header accent */}
+                    <div className="h-2 bg-[#2C3E50]" />
 
                     <div className="p-6 sm:p-8 lg:p-10">
                         <div className="mb-8 text-center">
@@ -339,7 +339,7 @@ const AuthForm = ({ type }: Props) => {
                             <Button
                                 type="submit"
                                 variant="primary"
-                                className="w-full py-3 sm:py-3.5 text-base sm:text-lg font-semibold bg-gradient-to-r from-[#2C3E50] via-[#4A637D] to-[#5A9E8B] hover:from-[#2C3E50]/90 hover:via-[#4A637D]/90 hover:to-[#5A9E8B]/90 shadow-lg hover:shadow-xl transition-all"
+                                className="w-full py-3 sm:py-3.5 text-base sm:text-lg font-semibold bg-[#4A637D] hover:bg-[#4A637D]/90 shadow-lg hover:shadow-xl transition-all"
                                 loading={isPending}
                             >
                                 {type === 'login' ? 'Sign In' : 'Create Account'}

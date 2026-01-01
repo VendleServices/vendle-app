@@ -262,7 +262,7 @@ export default function ExplorePage() {
                       }`}
                   >
                     {/* Gradient overlay header */}
-                    <div className="absolute top-0 left-0 right-0 h-1.5 bg-gradient-to-r from-[#2C3E50] via-[#4A637D] to-[#5A9E8B]" />
+                    <div className="absolute top-0 left-0 right-0 h-1.5 bg-[#4A637D]" />
 
                     <CardHeader className="space-y-3 pb-4 pt-6">
                       {/* Title + Category Badge */}
@@ -272,7 +272,7 @@ export default function ExplorePage() {
                         </h3>
                         <Badge
                             variant="secondary"
-                            className="shrink-0 rounded-full px-3 py-1 text-xs font-bold text-white bg-gradient-to-r from-[#4A637D] to-[#5A9E8B] shadow-sm"
+                            className="shrink-0 rounded-full px-3 py-1 text-xs font-bold text-white bg-[#5A9E8B] shadow-sm"
                         >
                           {job.category}
                         </Badge>
@@ -286,7 +286,7 @@ export default function ExplorePage() {
 
                     <CardContent className="flex-1 space-y-4 pb-4">
                       {/* Budget - Highlighted */}
-                      <div className="p-4 rounded-xl bg-gradient-to-br from-[#4A637D]/10 to-[#5A9E8B]/5 border-2 border-[#4A637D]/20 shadow-sm">
+                      <div className="p-4 rounded-xl bg-[#4A637D]/10 border-2 border-[#4A637D]/20 shadow-sm">
                         <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-1">Budget</p>
                         <div className="flex items-baseline gap-1.5">
                           <span className="text-3xl font-bold tracking-tight text-[#4A637D]">
@@ -315,7 +315,7 @@ export default function ExplorePage() {
                     <CardFooter className="pt-0">
                       {job?.showViewDetails ? (
                           <Button
-                              className="w-full rounded-lg bg-gradient-to-r from-[#2C3E50] via-[#4A637D] to-[#5A9E8B] hover:from-[#2C3E50]/90 hover:via-[#4A637D]/90 hover:to-[#5A9E8B]/90 shadow-md hover:shadow-lg transition-all font-semibold"
+                              className="w-full rounded-lg bg-[#4A637D] hover:bg-[#4A637D]/90 shadow-md hover:shadow-lg transition-all font-semibold"
                               onClick={(e) => {
                                 e.stopPropagation()
                                 handleViewDetails(job)
@@ -335,7 +335,7 @@ export default function ExplorePage() {
                                 Join Restoration
                               </Button>
                           ) : (
-                              <Button asChild className="w-full rounded-lg bg-gradient-to-r from-[#2C3E50] via-[#4A637D] to-[#5A9E8B] hover:from-[#2C3E50]/90 hover:via-[#4A637D]/90 hover:to-[#5A9E8B]/90 shadow-md hover:shadow-lg transition-all font-semibold">
+                              <Button asChild className="w-full rounded-lg bg-[#4A637D] hover:bg-[#4A637D]/90 shadow-md hover:shadow-lg transition-all font-semibold">
                                 <Link href={`/claim/${job?.id}`}>
                                   Claim Details
                                 </Link>

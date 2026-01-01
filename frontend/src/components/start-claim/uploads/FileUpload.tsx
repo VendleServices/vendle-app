@@ -58,7 +58,7 @@ export function FileUpload({
   return (
     <div className="relative group">
       {!file ? (
-        <div className="relative rounded-2xl bg-gradient-to-br from-vendle-blue/20 to-vendle-teal/20 p-[2px] hover:from-vendle-blue/40 hover:to-vendle-teal/40 transition-all">
+        <div className="relative rounded-2xl bg-vendle-blue/20 p-[2px] hover:bg-vendle-blue/30 transition-all">
           <div
             onDrop={handleDrop}
             onDragOver={(e) => e.preventDefault()}
@@ -69,7 +69,7 @@ export function FileUpload({
             <motion.div
               animate={{ y: [0, -8, 0] }}
               transition={{ repeat: Infinity, duration: 2, ease: "easeInOut" }}
-              className="w-20 h-20 rounded-2xl bg-gradient-to-br from-vendle-blue to-vendle-teal p-4 mb-4 shadow-lg"
+              className="w-20 h-20 rounded-2xl bg-vendle-blue p-4 mb-4 shadow-lg"
             >
               <Upload className="w-full h-full text-white" />
             </motion.div>

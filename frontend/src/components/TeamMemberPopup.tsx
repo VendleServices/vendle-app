@@ -22,7 +22,7 @@ export default function TeamMemberPopup({ member, className = "" }: TeamMemberPo
     <Card className={`w-80 border-0 shadow-2xl bg-white backdrop-blur-xl overflow-hidden ${className}`}>
       <CardContent className="p-0">
         {/* Large Image Section */}
-        <div className="relative h-64 bg-gradient-to-br from-slate-800 via-slate-700 to-slate-900">
+        <div className="relative h-64 bg-[#2C3E50]">
           <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_20%,rgba(59,130,246,0.15),transparent_60%)]" />
 
           {/* LinkedIn Button */}

@@ -55,7 +55,7 @@ export function Step7DesignPlan({
                         className={cn(
                             "w-full p-6 rounded-2xl border-2 text-left transition-all",
                             isSelected
-                                ? "border-vendle-blue bg-gradient-to-br from-vendle-blue/10 via-vendle-teal/5 to-transparent shadow-xl shadow-vendle-blue/20"
+                                ? "border-vendle-blue bg-vendle-blue/10 shadow-xl shadow-vendle-blue/20"
                                 : "border-vendle-gray/30 bg-white hover:border-vendle-blue/50 hover:shadow-lg"
                         )}
                     >
@@ -70,7 +70,7 @@ export function Step7DesignPlan({
                                 className={cn(
                                     "w-14 h-14 rounded-xl flex items-center justify-center flex-shrink-0 transition-all",
                                     isSelected
-                                        ? "bg-gradient-to-br from-vendle-blue to-vendle-teal text-white shadow-lg"
+                                        ? "bg-vendle-blue text-white shadow-lg"
                                         : "bg-vendle-gray/20 text-vendle-blue/70"
                                 )}
                             >

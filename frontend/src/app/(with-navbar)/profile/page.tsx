@@ -45,7 +45,7 @@ export default function ProfilePage() {
           <CardContent className="space-y-6">
             {/* Avatar Section */}
             <div className="flex items-center gap-6">
-              <div className="w-24 h-24 rounded-full bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center text-white text-3xl font-bold">
+              <div className="w-24 h-24 rounded-full bg-vendle-blue flex items-center justify-center text-white text-3xl font-bold">
                 {user?.email?.charAt(0).toUpperCase() || 'U'}
               </div>
               <div>

@@ -1,5 +1,5 @@
 "use client"
-import { useEffect } from "react"
+import { useEffect, useState } from "react"
 import { useRouter } from "next/navigation"
 import { useAuth } from "@/contexts/AuthContext"
 import SplashScreen from "@/components/SplashScreen"
@@ -7,18 +7,32 @@ import SplashScreen from "@/components/SplashScreen"
 export default function RootPage() {
   const router = useRouter()
   const { user, loading } = useAuth()
+  const [mounted, setMounted] = useState(false)
+
+  // Handle hydration
+  useEffect(() => {
+    setMounted(true)
+  }, [])
 
   useEffect(() => {
-    if (!loading) {
+    if (!mounted || loading) return
+
+    // Add a small delay to ensure proper rendering
+    const timer = setTimeout(() => {
       if (user) {
-        // If user is logged in, redirect to home
         router.replace("/home")
       } else {
-        // If user is not logged in, redirect to login
         router.replace("/login")
       }
-    }
-  }, [user, loading, router])
+    }, 100)
+
+    return () => clearTimeout(timer)
+  }, [user, loading, router, mounted])
+
+  // Show splash screen while mounting or loading
+  if (!mounted || loading) {
+    return <SplashScreen />
+  }
 
   return <SplashScreen />
 }

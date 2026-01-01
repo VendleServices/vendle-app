@@ -135,10 +135,10 @@ const Navbar = ({ onProtectedAction }: NavbarProps = {}) => {
                 <Link
                   href="/explore"
                   className={`flex items-center gap-3 px-4 py-3 rounded-lg transition-all duration-200 ${
-                    pathname === '/explore' ? 'bg-indigo-50 text-indigo-600' : 'hover:bg-gray-50 text-gray-700'
+                    pathname === '/explore' ? 'bg-vendle-blue/10 text-vendle-blue' : 'hover:bg-gray-50 text-gray-700'
                   }`}
                 >
-                  <Search className={`w-5 h-5 ${pathname === '/explore' ? 'text-indigo-600' : 'text-gray-600'}`} strokeWidth={2} />
+                  <Search className={`w-5 h-5 ${pathname === '/explore' ? 'text-vendle-blue' : 'text-gray-600'}`} strokeWidth={2} />
                   <span className="text-sm font-medium">Explore</span>
                 </Link>
               )}
@@ -149,7 +149,7 @@ const Navbar = ({ onProtectedAction }: NavbarProps = {}) => {
                   href="/start-claim"
                   onClick={(e) => handleProtectedClick(e, '/start-claim')}
                   className={`flex items-center gap-3 px-4 py-3 rounded-lg transition-all duration-200 ${
-                    pathname === '/start-claim' ? 'bg-indigo-50 text-indigo-600' : 'hover:bg-gray-50 text-gray-700'
+                    pathname === '/start-claim' ? 'bg-vendle-blue/10 text-vendle-blue' : 'hover:bg-gray-50 text-gray-700'
                   }`}
                 >
                   <div className="w-5 h-5 relative">
@@ -171,10 +171,10 @@ const Navbar = ({ onProtectedAction }: NavbarProps = {}) => {
                 href="/home"
                 onClick={(e) => handleProtectedClick(e, '/home')}
                 className={`flex items-center gap-3 px-4 py-3 rounded-lg transition-all duration-200 ${
-                  pathname === '/home' ? 'bg-indigo-50 text-indigo-600' : 'hover:bg-gray-50 text-gray-700'
+                  pathname === '/home' ? 'bg-vendle-blue/10 text-vendle-blue' : 'hover:bg-gray-50 text-gray-700'
                 }`}
               >
-                <LayoutDashboard className={`w-5 h-5 ${pathname === '/home' ? 'text-indigo-600' : 'text-gray-600'}`} strokeWidth={2} />
+                <LayoutDashboard className={`w-5 h-5 ${pathname === '/home' ? 'text-vendle-blue' : 'text-gray-600'}`} strokeWidth={2} />
                 <span className="text-sm font-medium">Home</span>
               </Link>
 
@@ -183,10 +183,10 @@ const Navbar = ({ onProtectedAction }: NavbarProps = {}) => {
                 href="/profile"
                 onClick={(e) => handleProtectedClick(e, '/profile')}
                 className={`flex items-center gap-3 px-4 py-3 rounded-lg transition-all duration-200 ${
-                  pathname === '/profile' ? 'bg-indigo-50 text-indigo-600' : 'hover:bg-gray-50 text-gray-700'
+                  pathname === '/profile' ? 'bg-vendle-blue/10 text-vendle-blue' : 'hover:bg-gray-50 text-gray-700'
                 }`}
               >
-                <User className={`w-5 h-5 ${pathname === '/profile' ? 'text-indigo-600' : 'text-gray-600'}`} strokeWidth={2} />
+                <User className={`w-5 h-5 ${pathname === '/profile' ? 'text-vendle-blue' : 'text-gray-600'}`} strokeWidth={2} />
                 <span className="text-sm font-medium">Profile</span>
               </Link>
             </div>
@@ -196,7 +196,7 @@ const Navbar = ({ onProtectedAction }: NavbarProps = {}) => {
               {isLoggedIn ? (
                 <button
                   onClick={handleLogout}
-                  className="w-full px-4 py-3 flex items-center gap-3 rounded-lg bg-gradient-to-br from-red-50 to-red-100 hover:from-red-100 hover:to-red-200 transition-all duration-200"
+                  className="w-full px-4 py-3 flex items-center gap-3 rounded-lg bg-red-50 hover:bg-red-100 transition-all duration-200"
                 >
                   <LogOut className="w-5 h-5 text-red-600" strokeWidth={2} />
                   <span className="text-sm font-medium text-red-600">Logout</span>
@@ -204,10 +204,10 @@ const Navbar = ({ onProtectedAction }: NavbarProps = {}) => {
               ) : (
                 <button
                   onClick={handleSignIn}
-                  className="w-full px-4 py-3 flex items-center gap-3 rounded-lg bg-gradient-to-br from-green-50 to-green-100 hover:from-green-100 hover:to-green-200 transition-all duration-200"
+                  className="w-full px-4 py-3 flex items-center gap-3 rounded-lg bg-vendle-teal text-white hover:bg-vendle-teal/90 transition-all duration-200"
                 >
-                  <LogIn className="w-5 h-5 text-green-600" strokeWidth={2} />
-                  <span className="text-sm font-medium text-green-600">Sign In</span>
+                  <LogIn className="w-5 h-5 text-white" strokeWidth={2} />
+                  <span className="text-sm font-medium text-white">Sign In</span>
                 </button>
               )}
             </div>
@@ -229,11 +229,11 @@ const Navbar = ({ onProtectedAction }: NavbarProps = {}) => {
           <Link
             href="/explore"
             className={`flex flex-col items-center gap-2 p-3 rounded-xl transition-all duration-200 ${
-              pathname === '/explore' ? 'bg-indigo-50 scale-105' : 'hover:bg-gray-50 hover:scale-105'
+              pathname === '/explore' ? 'bg-vendle-blue/10 scale-105' : 'hover:bg-gray-50 hover:scale-105'
             }`}
           >
-            <Search className={`w-7 h-7 flex-shrink-0 block ${pathname === '/explore' ? 'text-indigo-600' : 'text-gray-600'}`} strokeWidth={2} />
-            <span className={`text-xs font-medium ${pathname === '/explore' ? 'text-indigo-600' : 'text-gray-600'}`}>
+            <Search className={`w-7 h-7 flex-shrink-0 block ${pathname === '/explore' ? 'text-vendle-blue' : 'text-gray-600'}`} strokeWidth={2} />
+            <span className={`text-xs font-medium ${pathname === '/explore' ? 'text-vendle-blue' : 'text-gray-600'}`}>
               Explore
             </span>
           </Link>
@@ -245,7 +245,7 @@ const Navbar = ({ onProtectedAction }: NavbarProps = {}) => {
             href="/start-claim"
             onClick={(e) => handleProtectedClick(e, '/start-claim')}
             className={`group flex flex-col items-center gap-2 p-3 rounded-xl transition-all duration-200 ${
-              pathname === '/start-claim' ? 'bg-indigo-50 scale-105' : 'hover:bg-gray-50 hover:scale-105'
+              pathname === '/start-claim' ? 'bg-vendle-blue/10 scale-105' : 'hover:bg-gray-50 hover:scale-105'
             }`}
           >
             <div className="relative w-14 h-14 flex-shrink-0">
@@ -258,7 +258,7 @@ const Navbar = ({ onProtectedAction }: NavbarProps = {}) => {
                 style={{ backgroundColor: 'transparent' }}
               />
             </div>
-            <span className={`text-xs font-medium ${pathname === '/start-claim' ? 'text-indigo-600' : 'text-gray-600'}`}>
+            <span className={`text-xs font-medium ${pathname === '/start-claim' ? 'text-vendle-blue' : 'text-gray-600'}`}>
               Vendle It
             </span>
           </Link>
@@ -269,11 +269,11 @@ const Navbar = ({ onProtectedAction }: NavbarProps = {}) => {
           href="/home"
           onClick={(e) => handleProtectedClick(e, '/home')}
           className={`flex flex-col items-center gap-2 p-3 rounded-xl transition-all duration-200 ${
-            pathname === '/home' ? 'bg-indigo-50 scale-105' : 'hover:bg-gray-50 hover:scale-105'
+            pathname === '/home' ? 'bg-vendle-blue/10 scale-105' : 'hover:bg-gray-50 hover:scale-105'
           }`}
         >
-          <LayoutDashboard className={`w-7 h-7 flex-shrink-0 block ${pathname === '/home' ? 'text-indigo-600' : 'text-gray-600'}`} strokeWidth={2} />
-          <span className={`text-xs font-medium ${pathname === '/home' ? 'text-indigo-600' : 'text-gray-600'}`}>
+          <LayoutDashboard className={`w-7 h-7 flex-shrink-0 block ${pathname === '/home' ? 'text-vendle-blue' : 'text-gray-600'}`} strokeWidth={2} />
+          <span className={`text-xs font-medium ${pathname === '/home' ? 'text-vendle-blue' : 'text-gray-600'}`}>
             Home
           </span>
         </Link>
@@ -283,11 +283,11 @@ const Navbar = ({ onProtectedAction }: NavbarProps = {}) => {
           href="/profile"
           onClick={(e) => handleProtectedClick(e, '/profile')}
           className={`flex flex-col items-center gap-2 p-3 rounded-xl transition-all duration-200 ${
-            pathname === '/profile' ? 'bg-indigo-50 scale-105' : 'hover:bg-gray-50 hover:scale-105'
+            pathname === '/profile' ? 'bg-vendle-blue/10 scale-105' : 'hover:bg-gray-50 hover:scale-105'
           }`}
         >
-          <User className={`w-7 h-7 flex-shrink-0 block ${pathname === '/profile' ? 'text-indigo-600' : 'text-gray-600'}`} strokeWidth={2} />
-          <span className={`text-xs font-medium ${pathname === '/profile' ? 'text-indigo-600' : 'text-gray-600'}`}>
+          <User className={`w-7 h-7 flex-shrink-0 block ${pathname === '/profile' ? 'text-vendle-blue' : 'text-gray-600'}`} strokeWidth={2} />
+          <span className={`text-xs font-medium ${pathname === '/profile' ? 'text-vendle-blue' : 'text-gray-600'}`}>
             Profile
           </span>
         </Link>
@@ -299,7 +299,7 @@ const Navbar = ({ onProtectedAction }: NavbarProps = {}) => {
         {isLoggedIn ? (
           <button
             onClick={handleLogout}
-            className="w-full p-3 flex flex-col items-center gap-1 rounded-xl bg-gradient-to-br from-red-50 to-red-100 hover:from-red-100 hover:to-red-200 transition-all duration-200 hover:scale-105 group"
+            className="w-full p-3 flex flex-col items-center gap-1 rounded-xl bg-red-50 hover:bg-red-100 transition-all duration-200 hover:scale-105 group"
           >
             <LogOut className="w-5 h-5 text-red-600 group-hover:text-red-700 block" strokeWidth={2} />
             <span className="text-xs font-medium text-red-600 group-hover:text-red-700">Logout</span>
@@ -307,10 +307,10 @@ const Navbar = ({ onProtectedAction }: NavbarProps = {}) => {
         ) : (
           <button
             onClick={handleSignIn}
-            className="w-full p-3 flex flex-col items-center gap-1 rounded-xl bg-gradient-to-br from-green-50 to-green-100 hover:from-green-100 hover:to-green-200 transition-all duration-200 hover:scale-105 group"
+            className="w-full p-3 flex flex-col items-center gap-1 rounded-xl bg-vendle-teal text-white hover:bg-vendle-teal/90 transition-all duration-200 hover:scale-105 group"
           >
-            <LogIn className="w-5 h-5 text-green-600 group-hover:text-green-700 block" strokeWidth={2} />
-            <span className="text-xs font-medium text-green-600 group-hover:text-green-700">Sign In</span>
+            <LogIn className="w-5 h-5 text-white group-hover:text-white/90 block" strokeWidth={2} />
+            <span className="text-xs font-medium text-white group-hover:text-white/90">Sign In</span>
           </button>
         )}
       </div>
