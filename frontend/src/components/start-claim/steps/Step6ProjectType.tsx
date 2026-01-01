@@ -38,7 +38,7 @@ export function Step6ProjectType({
     onTypeChange
 }: Step6ProjectTypeProps) {
     return (
-        <div className="space-y-4">
+        <div className="grid lg:grid-cols-2 xl:grid-cols-3 gap-6">
             {projectTypes.map((option, index) => {
                 const isSelected = selectedType === option.value;
 

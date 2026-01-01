@@ -30,6 +30,8 @@ export function Step5Timeline({
 
     return (
         <div className="space-y-8">
+            {/* Phase 1 & 2 Grid */}
+            <div className="grid lg:grid-cols-2 gap-8">
             {/* Phase 1 */}
             <div className="p-6 rounded-2xl bg-white border-2 border-vendle-gray/30">
                 <h3 className="text-xl font-bold text-foreground mb-4 flex items-center gap-2">
@@ -46,7 +48,7 @@ export function Step5Timeline({
                     </p>
                 </div>
 
-                <div className="grid md:grid-cols-2 gap-6">
+                <div className="grid gap-6">
                     <div className="space-y-2">
                         <Label className="text-sm font-semibold text-foreground">Start Date</Label>
                         <Input
@@ -78,13 +80,14 @@ export function Step5Timeline({
                     Phase 2 Timeline
                 </h3>
 
-                <div className="bg-blue-50 border border-blue-200 rounded-xl p-4 mb-6">
-                    <p className="text-sm text-blue-800">
+                <div className="bg-vendle-blue/10 border border-vendle-blue/30 rounded-xl p-4 mb-6">
+                    <p className="text-sm text-foreground flex items-center gap-2">
+                        <Sparkles className="w-4 h-4 text-vendle-blue flex-shrink-0" />
                         <strong>Recommendation:</strong> 1 week for a competitive auction process
                     </p>
                 </div>
 
-                <div className="grid md:grid-cols-2 gap-6">
+                <div className="grid gap-6">
                     <div className="space-y-2">
                         <Label className="text-sm font-semibold text-foreground">Start Date</Label>
                         <Input
@@ -106,6 +109,7 @@ export function Step5Timeline({
                         />
                     </div>
                 </div>
+            </div>
             </div>
 
             {/* Contractor Site Visits */}

@@ -38,7 +38,7 @@ export function Step7DesignPlan({
     onPlanChange
 }: Step7DesignPlanProps) {
     return (
-        <div className="space-y-4">
+        <div className="grid lg:grid-cols-2 xl:grid-cols-3 gap-6">
             {designOptions.map((option, index) => {
                 const isSelected = selectedPlan === option.value;
 
