@@ -46,10 +46,10 @@ export function ProjectOverviewCard({ auction }: ProjectOverviewCardProps) {
 
         {auction?.reconstructionType && (
           <section className="space-y-3">
-            <h3 className="text-sm font-bold uppercase tracking-wider text-vendle-teal border-b-2 border-vendle-teal/20 pb-2">
+            <h3 className="text-sm font-bold uppercase tracking-wider text-vendle-blue border-b-2 border-vendle-blue/20 pb-2">
               Scope of Work
             </h3>
-            <div className="rounded-xl border-2 border-vendle-teal/20 bg-vendle-teal/5 p-5 shadow-sm">
+            <div className="rounded-xl border-2 border-vendle-blue/20 bg-vendle-blue/5 p-5 shadow-sm">
               <p className="text-sm text-foreground font-medium">{auction?.reconstructionType}</p>
             </div>
           </section>
