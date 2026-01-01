@@ -56,7 +56,7 @@ export function Step3DamageTypes({ damageTypes, onToggleDamageType }: Step3Damag
       )}
 
       {/* Selection cards grid */}
-      <div className="grid sm:grid-cols-2 gap-6">
+      <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
         {damageOptions.map((option) => {
           const isSelected = damageTypes.includes(option.value);
           const Icon = option.icon;
@@ -69,21 +69,22 @@ export function Step3DamageTypes({ damageTypes, onToggleDamageType }: Step3Damag
               whileTap={{ scale: 0.98 }}
               onClick={() => onToggleDamageType(option.value)}
               className={cn(
-                "relative p-8 rounded-2xl border-2 text-left transition-all overflow-hidden",
+                "relative p-6 rounded-2xl border-2 text-center transition-all overflow-hidden h-full",
                 isSelected
                   ? "border-vendle-blue bg-gradient-to-br from-vendle-blue/10 via-vendle-teal/5 to-transparent shadow-xl shadow-vendle-blue/20"
                   : "border-vendle-gray/30 bg-white hover:border-vendle-blue/50 hover:shadow-lg"
               )}
             >
-              {/* Selection indicator beam */}
+              {/* Selection indicator top beam */}
               {isSelected && (
                 <motion.div
                   layoutId="damage-selection"
-                  className="absolute left-0 top-0 bottom-0 w-1.5 bg-gradient-to-b from-vendle-blue to-vendle-teal"
+                  className="absolute left-0 top-0 right-0 h-1.5 bg-gradient-to-r from-vendle-blue via-vendle-teal to-vendle-blue"
                 />
               )}
 
-              <div className="flex items-start gap-4">
+              {/* Vertical layout */}
+              <div className="flex flex-col items-center gap-4">
                 {/* Icon with animation */}
                 <motion.div
                   animate={{
@@ -92,33 +93,35 @@ export function Step3DamageTypes({ damageTypes, onToggleDamageType }: Step3Damag
                   }}
                   transition={{ duration: 0.2 }}
                   className={cn(
-                    "w-16 h-16 rounded-2xl flex items-center justify-center transition-all flex-shrink-0",
+                    "w-20 h-20 rounded-2xl flex items-center justify-center transition-all relative",
                     isSelected
                       ? "bg-gradient-to-br from-vendle-blue to-vendle-teal shadow-lg"
                       : "bg-vendle-gray/20"
                   )}
                 >
                   <Icon className={cn(
-                    "w-8 h-8",
+                    "w-10 h-10",
                     isSelected ? "text-white" : "text-vendle-blue/70"
                   )} />
+
+                  {/* Check mark indicator */}
+                  {isSelected && (
+                    <motion.div
+                      initial={{ scale: 0 }}
+                      animate={{ scale: 1 }}
+                      className="absolute -top-2 -right-2 w-7 h-7 rounded-full bg-vendle-teal flex items-center justify-center shadow-lg border-2 border-white"
+                    >
+                      <Check className="w-4 h-4 text-white" />
+                    </motion.div>
+                  )}
                 </motion.div>
 
                 {/* Content */}
-                <div className="flex-1 min-w-0">
-                  <h3 className="text-xl font-bold text-foreground mb-2 flex items-center gap-2">
+                <div className="space-y-2">
+                  <h3 className="text-lg font-bold text-foreground">
                     {option.label}
-                    {isSelected && (
-                      <motion.div
-                        initial={{ scale: 0 }}
-                        animate={{ scale: 1 }}
-                        className="w-6 h-6 rounded-full bg-vendle-teal flex items-center justify-center flex-shrink-0"
-                      >
-                        <Check className="w-4 h-4 text-white" />
-                      </motion.div>
-                    )}
                   </h3>
-                  <p className="text-sm text-muted-foreground leading-relaxed">
+                  <p className="text-xs text-muted-foreground leading-relaxed">
                     {option.description}
                   </p>
                 </div>

@@ -6,8 +6,6 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Textarea } from "@/components/ui/textarea";
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { useAuth } from "@/contexts/AuthContext";
 import { motion, AnimatePresence } from "framer-motion";
 import { AddressAutocomplete } from "@/components/AddressAutocomplete";
@@ -459,7 +457,7 @@ export default function StartClaimPage() {
 
     return (
         <div className="min-h-screen bg-gradient-to-br from-muted/30 via-background to-muted/20">
-            <div className="container mx-auto px-4 py-8 md:py-16">
+            <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8 md:py-16 max-w-7xl">
                 <AnimatePresence mode="wait">
                     {showInsuranceCompanies ? (
                         // Insurance Companies Page
@@ -469,7 +467,7 @@ export default function StartClaimPage() {
                             animate={{ opacity: 1, y: 0 }}
                             exit={{ opacity: 0, y: -20 }}
                             transition={{ duration: 0.5 }}
-                            className="max-w-4xl mx-auto"
+                            className="max-w-6xl mx-auto"
                         >
                             <div className="text-center mb-12">
                                 <motion.h1
@@ -489,7 +487,7 @@ export default function StartClaimPage() {
                                 </motion.p>
                             </div>
 
-                            <div className="grid md:grid-cols-2 gap-6 mb-8">
+                            <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
                                 {/* State Farm */}
                                 <motion.div
                                     initial={{ opacity: 0, y: 20 }}
@@ -553,7 +551,7 @@ export default function StartClaimPage() {
                                     initial={{ opacity: 0, y: 20 }}
                                     animate={{ opacity: 1, y: 0 }}
                                     transition={{ delay: 0.6 }}
-                                    className="bg-white rounded-2xl p-8 shadow-sm border border-slate-200 hover:shadow-lg transition-shadow md:col-span-2"
+                                    className="bg-white rounded-2xl p-8 shadow-sm border border-slate-200 hover:shadow-lg transition-shadow"
                                 >
                                     <div className="flex items-center justify-between mb-4">
                                         <div className="text-2xl font-bold text-green-600">Liberty Mutual</div>
@@ -587,7 +585,7 @@ export default function StartClaimPage() {
                             animate={{ opacity: 1, y: 0 }}
                             exit={{ opacity: 0, y: -20 }}
                             transition={{ duration: 0.5 }}
-                            className="max-w-2xl mx-auto"
+                            className="max-w-3xl mx-auto"
                         >
                             <div className="text-center mb-8">
                                 <motion.h1
@@ -710,7 +708,7 @@ export default function StartClaimPage() {
                             animate={{ opacity: 1, y: 0 }}
                             exit={{ opacity: 0, y: -20 }}
                             transition={{ duration: 0.5 }}
-                            className="max-w-4xl mx-auto"
+                            className="max-w-5xl mx-auto"
                         >
                             <div className="text-center mb-12">
                                 <motion.div
@@ -739,7 +737,7 @@ export default function StartClaimPage() {
                                 </motion.p>
                             </div>
 
-                            <div className="grid md:grid-cols-2 gap-6 max-w-2xl mx-auto">
+                            <div className="grid md:grid-cols-2 gap-8 max-w-4xl mx-auto">
                                 <motion.div
                                     initial={{ opacity: 0, x: -20 }}
                                     animate={{ opacity: 1, x: 0 }}
@@ -799,7 +797,7 @@ export default function StartClaimPage() {
                             animate={{ opacity: 1, y: 0 }}
                             exit={{ opacity: 0, y: -20 }}
                             transition={{ duration: 0.4 }}
-                            className="max-w-3xl mx-auto"
+                            className="max-w-5xl mx-auto"
                         >
                             {/* Header */}
                             <div className="mb-8">
@@ -835,7 +833,7 @@ export default function StartClaimPage() {
                                             totalSteps={totalSteps}
                                             onBack={prevStep}
                                             onNext={nextStep}
-                                            isValid={isCurrentStepValid()}
+                                            isValid={!!isCurrentStepValid()}
                                         />
                                     </motion.div>
                                 )}
@@ -861,7 +859,7 @@ export default function StartClaimPage() {
                                             totalSteps={totalSteps}
                                             onBack={prevStep}
                                             onNext={nextStep}
-                                            isValid={isCurrentStepValid()}
+                                            isValid={!!isCurrentStepValid()}
                                         />
                                     </motion.div>
                                 )}
@@ -884,7 +882,7 @@ export default function StartClaimPage() {
                                             totalSteps={totalSteps}
                                             onBack={prevStep}
                                             onNext={nextStep}
-                                            isValid={isCurrentStepValid()}
+                                            isValid={!!isCurrentStepValid()}
                                         />
                                     </motion.div>
                                 )}
@@ -920,7 +918,7 @@ export default function StartClaimPage() {
                                             totalSteps={totalSteps}
                                             onBack={prevStep}
                                             onNext={nextStep}
-                                            isValid={isCurrentStepValid()}
+                                            isValid={!!isCurrentStepValid()}
                                         />
                                     </motion.div>
                                 )}
@@ -946,7 +944,7 @@ export default function StartClaimPage() {
                                             totalSteps={totalSteps}
                                             onBack={prevStep}
                                             onNext={nextStep}
-                                            isValid={isCurrentStepValid()}
+                                            isValid={!!isCurrentStepValid()}
                                         />
                                     </motion.div>
                                 )}
@@ -969,7 +967,7 @@ export default function StartClaimPage() {
                                             totalSteps={totalSteps}
                                             onBack={prevStep}
                                             onNext={nextStep}
-                                            isValid={isCurrentStepValid()}
+                                            isValid={!!isCurrentStepValid()}
                                         />
                                     </motion.div>
                                 )}
@@ -992,7 +990,7 @@ export default function StartClaimPage() {
                                             totalSteps={totalSteps}
                                             onBack={prevStep}
                                             onNext={nextStep}
-                                            isValid={isCurrentStepValid()}
+                                            isValid={!!isCurrentStepValid()}
                                         />
                                     </motion.div>
                                 )}
@@ -1015,7 +1013,7 @@ export default function StartClaimPage() {
                                             totalSteps={totalSteps}
                                             onBack={prevStep}
                                             onNext={completeOnboarding}
-                                            isValid={isCurrentStepValid()}
+                                            isValid={!!isCurrentStepValid()}
                                             isSubmitting={submitClaimMutation.isPending}
                                         />
                                     </motion.div>
@@ -1030,122 +1028,149 @@ export default function StartClaimPage() {
                             animate={{ opacity: 1, y: 0 }}
                             exit={{ opacity: 0, y: -20 }}
                             transition={{ duration: 0.4 }}
-                            className="max-w-3xl mx-auto"
+                            className="max-w-4xl mx-auto"
                         >
-                            <div className="flex items-center justify-between mb-8">
-                                <button
-                                    onClick={handleBackToSelection}
-                                    className="flex items-center gap-2 text-slate-600 hover:text-slate-900 transition-colors group"
-                                >
-                                    <ArrowLeft className="w-4 h-4 group-hover:-translate-x-1 transition-transform" />
-                                    <span className="font-medium">Back</span>
-                                </button>
-                            </div>
+                            <button
+                                onClick={handleBackToSelection}
+                                className="flex items-center gap-2 text-[#4A637D] hover:text-[#2C3E50] transition-colors group mb-6"
+                            >
+                                <ArrowLeft className="w-5 h-5 group-hover:-translate-x-1 transition-transform" />
+                                <span className="font-semibold">Back to Selection</span>
+                            </button>
 
                             <motion.div
                                 initial={{ opacity: 0, y: 20 }}
                                 animate={{ opacity: 1, y: 0 }}
-                                className="bg-white rounded-2xl shadow-sm border border-slate-200 p-8 md:p-10"
+                                className="bg-white rounded-2xl shadow-xl border-2 border-[#D9D9D9]/30 overflow-hidden"
                             >
-                                <div className="mb-8">
-                                    <h1 className="text-3xl font-bold text-slate-900 mb-2">FEMA Assistance Application</h1>
-                                    <p className="text-slate-600">Fill out the form below to apply for FEMA assistance</p>
-                                </div>
+                                {/* Header with gradient accent */}
+                                <div className="h-2 bg-gradient-to-r from-[#2C3E50] via-[#4A637D] to-[#5A9E8B]" />
 
-                                <form onSubmit={handleFemaSubmit} className="space-y-6">
-                                    <div className="grid md:grid-cols-2 gap-6">
-                                        <div>
-                                            <Label className="text-sm font-medium text-slate-700 mb-2 block flex items-center gap-2">
-                                                <User className="w-4 h-4" />
-                                                First Name
-                                            </Label>
-                                            <Input
-                                                name="firstName"
-                                                value={femaFormData.firstName}
-                                                onChange={handleFemaChange}
-                                                required
-                                                className="h-12 border-vendle-gray/40 focus:border-vendle-blue focus:ring-2 focus:ring-vendle-blue/20 bg-background"
-                                            />
+                                <div className="p-6 sm:p-8 lg:p-10">
+                                    <div className="mb-8">
+                                        <h1 className="text-2xl sm:text-3xl font-bold text-[#2C3E50] mb-2">FEMA Assistance Application</h1>
+                                        <p className="text-[#2C3E50]/70">Complete the form below to apply for federal disaster assistance</p>
+                                    </div>
+
+                                    <form onSubmit={handleFemaSubmit} className="space-y-8">
+                                        {/* Personal Information Section */}
+                                        <div className="space-y-6">
+                                            <h3 className="text-lg font-bold text-[#2C3E50] flex items-center gap-2 pb-3 border-b-2 border-[#D9D9D9]">
+                                                <User className="w-5 h-5 text-[#4A637D]" />
+                                                Personal Information
+                                            </h3>
+
+                                            <div className="grid sm:grid-cols-2 gap-6">
+                                                <div>
+                                                    <Label className="text-sm font-semibold text-[#2C3E50] mb-2 block">
+                                                        First Name
+                                                    </Label>
+                                                    <Input
+                                                        name="firstName"
+                                                        value={femaFormData.firstName}
+                                                        onChange={handleFemaChange}
+                                                        required
+                                                        className="h-12 border-2 border-[#D9D9D9] focus:border-[#4A637D] focus:ring-2 focus:ring-[#4A637D]/20 rounded-xl transition-all"
+                                                        placeholder="John"
+                                                    />
+                                                </div>
+                                                <div>
+                                                    <Label className="text-sm font-semibold text-[#2C3E50] mb-2 block">
+                                                        Last Name
+                                                    </Label>
+                                                    <Input
+                                                        name="lastName"
+                                                        value={femaFormData.lastName}
+                                                        onChange={handleFemaChange}
+                                                        required
+                                                        className="h-12 border-2 border-[#D9D9D9] focus:border-[#4A637D] focus:ring-2 focus:ring-[#4A637D]/20 rounded-xl transition-all"
+                                                        placeholder="Doe"
+                                                    />
+                                                </div>
+                                            </div>
                                         </div>
-                                        <div>
-                                            <Label className="text-sm font-medium text-slate-700 mb-2 block flex items-center gap-2">
-                                                <User className="w-4 h-4" />
-                                                Last Name
-                                            </Label>
-                                            <Input
-                                                name="lastName"
-                                                value={femaFormData.lastName}
-                                                onChange={handleFemaChange}
-                                                required
-                                                className="h-12 border-vendle-gray/40 focus:border-vendle-blue focus:ring-2 focus:ring-vendle-blue/20 bg-background"
-                                            />
+
+                                        {/* Contact Information Section */}
+                                        <div className="space-y-6">
+                                            <h3 className="text-lg font-bold text-[#2C3E50] flex items-center gap-2 pb-3 border-b-2 border-[#D9D9D9]">
+                                                <Mail className="w-5 h-5 text-[#4A637D]" />
+                                                Contact Information
+                                            </h3>
+
+                                            <div className="grid sm:grid-cols-2 gap-6">
+                                                <div>
+                                                    <Label className="text-sm font-semibold text-[#2C3E50] mb-2 block">
+                                                        Email Address
+                                                    </Label>
+                                                    <Input
+                                                        name="email"
+                                                        type="email"
+                                                        value={femaFormData.email}
+                                                        onChange={handleFemaChange}
+                                                        required
+                                                        className="h-12 border-2 border-[#D9D9D9] focus:border-[#4A637D] focus:ring-2 focus:ring-[#4A637D]/20 rounded-xl transition-all"
+                                                        placeholder="john.doe@email.com"
+                                                    />
+                                                </div>
+                                                <div>
+                                                    <Label className="text-sm font-semibold text-[#2C3E50] mb-2 block">
+                                                        Phone Number
+                                                    </Label>
+                                                    <Input
+                                                        name="phone"
+                                                        type="tel"
+                                                        value={femaFormData.phone}
+                                                        onChange={handleFemaChange}
+                                                        required
+                                                        className="h-12 border-2 border-[#D9D9D9] focus:border-[#4A637D] focus:ring-2 focus:ring-[#4A637D]/20 rounded-xl transition-all"
+                                                        placeholder="(555) 123-4567"
+                                                    />
+                                                </div>
+                                            </div>
                                         </div>
-                                    </div>
 
-                                    <div>
-                                        <Label className="text-sm font-medium text-slate-700 mb-2 block flex items-center gap-2">
-                                            <Mail className="w-4 h-4" />
-                                            Email
-                                        </Label>
-                                        <Input
-                                            name="email"
-                                            type="email"
-                                            value={femaFormData.email}
-                                            onChange={handleFemaChange}
-                                            required
-                                            className="h-12 border-slate-300 focus:border-vendle-blue focus:ring-vendle-blue/20"
-                                        />
-                                    </div>
+                                        {/* Property Address Section */}
+                                        <div className="space-y-6">
+                                            <h3 className="text-lg font-bold text-[#2C3E50] flex items-center gap-2 pb-3 border-b-2 border-[#D9D9D9]">
+                                                <MapPin className="w-5 h-5 text-[#4A637D]" />
+                                                Property Address
+                                            </h3>
 
-                                    <div>
-                                        <Label className="text-sm font-medium text-slate-700 mb-2 block flex items-center gap-2">
-                                            <Phone className="w-4 h-4" />
-                                            Phone Number
-                                        </Label>
-                                        <Input
-                                            name="phone"
-                                            type="tel"
-                                            value={femaFormData.phone}
-                                            onChange={handleFemaChange}
-                                            required
-                                            className="h-12 border-slate-300 focus:border-vendle-blue focus:ring-vendle-blue/20"
-                                        />
-                                    </div>
+                                            <div>
+                                                <Label className="text-sm font-semibold text-[#2C3E50] mb-2 block">
+                                                    Street Address
+                                                </Label>
+                                                <Input
+                                                    name="address"
+                                                    value={femaFormData.address}
+                                                    onChange={handleFemaChange}
+                                                    required
+                                                    className="h-12 border-2 border-[#D9D9D9] focus:border-[#4A637D] focus:ring-2 focus:ring-[#4A637D]/20 rounded-xl transition-all"
+                                                    placeholder="123 Main Street"
+                                                />
+                                            </div>
 
-                                    <div>
-                                        <Label className="text-sm font-medium text-slate-700 mb-2 block flex items-center gap-2">
-                                            <MapPin className="w-4 h-4" />
-                                            Street Address
-                                        </Label>
-                                        <Input
-                                            name="address"
-                                            value={femaFormData.address}
-                                            onChange={handleFemaChange}
-                                            required
-                                            className="h-12 border-slate-300 focus:border-vendle-blue focus:ring-vendle-blue/20"
-                                        />
-                                    </div>
-
-                                    <div className="grid md:grid-cols-3 gap-6">
-                                        <div>
-                                            <Label className="text-sm font-medium text-slate-700 mb-2 block">City</Label>
-                                            <Input
-                                                name="city"
-                                                value={femaFormData.city}
-                                                onChange={handleFemaChange}
-                                                required
-                                                className="h-12 border-vendle-gray/40 focus:border-vendle-blue focus:ring-2 focus:ring-vendle-blue/20 bg-background"
-                                            />
-                                        </div>
-                                        <div>
-                                            <Label className="text-sm font-medium text-slate-700 mb-2 block">State</Label>
-                                            <select
-                                                name="state"
-                                                value={femaFormData.state}
-                                                onChange={handleFemaChange}
-                                                required
-                                                className="w-full h-12 px-4 border border-slate-300 rounded-lg focus:border-vendle-blue focus:ring-2 focus:ring-vendle-blue/20 transition-colors"
-                                            >
+                                            <div className="grid sm:grid-cols-3 gap-6">
+                                                <div>
+                                                    <Label className="text-sm font-semibold text-[#2C3E50] mb-2 block">City</Label>
+                                                    <Input
+                                                        name="city"
+                                                        value={femaFormData.city}
+                                                        onChange={handleFemaChange}
+                                                        required
+                                                        className="h-12 border-2 border-[#D9D9D9] focus:border-[#4A637D] focus:ring-2 focus:ring-[#4A637D]/20 rounded-xl transition-all"
+                                                        placeholder="San Francisco"
+                                                    />
+                                                </div>
+                                                <div>
+                                                    <Label className="text-sm font-semibold text-[#2C3E50] mb-2 block">State</Label>
+                                                    <select
+                                                        name="state"
+                                                        value={femaFormData.state}
+                                                        onChange={handleFemaChange}
+                                                        required
+                                                        className="w-full h-12 px-4 border-2 border-[#D9D9D9] rounded-xl focus:border-[#4A637D] focus:ring-2 focus:ring-[#4A637D]/20 transition-all bg-white"
+                                                    >
                                                 <option value="">Select State</option>
                                                 <option value="AL">Alabama</option>
                                                 <option value="AK">Alaska</option>
@@ -1197,75 +1222,95 @@ export default function StartClaimPage() {
                                                 <option value="WV">West Virginia</option>
                                                 <option value="WI">Wisconsin</option>
                                                 <option value="WY">Wyoming</option>
-                                            </select>
-                                        </div>
-                                        <div>
-                                            <Label className="text-sm font-medium text-slate-700 mb-2 block">ZIP Code</Label>
-                                            <Input
-                                                name="zipCode"
-                                                value={femaFormData.zipCode}
-                                                onChange={handleFemaChange}
-                                                required
-                                                className="h-12 border-vendle-gray/40 focus:border-vendle-blue focus:ring-2 focus:ring-vendle-blue/20 bg-background"
-                                            />
-                                        </div>
-                                    </div>
-
-                                    <div>
-                                        <Label className="text-sm font-medium text-slate-700 mb-2 block flex items-center gap-2">
-                                            <Building2 className="w-4 h-4" />
-                                            Describe Property Damage
-                                        </Label>
-                                        <Input
-                                            name="propertyDamage"
-                                            value={femaFormData.propertyDamage}
-                                            onChange={handleFemaChange}
-                                            required
-                                            className="h-12 border-slate-300 focus:border-vendle-blue focus:ring-vendle-blue/20"
-                                        />
-                                    </div>
-
-                                    <div className="space-y-4 pt-4 border-t border-slate-200">
-                                        {[
-                                            { name: 'isPrimaryResidence', label: 'This is my primary residence', icon: Home },
-                                            { name: 'hasInsurance', label: 'I have property insurance', icon: Shield },
-                                            { name: 'isUsCitizen', label: 'I am a U.S. citizen or qualified alien', icon: User }
-                                        ].map(({ name, label, icon: Icon }) => (
-                                            <div key={name} className="flex items-center space-x-3">
-                                                <Checkbox
-                                                    id={name}
-                                                    checked={femaFormData[name as keyof typeof femaFormData] as boolean}
-                                                    onCheckedChange={(checked) =>
-                                                        setFemaFormData(prev => ({ ...prev, [name]: checked as boolean }))
-                                                    }
-                                                    className="border-2 border-slate-300 data-[state=checked]:bg-vendle-blue data-[state=checked]:border-vendle-blue"
-                                                />
-                                                <Label htmlFor={name} className="text-sm font-medium text-slate-700 flex items-center gap-2 cursor-pointer">
-                                                    <Icon className="w-4 h-4" />
-                                                    {label}
-                                                </Label>
+                                                    </select>
+                                                </div>
+                                                <div>
+                                                    <Label className="text-sm font-semibold text-[#2C3E50] mb-2 block">ZIP Code</Label>
+                                                    <Input
+                                                        name="zipCode"
+                                                        value={femaFormData.zipCode}
+                                                        onChange={handleFemaChange}
+                                                        required
+                                                        className="h-12 border-2 border-[#D9D9D9] focus:border-[#4A637D] focus:ring-2 focus:ring-[#4A637D]/20 rounded-xl transition-all"
+                                                        placeholder="94102"
+                                                    />
+                                                </div>
                                             </div>
-                                        ))}
-                                    </div>
+                                        </div>
 
-                                    <div className="flex justify-end gap-4 pt-6 border-t border-slate-200">
-                                        <Button
-                                            type="button"
-                                            onClick={handleBackToSelection}
-                                            variant="outline"
-                                            className="px-8 py-6 border-slate-300"
-                                        >
-                                            Cancel
-                                        </Button>
-                                        <Button
-                                            type="submit"
-                                            disabled={disableFemaSubmit || femaMutation.isPending}
-                                            className="px-8 py-6 bg-gradient-to-r from-vendle-blue to-vendle-navy text-white hover:shadow-lg transition-all disabled:opacity-50"
-                                        >
-                                            {femaMutation.isPending ? "Submitting..." : "Submit Application"}
-                                        </Button>
-                                    </div>
-                                </form>
+                                        {/* Property Damage Section */}
+                                        <div className="space-y-6">
+                                            <h3 className="text-lg font-bold text-[#2C3E50] flex items-center gap-2 pb-3 border-b-2 border-[#D9D9D9]">
+                                                <Building2 className="w-5 h-5 text-[#4A637D]" />
+                                                Property Damage Details
+                                            </h3>
+
+                                            <div>
+                                                <Label className="text-sm font-semibold text-[#2C3E50] mb-2 block">
+                                                    Describe the damage to your property
+                                                </Label>
+                                                <Input
+                                                    name="propertyDamage"
+                                                    value={femaFormData.propertyDamage}
+                                                    onChange={handleFemaChange}
+                                                    required
+                                                    className="h-12 border-2 border-[#D9D9D9] focus:border-[#4A637D] focus:ring-2 focus:ring-[#4A637D]/20 rounded-xl transition-all"
+                                                    placeholder="Brief description of damage"
+                                                />
+                                            </div>
+                                        </div>
+
+                                        {/* Eligibility Requirements */}
+                                        <div className="space-y-6">
+                                            <h3 className="text-lg font-bold text-[#2C3E50] flex items-center gap-2 pb-3 border-b-2 border-[#D9D9D9]">
+                                                <CheckCircle2 className="w-5 h-5 text-[#4A637D]" />
+                                                Eligibility Requirements
+                                            </h3>
+
+                                            <div className="space-y-4">
+                                                {[
+                                                    { name: 'isPrimaryResidence', label: 'This is my primary residence', icon: Home },
+                                                    { name: 'hasInsurance', label: 'I have property insurance', icon: Shield },
+                                                    { name: 'isUsCitizen', label: 'I am a U.S. citizen or qualified alien', icon: User }
+                                                ].map(({ name, label, icon: Icon }) => (
+                                                    <div key={name} className="flex items-center gap-3 p-4 rounded-xl border-2 border-[#D9D9D9] hover:border-[#4A637D]/50 transition-colors">
+                                                        <Checkbox
+                                                            id={name}
+                                                            checked={femaFormData[name as keyof typeof femaFormData] as boolean}
+                                                            onCheckedChange={(checked) =>
+                                                                setFemaFormData(prev => ({ ...prev, [name]: checked as boolean }))
+                                                            }
+                                                            className="border-2 border-[#D9D9D9] data-[state=checked]:bg-[#4A637D] data-[state=checked]:border-[#4A637D] h-5 w-5"
+                                                        />
+                                                        <Label htmlFor={name} className="text-sm font-medium text-[#2C3E50] flex items-center gap-2 cursor-pointer flex-1">
+                                                            <Icon className="w-4 h-4 text-[#4A637D]" />
+                                                            {label}
+                                                        </Label>
+                                                    </div>
+                                                ))}
+                                            </div>
+                                        </div>
+
+                                        {/* Submit Buttons */}
+                                        <div className="flex flex-col sm:flex-row justify-end gap-4 pt-6">
+                                            <Button
+                                                type="button"
+                                                onClick={handleBackToSelection}
+                                                variant="outline"
+                                                className="px-8 py-3 border-2 border-[#D9D9D9] hover:border-[#4A637D] hover:bg-[#4A637D]/5 transition-all font-semibold"
+                                            >
+                                                Cancel
+                                            </Button>
+                                            <Button
+                                                type="submit"
+                                                disabled={disableFemaSubmit || femaMutation.isPending}
+                                                className="px-8 py-3 bg-gradient-to-r from-[#2C3E50] via-[#4A637D] to-[#5A9E8B] hover:from-[#2C3E50]/90 hover:via-[#4A637D]/90 hover:to-[#5A9E8B]/90 text-white font-bold shadow-lg hover:shadow-xl transition-all disabled:opacity-50"
+                                            >
+                                                {femaMutation.isPending ? "Submitting..." : "Submit Application"}
+                                            </Button>
+                                        </div>
+                                    </form>
+                                </div>
                             </motion.div>
                         </motion.div>
                     ) : null}

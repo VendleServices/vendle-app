@@ -57,7 +57,7 @@ export function Step4Property({
     return (
         <div className="space-y-8">
             {/* Property Questions */}
-            <div className="space-y-6">
+            <div className="grid lg:grid-cols-2 xl:grid-cols-3 gap-6">
                 {/* Functional Utilities */}
                 <div className="p-6 rounded-xl bg-white border-2 border-vendle-gray/30">
                     <Label className="text-lg font-semibold text-foreground mb-4 block flex items-center gap-2">
