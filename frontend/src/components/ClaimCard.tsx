@@ -165,7 +165,7 @@ function getDamageTypeColor(type: string) {
     case "fire damage":
       return "bg-red-100 text-red-800 hover:bg-red-200 border-red-200";
     case "mold remediation":
-      return "bg-green-100 text-green-800 hover:bg-green-200 border-green-200";
+      return "bg-vendle-teal/10 text-vendle-teal hover:bg-vendle-teal/15 border-vendle-teal/20";
     case "storm damage":
       return "bg-purple-100 text-purple-800 hover:bg-purple-200 border-purple-200";
     case "full":

@@ -33,7 +33,7 @@ export function MyJobCard({ job, onManageJob, onOpenChat }: MyJobCardProps) {
     >
       <Card className="h-full shadow-lg border-2 border-[#D9D9D9] hover:border-[#4A637D]/50 hover:shadow-2xl transition-all duration-300 bg-white overflow-hidden group">
         {/* Gradient overlay header */}
-        <div className="absolute top-0 left-0 right-0 h-1.5 bg-gradient-to-r from-[#2C3E50] via-[#4A637D] to-[#5A9E8B]" />
+        <div className="absolute top-0 left-0 right-0 h-1.5 bg-[#4A637D]" />
 
         <CardHeader className="pb-4 pt-6">
           <div className="flex items-start justify-between gap-3">
@@ -68,7 +68,7 @@ export function MyJobCard({ job, onManageJob, onOpenChat }: MyJobCardProps) {
                 <span className="text-sm font-semibold text-foreground">{job.projectType}</span>
               </div>
             </div>
-            <div className="p-3 rounded-lg bg-gradient-to-br from-[#4A637D]/10 to-[#5A9E8B]/5 border border-[#4A637D]/20">
+            <div className="p-3 rounded-lg bg-[#4A637D]/10 border border-[#4A637D]/20">
               <div className="flex flex-col gap-1">
                 <div className="flex items-center gap-1.5 text-[#4A637D]">
                   <DollarSign className="h-3.5 w-3.5" />
@@ -98,14 +98,14 @@ export function MyJobCard({ job, onManageJob, onOpenChat }: MyJobCardProps) {
           </div>
 
           {/* Progress Section */}
-          <div className="p-4 rounded-xl bg-gradient-to-br from-[#4A637D]/10 to-[#5A9E8B]/5 border-2 border-[#4A637D]/20">
+          <div className="p-4 rounded-xl bg-[#4A637D]/10 border-2 border-[#4A637D]/20">
             <div className="flex items-center justify-between mb-3">
               <span className="text-sm font-semibold text-foreground">Project Progress</span>
               <span className="text-2xl font-bold text-[#4A637D]">{job.progress}%</span>
             </div>
             <div className="w-full bg-[#D9D9D9]/50 rounded-full h-3 overflow-hidden">
               <div
-                className="bg-gradient-to-r from-[#2C3E50] via-[#4A637D] to-[#5A9E8B] h-3 rounded-full transition-all duration-500 shadow-sm"
+                className="bg-[#4A637D] h-3 rounded-full transition-all duration-500 shadow-sm"
                 style={{ width: `${job.progress}%` }}
               />
             </div>
@@ -152,7 +152,7 @@ export function MyJobCard({ job, onManageJob, onOpenChat }: MyJobCardProps) {
             </Button>
             <Button
               variant="default"
-              className="bg-gradient-to-r from-[#2C3E50] via-[#4A637D] to-[#5A9E8B] hover:from-[#2C3E50]/90 hover:via-[#4A637D]/90 hover:to-[#5A9E8B]/90 shadow-md hover:shadow-lg transition-all font-semibold"
+              className="bg-[#4A637D] hover:bg-[#4A637D]/90 shadow-md hover:shadow-lg transition-all font-semibold"
               onClick={onManageJob}
             >
               <Activity className="h-4 w-4 mr-1.5" />

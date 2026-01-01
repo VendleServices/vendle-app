@@ -46,11 +46,11 @@ export default function TestPage() {
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
-              <div className="flex items-center gap-3 p-3 bg-green-50 rounded-lg">
-                <CheckCircle className="h-5 w-5 text-green-600" />
+              <div className="flex items-center gap-3 p-3 bg-vendle-teal/5 rounded-lg">
+                <CheckCircle className="h-5 w-5 text-vendle-teal" />
                 <div>
-                  <p className="font-medium text-green-800">Homeowner Dashboard Active</p>
-                  <p className="text-sm text-green-600">You are viewing the homeowner-specific interface</p>
+                  <p className="font-medium text-vendle-teal">Homeowner Dashboard Active</p>
+                  <p className="text-sm text-vendle-teal">You are viewing the homeowner-specific interface</p>
                 </div>
               </div>
               

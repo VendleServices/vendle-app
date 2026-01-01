@@ -4,8 +4,8 @@ import { ProjectOverviewCardProps } from "../types";
 
 export function ProjectOverviewCard({ auction }: ProjectOverviewCardProps) {
   return (
-    <Card className="shadow-lg border-2 border-vendle-gray/20 hover:shadow-xl transition-all duration-300 bg-gradient-to-br from-white to-gray-50/50">
-      <CardHeader className="border-b-2 border-vendle-gray/10 pb-5 bg-gradient-to-r from-vendle-blue/5 to-transparent">
+    <Card className="shadow-lg border-2 border-vendle-gray/20 hover:shadow-xl transition-all duration-300 bg-white">
+      <CardHeader className="border-b-2 border-vendle-gray/10 pb-5 bg-vendle-blue/5">
         <h2 className="text-2xl font-bold text-foreground">Project Overview</h2>
       </CardHeader>
       <CardContent className="space-y-8 pt-6">
@@ -19,7 +19,7 @@ export function ProjectOverviewCard({ auction }: ProjectOverviewCardProps) {
         </section>
 
         <section className="grid gap-4 md:grid-cols-2">
-          <div className="space-y-3 rounded-xl bg-gradient-to-br from-vendle-blue/10 to-transparent p-5 border-2 border-vendle-blue/20 shadow-sm hover:shadow-md transition-shadow">
+          <div className="space-y-3 rounded-xl bg-vendle-blue/10 p-5 border-2 border-vendle-blue/20 shadow-sm hover:shadow-md transition-shadow">
             <p className="text-xs font-bold uppercase tracking-wide text-vendle-blue">
               Starting Bid
             </p>
@@ -31,7 +31,7 @@ export function ProjectOverviewCard({ auction }: ProjectOverviewCardProps) {
             </p>
           </div>
 
-          <div className="space-y-3 rounded-xl bg-gradient-to-br from-[#4A637D]/10 to-transparent p-5 border-2 border-[#4A637D]/20 shadow-sm hover:shadow-md transition-shadow">
+          <div className="space-y-3 rounded-xl bg-[#4A637D]/10 p-5 border-2 border-[#4A637D]/20 shadow-sm hover:shadow-md transition-shadow">
             <p className="text-xs font-bold uppercase tracking-wide text-[#4A637D]">
               Auction Ends
             </p>
@@ -49,7 +49,7 @@ export function ProjectOverviewCard({ auction }: ProjectOverviewCardProps) {
             <h3 className="text-sm font-bold uppercase tracking-wider text-vendle-teal border-b-2 border-vendle-teal/20 pb-2">
               Scope of Work
             </h3>
-            <div className="rounded-xl border-2 border-vendle-teal/20 bg-gradient-to-br from-vendle-teal/5 to-transparent p-5 shadow-sm">
+            <div className="rounded-xl border-2 border-vendle-teal/20 bg-vendle-teal/5 p-5 shadow-sm">
               <p className="text-sm text-foreground font-medium">{auction?.reconstructionType}</p>
             </div>
           </section>

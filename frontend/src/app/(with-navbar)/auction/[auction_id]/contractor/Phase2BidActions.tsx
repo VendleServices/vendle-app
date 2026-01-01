@@ -22,7 +22,7 @@ export function Phase2BidActions({
   return (
     <>
       {/* Header with gradient */}
-      <div className="rounded-t-2xl bg-gradient-to-r from-[#2C3E50] via-[#4A637D] to-[#5A9E8B] p-6 text-white">
+      <div className="rounded-t-2xl bg-[#4A637D] p-6 text-white">
         <div className="flex items-center justify-between mb-2">
           <h2 className="text-2xl font-bold">Your Phase 1 Bid</h2>
           <Badge className="bg-white/20 text-white border-white/30">
@@ -40,7 +40,7 @@ export function Phase2BidActions({
         {!adjustingBid ? (
           <>
             {/* Current bid display */}
-            <div className="p-6 rounded-xl bg-gradient-to-br from-[#4A637D]/10 to-[#5A9E8B]/5 border-2 border-[#4A637D]/20">
+            <div className="p-6 rounded-xl bg-[#4A637D]/10 border-2 border-[#4A637D]/20">
               <div className="space-y-4">
                 <div>
                   <p className="text-sm font-medium text-muted-foreground mb-2">
@@ -103,7 +103,7 @@ export function Phase2BidActions({
               <Button
                 disabled={disableConfirmBid}
                 onClick={onConfirmBid}
-                className="w-full h-12 bg-gradient-to-r from-[#2C3E50] via-[#4A637D] to-[#5A9E8B] hover:from-[#2C3E50]/90 hover:via-[#4A637D]/90 hover:to-[#5A9E8B]/90 text-white font-bold shadow-lg hover:shadow-xl"
+                className="w-full h-12 bg-[#4A637D] hover:bg-[#4A637D]/90 text-white font-bold shadow-lg hover:shadow-xl"
               >
                 <Check className="w-5 h-5 mr-2" />
                 Confirm Phase 1 Bid
@@ -141,7 +141,7 @@ export function Phase2BidActions({
             </div>
 
             {/* Adjusted total bid */}
-            <div className="p-6 rounded-xl bg-gradient-to-br from-vendle-blue/5 to-vendle-teal/5 border-2 border-vendle-blue/20">
+            <div className="p-6 rounded-xl bg-vendle-blue/5 border-2 border-vendle-blue/20">
               <Label className="text-base font-bold text-foreground mb-3 block">
                 New Total Bid Amount
               </Label>
@@ -270,7 +270,7 @@ export function Phase2BidActions({
             <div className="flex gap-3">
               <Button
                 onClick={onSubmitAdjustedBid}
-                className="flex-1 h-12 bg-gradient-to-r from-vendle-blue to-vendle-teal hover:shadow-xl text-white font-bold"
+                className="flex-1 h-12 bg-vendle-blue hover:shadow-xl text-white font-bold"
               >
                 <Check className="w-5 h-5 mr-2" />
                 Submit Adjusted Bid

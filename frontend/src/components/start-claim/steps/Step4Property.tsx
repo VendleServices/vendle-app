@@ -46,7 +46,7 @@ export function Step4Property({
             className={cn(
                 "flex-1 p-5 rounded-xl border-2 transition-all font-semibold",
                 selected
-                    ? "border-vendle-blue bg-gradient-to-br from-vendle-blue/10 to-vendle-teal/5 shadow-lg shadow-vendle-blue/20 text-vendle-blue"
+                    ? "border-vendle-blue bg-vendle-blue/10 shadow-lg shadow-vendle-blue/20 text-vendle-blue"
                     : "border-vendle-gray/40 hover:border-vendle-blue/50 bg-card hover:bg-vendle-blue/5 text-foreground"
             )}
         >

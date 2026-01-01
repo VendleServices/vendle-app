@@ -30,7 +30,7 @@ export function ClaimHeader({ claim, onBack }: ClaimHeaderProps) {
       </div>
 
       {/* Enhanced header with gradient background */}
-      <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-white via-vendle-teal/5 to-vendle-blue/5 border-2 border-vendle-gray/20 shadow-xl mb-8">
+      <div className="relative overflow-hidden rounded-2xl bg-white border-2 border-vendle-gray/20 shadow-xl mb-8">
         {/* Subtle background pattern */}
         <div
           className="absolute inset-0 opacity-5"
@@ -44,7 +44,7 @@ export function ClaimHeader({ claim, onBack }: ClaimHeaderProps) {
             {/* Left: Title & metadata */}
             <div className="space-y-4">
               <div className="flex items-center gap-2">
-                <Badge variant="outline" className="uppercase tracking-wider text-xs font-bold text-vendle-teal border-vendle-teal/30 bg-vendle-teal/5">
+                <Badge variant="outline" className="uppercase tracking-wider text-xs font-bold text-vendle-blue border-vendle-blue/30 bg-vendle-blue/5">
                   <Building2 className="w-3 h-3 mr-1" />
                   Project Details
                 </Badge>
@@ -56,7 +56,7 @@ export function ClaimHeader({ claim, onBack }: ClaimHeaderProps) {
 
               {claim.projectType && (
                 <div className="flex items-center gap-2 text-lg text-muted-foreground">
-                  <FileText className="w-5 h-5 text-vendle-teal" />
+                  <FileText className="w-5 h-5 text-vendle-blue" />
                   <span>{claim.projectType}</span>
                 </div>
               )}
@@ -76,12 +76,12 @@ export function ClaimHeader({ claim, onBack }: ClaimHeaderProps) {
               </div>
 
               {/* Created date */}
-              <div className="p-4 rounded-xl bg-gradient-to-br from-vendle-teal/10 to-vendle-blue/10 border border-vendle-teal/20 shadow-md">
-                <div className="flex items-center gap-2 text-vendle-teal text-xs mb-1">
+              <div className="p-4 rounded-xl bg-vendle-blue/10 border border-vendle-blue/20 shadow-md">
+                <div className="flex items-center gap-2 text-vendle-blue text-xs mb-1">
                   <Calendar className="w-3.5 h-3.5" />
                   <span className="uppercase tracking-wide font-medium">Created</span>
                 </div>
-                <p className="text-lg font-bold text-vendle-teal">
+                <p className="text-lg font-bold text-vendle-blue">
                   {formatDate(claim.createdAt)}
                 </p>
               </div>

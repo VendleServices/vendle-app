@@ -456,7 +456,7 @@ export default function StartClaimPage() {
         || !femaFormData.address || !femaFormData.city || !femaFormData.state || !femaFormData.zipCode;
 
     return (
-        <div className="min-h-screen bg-gradient-to-br from-muted/30 via-background to-muted/20">
+        <div className="min-h-screen bg-background">
             <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8 md:py-16 max-w-7xl">
                 <AnimatePresence mode="wait">
                     {showInsuranceCompanies ? (
@@ -554,7 +554,7 @@ export default function StartClaimPage() {
                                     className="bg-white rounded-2xl p-8 shadow-sm border border-slate-200 hover:shadow-lg transition-shadow"
                                 >
                                     <div className="flex items-center justify-between mb-4">
-                                        <div className="text-2xl font-bold text-green-600">Liberty Mutual</div>
+                                        <div className="text-2xl font-bold text-vendle-teal">Liberty Mutual</div>
                                     </div>
                                     <div className="text-sm text-slate-600 mb-4">Claims Number:</div>
                                     <div className="text-xl font-semibold text-slate-900">1-800-225-2467</div>
@@ -691,7 +691,7 @@ export default function StartClaimPage() {
                                         <Button
                                             type="submit"
                                             disabled={!contactInfo.firstName || !contactInfo.lastName || !contactInfo.email || !contactInfo.phone}
-                                            className="px-8 py-6 bg-gradient-to-r from-vendle-blue to-vendle-navy text-white hover:shadow-lg transition-all disabled:opacity-50"
+                                            className="px-8 py-6 bg-vendle-blue text-white hover:shadow-lg transition-all disabled:opacity-50"
                                         >
                                             Continue
                                             <ArrowRight className="w-4 h-4 ml-2" />
@@ -715,7 +715,7 @@ export default function StartClaimPage() {
                                     initial={{ scale: 0.9, opacity: 0 }}
                                     animate={{ scale: 1, opacity: 1 }}
                                     transition={{ delay: 0.1, duration: 0.5 }}
-                                    className="inline-flex items-center justify-center w-20 h-20 rounded-2xl bg-gradient-to-br from-vendle-blue to-vendle-navy mb-6 shadow-lg"
+                                    className="inline-flex items-center justify-center w-20 h-20 rounded-2xl bg-vendle-blue mb-6 shadow-lg"
                                 >
                                     <Sparkles className="w-10 h-10 text-white" />
                                 </motion.div>
@@ -749,7 +749,7 @@ export default function StartClaimPage() {
                                         onClick={() => handleSelection(true)}
                                         className="w-full group relative overflow-hidden bg-card rounded-2xl p-8 shadow-md hover:shadow-xl border-2 border-vendle-gray/30 hover:border-vendle-blue transition-all duration-300 text-left"
                                     >
-                                        <div className="absolute inset-0 bg-gradient-to-br from-vendle-blue/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
+                                        <div className="absolute inset-0 bg-vendle-blue/10 opacity-0 group-hover:opacity-100 transition-opacity" />
                                         <div className="relative">
                                             <div className="flex items-center justify-between mb-4">
                                                 <div className="w-14 h-14 rounded-xl bg-vendle-teal/20 flex items-center justify-center group-hover:bg-vendle-teal/30 transition-colors">
@@ -774,7 +774,7 @@ export default function StartClaimPage() {
                                         onClick={() => handleSelection(false)}
                                         className="w-full group relative overflow-hidden bg-white rounded-2xl p-8 shadow-sm hover:shadow-xl border-2 border-slate-200 hover:border-vendle-blue transition-all duration-300 text-left"
                                     >
-                                        <div className="absolute inset-0 bg-gradient-to-br from-vendle-blue/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
+                                        <div className="absolute inset-0 bg-vendle-blue/5 opacity-0 group-hover:opacity-100 transition-opacity" />
                                         <div className="relative">
                                             <div className="flex items-center justify-between mb-4">
                                                 <div className="w-14 h-14 rounded-xl bg-vendle-sand/30 flex items-center justify-center group-hover:bg-vendle-sand/40 transition-colors">
@@ -1044,7 +1044,7 @@ export default function StartClaimPage() {
                                 className="bg-white rounded-2xl shadow-xl border-2 border-[#D9D9D9]/30 overflow-hidden"
                             >
                                 {/* Header with gradient accent */}
-                                <div className="h-2 bg-gradient-to-r from-[#2C3E50] via-[#4A637D] to-[#5A9E8B]" />
+                                <div className="h-2 bg-[#4A637D]" />
 
                                 <div className="p-6 sm:p-8 lg:p-10">
                                     <div className="mb-8">
@@ -1304,7 +1304,7 @@ export default function StartClaimPage() {
                                             <Button
                                                 type="submit"
                                                 disabled={disableFemaSubmit || femaMutation.isPending}
-                                                className="px-8 py-3 bg-gradient-to-r from-[#2C3E50] via-[#4A637D] to-[#5A9E8B] hover:from-[#2C3E50]/90 hover:via-[#4A637D]/90 hover:to-[#5A9E8B]/90 text-white font-bold shadow-lg hover:shadow-xl transition-all disabled:opacity-50"
+                                                className="px-8 py-3 bg-[#4A637D] hover:bg-[#4A637D]/90 text-white font-bold shadow-lg hover:shadow-xl transition-all disabled:opacity-50"
                                             >
                                                 {femaMutation.isPending ? "Submitting..." : "Submit Application"}
                                             </Button>

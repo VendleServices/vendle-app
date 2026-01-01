@@ -28,10 +28,10 @@ export function ContractorBidCard({
             className={cn(
               "w-10 h-10 rounded-full flex items-center justify-center shadow-lg font-bold text-white text-sm",
               index === 0
-                ? "bg-gradient-to-br from-[#2C3E50] to-[#4A637D]"
+                ? "bg-[#2C3E50]"
                 : index === 1
-                ? "bg-gradient-to-br from-[#4A637D] to-[#5A9E8B]"
-                : "bg-gradient-to-br from-[#5A9E8B] to-[#5A9E8B]/80"
+                ? "bg-[#4A637D]"
+                : "bg-[#5A9E8B]"
             )}
           >
             #{index + 1}
@@ -41,11 +41,11 @@ export function ContractorBidCard({
 
       <Card className="border-2 border-vendle-gray/30 hover:border-vendle-blue/50 hover:shadow-2xl transition-all overflow-hidden group-hover:-translate-y-1 duration-300 h-full">
         {/* Header with contractor info */}
-        <div className="p-6 bg-gradient-to-br from-vendle-blue/5 to-vendle-teal/5 border-b-2 border-vendle-gray/20">
+        <div className="p-6 bg-vendle-blue/5 border-b-2 border-vendle-gray/20">
           <div className="flex items-start gap-4">
             {/* Avatar */}
             <div className="relative flex-shrink-0">
-              <div className="w-16 h-16 rounded-xl bg-gradient-to-br from-vendle-blue to-vendle-teal flex items-center justify-center text-white text-xl font-bold shadow-lg">
+              <div className="w-16 h-16 rounded-xl bg-vendle-blue flex items-center justify-center text-white text-xl font-bold shadow-lg">
                 {(bid.company_name || bid.contractor_name).charAt(0)}
               </div>
               {/* Verified badge */}
@@ -98,7 +98,7 @@ export function ContractorBidCard({
           </div>
 
           {/* Bid amount - hero section */}
-          <div className="p-5 rounded-xl bg-gradient-to-br from-vendle-blue/10 via-vendle-teal/5 to-transparent border-2 border-vendle-blue/20">
+          <div className="p-5 rounded-xl bg-vendle-blue/10 border-2 border-vendle-blue/20">
             <div className="flex items-end justify-between mb-2">
               <div>
                 <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide mb-1">
@@ -124,7 +124,7 @@ export function ContractorBidCard({
                 className={cn(
                   "w-full font-bold shadow-lg hover:shadow-xl transition-all",
                   isSelected
-                    ? "bg-gradient-to-r from-vendle-blue to-vendle-teal text-white hover:from-vendle-blue/90 hover:to-vendle-teal/90"
+                    ? "bg-vendle-blue text-white hover:from-vendle-blue/90 hover:to-vendle-teal/90"
                     : "bg-white border-2 border-vendle-blue text-vendle-blue hover:bg-vendle-blue/5"
                 )}
               >
@@ -141,7 +141,7 @@ export function ContractorBidCard({
               <Button
                 size="sm"
                 onClick={onAccept}
-                className="w-full bg-gradient-to-r from-[#5A9E8B] to-[#5A9E8B]/90 hover:from-[#5A9E8B]/90 hover:to-[#5A9E8B]/80 text-white font-bold shadow-lg hover:shadow-xl"
+                className="w-full bg-[#4A637D] hover:bg-[#4A637D]/90 text-white font-bold shadow-lg hover:shadow-xl"
               >
                 <Check className="w-4 h-4 mr-2" />
                 Accept Bid

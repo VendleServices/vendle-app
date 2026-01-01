@@ -54,7 +54,7 @@ export function NavigationButtons({
         size="lg"
         onClick={onNext}
         disabled={!isValid || isSubmitting}
-        className="ml-auto group relative overflow-hidden bg-gradient-to-r from-vendle-blue to-vendle-teal h-12 lg:h-14 px-6 lg:px-8 shadow-lg hover:shadow-2xl hover:shadow-vendle-blue/30 disabled:opacity-50 disabled:cursor-not-allowed"
+        className="ml-auto group relative overflow-hidden bg-vendle-blue hover:bg-vendle-blue/90 h-12 lg:h-14 px-6 lg:px-8 shadow-lg hover:shadow-2xl hover:shadow-vendle-blue/30 disabled:opacity-50 disabled:cursor-not-allowed"
       >
         <span className="relative z-10 font-semibold">
           {isSubmitting
@@ -64,11 +64,6 @@ export function NavigationButtons({
             : 'Continue'}
         </span>
         <ArrowRight className="w-5 h-5 ml-2 group-hover:translate-x-1 transition-transform relative z-10" />
-
-        {/* Shimmer effect on hover (disabled when button is disabled) */}
-        {isValid && !isSubmitting && (
-          <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-1000" />
-        )}
       </Button>
     </div>
   );

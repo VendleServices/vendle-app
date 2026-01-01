@@ -27,14 +27,14 @@ export function Step8ClaimAssistance({
                 className={cn(
                     "relative p-8 rounded-2xl border-2 transition-all",
                     needsAdjuster === true
-                        ? "bg-gradient-to-br from-vendle-blue/10 to-vendle-teal/10 border-vendle-blue shadow-xl"
+                        ? "bg-vendle-blue/10 border-vendle-blue shadow-xl"
                         : "bg-white border-vendle-gray/30 hover:border-vendle-blue/50 shadow-md hover:shadow-lg"
                 )}
                 onClick={() => onAdjusterChange(true)}
             >
                 {/* "Recommended" badge */}
                 <div className="absolute -top-3 left-1/2 -translate-x-1/2">
-                    <Badge className="bg-gradient-to-r from-vendle-blue to-vendle-teal text-white px-4 py-1 shadow-lg">
+                    <Badge className="bg-vendle-blue text-white px-4 py-1 shadow-lg">
                         <UserCheck className="w-3 h-3 mr-1" />
                         Recommended
                     </Badge>
@@ -45,7 +45,7 @@ export function Step8ClaimAssistance({
                     <div className={cn(
                         "w-20 h-20 rounded-2xl flex items-center justify-center mb-4 shadow-lg transition-all",
                         needsAdjuster === true
-                            ? "bg-gradient-to-br from-vendle-blue to-vendle-teal"
+                            ? "bg-vendle-blue"
                             : "bg-vendle-gray/20"
                     )}>
                         <UserCheck className={cn(
@@ -84,7 +84,7 @@ export function Step8ClaimAssistance({
                 className={cn(
                     "relative p-8 rounded-2xl border-2 transition-all",
                     needsAdjuster === false
-                        ? "bg-gradient-to-br from-vendle-blue/10 to-vendle-teal/10 border-vendle-blue shadow-xl"
+                        ? "bg-vendle-blue/10 border-vendle-blue shadow-xl"
                         : "bg-white border-vendle-gray/30 hover:border-vendle-blue/50 shadow-md hover:shadow-lg"
                 )}
                 onClick={() => onAdjusterChange(false)}
@@ -94,7 +94,7 @@ export function Step8ClaimAssistance({
                     <div className={cn(
                         "w-20 h-20 rounded-2xl flex items-center justify-center mb-4 shadow-lg transition-all",
                         needsAdjuster === false
-                            ? "bg-gradient-to-br from-vendle-blue to-vendle-teal"
+                            ? "bg-vendle-blue"
                             : "bg-vendle-gray/20"
                     )}>
                         <X className={cn(

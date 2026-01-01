@@ -26,7 +26,7 @@ export function AuctionHeader({
       </div>
 
       {/* Enhanced header with gradient background */}
-      <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-white via-vendle-blue/5 to-vendle-teal/5 border-2 border-vendle-gray/20 shadow-xl mb-8">
+      <div className="relative overflow-hidden rounded-2xl bg-white border-2 border-vendle-gray/20 shadow-xl mb-8">
         {/* Subtle background pattern */}
         <div
           className="absolute inset-0 opacity-5"
@@ -79,7 +79,7 @@ export function AuctionHeader({
               </div>
 
               {/* Lowest bid */}
-              <div className="p-4 rounded-xl bg-gradient-to-br from-vendle-blue/10 to-vendle-teal/10 border border-vendle-blue/20 shadow-md">
+              <div className="p-4 rounded-xl bg-vendle-blue/10 border border-vendle-blue/20 shadow-md">
                 <div className="flex items-center gap-2 text-vendle-blue text-xs mb-1">
                   <DollarSign className="w-3.5 h-3.5" />
                   <span className="uppercase tracking-wide font-medium">Lowest Bid</span>

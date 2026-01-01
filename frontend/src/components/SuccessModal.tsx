@@ -38,8 +38,8 @@ export default function SuccessModal({
         {/* Content */}
         <div className="px-8 py-10 text-center">
           {/* Success Icon */}
-          <div className="mx-auto mb-6 flex h-20 w-20 items-center justify-center rounded-full bg-green-100">
-            <CheckCircle className="h-12 w-12 text-green-600" />
+          <div className="mx-auto mb-6 flex h-20 w-20 items-center justify-center rounded-full bg-vendle-teal/10">
+            <CheckCircle className="h-12 w-12 text-vendle-teal" />
           </div>
 
           {/* Title */}

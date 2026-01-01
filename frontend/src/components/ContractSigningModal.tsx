@@ -143,7 +143,7 @@ export default function ContractSigningModal({
               </Button>
             </div>
           ) : (
-            <div className="flex flex-col gap-y-2 items-center justify-center gap-2 text-green-600 py-2">
+            <div className="flex flex-col gap-y-2 items-center justify-center gap-2 text-vendle-teal py-2">
               <CheckCircle className="w-6 h-6" />
               <span className="font-semibold text-lg">Contract Signed Successfully!</span>
             </div>

@@ -94,7 +94,7 @@ export default function ClaimPage({ params }: PageProps) {
                 <Card className="border-border bg-card p-6 sm:p-8 text-center shadow-md">
                     <p className="mb-4 text-xl font-semibold text-foreground">Project not found.</p>
                     <Button
-                        className="mt-2 bg-gradient-to-r from-[#2C3E50] via-[#4A637D] to-[#5A9E8B] text-white hover:from-[#2C3E50]/90 hover:via-[#4A637D]/90 hover:to-[#5A9E8B]/90"
+                        className="mt-2 bg-[#4A637D] text-white hover:bg-[#4A637D]/90"
                         onClick={() => router.push("/home")}
                     >
                         Go to Home
@@ -115,8 +115,8 @@ export default function ClaimPage({ params }: PageProps) {
 
                 {/* Claim Info */}
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
-                    <Card className="shadow-lg border-2 border-vendle-gray/20 hover:shadow-xl hover:border-vendle-blue/30 transition-all duration-300 bg-gradient-to-br from-white to-gray-50/50">
-                        <CardHeader className="border-b-2 border-vendle-gray/10 bg-gradient-to-r from-vendle-blue/5 to-transparent">
+                    <Card className="shadow-lg border-2 border-vendle-gray/20 hover:shadow-xl hover:border-vendle-blue/30 transition-all duration-300 bg-white">
+                        <CardHeader className="border-b-2 border-vendle-gray/10 bg-vendle-blue/5">
                             <CardTitle className="text-foreground flex items-center gap-3">
                                 <div className="p-2.5 rounded-xl bg-vendle-blue/15 shadow-sm">
                                     <MapPin className="h-5 w-5 text-vendle-blue" />
@@ -135,12 +135,12 @@ export default function ClaimPage({ params }: PageProps) {
                                 </div>
                             </div>
                             <div className="flex items-start gap-3">
-                                <ShieldQuestionIcon className="h-5 w-5 mt-0.5 text-vendle-teal shrink-0" />
+                                <ShieldQuestionIcon className="h-5 w-5 mt-0.5 text-vendle-blue shrink-0" />
                                 <div>
                                     <p className="text-xs font-medium text-muted-foreground mb-1">Functional Utilities</p>
                                     <p className="text-sm text-foreground font-medium">
                                         {claim.hasFunctionalUtilities ? (
-                                            <span className="text-vendle-teal">Yes</span>
+                                            <span className="text-vendle-blue">Yes</span>
                                         ) : (
                                             <span className="text-muted-foreground">No</span>
                                         )}
@@ -148,12 +148,12 @@ export default function ClaimPage({ params }: PageProps) {
                                 </div>
                             </div>
                             <div className="flex items-start gap-3">
-                                <ShieldQuestionIcon className="h-5 w-5 mt-0.5 text-vendle-teal shrink-0" />
+                                <ShieldQuestionIcon className="h-5 w-5 mt-0.5 text-vendle-blue shrink-0" />
                                 <div>
                                     <p className="text-xs font-medium text-muted-foreground mb-1">Dumpster</p>
                                     <p className="text-sm text-foreground font-medium">
                                         {claim.hasDumpster ? (
-                                            <span className="text-vendle-teal">Yes</span>
+                                            <span className="text-vendle-blue">Yes</span>
                                         ) : (
                                             <span className="text-muted-foreground">No</span>
                                         )}
@@ -161,12 +161,12 @@ export default function ClaimPage({ params }: PageProps) {
                                 </div>
                             </div>
                             <div className="flex items-start gap-3">
-                                <ShieldQuestionIcon className="h-5 w-5 mt-0.5 text-vendle-teal shrink-0" />
+                                <ShieldQuestionIcon className="h-5 w-5 mt-0.5 text-vendle-blue shrink-0" />
                                 <div>
                                     <p className="text-xs font-medium text-muted-foreground mb-1">Occupied</p>
                                     <p className="text-sm text-foreground font-medium">
                                         {claim.isOccupied ? (
-                                            <span className="text-vendle-teal">Yes</span>
+                                            <span className="text-vendle-blue">Yes</span>
                                         ) : (
                                             <span className="text-muted-foreground">No</span>
                                         )}
@@ -176,11 +176,11 @@ export default function ClaimPage({ params }: PageProps) {
                         </CardContent>
                     </Card>
 
-                    <Card className="shadow-lg border-2 border-vendle-gray/20 hover:shadow-xl hover:border-vendle-teal/30 transition-all duration-300 bg-gradient-to-br from-white to-gray-50/50">
-                        <CardHeader className="border-b-2 border-vendle-gray/10 bg-gradient-to-r from-vendle-teal/5 to-transparent">
+                    <Card className="shadow-lg border-2 border-vendle-gray/20 hover:shadow-xl hover:border-vendle-blue/30 transition-all duration-300 bg-white">
+                        <CardHeader className="border-b-2 border-vendle-gray/10 bg-vendle-blue/5">
                             <CardTitle className="text-foreground flex items-center gap-3">
-                                <div className="p-2.5 rounded-xl bg-vendle-teal/15 shadow-sm">
-                                    <LayoutIcon className="h-5 w-5 text-vendle-teal" />
+                                <div className="p-2.5 rounded-xl bg-vendle-blue/15 shadow-sm">
+                                    <LayoutIcon className="h-5 w-5 text-vendle-blue" />
                                 </div>
                                 <span className="text-xl">Project Specifications</span>
                             </CardTitle>
@@ -232,8 +232,8 @@ export default function ClaimPage({ params }: PageProps) {
 
                 {/* Pdfs */}
                 {claimPdfs?.length > 0 && (
-                    <Card className="shadow-lg border-2 border-vendle-gray/20 hover:shadow-xl hover:border-vendle-blue/30 transition-all duration-300 bg-gradient-to-br from-white to-gray-50/50 mb-6">
-                        <CardHeader className="border-b-2 border-vendle-gray/10 bg-gradient-to-r from-[#4A637D]/5 to-transparent">
+                    <Card className="shadow-lg border-2 border-vendle-gray/20 hover:shadow-xl hover:border-vendle-blue/30 transition-all duration-300 bg-white mb-6">
+                        <CardHeader className="border-b-2 border-vendle-gray/10 bg-[#4A637D]/5">
                             <CardTitle className="text-foreground flex items-center gap-3">
                                 <div className="p-2.5 rounded-xl bg-[#4A637D]/15 shadow-sm">
                                     <FileText className="h-5 w-5 text-[#4A637D]" />
@@ -261,11 +261,11 @@ export default function ClaimPage({ params }: PageProps) {
                 )}
 
                 {/* Images */}
-                <Card className="shadow-lg border-2 border-vendle-gray/20 hover:shadow-xl hover:border-vendle-teal/30 transition-all duration-300 bg-gradient-to-br from-white to-gray-50/50">
-                    <CardHeader className="border-b-2 border-vendle-gray/10 bg-gradient-to-r from-vendle-teal/5 to-transparent">
+                <Card className="shadow-lg border-2 border-vendle-gray/20 hover:shadow-xl hover:border-vendle-blue/30 transition-all duration-300 bg-white">
+                    <CardHeader className="border-b-2 border-vendle-gray/10 bg-vendle-blue/5">
                         <CardTitle className="text-foreground flex items-center gap-3">
-                            <div className="p-2.5 rounded-xl bg-vendle-teal/15 shadow-sm">
-                                <FileText className="h-5 w-5 text-vendle-teal" />
+                            <div className="p-2.5 rounded-xl bg-vendle-blue/15 shadow-sm">
+                                <FileText className="h-5 w-5 text-vendle-blue" />
                             </div>
                             <span className="text-xl">Property Images</span>
                         </CardTitle>
@@ -276,7 +276,7 @@ export default function ClaimPage({ params }: PageProps) {
                                 {images.map((url: string, i: number) => (
                                     <motion.div
                                         key={i}
-                                        className="relative w-full aspect-square rounded-xl overflow-hidden border-2 border-vendle-gray/20 group cursor-pointer hover:border-vendle-teal shadow-md hover:shadow-xl transition-all duration-300"
+                                        className="relative w-full aspect-square rounded-xl overflow-hidden border-2 border-vendle-gray/20 group cursor-pointer hover:border-vendle-blue shadow-md hover:shadow-xl transition-all duration-300"
                                         whileHover={{ scale: 1.03 }}
                                         transition={{ duration: 0.2 }}
                                     >
@@ -286,7 +286,7 @@ export default function ClaimPage({ params }: PageProps) {
                                             fill
                                             className="object-cover group-hover:scale-110 transition-transform duration-300"
                                         />
-                                        <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                                        <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
                                             <div className="absolute bottom-3 left-3 text-white">
                                                 <p className="text-xs font-semibold tracking-wide">Image {i + 1}</p>
                                             </div>
@@ -296,7 +296,7 @@ export default function ClaimPage({ params }: PageProps) {
                             </div>
                         ) : (
                             <div className="text-center py-16">
-                                <div className="inline-flex items-center justify-center w-20 h-20 rounded-full bg-gradient-to-br from-vendle-gray/10 to-vendle-gray/5 mb-4 shadow-inner">
+                                <div className="inline-flex items-center justify-center w-20 h-20 rounded-full bg-vendle-gray/10 mb-4 shadow-inner">
                                     <FileText className="h-10 w-10 text-vendle-gray/50" />
                                 </div>
                                 <p className="text-muted-foreground text-sm font-medium">

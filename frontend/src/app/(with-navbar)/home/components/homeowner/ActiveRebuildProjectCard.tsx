@@ -28,7 +28,7 @@ export function ActiveRebuildProjectCard({
           </div>
           <Badge className={`${
             project.status === 'active'
-              ? 'bg-green-100 text-green-800 border-green-200'
+              ? 'bg-vendle-teal/10 text-vendle-teal border-vendle-teal/20'
               : project.status === 'completed'
                 ? 'bg-blue-100 text-blue-800 border-blue-200'
                 : 'bg-yellow-100 text-yellow-800 border-yellow-200'
@@ -78,7 +78,7 @@ export function ActiveRebuildProjectCard({
           {/* Milestones */}
           <div className="flex items-center justify-between text-sm pt-2 border-t">
             <div className="flex items-center gap-2">
-              <CheckCircle className="h-4 w-4 text-green-600" />
+              <CheckCircle className="h-4 w-4 text-vendle-teal" />
               <span className="text-gray-600">Milestones:</span>
             </div>
             <span className="font-medium">

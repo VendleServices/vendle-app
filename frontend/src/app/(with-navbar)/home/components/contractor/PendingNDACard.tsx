@@ -20,7 +20,7 @@ export function PendingNDACard({ nda, onReviewNDA }: PendingNDACardProps) {
     >
       <Card className="h-full shadow-lg border-2 border-[#D9D9D9] hover:border-[#4A637D]/50 hover:shadow-2xl transition-all duration-300 bg-white overflow-hidden group">
         {/* Gradient overlay header */}
-        <div className="absolute top-0 left-0 right-0 h-1.5 bg-gradient-to-r from-[#2C3E50] via-[#4A637D] to-[#5A9E8B]" />
+        <div className="absolute top-0 left-0 right-0 h-1.5 bg-[#4A637D]" />
 
         <CardHeader className="pb-4 pt-6">
           <div className="flex items-start justify-between gap-3">
@@ -68,7 +68,7 @@ export function PendingNDACard({ nda, onReviewNDA }: PendingNDACardProps) {
           <div className="pt-2">
             <Button
               variant="default"
-              className="w-full bg-gradient-to-r from-[#2C3E50] via-[#4A637D] to-[#5A9E8B] hover:from-[#2C3E50]/90 hover:via-[#4A637D]/90 hover:to-[#5A9E8B]/90 shadow-md hover:shadow-lg transition-all font-bold"
+              className="w-full bg-[#4A637D] hover:bg-[#4A637D]/90 shadow-md hover:shadow-lg transition-all font-bold"
               onClick={onReviewNDA}
             >
               <FileText className="h-4 w-4 mr-2" />

@@ -24,11 +24,11 @@ export function Phase1BidsRanking({ phase1Bids }: Phase1BidsRankingProps) {
   const getRankBadgeClass = (index: number) => {
     switch (index) {
       case 0:
-        return "bg-gradient-to-r from-yellow-400 to-yellow-600 text-white";
+        return "bg-yellow-500 text-white";
       case 1:
-        return "bg-gradient-to-r from-gray-300 to-gray-500 text-white";
+        return "bg-gray-400 text-white";
       case 2:
-        return "bg-gradient-to-r from-orange-400 to-orange-600 text-white";
+        return "bg-orange-500 text-white";
       default:
         return "bg-muted text-muted-foreground";
     }
@@ -57,7 +57,7 @@ export function Phase1BidsRanking({ phase1Bids }: Phase1BidsRankingProps) {
               className={cn(
                 "flex items-center gap-4 p-4 rounded-xl border-2 transition-all",
                 index < 3
-                  ? "border-vendle-blue/30 bg-gradient-to-r from-vendle-blue/5 to-transparent"
+                  ? "border-vendle-blue/30 bg-vendle-blue/5"
                   : "border-border bg-muted/30"
               )}
             >
