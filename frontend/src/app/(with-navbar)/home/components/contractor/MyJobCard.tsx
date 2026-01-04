@@ -32,9 +32,6 @@ export function MyJobCard({ job, onManageJob, onOpenChat }: MyJobCardProps) {
       transition={{ duration: 0.2 }}
     >
       <Card className="h-full shadow-lg border-2 border-[#D9D9D9] hover:border-[#4A637D]/50 hover:shadow-2xl transition-all duration-300 bg-white overflow-hidden group">
-        {/* Gradient overlay header */}
-        <div className="absolute top-0 left-0 right-0 h-1.5 bg-[#4A637D]" />
-
         <CardHeader className="pb-4 pt-6">
           <div className="flex items-start justify-between gap-3">
             <div className="flex-1 min-w-0">
