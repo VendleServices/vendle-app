@@ -7,8 +7,8 @@
     "dev": "tsx watch server.js",
     "start": "tsx server.js",
     "migrate": "npx prisma generate && env $(cat .env.local | xargs) npx prisma migrate dev",
-    "worker": "node workers/emailWorker.js",
-    "worker:dev": "tsx watch workers/aiClaimProcessingWorker.ts"
+    "worker:dev": "tsx watch workers/aiClaimProcessingWorker.ts",
+    "worker:pdf": "tsx watch workers/pdfToVectorDatabaseWorker.ts"
   },
   "prisma": {
     "schema": "db/schema.prisma"
@@ -33,6 +33,7 @@
     "multer": "^2.0.2",
     "next": "^15.4.6",
     "openai": "^6.5.0",
+    "pdf-parse-new": "^2.0.0",
     "pg": "^8.14.1",
     "three": "^0.178.0"
   },

@@ -2,6 +2,7 @@ import { Worker } from "bullmq";
 import { redis } from "../redis";
 import { processClaimDocument } from "../utils/processClaimDocument";
 import OpenAI from "openai";
+import { prisma } from "../db/prisma.js";
 
 const openai = new OpenAI({
     apiKey: process.env.OPENAI_API_KEY,
@@ -32,21 +33,22 @@ worker.on('completed', async (job, returnvalue) => {
     console.log(`Job completed: ${job.id}`);
     console.log(returnvalue);
 
-    const token = job.data.user?.token;
-    if (!token) {
-        console.log("no token");
+    const user = job.data?.user;
+    const claimId: string = job.data?.claimId;
+
+    if (!user || !claimId) {
+        console.log("missing data");
     }
 
-    const claimId = job.data.claimId;
-
     if (returnvalue) {
-        await fetch(`http://localhost:3001/api/claim/${claimId}`, {
-            method: "PUT",
-            body: JSON.stringify({ aiClaimSummary: returnvalue }),
-            headers: {
-                "Content-Type": "application/json",
-                ...(token && { Authorization: `Bearer ${token}` }),
+        await prisma.claim.update({
+            where: {
+                id: claimId,
+                userId: user.id,
             },
+            data: {
+                aiSummary: returnvalue,
+            }
         });
     }
 });

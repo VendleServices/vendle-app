@@ -17,6 +17,7 @@ import { AIRecommendationDialog } from "./shared/AIRecommendationDialog";
 import { ContractorView } from "./contractor/ContractorView";
 import { HomeownerView } from "./homeowner/HomeownerView";
 import { Auction } from "./types";
+import { RAGChatbot } from "@/components/RAGChatbot";
 
 const initialBidDefaults = {
   amount: 0,
@@ -439,6 +440,9 @@ export default function AuctionDetailsPage() {
           bidCount={auction?.bids?.length || 0}
         />
       </main>
+
+      {/* RAG Chatbot - Only for Contractors */}
+      {isContractor && <RAGChatbot claimId={claimId} />}
     </div>
   );
 }

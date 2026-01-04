@@ -12,6 +12,7 @@ import { createClient } from "@/auth/client";
 import Image from "next/image";
 import { motion } from "framer-motion";
 import { ClaimHeader } from "./shared/ClaimHeader";
+import { RAGChatbot } from "@/components/RAGChatbot";
 
 interface PageProps {
     params: Promise<{
@@ -74,6 +75,8 @@ export default function ClaimPage({ params }: PageProps) {
         queryFn: fetchClaimPdfs,
         enabled: !!claimId,
     });
+
+    const isContractor = user?.user_metadata?.userType === "contractor";
 
     // Loading state
     if (isLoading) {
@@ -307,6 +310,9 @@ export default function ClaimPage({ params }: PageProps) {
                     </CardContent>
                 </Card>
             </main>
+
+            {/* RAG Chatbot - Only for Contractors */}
+            {isContractor && <RAGChatbot claimId={claimId} />}
         </div>
     );
 }

@@ -2,6 +2,7 @@ import { Router } from 'express';
 import { prisma } from '../../db/prisma.js';
 import multer from 'multer';
 import { aiClaimProcessingQueue } from "../../queues/aiClaimProcessingQueue";
+import { pdfToVectorDatabaseQueue } from "../../queues/pdfToVectorDatabaseQueue";
 
 // configure multer to store uploaded files in memory as a buffer
 const storage = multer.diskStorage({
@@ -161,64 +162,72 @@ router.post('/', upload.single('file'), async (req: any, res) => {
     }
 
     const claimData = req.body;
+    const imageData = JSON.parse(claimData?.imageUrls || '[]');
+    const pdfData = JSON.parse(claimData?.pdfUrls || '[]');
     console.log('Creating claim with data:', claimData);
     console.log('User ID:', user.id);
 
-    const createdClaim = await prisma.claim.create({
-      data: {
-        street: claimData.street,
-        city: claimData.city,
-        state: claimData.state,
-        zipCode: claimData.zipCode,
-        damageTypes: claimData.damageTypes,
-        hasFunctionalUtilities: claimData.hasFunctionalUtilities === "true",
-        hasDumpster: claimData.hasDumpster === "true",
-        isOccupied: claimData.isOccupied === "true",
-        phase1Start: claimData.phase1Start,
-        phase1End: claimData.phase1End,
-        phase2Start: claimData.phase2Start,
-        phase2End: claimData.phase2End,
-        projectType: claimData.projectType,
-        designPlan: claimData.designPlan,
-        needsAdjuster: claimData.needsAdjuster === "true",
-        userId: user.id,
-        title: claimData.title,
-        totalJobValue: Number(claimData.totalJobValue),
-        overheadAndProfit: Number(claimData.overheadAndProfit),
-        costBasis: claimData.costBasis,
-        materials: Number(claimData.materials),
-        salesTaxes: Number(claimData.salesTaxes),
-        depreciation: Number(claimData.depreciation),
-        reconstructionType: claimData.reconstructionType,
-        fundingSource: claimData.fundingSource,
-        additionalNotes: claimData.additionalNotes,
+    const createdClaim  = await prisma.$transaction(async (tx) => {
+      const claim = await tx.claim.create({
+        data: {
+          street: claimData.street,
+          city: claimData.city,
+          state: claimData.state,
+          zipCode: claimData.zipCode,
+          damageTypes: claimData.damageTypes,
+          hasFunctionalUtilities: claimData.hasFunctionalUtilities === "true",
+          hasDumpster: claimData.hasDumpster === "true",
+          isOccupied: claimData.isOccupied === "true",
+          phase1Start: claimData.phase1Start,
+          phase1End: claimData.phase1End,
+          phase2Start: claimData.phase2Start,
+          phase2End: claimData.phase2End,
+          projectType: claimData.projectType,
+          designPlan: claimData.designPlan,
+          needsAdjuster: claimData.needsAdjuster === "true",
+          userId: user.id,
+          title: claimData.title,
+          totalJobValue: Number(claimData.totalJobValue),
+          overheadAndProfit: Number(claimData.overheadAndProfit),
+          costBasis: claimData.costBasis,
+          materials: Number(claimData.materials),
+          salesTaxes: Number(claimData.salesTaxes),
+          depreciation: Number(claimData.depreciation),
+          reconstructionType: claimData.reconstructionType,
+          fundingSource: claimData.fundingSource,
+          additionalNotes: claimData.additionalNotes,
+        }
+      });
+
+      if (imageData?.length > 0) {
+        await tx.image.createMany({
+          data: imageData.map((url: string) => ({
+            supabase_url: url,
+            claimId: claim.id
+          }))
+        });
       }
-    });
 
-    const imageData = JSON.parse(claimData?.imageUrls)?.map((url: string) => ({
-      supabase_url: url,
-      claimId: createdClaim.id
-    })) || [];
+      if (pdfData?.length > 0) {
+        await tx.claimPdf.createMany({
+          data: pdfData.map((url: string) => ({
+            supabase_url: url,
+            claimId: claim.id
+          }))
+        });
+      }
 
-    await prisma.image.createMany({
-      data: imageData,
-    });
-
-    const pdfData = JSON.parse(claimData?.pdfUrls)?.map((url: string) => ({
-      supabase_url: url,
-      claimId: createdClaim.id
-    })) || [];
-
-    await prisma.claimPdf.createMany({
-      data: pdfData,
+      return claim;
     });
 
     const file = req.file;
+    const fileName = file?.originalname || "Unknown";
     const filePath = file.path;
-    const mimeType = file.mimeType;
+    const mimeType = file.mimetype;
     console.log('Claim created successfully:', createdClaim.id);
 
     await aiClaimProcessingQueue.add('process-claim-document', { filePath, mimeType, user, claimId: createdClaim.id });
+    await pdfToVectorDatabaseQueue.add('embed-claim-document', { filePath, fileName, user, claimId: createdClaim.id });
 
     return res.status(201).json({ claim: createdClaim });
   } catch (error) {

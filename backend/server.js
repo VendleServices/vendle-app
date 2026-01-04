@@ -79,7 +79,6 @@ const verifyToken = async (req, res, next) => {
       aud: decoded.aud,
       exp: decoded.exp,
       iat: decoded.iat,
-      token
     };
 
     next();
@@ -101,6 +100,7 @@ import claimInvitationRoutes from './api/claimInvitations/route.ts';
 import projectRoutes from './api/project/route.ts';
 import contractorRoutes from './api/contractor/route.ts';
 import analyzeContractorRoutes from './api/analyzeContractors/route.ts';
+import chatRoutes from './api/chat/route.ts';
 
 // API Routes
 app.use('/api/signup', signUpRoute);
@@ -116,6 +116,7 @@ app.use('/api/project', verifyToken, projectRoutes);
 app.use("/api/contractor", verifyToken, contractorRoutes);
 app.use('/api/setup-db', setupDbRoutes);
 app.use('/api/analyzeContractors', verifyToken, analyzeContractorRoutes);
+app.use('/api/chat', verifyToken, chatRoutes);
 
 app.get('/api/health', (req, res) => {
   res.json({ status: 'OK', timestamp: new Date().toISOString() });
