@@ -4,11 +4,12 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
-    "dev": "concurrently \"npm run dev:backend\" \"npm run worker:backend\" \"npm run worker:pdf\" \"npm run dev:frontend\"",
+    "dev": "concurrently \"npm run dev:backend\" \"npm run worker:backend\" \"npm run worker:pdf\" \"npm run worker:email\" \"npm run dev:frontend\"",
     "dev:frontend": "cd frontend && npm run dev",
     "dev:backend": "cd backend && npm run dev",
     "worker:backend": "cd backend && npm run worker:dev",
     "worker:pdf": "cd backend && npm run worker:pdf",
+    "worker:email": "cd backend && npm run worker:email",
     "build": "npm run build:frontend",
     "build:frontend": "cd frontend && npm run build",
     "start": "npm run start:backend",

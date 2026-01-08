@@ -1,5 +1,6 @@
 import { Router } from 'express';
 import { prisma } from '../../db/prisma.js';
+import { emailQueue } from "../../queues/emailQueue";
 
 const router = Router();
 
@@ -73,6 +74,14 @@ router.post("/:claimId", async (req: any, res: any) => {
                 invitedBy: user?.id || "Anonymous",
             }
         });
+
+        const contractor = await prisma.user.findFirst({
+            where: {
+                id: contractorId,
+            }
+        });
+
+        await emailQueue.add('invite-contractor', { email: contractor?.email || "", subject: "You're invited!", message: "You have been invited to participate in a restoration. Please visit Vendle to view the invitation!" });
 
         return res.status(201).json({ newInvitation });
     } catch (error) {

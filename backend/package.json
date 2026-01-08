@@ -8,7 +8,8 @@
     "start": "tsx server.js",
     "migrate": "npx prisma generate && env $(cat .env.local | xargs) npx prisma migrate dev",
     "worker:dev": "tsx watch workers/aiClaimProcessingWorker.ts",
-    "worker:pdf": "tsx watch workers/pdfToVectorDatabaseWorker.ts"
+    "worker:pdf": "tsx watch workers/pdfToVectorDatabaseWorker.ts",
+    "worker:email": "tsx watch workers/emailWorker.ts"
   },
   "prisma": {
     "schema": "db/schema.prisma"
@@ -27,6 +28,7 @@
     "cors": "^2.8.5",
     "dotenv": "^16.6.1",
     "express": "^4.18.2",
+    "express-rate-limit": "^8.2.1",
     "http-proxy-middleware": "^3.0.5",
     "ioredis": "^5.8.2",
     "jsonwebtoken": "^9.0.2",
@@ -35,6 +37,7 @@
     "openai": "^6.5.0",
     "pdf-parse-new": "^2.0.0",
     "pg": "^8.14.1",
+    "resend": "^6.6.0",
     "three": "^0.178.0"
   },
   "devDependencies": {

@@ -1,6 +1,7 @@
 import { Router } from 'express';
 import { prisma } from "../../db/prisma";
 import OpenAI from "openai";
+import { chatbotLimiter } from "../../lib/rateLimiters";
 
 const openai = new OpenAI({
     apiKey: process.env.OPENAI_API_KEY,
@@ -30,7 +31,7 @@ router.get("/:claimId", async (req: any, res: any) => {
     }
 })
 
-router.post("/:claimId", async (req: any, res: any) => {
+router.post("/:claimId", chatbotLimiter, async (req: any, res: any) => {
     try {
         const user = req?.user;
         if (!user) {

@@ -101,19 +101,6 @@ export default function ProfilePage() {
                   </p>
                 </div>
               </div>
-
-              {/* User ID */}
-              <div className="flex items-start gap-3">
-                <div className="p-2 bg-indigo-50 rounded-lg">
-                  <User className="w-5 h-5 text-indigo-600" />
-                </div>
-                <div>
-                  <p className="text-sm font-medium text-gray-500">User ID</p>
-                  <p className="text-gray-900 font-mono text-sm truncate">
-                    {user?.id?.substring(0, 8) || 'Not available'}...
-                  </p>
-                </div>
-              </div>
             </div>
           </CardContent>
         </Card>
@@ -128,15 +115,15 @@ export default function ProfilePage() {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
                   <p className="text-sm font-medium text-gray-500">Company Name</p>
-                  <p className="text-gray-900">{(user as any).company_name || 'Not provided'}</p>
+                  <p className="text-gray-900">{(user as any)?.user_metadata?.companyName || 'Not provided'}</p>
                 </div>
                 <div>
                   <p className="text-sm font-medium text-gray-500">Company Website</p>
-                  <p className="text-gray-900">{(user as any).company_website || 'Not provided'}</p>
+                  <p className="text-gray-900">{(user as any).user_metadata?.companyWebsite || 'Not provided'}</p>
                 </div>
                 <div>
                   <p className="text-sm font-medium text-gray-500">Phone Number</p>
-                  <p className="text-gray-900">{(user as any).phone_number || 'Not provided'}</p>
+                  <p className="text-gray-900">{(user as any)?.user_metadata?.phoneNumber || 'Not provided'}</p>
                 </div>
               </div>
             </CardContent>
