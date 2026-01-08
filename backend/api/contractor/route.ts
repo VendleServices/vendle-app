@@ -27,6 +27,7 @@ router.get("/", async (req: any, res: any) => {
         const contractors = await prisma.user.findMany({
             where: {
                 userType: "contractor",
+                ndaSigned: true,
                 id: {
                     notIn: claimParticipantIds,
                 },

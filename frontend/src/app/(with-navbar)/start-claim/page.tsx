@@ -456,7 +456,7 @@ export default function StartClaimPage() {
         || !femaFormData.address || !femaFormData.city || !femaFormData.state || !femaFormData.zipCode;
 
     return (
-        <div className="min-h-screen bg-background">
+        <div className="min-h-screen bg-background flex items-center justify-center">
             <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8 md:py-16 max-w-7xl">
                 <AnimatePresence mode="wait">
                     {showInsuranceCompanies ? (
