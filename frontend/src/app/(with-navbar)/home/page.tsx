@@ -510,7 +510,6 @@ export default function HomePage() {
           pendingContractors={pendingContractors}
           onClose={() => setSelectedPreLaunchClaim(null)}
           onAcceptContractor={(participantId) => acceptContractorMutation.mutate(participantId)}
-          onScheduleSiteVisit={() => window.open('https://calendly.com/vendle/site-visit', '_blank')}
         />
       )}
 

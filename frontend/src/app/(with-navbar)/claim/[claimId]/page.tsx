@@ -4,7 +4,7 @@ import { useRouter } from "next/navigation";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/contexts/AuthContext";
-import { MapPin, Calendar, FileText, Clock, LayoutIcon, ShieldQuestionIcon, Loader2 } from "lucide-react";
+import { MapPin, Calendar, FileText, Clock, LayoutIcon, ShieldQuestionIcon, Loader2, CalendarCheck, Mail, Info, ExternalLink } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { use } from "react";
 import { useApiService } from "@/services/api";
@@ -13,6 +13,7 @@ import Image from "next/image";
 import { motion } from "framer-motion";
 import { ClaimHeader } from "./shared/ClaimHeader";
 import { RAGChatbot } from "@/components/RAGChatbot";
+import { useGetHomeownerAvailability, useStartBooking } from "@/hooks/useBooking";
 
 interface PageProps {
     params: Promise<{
@@ -78,6 +79,43 @@ export default function ClaimPage({ params }: PageProps) {
 
     const isContractor = user?.user_metadata?.userType === "contractor";
 
+    // Fetch homeowner availability for contractors
+    const { data: homeownerAvailability, isLoading: availabilityLoading } = useGetHomeownerAvailability(
+        isContractor ? claim?.userId : null
+    );
+
+    // Booking mutation for contractors
+    const startBookingMutation = useStartBooking();
+
+    const handleScheduleSiteVisit = () => {
+        if (!claim?.userId || !user?.id) return;
+        startBookingMutation.mutate({
+            contractorId: user.id,
+            homeownerId: claim.userId,
+        });
+    };
+
+    // Get homeowner email from claim
+    const homeownerEmail = claim?.user?.email;
+
+    // Helper to format day
+    const getDayLabel = (dayOfWeek: number): string => {
+        const days: Record<number, string> = {
+            1: 'Monday', 2: 'Tuesday', 3: 'Wednesday', 4: 'Thursday',
+            5: 'Friday', 6: 'Saturday', 7: 'Sunday',
+        };
+        return days[dayOfWeek] || 'Unknown';
+    };
+
+    // Helper to format time
+    const formatTime = (time: string) => {
+        const [hours, minutes] = time.split(':');
+        const hour = parseInt(hours, 10);
+        const ampm = hour >= 12 ? 'PM' : 'AM';
+        const displayHour = hour % 12 || 12;
+        return `${displayHour}:${minutes} ${ampm}`;
+    };
+
     // Loading state
     if (isLoading) {
         return (
@@ -115,6 +153,92 @@ export default function ClaimPage({ params }: PageProps) {
                     claim={claim}
                     onBack={() => router.push("/home")}
                 />
+
+                {/* Schedule Site Visit - Contractors Only */}
+                {isContractor && (
+                    <Card className="shadow-lg border-2 border-vendle-teal/30 hover:shadow-xl hover:border-vendle-teal/50 transition-all duration-300 bg-gradient-to-r from-vendle-teal/5 to-vendle-blue/5 mb-6">
+                        <CardHeader className="border-b border-vendle-teal/20 pb-4">
+                            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+                                <div className="flex items-center gap-4">
+                                    <div className="p-3 rounded-xl bg-vendle-teal/15 shadow-sm">
+                                        <CalendarCheck className="h-6 w-6 text-vendle-teal" />
+                                    </div>
+                                    <div>
+                                        <h3 className="text-lg font-bold text-foreground">Schedule a Site Visit</h3>
+                                        <p className="text-sm text-muted-foreground">
+                                            Visit the property to provide an accurate estimate for this project
+                                        </p>
+                                    </div>
+                                </div>
+                                <Button
+                                    onClick={handleScheduleSiteVisit}
+                                    disabled={startBookingMutation.isPending || !homeownerAvailability?.length}
+                                    className="bg-vendle-teal hover:bg-vendle-teal/90 text-white font-semibold px-6 py-2 shadow-md hover:shadow-lg transition-all"
+                                >
+                                    <Calendar className="h-4 w-4 mr-2" />
+                                    {startBookingMutation.isPending ? 'Opening Calendly...' : 'Schedule Visit'}
+                                </Button>
+                            </div>
+                        </CardHeader>
+                        <CardContent className="pt-4 space-y-4">
+                            {/* Important Notice */}
+                            <div className="flex items-start gap-3 p-3 bg-amber-50 border border-amber-200 rounded-lg">
+                                <Info className="h-5 w-5 text-amber-600 shrink-0 mt-0.5" />
+                                <div className="text-sm">
+                                    <p className="font-medium text-amber-800">Important: Add Homeowner as Guest</p>
+                                    <p className="text-amber-700 mt-1">
+                                        When scheduling, please add the homeowner&apos;s email as a guest so they receive the calendar invite.
+                                    </p>
+                                </div>
+                            </div>
+
+                            {/* Homeowner Email */}
+                            {homeownerEmail && (
+                                <div className="flex items-center gap-3 p-3 bg-white border border-vendle-gray/20 rounded-lg">
+                                    <Mail className="h-5 w-5 text-vendle-blue shrink-0" />
+                                    <div>
+                                        <p className="text-xs font-medium text-muted-foreground">Homeowner Email</p>
+                                        <p className="text-sm font-semibold text-foreground">{homeownerEmail}</p>
+                                    </div>
+                                </div>
+                            )}
+
+                            {/* Homeowner Availability */}
+                            <div className="space-y-2">
+                                <p className="text-sm font-medium text-foreground flex items-center gap-2">
+                                    <Clock className="h-4 w-4 text-vendle-teal" />
+                                    Homeowner&apos;s Available Times
+                                </p>
+                                {availabilityLoading ? (
+                                    <div className="flex items-center justify-center py-4">
+                                        <Loader2 className="h-5 w-5 animate-spin text-vendle-teal" />
+                                    </div>
+                                ) : homeownerAvailability && homeownerAvailability.length > 0 ? (
+                                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                                        {homeownerAvailability.map((slot: any) => (
+                                            <div
+                                                key={slot.id}
+                                                className="flex items-center gap-2 p-2 bg-white border border-vendle-gray/20 rounded-lg text-sm"
+                                            >
+                                                <Calendar className="h-4 w-4 text-vendle-teal shrink-0" />
+                                                <span className="font-medium">{getDayLabel(slot.dayOfWeek)}:</span>
+                                                <span className="text-muted-foreground">
+                                                    {formatTime(slot.startTime)} - {formatTime(slot.endTime)}
+                                                </span>
+                                            </div>
+                                        ))}
+                                    </div>
+                                ) : (
+                                    <div className="p-3 bg-gray-50 border border-gray-200 rounded-lg text-center">
+                                        <p className="text-sm text-muted-foreground">
+                                            The homeowner has not set their availability yet.
+                                        </p>
+                                    </div>
+                                )}
+                            </div>
+                        </CardContent>
+                    </Card>
+                )}
 
                 {/* Claim Info */}
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">

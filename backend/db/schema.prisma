@@ -227,6 +227,37 @@ model Chat {
   user  User  @relation(fields: [userId], references: [id])
 }
 
+model BookingAttempt {
+  id           String        @id @default(uuid()) @db.Uuid
+  bookingToken String        @unique
+  contractorId String        @db.Uuid
+  homeownerId  String        @db.Uuid
+  status       BookingStatus @default(PENDING)
+  createdAt    DateTime      @default(now())
+}
+
+model Meeting {
+  id               String        @id @default(uuid()) @db.Uuid
+  bookingToken     String        @unique
+  contractorId     String        @db.Uuid
+  homeownerId      String        @db.Uuid
+  startTime        DateTime
+  endTime          DateTime
+  calendlyEventUri String        @unique
+  inviteeEmail     String
+  status           MeetingStatus @default(SCHEDULED)
+  createdAt        DateTime      @default(now())
+  canceledAt       DateTime?
+}
+
+model HomeownerAvailability {
+  id          String @id @default(uuid()) @db.Uuid
+  homeownerId String @db.Uuid
+  dayOfWeek   Int
+  startTime   String
+  endTime     String
+}
+
 enum ChatRole {
   USER
   SYSTEM
@@ -292,4 +323,15 @@ enum InvitationStatus {
   PENDING
   ACCEPTED
   DECLINED
+}
+
+enum BookingStatus {
+  PENDING
+  CONFIRMED
+  CANCELED
+}
+
+enum MeetingStatus {
+  SCHEDULED
+  CANCELED
 }

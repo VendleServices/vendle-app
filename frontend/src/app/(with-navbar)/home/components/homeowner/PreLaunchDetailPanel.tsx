@@ -1,6 +1,11 @@
+'use client';
+
+import { useState } from "react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { X, MapPin, Calendar, Clock, MessageSquare, CheckCircle, XCircle } from "lucide-react";
+import { X, MapPin, Calendar, Clock, MessageSquare, CheckCircle, XCircle, Settings } from "lucide-react";
+import { useGetAvailability } from "@/hooks/useBooking";
+import AvailabilityManager from "@/components/AvailabilityManager";
 
 interface PreLaunchDetailPanelProps {
   claim: any | null;
@@ -8,7 +13,6 @@ interface PreLaunchDetailPanelProps {
   pendingContractors: any[];
   onClose: () => void;
   onAcceptContractor: (participantId: string) => void;
-  onScheduleSiteVisit: () => void;
 }
 
 export function PreLaunchDetailPanel({
@@ -17,11 +21,20 @@ export function PreLaunchDetailPanel({
   pendingContractors,
   onClose,
   onAcceptContractor,
-  onScheduleSiteVisit
 }: PreLaunchDetailPanelProps) {
+  const [showAvailabilityManager, setShowAvailabilityManager] = useState(false);
+  const { data: availability } = useGetAvailability();
+
+  const hasAvailability = availability && availability.length > 0;
+
   if (!claim) return null;
 
   return (
+    <>
+    <AvailabilityManager
+      isOpen={showAvailabilityManager}
+      onClose={() => setShowAvailabilityManager(false)}
+    />
     <div className="fixed right-0 top-0 h-screen w-[480px] bg-white border-l border-gray-200 shadow-2xl z-50 flex flex-col">
       <div className="flex-1 overflow-y-auto">
         {/* Header */}
@@ -91,17 +104,51 @@ export function PreLaunchDetailPanel({
             </div>
           </div>
 
-          {/* Schedule Site Visit */}
-          <div className="space-y-2 pt-4 border-t border-gray-200">
-            <p className="text-sm font-semibold text-gray-900">Schedule Site Visit</p>
-            <Button
-              variant="outline"
-              className="w-full border-vendle-blue text-vendle-blue hover:bg-vendle-blue hover:text-white"
-              onClick={onScheduleSiteVisit}
-            >
-              <Calendar className="h-4 w-4 mr-2" />
-              Schedule with Calendly
-            </Button>
+          {/* Availability Management */}
+          <div className="space-y-3 pt-4 border-t border-gray-200">
+            <div className="flex items-center justify-between">
+              <p className="text-sm font-semibold text-gray-900">Your Availability</p>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => setShowAvailabilityManager(true)}
+                className="text-vendle-blue hover:text-vendle-blue/80"
+              >
+                <Settings className="h-4 w-4 mr-1" />
+                Manage
+              </Button>
+            </div>
+            {hasAvailability ? (
+              <div className="bg-green-50 border border-green-200 rounded-lg p-3">
+                <div className="flex items-center gap-2 text-green-700">
+                  <CheckCircle className="h-4 w-4" />
+                  <span className="text-sm font-medium">
+                    {availability.length} time slot{availability.length !== 1 ? 's' : ''} configured
+                  </span>
+                </div>
+                <p className="text-xs text-green-600 mt-1">
+                  Contractors can schedule site visits during your available times
+                </p>
+              </div>
+            ) : (
+              <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-3">
+                <div className="flex items-center gap-2 text-yellow-700">
+                  <Clock className="h-4 w-4" />
+                  <span className="text-sm font-medium">No availability set</span>
+                </div>
+                <p className="text-xs text-yellow-600 mt-1">
+                  Set your availability so contractors can schedule site visits
+                </p>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="mt-2 border-yellow-400 text-yellow-700 hover:bg-yellow-100"
+                  onClick={() => setShowAvailabilityManager(true)}
+                >
+                  Set Availability
+                </Button>
+              </div>
+            )}
           </div>
 
           {/* Chat Section */}
@@ -158,5 +205,6 @@ export function PreLaunchDetailPanel({
         </div>
       </div>
     </div>
+    </>
   );
 }
