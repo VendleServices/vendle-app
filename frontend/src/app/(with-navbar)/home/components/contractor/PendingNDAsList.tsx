@@ -7,21 +7,20 @@ interface PendingNDAsListProps {
   ndas: PendingNDA[];
   isLoading: boolean;
   hasDetailPanelOpen: boolean;
-  onReviewNDA: (nda: PendingNDA) => void;
+  onReviewNDA?: (nda: PendingNDA) => void;
 }
 
 export function PendingNDAsList({
   ndas,
   isLoading,
   hasDetailPanelOpen,
-  onReviewNDA
 }: PendingNDAsListProps) {
   if (ndas.length === 0) {
     return (
       <EmptyState
         icon={Shield}
-        title="No Pending NDAs"
-        description="You don't have any pending NDAs at this time."
+        title="No Pending Auctions"
+        description="You don't have any pending auctions at this time."
       />
     );
   }
@@ -36,7 +35,6 @@ export function PendingNDAsList({
         <PendingNDACard
           key={nda.id}
           nda={nda}
-          onReviewNDA={() => onReviewNDA(nda)}
         />
       ))}
     </div>

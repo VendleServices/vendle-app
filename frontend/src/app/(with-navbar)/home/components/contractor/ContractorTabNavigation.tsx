@@ -13,7 +13,7 @@ export function ContractorTabNavigation({
   return (
     <div className="border-b border-gray-200">
       <nav className="-mb-px flex space-x-8">
-        {/* Section 1: Pending NDAs */}
+        {/* Section 1: Pending Auctions */}
         <button
           onClick={() => onTabChange('pending-ndas')}
           className={`border-b-2 py-4 px-1 text-sm font-medium transition-colors ${
@@ -24,7 +24,7 @@ export function ContractorTabNavigation({
         >
           <div className="flex items-center gap-2">
             <Shield className="h-4 w-4" />
-            Pending NDAs
+            Pending Auctions
           </div>
         </button>
 

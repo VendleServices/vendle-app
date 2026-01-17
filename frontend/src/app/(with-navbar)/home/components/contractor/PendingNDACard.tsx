@@ -1,16 +1,17 @@
+import Link from "next/link";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { MapPin, FileText, User, Calendar, AlertCircle } from "lucide-react";
+import { MapPin, FileText, User, Calendar, AlertCircle, Eye } from "lucide-react";
 import { PendingNDA } from "../types";
 import { motion } from "framer-motion";
 
 interface PendingNDACardProps {
   nda: PendingNDA;
-  onReviewNDA: () => void;
+  onReviewNDA?: () => void;
 }
 
-export function PendingNDACard({ nda, onReviewNDA }: PendingNDACardProps) {
+export function PendingNDACard({ nda }: PendingNDACardProps) {
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
@@ -63,14 +64,15 @@ export function PendingNDACard({ nda, onReviewNDA }: PendingNDACardProps) {
 
           {/* Action button */}
           <div className="pt-2">
-            <Button
-              variant="default"
-              className="w-full bg-[#4A637D] hover:bg-[#4A637D]/90 shadow-md hover:shadow-lg transition-all font-bold"
-              onClick={onReviewNDA}
-            >
-              <FileText className="h-4 w-4 mr-2" />
-              Review & Sign NDA
-            </Button>
+            <Link href={`/claim/${nda.id}`}>
+              <Button
+                variant="default"
+                className="w-full bg-[#4A637D] hover:bg-[#4A637D]/90 shadow-md hover:shadow-lg transition-all font-bold"
+              >
+                <Eye className="h-4 w-4 mr-2" />
+                View Details
+              </Button>
+            </Link>
           </div>
         </CardContent>
       </Card>
