@@ -43,6 +43,17 @@ app.use(cors({
   credentials: false, // setting to false cuz we are using jwt tokens instead of cookies
 }));
 app.use(cookieParser());
+
+app.use(
+    '/api/webhooks/stripe',
+    express.raw({ type: 'application/json' }),
+    (req, res, next) => {
+      req.rawBody = req.body;
+      req.body = JSON.parse(req.body.toString());
+      next();
+    }
+);
+
 app.use(express.json());
 
 const supabase = createClient(
@@ -102,6 +113,7 @@ import analyzeContractorRoutes from './api/analyzeContractors/route.ts';
 import chatRoutes from './api/chat/route.ts';
 import bookingRoutes from './api/booking/route.ts';
 import webhookRoutes from './api/webhooks/route.ts';
+import paymentRoutes from './api/payments/route.ts';
 import { generalApiLimiter, authLimiter, userLimiter } from "./lib/rateLimiters.js";
 // API Routes
 app.use('/api/signup', authLimiter, signUpRoute);
@@ -119,6 +131,7 @@ app.use('/api/analyzeContractors', verifyToken, generalApiLimiter, analyzeContra
 app.use('/api/chat', verifyToken, generalApiLimiter, chatRoutes);
 app.use('/api/booking', verifyToken, generalApiLimiter, bookingRoutes);
 app.use('/api/webhooks', webhookRoutes);
+app.use('/api/payments', verifyToken, paymentRoutes);
 
 app.get('/api/health', (req, res) => {
   res.json({ status: 'OK', timestamp: new Date().toISOString() });

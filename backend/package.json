@@ -39,6 +39,7 @@
     "pdf-parse-new": "^2.0.0",
     "pg": "^8.14.1",
     "resend": "^6.6.0",
+    "stripe": "^20.2.0",
     "three": "^0.178.0"
   },
   "devDependencies": {

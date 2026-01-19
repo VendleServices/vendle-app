@@ -8,7 +8,9 @@ export function BidsList({
   isPhase1,
   selectedForPhase2,
   onTogglePhase2Selection,
-  onAcceptBid
+  onAcceptBid,
+  disableAccept,
+  claimId
 }: BidsListProps) {
   if (isLoading) {
     return (
@@ -45,7 +47,9 @@ export function BidsList({
           isPhase1={isPhase1}
           isSelected={selectedForPhase2.has(bid.contractor_id)}
           onToggleSelection={() => onTogglePhase2Selection(bid.contractor_id)}
-          onAccept={() => onAcceptBid(bid.contractor_id, bid.bid_amount)}
+          onAccept={() => onAcceptBid(bid.contractor_id)}
+          disableAccept={disableAccept}
+          claimId={claimId}
         />
       ))}
     </div>

@@ -96,6 +96,7 @@ model Claim {
   project                Project?              @relation("ClaimProject")
   document_embeddings    document_embeddings[]
   chats                  Chat[]
+  payments               Payment[]
 }
 
 model Image {
@@ -130,6 +131,7 @@ model Bid {
   auctionPhase          AuctionPhase @relation(fields: [auctionPhaseId], references: [id], onDelete: Cascade)
   claim                 Claim        @relation(fields: [claimId], references: [id], onDelete: Cascade)
   user                  User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  payments              Payment[]
 }
 
 model ClaimParticipant {
@@ -256,6 +258,36 @@ model HomeownerAvailability {
   dayOfWeek   Int
   startTime   String
   endTime     String
+}
+
+model Payment {
+  id                    String        @id @default(uuid()) @db.Uuid
+  bidId                 String        @db.Uuid
+  claimId               String        @db.Uuid
+  homeownerId           String        @db.Uuid
+  contractorId          String        @db.Uuid
+  amount                Float
+  bidAmount             Float
+  platformFee           Float
+  stripeSessionId       String?       @unique
+  stripePaymentIntentId String?
+  status                PaymentStatus @default(PENDING)
+  createdAt             DateTime      @default(now())
+  completedAt           DateTime?
+
+  bid   Bid   @relation(fields: [bidId], references: [id])
+  claim Claim @relation(fields: [claimId], references: [id])
+
+  @@index([bidId])
+  @@index([claimId])
+}
+
+enum PaymentStatus {
+  PENDING
+  COMPLETED
+  FAILED
+  EXPIRED
+  REFUNDED
 }
 
 enum ChatRole {

@@ -29,6 +29,7 @@ export interface Bid {
   company_website?: string;
   license_number?: string;
   years_experience?: number;
+  id?: string;
 }
 
 export interface BidData {
@@ -146,11 +147,12 @@ export interface HomeownerViewProps {
   isPhase1: boolean;
   selectedForPhase2: Set<string>;
   onTogglePhase2Selection: (contractorId: string) => void;
-  onAcceptBid: (contractorId: string, bidAmount: number) => void;
+  onAcceptBid: (contractorId: string) => void;
   onAskAI: () => void;
   onCreatePhase2: () => void;
   isAskingAI: boolean;
   isCreatingPhase2: boolean;
+  disableAccept: boolean;
 }
 
 export interface AuctionDetailsCardProps {
@@ -163,7 +165,9 @@ export interface BidsListProps {
   isPhase1: boolean;
   selectedForPhase2: Set<string>;
   onTogglePhase2Selection: (contractorId: string) => void;
-  onAcceptBid: (contractorId: string, bidAmount: number) => void;
+  onAcceptBid: (contractorId: string) => void;
+  disableAccept: boolean;
+  claimId: string;
 }
 
 export interface ContractorBidCardProps {
@@ -173,6 +177,8 @@ export interface ContractorBidCardProps {
   isSelected: boolean;
   onToggleSelection: () => void;
   onAccept: () => void;
+  disableAccept: boolean;
+  claimId: string;
 }
 
 export interface Phase1BidRanking {

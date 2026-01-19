@@ -1,6 +1,6 @@
 "use client";
-import React, { useState, useRef } from "react";
-import { useParams, useRouter } from "next/navigation";
+import React, { useState, useRef, useEffect } from "react";
+import { useParams, useRouter, useSearchParams } from "next/navigation";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Loader2 } from "lucide-react";
 import { toast } from "sonner";
@@ -33,6 +33,7 @@ export default function AuctionDetailsPage() {
   const params = useParams();
   const auction_id = params.auction_id as string;
   const router = useRouter();
+  const searchParams = useSearchParams();
   const apiService = useApiService();
   const queryClient = useQueryClient();
   const supabase = createClient();
@@ -64,6 +65,24 @@ export default function AuctionDetailsPage() {
     queryFn: () => fetchAuction(auction_id),
     enabled: !!auction_id,
   });
+
+  // Handle payment success/cancel redirects from Stripe
+  useEffect(() => {
+    const paymentStatus = searchParams.get('payment');
+
+    if (paymentStatus === 'success') {
+      toast.success('Payment Successful!', {
+        description: 'The bid has been accepted and the contractor has been notified.',
+      });
+      window.history.replaceState({}, '', window.location.pathname);
+      queryClient.invalidateQueries({ queryKey: ['getAuction', auction_id] });
+    } else if (paymentStatus === 'cancelled') {
+      toast.error('Payment Cancelled', {
+        description: 'The payment was cancelled. You can try again when ready.',
+      });
+      window.history.replaceState({}, '', window.location.pathname);
+    }
+  }, [searchParams, auction_id, queryClient]);
 
   const allPhaseOneBids = auction?.phase1Bids || [];
   const contractorPhase1Bid = allPhaseOneBids?.find((bid: any) => bid?.userId === user?.id);
@@ -203,12 +222,27 @@ export default function AuctionDetailsPage() {
     }
   });
 
-  const handleAcceptBid = (contractorId: string, bidAmount: number) => {
-    toast.success("Bid Accepted", {
-      description: `Accepted contractor bid of $${bidAmount.toLocaleString()}`,
-    });
-    console.log("Accepted contractor:", contractorId);
+  const acceptBid = async ({ contractorId }: { contractorId: string }) => {
+    try {
+      const response: any = await apiService.put(`/api/claim/${claimId}/winner`, { winnerId: contractorId });
+      return response?.updatedClaim;
+    } catch (error) {
+      console.log(error);
+    }
   };
+
+  const acceptContractorMutation = useMutation({
+    mutationFn: acceptBid,
+    onSuccess: () => {
+      toast.success("Bid Accepted", {
+        description: `Accepted contractor bid`,
+      });
+    }
+  });
+
+  const handleAcceptBid = (contractorId: string) => {
+    acceptContractorMutation.mutate({ contractorId: contractorId });
+  }
 
   // Mutations
   const handleAskVendleAI = async () => {
@@ -424,6 +458,7 @@ export default function AuctionDetailsPage() {
             selectedForPhase2={selectedForPhase2}
             onTogglePhase2Selection={handleTogglePhase2Selection}
             onAcceptBid={handleAcceptBid}
+            disableAccept={acceptContractorMutation?.isPending}
             onAskAI={() => askVendleAIMutation.mutate()}
             onCreatePhase2={() => createPhaseTwoAuctionMutation.mutate()}
             isAskingAI={askVendleAIMutation.isPending}

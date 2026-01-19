@@ -5,6 +5,7 @@ import { Badge } from "@/components/ui/badge";
 import { Mail, Phone, Check } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { ContractorBidCardProps } from "../types";
+import { useCreateCheckoutSession } from "@/hooks/usePayment";
 
 export function ContractorBidCard({
   bid,
@@ -12,8 +13,19 @@ export function ContractorBidCard({
   isPhase1,
   isSelected,
   onToggleSelection,
-  onAccept
+  onAccept,
+  disableAccept,
+  claimId
 }: ContractorBidCardProps) {
+  const createCheckoutSession = useCreateCheckoutSession();
+
+  const handleAcceptBid = () => {
+    createCheckoutSession.mutate({
+      bidId: bid?.id || "",
+      claimId
+    });
+  }
+
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
@@ -140,7 +152,8 @@ export function ContractorBidCard({
               // Phase 2: Accept Bid
               <Button
                 size="sm"
-                onClick={onAccept}
+                onClick={handleAcceptBid}
+                disabled={createCheckoutSession.isPending}
                 className="w-full bg-[#4A637D] hover:bg-[#4A637D]/90 text-white font-bold shadow-lg hover:shadow-xl"
               >
                 <Check className="w-4 h-4 mr-2" />
