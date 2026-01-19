@@ -14,7 +14,8 @@ export function HomeownerView({
   onAskAI,
   onCreatePhase2,
   isAskingAI,
-  isCreatingPhase2
+  isCreatingPhase2,
+  disableAccept
 }: HomeownerViewProps) {
   return (
     <div className="space-y-8">
@@ -42,6 +43,8 @@ export function HomeownerView({
           selectedForPhase2={selectedForPhase2}
           onTogglePhase2Selection={onTogglePhase2Selection}
           onAcceptBid={onAcceptBid}
+          disableAccept={disableAccept}
+          claimId={auction.claimId}
         />
       </div>
     </div>

@@ -262,4 +262,26 @@ router.put("/:claimId", async (req: any, res: any) => {
   return res.status(200).json({ claim: updatedClaim });
 });
 
+router.put("/:claimId/winner", async (req: any, res: any) => {
+  const user = req?.user;
+  if (!user) {
+    return res.status(401).json({ error: "Not authorized" });
+  }
+
+  const { claimId } = req.params;
+  const { winnerId } = req.body;
+
+  const updatedClaim = await prisma.claim.update({
+    where: {
+      id: claimId
+    },
+    data: {
+      winnerId: winnerId,
+      status: "CLOSED"
+    }
+  });
+
+  return res.status(200).json({ updatedClaim });
+});
+
 export default router;
