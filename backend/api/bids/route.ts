@@ -76,6 +76,7 @@ router.get('/:auctionId', async (req: any, res) => {
     }) || [];
 
     const expandedBidInfo = bids?.map((bid) => ({
+      id: bid.id,
       contractor_id: bid?.userId,
       contractor_name: '',
       bid_amount: bid?.amount,

@@ -92,7 +92,9 @@ router.post("/create-checkout-session", async (req: any, res) => {
         });
 
         await prisma.payment.upsert({
-            where: { id: existingPayment?.id || "new-payment" },
+            where: {
+                stripeSessionId: session.id,
+            },
             create: {
                 bidId,
                 claimId,
@@ -102,13 +104,13 @@ router.post("/create-checkout-session", async (req: any, res) => {
                 bidAmount: bid.amount,
                 platformFee: bid.amount * 0.05,
                 stripeSessionId: session.id,
-                status: "PENDING"
+                status: "PENDING",
             },
             update: {
-                stripeSessionId: session.id,
-                status: "PENDING"
-            }
+                status: "PENDING",
+            },
         });
+
 
         return res.status(200).json({ checkoutUrl: session.url });
     } catch (error) {
