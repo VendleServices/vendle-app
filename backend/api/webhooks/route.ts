@@ -78,12 +78,22 @@ router.post("/calendly", async (req: any, res) => {
     }
 });
 
+// Milestone percentages configuration
+const MILESTONE_CONFIG: Record<string, { percentage: number; label: string; order: number }> = {
+    DOWN_PAYMENT: { percentage: 0.20, label: "Down Payment", order: 1 },
+    STAGE_1: { percentage: 0.20, label: "Stage 1", order: 2 },
+    STAGE_2: { percentage: 0.20, label: "Stage 2", order: 3 },
+    FINAL_STAGE: { percentage: 0.30, label: "Final Stage", order: 4 },
+    RETAINAGE: { percentage: 0.10, label: "Retainage", order: 5 },
+};
+
 async function handleCheckoutCompleted(session: Stripe.Checkout.Session) {
-    const { bidId, claimId, contractorId } = session.metadata || {}
+    const { bidId, claimId, contractorId, milestoneStage = "DOWN_PAYMENT" } = session.metadata || {}
 
     if (!bidId || !claimId) return;
 
     await prisma.$transaction(async (tx) => {
+        // Update payment status
         await tx.payment.updateMany({
             where: {
                 stripeSessionId: session.id
@@ -95,42 +105,101 @@ async function handleCheckoutCompleted(session: Stripe.Checkout.Session) {
             }
         });
 
-        await tx.claim.update({
-            where: {
-                id: claimId
-            },
-            data: {
-                winnerId: contractorId,
-                status: "CLOSED"
-            }
-        });
+        // Check if this is the first payment (DOWN_PAYMENT creates the project)
+        const isFirstPayment = milestoneStage === "DOWN_PAYMENT";
 
-        const bid = await tx.bid.findUnique({
-            where: { id: bidId },
-            include: { auctionPhase: true },
-        });
-
-        if (bid?.auctionPhaseId) {
-            await tx.auctionPhase.update({
-                where: { id: bid.auctionPhaseId },
-                data: { status: "CLOSED" }
+        if (isFirstPayment) {
+            // Close the claim and auction
+            await tx.claim.update({
+                where: {
+                    id: claimId
+                },
+                data: {
+                    winnerId: contractorId,
+                    status: "CLOSED"
+                }
             });
+
+            const bid = await tx.bid.findUnique({
+                where: { id: bidId },
+                include: { auctionPhase: true },
+            });
+
+            if (bid?.auctionPhaseId) {
+                await tx.auctionPhase.update({
+                    where: { id: bid.auctionPhaseId },
+                    data: { status: "CLOSED" }
+                });
+            }
+
+            // Create the project
+            const project = await tx.project.create({
+                data: {
+                    claimId,
+                    contractorId: contractorId!,
+                    status: "ACTIVE",
+                }
+            });
+
+            // Create all milestones for the project
+            const bidAmount = bid?.amount || 0;
+            const milestoneData = Object.entries(MILESTONE_CONFIG).map(([stage, config]) => ({
+                projectId: project.id,
+                stage: stage as any,
+                percentage: config.percentage,
+                amount: bidAmount * config.percentage,
+                status: stage === "DOWN_PAYMENT" ? "PAID" as const : (stage === "STAGE_1" ? "CURRENT" as const : "PENDING" as const),
+                paidAt: stage === "DOWN_PAYMENT" ? new Date() : null,
+            }));
+
+            for (const milestone of milestoneData) {
+                await tx.paymentMilestone.create({ data: milestone });
+            }
+
+            await tx.claimParticipant.updateMany({
+                where: { claimId, userId: contractorId },
+                data: {
+                    status: "APPROVED"
+                }
+            });
+        } else {
+            // Update the milestone status for subsequent payments
+            const project = await tx.project.findUnique({
+                where: { claimId }
+            });
+
+            if (project) {
+                // Mark current milestone as paid
+                await tx.paymentMilestone.updateMany({
+                    where: {
+                        projectId: project.id,
+                        stage: milestoneStage as any
+                    },
+                    data: {
+                        status: "PAID",
+                        paidAt: new Date()
+                    }
+                });
+
+                // Find and set the next milestone as current
+                const stageOrder = MILESTONE_CONFIG[milestoneStage]?.order || 0;
+                const nextStage = Object.entries(MILESTONE_CONFIG).find(
+                    ([_, config]) => config.order === stageOrder + 1
+                );
+
+                if (nextStage) {
+                    await tx.paymentMilestone.updateMany({
+                        where: {
+                            projectId: project.id,
+                            stage: nextStage[0] as any
+                        },
+                        data: {
+                            status: "CURRENT"
+                        }
+                    });
+                }
+            }
         }
-
-        await tx.project.create({
-            data: {
-                claimId,
-                contractorId: contractorId!,
-                status: "ACTIVE",
-            }
-        });
-
-        await tx.claimParticipant.updateMany({
-            where: { claimId, userId: contractorId },
-            data: {
-                status: "APPROVED"
-            }
-        });
     });
 }
 

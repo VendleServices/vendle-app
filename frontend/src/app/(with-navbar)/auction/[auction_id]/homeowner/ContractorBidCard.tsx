@@ -1,11 +1,13 @@
+import { useState } from "react";
 import { motion } from "framer-motion";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Mail, Phone, Check } from "lucide-react";
+import { Mail, Phone, Check, ChevronDown, ChevronUp } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { ContractorBidCardProps } from "../types";
 import { useCreateCheckoutSession } from "@/hooks/usePayment";
+import { PaymentBreakdown } from "@/components/PaymentBreakdown";
 
 export function ContractorBidCard({
   bid,
@@ -17,14 +19,19 @@ export function ContractorBidCard({
   disableAccept,
   claimId
 }: ContractorBidCardProps) {
+  const [showBreakdown, setShowBreakdown] = useState(false);
   const createCheckoutSession = useCreateCheckoutSession();
 
   const handleAcceptBid = () => {
     createCheckoutSession.mutate({
       bidId: bid?.id || "",
-      claimId
+      claimId,
+      milestoneStage: "DOWN_PAYMENT"
     });
-  }
+  };
+
+  const downPaymentAmount = bid.bid_amount * 0.20;
+  const downPaymentWithFee = downPaymentAmount * 1.05;
 
   return (
     <motion.div
@@ -124,7 +131,39 @@ export function ContractorBidCard({
                 <Badge className="bg-vendle-teal text-white">Lowest Bid</Badge>
               )}
             </div>
+
+            {/* Payment Breakdown Toggle - Only in Phase 2 */}
+            {!isPhase1 && (
+              <button
+                onClick={() => setShowBreakdown(!showBreakdown)}
+                className="flex items-center gap-1 text-sm text-vendle-blue hover:text-vendle-blue/80 font-medium mt-2"
+              >
+                {showBreakdown ? (
+                  <>
+                    <ChevronUp className="w-4 h-4" />
+                    Hide Payment Breakdown
+                  </>
+                ) : (
+                  <>
+                    <ChevronDown className="w-4 h-4" />
+                    View Payment Breakdown
+                  </>
+                )}
+              </button>
+            )}
           </div>
+
+          {/* Payment Breakdown - Expandable in Phase 2 */}
+          {!isPhase1 && showBreakdown && (
+            <div className="pt-2">
+              <PaymentBreakdown
+                baseAmount={bid.bid_amount}
+                currentStage="DOWN_PAYMENT"
+                paidStages={[]}
+                compact
+              />
+            </div>
+          )}
 
           {/* Action button */}
           <div className="pt-2">
@@ -149,16 +188,23 @@ export function ContractorBidCard({
                 {isSelected ? "Selected for Phase 2" : "Select for Phase 2"}
               </Button>
             ) : (
-              // Phase 2: Accept Bid
-              <Button
-                size="sm"
-                onClick={handleAcceptBid}
-                disabled={createCheckoutSession.isPending}
-                className="w-full bg-[#4A637D] hover:bg-[#4A637D]/90 text-white font-bold shadow-lg hover:shadow-xl"
-              >
-                <Check className="w-4 h-4 mr-2" />
-                Accept Bid
-              </Button>
+              // Phase 2: Accept Bid - Pay Down Payment
+              <div className="space-y-2">
+                <Button
+                  size="sm"
+                  onClick={handleAcceptBid}
+                  disabled={createCheckoutSession.isPending}
+                  className="w-full bg-[#4A637D] hover:bg-[#4A637D]/90 text-white font-bold shadow-lg hover:shadow-xl"
+                >
+                  <Check className="w-4 h-4 mr-2" />
+                  {createCheckoutSession.isPending
+                    ? "Processing..."
+                    : `Pay Down Payment ($${Math.round(downPaymentWithFee).toLocaleString()})`}
+                </Button>
+                <p className="text-xs text-center text-muted-foreground">
+                  20% of bid + 5% service fee
+                </p>
+              </div>
             )}
           </div>
         </div>
