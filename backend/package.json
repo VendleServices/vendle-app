@@ -17,8 +17,6 @@
   "dependencies": {
     "@google-cloud/documentai": "^9.4.0",
     "@prisma/client": "^6.9.0",
-    "@react-three/drei": "^10.5.0",
-    "@react-three/fiber": "^9.2.0",
     "@supabase/ssr": "^0.6.1",
     "@supabase/supabase-js": "^2.49.9",
     "axios": "^1.13.2",
@@ -34,13 +32,11 @@
     "ioredis": "^5.8.2",
     "jsonwebtoken": "^9.0.2",
     "multer": "^2.0.2",
-    "next": "^15.4.6",
     "openai": "^6.5.0",
     "pdf-parse-new": "^2.0.0",
     "pg": "^8.14.1",
     "resend": "^6.6.0",
-    "stripe": "^20.2.0",
-    "three": "^0.178.0"
+    "stripe": "^20.2.0"
   },
   "devDependencies": {
     "@types/cors": "^2.8.17",
