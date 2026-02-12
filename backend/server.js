@@ -39,7 +39,6 @@ const CONTRACTOR_ANALYSIS_URL = 'http://localhost:8001'
 
 // Middleware
 app.use(cors({
-  origin: ['http://localhost:3000', 'http://127.0.0.1:3000'],
   credentials: false, // setting to false cuz we are using jwt tokens instead of cookies
 }));
 app.use(cookieParser());
