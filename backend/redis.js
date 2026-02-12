@@ -4,7 +4,14 @@ dotenv.config();
 
 const redisOptions = {
     maxRetriesPerRequest: null,
-    enableReadyCheck: false
+    enableReadyCheck: false,
+    retryStrategy: (times) => {
+        if (times > 3) {
+            console.error('Redis connection failed after 3 retries');
+            return null; // Stop retrying
+        }
+        return Math.min(times * 200, 2000);
+    }
 };
 
 export const redis = process.env.REDIS_URL
@@ -15,3 +22,11 @@ export const redis = process.env.REDIS_URL
         password: process.env.REDIS_PASSWORD || undefined,
         ...redisOptions
     });
+
+redis.on('error', (err) => {
+    console.error('Redis connection error:', err.message);
+});
+
+redis.on('connect', () => {
+    console.log('Redis connected successfully');
+});

@@ -13,6 +13,10 @@ const __dirname = dirname(__filename);
 
 dotenv.config();
 
+console.log('Starting server...');
+console.log('REDIS_URL:', process.env.REDIS_URL ? 'Set' : 'Not set');
+console.log('SUPABASE_URL:', process.env.SUPABASE_URL ? 'Set' : 'Not set');
+
 const app = express();
 const PORT = process.env.PORT || 3001;
 const CONTRACTOR_ANALYSIS_URL = 'http://localhost:8001'
