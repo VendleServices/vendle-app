@@ -39,6 +39,7 @@ const CONTRACTOR_ANALYSIS_URL = 'http://localhost:8001'
 
 // Middleware
 app.use(cors({
+  origin: process.env.FRONTEND_URL || 'http://localhost:3000',
   credentials: false, // setting to false cuz we are using jwt tokens instead of cookies
 }));
 app.use(cookieParser());
@@ -136,7 +137,7 @@ app.get('/api/health', (req, res) => {
   res.json({ status: 'OK', timestamp: new Date().toISOString() });
 });
 
-app.listen(PORT, () => {
-  console.log(`🚀 Backend server running on http://localhost:${PORT}`);
-  console.log(`📊 Health check: http://localhost:${PORT}/api/health`);
+app.listen(PORT, '0.0.0.0', () => {
+  console.log(`🚀 Backend server running on port ${PORT}`);
+  console.log(`📊 Health check: /api/health`);
 }); 
