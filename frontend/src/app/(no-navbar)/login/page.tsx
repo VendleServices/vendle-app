@@ -6,7 +6,7 @@ import AuthForm from "@/components/AuthForm"
 import SplashScreen from "@/components/SplashScreen"
 
 export default function LoginPage() {
-  const { user, isLoading } = useAuth()
+  const { user, loading: isLoading } = useAuth()
   const router = useRouter()
 
   useEffect(() => {
