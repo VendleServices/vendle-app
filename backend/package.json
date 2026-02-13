@@ -36,10 +36,10 @@
     "openai": "^6.5.0",
     "pdf-parse-new": "^2.0.0",
     "pg": "^8.14.1",
+    "prisma": "^6.9.0",
     "resend": "^6.6.0",
     "stripe": "^20.2.0",
-    "prisma": "^6.9.0",
-    "tsx": "^4.19.2"
+    "tsx": "^4.21.0"
   },
   "devDependencies": {
     "@types/cors": "^2.8.17",
