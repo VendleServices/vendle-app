@@ -20,6 +20,8 @@ console.log('SUPABASE_URL:', process.env.SUPABASE_URL ? 'Set' : 'Not set');
 const app = express();
 const PORT = process.env.PORT || 3001;
 
+app.set('trust proxy', 1);
+
 // const contractorAnalysisProxy = createProxyMiddleware({
 //   target: CONTRACTOR_ANALYSIS_URL,
 //   changeOrigin: true,
