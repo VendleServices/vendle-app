@@ -8,6 +8,9 @@ const __dirname = path.dirname(__filename);
 const nextConfig = {
   basePath: '', // Set to empty string for root path
 
+  // Use webpack instead of turbopack for custom webpack config compatibility
+  turbopack: {},
+
   // Enable SWC minification for faster builds
   swcMinify: true,
 
