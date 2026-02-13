@@ -34,20 +34,20 @@ const OnboardingCard = ({
 }: OnboardingCardProps) => {
   const cardVariants = {
     hidden: { opacity: 0, scale: 0.98, y: 20 },
-    visible: { 
-      opacity: 1, 
-      scale: 1, 
+    visible: {
+      opacity: 1,
+      scale: 1,
       y: 0,
-      transition: { 
-        type: "spring", 
-        stiffness: 300, 
-        damping: 30, 
-        duration: 0.4 
+      transition: {
+        type: "spring" as const,
+        stiffness: 300,
+        damping: 30,
+        duration: 0.4
       }
     },
-    exit: { 
-      opacity: 0, 
-      scale: 0.98, 
+    exit: {
+      opacity: 0,
+      scale: 0.98,
       y: -20,
       transition: { duration: 0.3 }
     }
@@ -55,12 +55,12 @@ const OnboardingCard = ({
 
   const contentVariants = {
     hidden: { opacity: 0, x: 20 },
-    visible: { 
-      opacity: 1, 
+    visible: {
+      opacity: 1,
       x: 0,
-      transition: { 
-        type: "spring", 
-        stiffness: 300, 
+      transition: {
+        type: "spring" as const,
+        stiffness: 300,
         damping: 30,
         delay: 0.2
       }
