@@ -1,3 +1,5 @@
+"use client"
+
 import SmartBidComparison from "@/components/SmartBidComparison";
 import { PageTransition } from "@/lib/transitions";
 

@@ -1,3 +1,5 @@
+"use client"
+
 import AgentTab from "@/components/AgentTab";
 import { PageTransition } from "@/lib/transitions";
 
