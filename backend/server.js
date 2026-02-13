@@ -19,7 +19,6 @@ console.log('SUPABASE_URL:', process.env.SUPABASE_URL ? 'Set' : 'Not set');
 
 const app = express();
 const PORT = process.env.PORT || 3001;
-const CONTRACTOR_ANALYSIS_URL = 'http://localhost:8001'
 
 // const contractorAnalysisProxy = createProxyMiddleware({
 //   target: CONTRACTOR_ANALYSIS_URL,
