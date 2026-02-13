@@ -109,3 +109,4 @@ prisma/migrations/
 
 # Supabase
 .supabase/
+backend/credentials/service-account.json

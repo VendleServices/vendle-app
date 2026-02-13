@@ -26,8 +26,14 @@ export async function processClaimDocument(filePath: any) {
 
     const fileBuffer = fs.readFileSync(filePath);
 
-    const credentialsPath = path.join(process.cwd(), 'credentials', 'service-account.json');
-    const credentials = JSON.parse(fs.readFileSync(credentialsPath, 'utf8'));
+    // Load credentials from env var (production) or file (local dev)
+    let credentials;
+    if (process.env.GOOGLE_SERVICE_ACCOUNT) {
+        credentials = JSON.parse(process.env.GOOGLE_SERVICE_ACCOUNT);
+    } else {
+        const credentialsPath = path.join(process.cwd(), 'credentials', 'service-account.json');
+        credentials = JSON.parse(fs.readFileSync(credentialsPath, 'utf8'));
+    }
 
     const client = new DocumentProcessorServiceClient({
         credentials: {
