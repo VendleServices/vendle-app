@@ -4,7 +4,7 @@ import { useRouter } from "next/navigation";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/contexts/AuthContext";
-import { MapPin, Calendar, FileText, Clock, LayoutIcon, ShieldQuestionIcon, Loader2, CalendarCheck, Mail, Info, ExternalLink } from "lucide-react";
+import { MapPin, Calendar, FileText, Clock, Layout, ShieldQuestion, Loader2, CalendarCheck, Mail, Info, ExternalLink } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { use } from "react";
 import { useApiService } from "@/services/api";
@@ -262,7 +262,7 @@ export default function ClaimPage({ params }: PageProps) {
                                 </div>
                             </div>
                             <div className="flex items-start gap-3">
-                                <ShieldQuestionIcon className="h-5 w-5 mt-0.5 text-vendle-blue shrink-0" />
+                                <ShieldQuestion className="h-5 w-5 mt-0.5 text-vendle-blue shrink-0" />
                                 <div>
                                     <p className="text-xs font-medium text-muted-foreground mb-1">Functional Utilities</p>
                                     <p className="text-sm text-foreground font-medium">
@@ -275,7 +275,7 @@ export default function ClaimPage({ params }: PageProps) {
                                 </div>
                             </div>
                             <div className="flex items-start gap-3">
-                                <ShieldQuestionIcon className="h-5 w-5 mt-0.5 text-vendle-blue shrink-0" />
+                                <ShieldQuestion className="h-5 w-5 mt-0.5 text-vendle-blue shrink-0" />
                                 <div>
                                     <p className="text-xs font-medium text-muted-foreground mb-1">Dumpster</p>
                                     <p className="text-sm text-foreground font-medium">
@@ -288,7 +288,7 @@ export default function ClaimPage({ params }: PageProps) {
                                 </div>
                             </div>
                             <div className="flex items-start gap-3">
-                                <ShieldQuestionIcon className="h-5 w-5 mt-0.5 text-vendle-blue shrink-0" />
+                                <ShieldQuestion className="h-5 w-5 mt-0.5 text-vendle-blue shrink-0" />
                                 <div>
                                     <p className="text-xs font-medium text-muted-foreground mb-1">Occupied</p>
                                     <p className="text-sm text-foreground font-medium">
@@ -307,14 +307,14 @@ export default function ClaimPage({ params }: PageProps) {
                         <CardHeader className="border-b-2 border-vendle-gray/10 bg-vendle-blue/5">
                             <CardTitle className="text-foreground flex items-center gap-3">
                                 <div className="p-2.5 rounded-xl bg-vendle-blue/15 shadow-sm">
-                                    <LayoutIcon className="h-5 w-5 text-vendle-blue" />
+                                    <Layout className="h-5 w-5 text-vendle-blue" />
                                 </div>
                                 <span className="text-xl">Project Specifications</span>
                             </CardTitle>
                         </CardHeader>
                         <CardContent className="space-y-4 pt-6">
                             <div className="flex items-start gap-3">
-                                <LayoutIcon className="h-5 w-5 mt-0.5 text-vendle-blue shrink-0" />
+                                <Layout className="h-5 w-5 mt-0.5 text-vendle-blue shrink-0" />
                                 <div>
                                     <p className="text-xs font-medium text-muted-foreground mb-1">Project Type</p>
                                     <p className="text-sm text-foreground font-medium">{claim.projectType}</p>
