@@ -18,12 +18,12 @@ export function HomeownerView({
   disableAccept
 }: HomeownerViewProps) {
   return (
-    <div className="space-y-8">
+    <div className="space-y-6">
       {/* Project + auction details */}
       <AuctionDetailsCard auction={auction} />
 
-      {/* Enhanced Bidders Section */}
-      <div className="space-y-6">
+      {/* Bidders Section */}
+      <div className="space-y-4">
         {/* Toolbar */}
         <BiddersToolbar
           bidCount={bids?.length || 0}

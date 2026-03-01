@@ -14,7 +14,7 @@ export default function NavbarLayout({
     return (
         <>
             <Navbar onProtectedAction={() => setShowLoginModal(true)} />
-            <main id ="root">
+            <main id="root" className="pt-14 lg:pt-14">
                 {children}
             </main>
             <LoginModal

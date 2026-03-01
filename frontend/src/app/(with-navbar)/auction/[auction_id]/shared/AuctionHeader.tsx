@@ -1,6 +1,4 @@
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import { Gavel, Wrench, Users, DollarSign, Clock } from "lucide-react";
+import { ArrowLeft, Gavel, Wrench, Users, DollarSign, Clock } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { AuctionHeaderProps } from "../types";
 
@@ -13,94 +11,78 @@ export function AuctionHeader({
   onBack
 }: AuctionHeaderProps) {
   return (
-    <>
-      {/* Top back + title row */}
-      <div className="mb-6 flex items-center justify-between gap-4">
-        <Button
-          variant="ghost"
-          className="h-9 rounded-full px-3 text-sm text-muted-foreground hover:bg-muted"
-          onClick={onBack}
-        >
-          ← Back to Auctions
-        </Button>
-      </div>
+    <div className="mb-6">
+      {/* Back button */}
+      <button
+        onClick={onBack}
+        className="flex items-center gap-1.5 text-xs text-gray-500 hover:text-gray-700 transition-colors mb-4"
+      >
+        <ArrowLeft className="w-3.5 h-3.5" />
+        <span>Back to Auctions</span>
+      </button>
 
-      {/* Enhanced header with gradient background */}
-      <div className="relative overflow-hidden rounded-2xl bg-white border-2 border-vendle-gray/20 shadow-xl mb-8">
-        {/* Subtle background pattern */}
-        <div
-          className="absolute inset-0 opacity-5"
-          style={{
-            backgroundImage: `url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%234A637D' fill-opacity='1'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")`,
-          }}
-        />
-
-        <div className="relative p-8 lg:p-10">
-          <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6">
-            {/* Left: Title & metadata */}
-            <div className="space-y-4">
-              <div className="flex items-center gap-2">
-                <Badge variant="outline" className="uppercase tracking-wider text-xs font-bold text-vendle-blue border-vendle-blue/30 bg-vendle-blue/5">
-                  <Gavel className="w-3 h-3 mr-1" />
-                  Live Auction
-                </Badge>
-                {/* Phase indicator */}
-                <Badge
-                  className={cn(
-                    "uppercase tracking-wider text-xs font-bold",
-                    isPhase1 ? "bg-[#4A637D] text-white" : "bg-[#5A9E8B] text-white"
-                  )}
-                >
-                  Phase {auction?.number || 1}
-                </Badge>
-              </div>
-
-              <h1 className="text-4xl lg:text-5xl font-bold tracking-tight text-foreground">
-                {auction.title}
-              </h1>
-
-              {auction.reconstructionType && (
-                <div className="flex items-center gap-2 text-lg text-muted-foreground">
-                  <Wrench className="w-5 h-5 text-vendle-blue" />
-                  <span>{auction.reconstructionType}</span>
-                </div>
-              )}
+      {/* Header */}
+      <div className="bg-white border border-gray-200 rounded p-4">
+        <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
+          {/* Left: Title & metadata */}
+          <div className="space-y-1">
+            <div className="flex items-center gap-2">
+              <span className="text-[10px] font-medium text-gray-500 uppercase tracking-wide flex items-center gap-1">
+                <Gavel className="w-3 h-3" />
+                Live Auction
+              </span>
+              <span
+                className={cn(
+                  "text-[10px] font-medium uppercase tracking-wide px-1.5 py-0.5 rounded",
+                  isPhase1 ? "bg-gray-100 text-gray-700" : "bg-vendle-teal/10 text-vendle-teal"
+                )}
+              >
+                Phase {auction?.number || 1}
+              </span>
             </div>
 
-            {/* Right: Stats cards */}
-            <div className="grid grid-cols-2 lg:grid-cols-3 gap-4">
-              {/* Bid count */}
-              <div className="p-4 rounded-xl bg-white/80 backdrop-blur-sm border border-vendle-gray/30 shadow-md">
-                <div className="flex items-center gap-2 text-muted-foreground text-xs mb-1">
-                  <Users className="w-3.5 h-3.5" />
-                  <span className="uppercase tracking-wide font-medium">Bids</span>
-                </div>
-                <p className="text-2xl font-bold text-foreground">{bidsCount || 0}</p>
-              </div>
+            <h1 className="text-lg font-semibold text-gray-900">
+              {auction.title}
+            </h1>
 
-              {/* Lowest bid */}
-              <div className="p-4 rounded-xl bg-vendle-blue/10 border border-vendle-blue/20 shadow-md">
-                <div className="flex items-center gap-2 text-vendle-blue text-xs mb-1">
-                  <DollarSign className="w-3.5 h-3.5" />
-                  <span className="uppercase tracking-wide font-medium">Lowest Bid</span>
-                </div>
-                <p className="text-2xl font-bold text-vendle-blue">
-                  {lowestBid ? `$${lowestBid.toLocaleString()}` : "N/A"}
-                </p>
+            {auction.reconstructionType && (
+              <div className="flex items-center gap-1.5 text-sm text-gray-500">
+                <Wrench className="w-3.5 h-3.5" />
+                <span>{auction.reconstructionType}</span>
               </div>
+            )}
+          </div>
 
-              {/* Status */}
-              <div className="p-4 rounded-xl bg-[#5A9E8B]/10 border border-[#5A9E8B]/30 shadow-md col-span-2 lg:col-span-1">
-                <div className="flex items-center gap-2 text-[#5A9E8B] text-xs mb-1">
-                  <Clock className="w-3.5 h-3.5" />
-                  <span className="uppercase tracking-wide font-medium">Status</span>
-                </div>
-                <p className="text-lg font-bold text-[#2C3E50] capitalize">{auction.status}</p>
+          {/* Right: Stats */}
+          <div className="flex items-center gap-3">
+            <div className="px-3 py-2 rounded bg-gray-50 border border-gray-100">
+              <div className="flex items-center gap-1.5 text-[10px] text-gray-500 mb-0.5">
+                <Users className="w-3 h-3" />
+                <span className="uppercase tracking-wide">Bids</span>
               </div>
+              <p className="text-sm font-semibold text-gray-900">{bidsCount || 0}</p>
+            </div>
+
+            <div className="px-3 py-2 rounded bg-vendle-blue/5 border border-vendle-blue/10">
+              <div className="flex items-center gap-1.5 text-[10px] text-vendle-blue mb-0.5">
+                <DollarSign className="w-3 h-3" />
+                <span className="uppercase tracking-wide">Lowest</span>
+              </div>
+              <p className="text-sm font-semibold text-vendle-blue">
+                {lowestBid ? `$${lowestBid.toLocaleString()}` : "N/A"}
+              </p>
+            </div>
+
+            <div className="px-3 py-2 rounded bg-vendle-teal/5 border border-vendle-teal/10">
+              <div className="flex items-center gap-1.5 text-[10px] text-vendle-teal mb-0.5">
+                <Clock className="w-3 h-3" />
+                <span className="uppercase tracking-wide">Status</span>
+              </div>
+              <p className="text-sm font-semibold text-gray-900 capitalize">{auction.status}</p>
             </div>
           </div>
         </div>
       </div>
-    </>
+    </div>
   );
 }

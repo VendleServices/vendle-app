@@ -1,19 +1,19 @@
 "use client";
 
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/contexts/AuthContext";
-import { MapPin, Calendar, FileText, Clock, Layout, ShieldQuestion, Loader2, CalendarCheck, Mail, Info, ExternalLink } from "lucide-react";
+import { MapPin, Calendar, FileText, Clock, Layout, Loader2, CalendarCheck, Mail, Info, MessageSquare, Zap, Trash2, Home, Image as ImageIcon } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { use } from "react";
 import { useApiService } from "@/services/api";
 import { createClient } from "@/auth/client";
 import Image from "next/image";
-import { motion } from "framer-motion";
 import { ClaimHeader } from "./shared/ClaimHeader";
 import { RAGChatbot } from "@/components/RAGChatbot";
 import { useGetHomeownerAvailability, useStartBooking } from "@/hooks/useBooking";
+import MessagingDrawer from "@/components/MessagingDrawer";
 
 interface PageProps {
     params: Promise<{
@@ -25,12 +25,14 @@ export default function ClaimPage({ params }: PageProps) {
     const { claimId } = use(params);
     const apiService = useApiService();
     const router = useRouter();
-    const { user } = useAuth();
+    const { user, isLoggedIn, loading: authLoading } = useAuth();
     const supabase = createClient();
 
-    if (!user) {
-        router.push("/login");
-    }
+    useEffect(() => {
+        if (!authLoading && !isLoggedIn) {
+            router.push("/login");
+        }
+    }, [isLoggedIn, authLoading, router]);
 
     const fetchClaim = async () => {
         const response: any = await apiService.get(`/api/claim/${claimId}`);
@@ -78,13 +80,12 @@ export default function ClaimPage({ params }: PageProps) {
     });
 
     const isContractor = user?.user_metadata?.userType === "contractor";
+    const [showMessaging, setShowMessaging] = useState(false);
 
-    // Fetch homeowner availability for contractors
     const { data: homeownerAvailability, isLoading: availabilityLoading } = useGetHomeownerAvailability(
         isContractor ? claim?.userId : null
     );
 
-    // Booking mutation for contractors
     const startBookingMutation = useStartBooking();
 
     const handleScheduleSiteVisit = () => {
@@ -95,10 +96,8 @@ export default function ClaimPage({ params }: PageProps) {
         });
     };
 
-    // Get homeowner email from claim
     const homeownerEmail = claim?.user?.email;
 
-    // Helper to format day
     const getDayLabel = (dayOfWeek: number): string => {
         const days: Record<number, string> = {
             1: 'Monday', 2: 'Tuesday', 3: 'Wednesday', 4: 'Thursday',
@@ -107,7 +106,6 @@ export default function ClaimPage({ params }: PageProps) {
         return days[dayOfWeek] || 'Unknown';
     };
 
-    // Helper to format time
     const formatTime = (time: string) => {
         const [hours, minutes] = time.split(':');
         const hour = parseInt(hours, 10);
@@ -116,327 +114,322 @@ export default function ClaimPage({ params }: PageProps) {
         return `${displayHour}:${minutes} ${ampm}`;
     };
 
-    // Loading state
     if (isLoading) {
         return (
-            <div className="flex min-h-screen items-center justify-center bg-muted/30 lg:pl-32">
-                <div className="space-y-4 text-center">
-                    <Loader2 className="mx-auto h-12 w-12 animate-spin text-[#4A637D]" />
-                    <p className="text-lg text-foreground">Loading project details...</p>
+            <div className="flex min-h-screen items-center justify-center bg-white">
+                <div className="text-center">
+                    <Loader2 className="mx-auto h-8 w-8 animate-spin text-gray-400" />
+                    <p className="text-sm text-gray-500 mt-2">Loading project...</p>
                 </div>
             </div>
         );
     }
 
-    // Not found state
     if (!claim) {
         return (
-            <div className="flex min-h-screen flex-col items-center justify-center bg-muted/30 lg:pl-32">
-                <Card className="border-border bg-card p-6 sm:p-8 text-center shadow-md">
-                    <p className="mb-4 text-xl font-semibold text-foreground">Project not found.</p>
+            <div className="flex min-h-screen flex-col items-center justify-center bg-white">
+                <div className="text-center">
+                    <p className="text-sm font-medium text-gray-900 mb-3">Project not found</p>
                     <Button
-                        className="mt-2 bg-[#4A637D] text-white hover:bg-[#4A637D]/90"
                         onClick={() => router.push("/home")}
+                        className="h-9 px-4 text-sm bg-vendle-blue text-white hover:bg-vendle-blue/90"
                     >
                         Go to Home
                     </Button>
-                </Card>
+                </div>
             </div>
         );
     }
 
     return (
-        <div className="min-h-screen bg-muted/30 lg:pl-32">
-            <main className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-6 sm:py-10">
-                {/* Claim Header */}
+        <div className="min-h-screen bg-gray-50/50">
+            <main className="max-w-5xl mx-auto px-4 py-6">
                 <ClaimHeader
                     claim={claim}
                     onBack={() => router.push("/home")}
                 />
 
-                {/* Schedule Site Visit - Contractors Only */}
-                {isContractor && (
-                    <Card className="shadow-lg border-2 border-vendle-teal/30 hover:shadow-xl hover:border-vendle-teal/50 transition-all duration-300 bg-gradient-to-r from-vendle-teal/5 to-vendle-blue/5 mb-6">
-                        <CardHeader className="border-b border-vendle-teal/20 pb-4">
-                            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-                                <div className="flex items-center gap-4">
-                                    <div className="p-3 rounded-xl bg-vendle-teal/15 shadow-sm">
-                                        <CalendarCheck className="h-6 w-6 text-vendle-teal" />
-                                    </div>
-                                    <div>
-                                        <h3 className="text-lg font-bold text-foreground">Schedule a Site Visit</h3>
-                                        <p className="text-sm text-muted-foreground">
-                                            Visit the property to provide an accurate estimate for this project
-                                        </p>
-                                    </div>
+                {/* Message Homeowner - Contractors Only */}
+                {isContractor && claim?.userId && (
+                    <div className="bg-white border border-gray-200 rounded p-4 mb-4">
+                        <div className="flex items-center justify-between gap-4">
+                            <div className="flex items-center gap-3">
+                                <div className="w-9 h-9 rounded bg-vendle-blue/10 flex items-center justify-center">
+                                    <MessageSquare className="h-4 w-4 text-vendle-blue" />
                                 </div>
-                                <Button
-                                    onClick={handleScheduleSiteVisit}
-                                    disabled={startBookingMutation.isPending || !homeownerAvailability?.length}
-                                    className="bg-vendle-teal hover:bg-vendle-teal/90 text-white font-semibold px-6 py-2 shadow-md hover:shadow-lg transition-all"
-                                >
-                                    <Calendar className="h-4 w-4 mr-2" />
-                                    {startBookingMutation.isPending ? 'Opening Calendly...' : 'Schedule Visit'}
-                                </Button>
-                            </div>
-                        </CardHeader>
-                        <CardContent className="pt-4 space-y-4">
-                            {/* Important Notice */}
-                            <div className="flex items-start gap-3 p-3 bg-amber-50 border border-amber-200 rounded-lg">
-                                <Info className="h-5 w-5 text-amber-600 shrink-0 mt-0.5" />
-                                <div className="text-sm">
-                                    <p className="font-medium text-amber-800">Important: Add Homeowner as Guest</p>
-                                    <p className="text-amber-700 mt-1">
-                                        When scheduling, please add the homeowner&apos;s email as a guest so they receive the calendar invite.
-                                    </p>
+                                <div>
+                                    <h3 className="text-sm font-medium text-gray-900">Message Homeowner</h3>
+                                    <p className="text-xs text-gray-500">Send a direct message</p>
                                 </div>
                             </div>
-
-                            {/* Homeowner Email */}
-                            {homeownerEmail && (
-                                <div className="flex items-center gap-3 p-3 bg-white border border-vendle-gray/20 rounded-lg">
-                                    <Mail className="h-5 w-5 text-vendle-blue shrink-0" />
-                                    <div>
-                                        <p className="text-xs font-medium text-muted-foreground">Homeowner Email</p>
-                                        <p className="text-sm font-semibold text-foreground">{homeownerEmail}</p>
-                                    </div>
-                                </div>
-                            )}
-
-                            {/* Homeowner Availability */}
-                            <div className="space-y-2">
-                                <p className="text-sm font-medium text-foreground flex items-center gap-2">
-                                    <Clock className="h-4 w-4 text-vendle-teal" />
-                                    Homeowner&apos;s Available Times
-                                </p>
-                                {availabilityLoading ? (
-                                    <div className="flex items-center justify-center py-4">
-                                        <Loader2 className="h-5 w-5 animate-spin text-vendle-teal" />
-                                    </div>
-                                ) : homeownerAvailability && homeownerAvailability.length > 0 ? (
-                                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                                        {homeownerAvailability.map((slot: any) => (
-                                            <div
-                                                key={slot.id}
-                                                className="flex items-center gap-2 p-2 bg-white border border-vendle-gray/20 rounded-lg text-sm"
-                                            >
-                                                <Calendar className="h-4 w-4 text-vendle-teal shrink-0" />
-                                                <span className="font-medium">{getDayLabel(slot.dayOfWeek)}:</span>
-                                                <span className="text-muted-foreground">
-                                                    {formatTime(slot.startTime)} - {formatTime(slot.endTime)}
-                                                </span>
-                                            </div>
-                                        ))}
-                                    </div>
-                                ) : (
-                                    <div className="p-3 bg-gray-50 border border-gray-200 rounded-lg text-center">
-                                        <p className="text-sm text-muted-foreground">
-                                            The homeowner has not set their availability yet.
-                                        </p>
-                                    </div>
-                                )}
-                            </div>
-                        </CardContent>
-                    </Card>
+                            <Button
+                                onClick={() => setShowMessaging(true)}
+                                className="h-8 px-3 text-xs bg-vendle-blue hover:bg-vendle-blue/90 text-white"
+                            >
+                                <MessageSquare className="h-3.5 w-3.5 mr-1.5" />
+                                Message
+                            </Button>
+                        </div>
+                    </div>
                 )}
 
-                {/* Claim Info */}
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
-                    <Card className="shadow-lg border-2 border-vendle-gray/20 hover:shadow-xl hover:border-vendle-blue/30 transition-all duration-300 bg-white">
-                        <CardHeader className="border-b-2 border-vendle-gray/10 bg-vendle-blue/5">
-                            <CardTitle className="text-foreground flex items-center gap-3">
-                                <div className="p-2.5 rounded-xl bg-vendle-blue/15 shadow-sm">
-                                    <MapPin className="h-5 w-5 text-vendle-blue" />
+                {/* Schedule Site Visit - Contractors Only */}
+                {isContractor && (
+                    <div className="bg-white border border-gray-200 rounded p-4 mb-4">
+                        <div className="flex items-center justify-between gap-4 mb-3">
+                            <div className="flex items-center gap-3">
+                                <div className="w-9 h-9 rounded bg-vendle-teal/10 flex items-center justify-center">
+                                    <CalendarCheck className="h-4 w-4 text-vendle-teal" />
                                 </div>
-                                <span className="text-xl">Property Info</span>
-                            </CardTitle>
-                        </CardHeader>
-                        <CardContent className="space-y-4 pt-6">
-                            <div className="flex items-start gap-3 group">
-                                <MapPin className="h-5 w-5 mt-0.5 text-vendle-blue shrink-0" />
                                 <div>
-                                    <p className="text-xs font-medium text-muted-foreground mb-1">Property Address</p>
-                                    <p className="text-sm text-foreground">
+                                    <h3 className="text-sm font-medium text-gray-900">Schedule Site Visit</h3>
+                                    <p className="text-xs text-gray-500">Visit the property for an accurate estimate</p>
+                                </div>
+                            </div>
+                            <Button
+                                onClick={handleScheduleSiteVisit}
+                                disabled={startBookingMutation.isPending || !homeownerAvailability?.length}
+                                className="h-8 px-3 text-xs bg-vendle-teal hover:bg-vendle-teal/90 text-white disabled:opacity-50"
+                            >
+                                <Calendar className="h-3.5 w-3.5 mr-1.5" />
+                                {startBookingMutation.isPending ? 'Opening...' : 'Schedule'}
+                            </Button>
+                        </div>
+
+                        {/* Notice */}
+                        <div className="flex items-start gap-2 p-2 bg-amber-50 border border-amber-200 rounded text-xs mb-3">
+                            <Info className="h-3.5 w-3.5 text-amber-600 shrink-0 mt-0.5" />
+                            <p className="text-amber-700">
+                                Add the homeowner&apos;s email as a guest when scheduling.
+                            </p>
+                        </div>
+
+                        {/* Homeowner Email */}
+                        {homeownerEmail && (
+                            <div className="flex items-center gap-2 p-2 bg-gray-50 rounded border border-gray-100 mb-3">
+                                <Mail className="h-3.5 w-3.5 text-gray-400" />
+                                <div>
+                                    <p className="text-[10px] text-gray-500">Homeowner Email</p>
+                                    <p className="text-xs font-medium text-gray-900">{homeownerEmail}</p>
+                                </div>
+                            </div>
+                        )}
+
+                        {/* Availability */}
+                        <div>
+                            <p className="text-xs font-medium text-gray-700 mb-2 flex items-center gap-1.5">
+                                <Clock className="h-3.5 w-3.5 text-vendle-teal" />
+                                Available Times
+                            </p>
+                            {availabilityLoading ? (
+                                <div className="flex items-center justify-center py-3">
+                                    <Loader2 className="h-4 w-4 animate-spin text-gray-400" />
+                                </div>
+                            ) : homeownerAvailability && homeownerAvailability.length > 0 ? (
+                                <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+                                    {homeownerAvailability.map((slot: any) => (
+                                        <div
+                                            key={slot.id}
+                                            className="flex items-center gap-1.5 p-2 bg-gray-50 border border-gray-100 rounded text-xs"
+                                        >
+                                            <Calendar className="h-3 w-3 text-vendle-teal shrink-0" />
+                                            <span className="font-medium">{getDayLabel(slot.dayOfWeek)}:</span>
+                                            <span className="text-gray-500">
+                                                {formatTime(slot.startTime)} - {formatTime(slot.endTime)}
+                                            </span>
+                                        </div>
+                                    ))}
+                                </div>
+                            ) : (
+                                <p className="text-xs text-gray-500 p-2 bg-gray-50 rounded text-center">
+                                    No availability set yet.
+                                </p>
+                            )}
+                        </div>
+                    </div>
+                )}
+
+                {/* Info Cards Grid */}
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-4">
+                    {/* Property Info */}
+                    <div className="bg-white border border-gray-200 rounded">
+                        <div className="px-4 py-3 border-b border-gray-100">
+                            <h3 className="text-sm font-medium text-gray-900 flex items-center gap-2">
+                                <MapPin className="h-4 w-4 text-vendle-blue" />
+                                Property Info
+                            </h3>
+                        </div>
+                        <div className="p-4 space-y-3">
+                            <div className="flex items-start gap-3">
+                                <MapPin className="h-4 w-4 mt-0.5 text-gray-400 shrink-0" />
+                                <div>
+                                    <p className="text-[10px] text-gray-500 uppercase tracking-wide">Address</p>
+                                    <p className="text-sm text-gray-900">
                                         {claim.street}, {claim.city}, {claim.state} {claim.zipCode}
                                     </p>
                                 </div>
                             </div>
                             <div className="flex items-start gap-3">
-                                <ShieldQuestion className="h-5 w-5 mt-0.5 text-vendle-blue shrink-0" />
+                                <Zap className="h-4 w-4 mt-0.5 text-gray-400 shrink-0" />
                                 <div>
-                                    <p className="text-xs font-medium text-muted-foreground mb-1">Functional Utilities</p>
-                                    <p className="text-sm text-foreground font-medium">
-                                        {claim.hasFunctionalUtilities ? (
-                                            <span className="text-vendle-blue">Yes</span>
-                                        ) : (
-                                            <span className="text-muted-foreground">No</span>
-                                        )}
+                                    <p className="text-[10px] text-gray-500 uppercase tracking-wide">Utilities</p>
+                                    <p className="text-sm text-gray-900">
+                                        {claim.hasFunctionalUtilities ? "Functional" : "Not functional"}
                                     </p>
                                 </div>
                             </div>
                             <div className="flex items-start gap-3">
-                                <ShieldQuestion className="h-5 w-5 mt-0.5 text-vendle-blue shrink-0" />
+                                <Trash2 className="h-4 w-4 mt-0.5 text-gray-400 shrink-0" />
                                 <div>
-                                    <p className="text-xs font-medium text-muted-foreground mb-1">Dumpster</p>
-                                    <p className="text-sm text-foreground font-medium">
-                                        {claim.hasDumpster ? (
-                                            <span className="text-vendle-blue">Yes</span>
-                                        ) : (
-                                            <span className="text-muted-foreground">No</span>
-                                        )}
+                                    <p className="text-[10px] text-gray-500 uppercase tracking-wide">Dumpster</p>
+                                    <p className="text-sm text-gray-900">
+                                        {claim.hasDumpster ? "Available" : "Not available"}
                                     </p>
                                 </div>
                             </div>
                             <div className="flex items-start gap-3">
-                                <ShieldQuestion className="h-5 w-5 mt-0.5 text-vendle-blue shrink-0" />
+                                <Home className="h-4 w-4 mt-0.5 text-gray-400 shrink-0" />
                                 <div>
-                                    <p className="text-xs font-medium text-muted-foreground mb-1">Occupied</p>
-                                    <p className="text-sm text-foreground font-medium">
-                                        {claim.isOccupied ? (
-                                            <span className="text-vendle-blue">Yes</span>
-                                        ) : (
-                                            <span className="text-muted-foreground">No</span>
-                                        )}
+                                    <p className="text-[10px] text-gray-500 uppercase tracking-wide">Occupied</p>
+                                    <p className="text-sm text-gray-900">
+                                        {claim.isOccupied ? "Yes" : "No"}
                                     </p>
                                 </div>
                             </div>
-                        </CardContent>
-                    </Card>
+                        </div>
+                    </div>
 
-                    <Card className="shadow-lg border-2 border-vendle-gray/20 hover:shadow-xl hover:border-vendle-blue/30 transition-all duration-300 bg-white">
-                        <CardHeader className="border-b-2 border-vendle-gray/10 bg-vendle-blue/5">
-                            <CardTitle className="text-foreground flex items-center gap-3">
-                                <div className="p-2.5 rounded-xl bg-vendle-blue/15 shadow-sm">
-                                    <Layout className="h-5 w-5 text-vendle-blue" />
-                                </div>
-                                <span className="text-xl">Project Specifications</span>
-                            </CardTitle>
-                        </CardHeader>
-                        <CardContent className="space-y-4 pt-6">
+                    {/* Project Specs */}
+                    <div className="bg-white border border-gray-200 rounded">
+                        <div className="px-4 py-3 border-b border-gray-100">
+                            <h3 className="text-sm font-medium text-gray-900 flex items-center gap-2">
+                                <Layout className="h-4 w-4 text-vendle-blue" />
+                                Project Specifications
+                            </h3>
+                        </div>
+                        <div className="p-4 space-y-3">
                             <div className="flex items-start gap-3">
-                                <Layout className="h-5 w-5 mt-0.5 text-vendle-blue shrink-0" />
+                                <Layout className="h-4 w-4 mt-0.5 text-gray-400 shrink-0" />
                                 <div>
-                                    <p className="text-xs font-medium text-muted-foreground mb-1">Project Type</p>
-                                    <p className="text-sm text-foreground font-medium">{claim.projectType}</p>
-                                </div>
-                            </div>
-                            <div className="flex items-start gap-3">
-                                <FileText className="h-5 w-5 mt-0.5 text-vendle-blue shrink-0" />
-                                <div>
-                                    <p className="text-xs font-medium text-muted-foreground mb-1">Design Plan</p>
-                                    <p className="text-sm text-foreground font-medium">{claim.designPlan}</p>
+                                    <p className="text-[10px] text-gray-500 uppercase tracking-wide">Project Type</p>
+                                    <p className="text-sm text-gray-900">{claim.projectType}</p>
                                 </div>
                             </div>
                             <div className="flex items-start gap-3">
-                                <Calendar className="h-5 w-5 mt-0.5 text-vendle-blue shrink-0" />
+                                <FileText className="h-4 w-4 mt-0.5 text-gray-400 shrink-0" />
                                 <div>
-                                    <p className="text-xs font-medium text-muted-foreground mb-1">Created</p>
-                                    <p className="text-sm text-foreground font-medium">
-                                        {new Date(claim.createdAt).toLocaleDateString('en-US', { 
-                                            year: 'numeric', 
-                                            month: 'long', 
-                                            day: 'numeric' 
+                                    <p className="text-[10px] text-gray-500 uppercase tracking-wide">Design Plan</p>
+                                    <p className="text-sm text-gray-900">{claim.designPlan}</p>
+                                </div>
+                            </div>
+                            <div className="flex items-start gap-3">
+                                <Calendar className="h-4 w-4 mt-0.5 text-gray-400 shrink-0" />
+                                <div>
+                                    <p className="text-[10px] text-gray-500 uppercase tracking-wide">Created</p>
+                                    <p className="text-sm text-gray-900">
+                                        {new Date(claim.createdAt).toLocaleDateString('en-US', {
+                                            year: 'numeric',
+                                            month: 'long',
+                                            day: 'numeric'
                                         })}
                                     </p>
                                 </div>
                             </div>
                             <div className="flex items-start gap-3">
-                                <Clock className="h-5 w-5 mt-0.5 text-vendle-blue shrink-0" />
+                                <Clock className="h-4 w-4 mt-0.5 text-gray-400 shrink-0" />
                                 <div>
-                                    <p className="text-xs font-medium text-muted-foreground mb-1">Last Updated</p>
-                                    <p className="text-sm text-foreground font-medium">
-                                        {new Date(claim.updatedAt).toLocaleDateString('en-US', { 
-                                            year: 'numeric', 
-                                            month: 'long', 
-                                            day: 'numeric' 
+                                    <p className="text-[10px] text-gray-500 uppercase tracking-wide">Updated</p>
+                                    <p className="text-sm text-gray-900">
+                                        {new Date(claim.updatedAt).toLocaleDateString('en-US', {
+                                            year: 'numeric',
+                                            month: 'long',
+                                            day: 'numeric'
                                         })}
                                     </p>
                                 </div>
                             </div>
-                        </CardContent>
-                    </Card>
+                        </div>
+                    </div>
                 </div>
 
-                {/* Pdfs */}
+                {/* PDFs */}
                 {claimPdfs?.length > 0 && (
-                    <Card className="shadow-lg border-2 border-vendle-gray/20 hover:shadow-xl hover:border-vendle-blue/30 transition-all duration-300 bg-white mb-6">
-                        <CardHeader className="border-b-2 border-vendle-gray/10 bg-[#4A637D]/5">
-                            <CardTitle className="text-foreground flex items-center gap-3">
-                                <div className="p-2.5 rounded-xl bg-[#4A637D]/15 shadow-sm">
-                                    <FileText className="h-5 w-5 text-[#4A637D]" />
-                                </div>
-                                <span className="text-xl">Property Documentation</span>
-                            </CardTitle>
-                        </CardHeader>
-                        <CardContent className="pt-6">
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div className="bg-white border border-gray-200 rounded mb-4">
+                        <div className="px-4 py-3 border-b border-gray-100">
+                            <h3 className="text-sm font-medium text-gray-900 flex items-center gap-2">
+                                <FileText className="h-4 w-4 text-vendle-blue" />
+                                Documentation
+                            </h3>
+                        </div>
+                        <div className="p-4">
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                 {claimPdfs.map((url: string, index: number) => (
-                                    <div 
-                                        key={index} 
-                                        className="rounded-lg border border-vendle-gray/30 overflow-hidden bg-white shadow-sm hover:shadow-md transition-shadow"
+                                    <div
+                                        key={index}
+                                        className="rounded border border-gray-200 overflow-hidden"
                                     >
                                         <iframe
                                             src={url}
-                                            className="w-full h-[500px] border-0"
+                                            className="w-full h-[400px] border-0"
                                             title={`Document ${index + 1}`}
                                         />
                                     </div>
                                 ))}
                             </div>
-                        </CardContent>
-                    </Card>
+                        </div>
+                    </div>
                 )}
 
                 {/* Images */}
-                <Card className="shadow-lg border-2 border-vendle-gray/20 hover:shadow-xl hover:border-vendle-blue/30 transition-all duration-300 bg-white">
-                    <CardHeader className="border-b-2 border-vendle-gray/10 bg-vendle-blue/5">
-                        <CardTitle className="text-foreground flex items-center gap-3">
-                            <div className="p-2.5 rounded-xl bg-vendle-blue/15 shadow-sm">
-                                <FileText className="h-5 w-5 text-vendle-blue" />
-                            </div>
-                            <span className="text-xl">Property Images</span>
-                        </CardTitle>
-                    </CardHeader>
-                    <CardContent className="pt-6">
+                <div className="bg-white border border-gray-200 rounded">
+                    <div className="px-4 py-3 border-b border-gray-100">
+                        <h3 className="text-sm font-medium text-gray-900 flex items-center gap-2">
+                            <ImageIcon className="h-4 w-4 text-vendle-blue" />
+                            Property Images
+                        </h3>
+                    </div>
+                    <div className="p-4">
                         {images?.length ? (
-                            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+                            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
                                 {images.map((url: string, i: number) => (
-                                    <motion.div
+                                    <div
                                         key={i}
-                                        className="relative w-full aspect-square rounded-xl overflow-hidden border-2 border-vendle-gray/20 group cursor-pointer hover:border-vendle-blue shadow-md hover:shadow-xl transition-all duration-300"
-                                        whileHover={{ scale: 1.03 }}
-                                        transition={{ duration: 0.2 }}
+                                        className="relative aspect-square rounded overflow-hidden border border-gray-200 group"
                                     >
                                         <Image
                                             src={url}
                                             alt={`Property image ${i + 1}`}
                                             fill
-                                            className="object-cover group-hover:scale-110 transition-transform duration-300"
+                                            className="object-cover"
                                         />
-                                        <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                                            <div className="absolute bottom-3 left-3 text-white">
-                                                <p className="text-xs font-semibold tracking-wide">Image {i + 1}</p>
+                                        <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity">
+                                            <div className="absolute bottom-2 left-2 text-white">
+                                                <p className="text-[10px] font-medium">Image {i + 1}</p>
                                             </div>
                                         </div>
-                                    </motion.div>
+                                    </div>
                                 ))}
                             </div>
                         ) : (
-                            <div className="text-center py-16">
-                                <div className="inline-flex items-center justify-center w-20 h-20 rounded-full bg-vendle-gray/10 mb-4 shadow-inner">
-                                    <FileText className="h-10 w-10 text-vendle-gray/50" />
+                            <div className="text-center py-8">
+                                <div className="w-12 h-12 rounded bg-gray-100 flex items-center justify-center mx-auto mb-2">
+                                    <ImageIcon className="h-6 w-6 text-gray-400" />
                                 </div>
-                                <p className="text-muted-foreground text-sm font-medium">
-                                    No images uploaded for this project yet.
-                                </p>
+                                <p className="text-sm text-gray-500">No images uploaded yet</p>
                             </div>
                         )}
-                    </CardContent>
-                </Card>
+                    </div>
+                </div>
             </main>
 
-            {/* RAG Chatbot - Only for Contractors */}
             {isContractor && <RAGChatbot claimId={claimId} />}
+
+            <MessagingDrawer
+                isOpen={showMessaging}
+                onClose={() => setShowMessaging(false)}
+                initialUserId={claim?.userId}
+                initialUserName={claim?.user?.email}
+            />
         </div>
     );
 }

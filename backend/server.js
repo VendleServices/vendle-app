@@ -127,7 +127,16 @@ import chatRoutes from './api/chat/route.ts';
 import bookingRoutes from './api/booking/route.ts';
 import webhookRoutes from './api/webhooks/route.ts';
 import paymentRoutes from './api/payments/route.ts';
+import pusherRoutes from './api/pusher/route.ts';
+import messageRoutes from './api/messages/route.ts';
+import roomRoutes from './api/room/route.ts';
 import { generalApiLimiter, authLimiter, userLimiter } from "./lib/rateLimiters.js";
+
+// Start workers (needed for Railway - workers must run in same process)
+import './workers/aiClaimProcessingWorker.ts';
+import './workers/pdfToVectorDatabaseWorker.ts';
+import './workers/emailWorker.ts';
+
 // API Routes
 app.use('/api/signup', authLimiter, signUpRoute);
 app.use('/api/bids', verifyToken, generalApiLimiter, bidsRoutes);
@@ -145,6 +154,9 @@ app.use('/api/chat', verifyToken, generalApiLimiter, chatRoutes);
 app.use('/api/booking', verifyToken, generalApiLimiter, bookingRoutes);
 app.use('/api/webhooks', webhookRoutes);
 app.use('/api/payments', verifyToken, paymentRoutes);
+app.use('/api/pusher', verifyToken, pusherRoutes);
+app.use('/api/messages', verifyToken, messageRoutes);
+app.use('/api/rooms', verifyToken, roomRoutes);
 
 app.get('/api/health', (req, res) => {
   res.json({ status: 'OK', timestamp: new Date().toISOString() });

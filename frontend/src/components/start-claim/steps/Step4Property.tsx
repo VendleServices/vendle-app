@@ -44,10 +44,10 @@ export function Step4Property({
             type="button"
             onClick={onClick}
             className={cn(
-                "flex-1 p-5 rounded-xl border-2 transition-all font-semibold",
+                "flex-1 py-2 px-3 rounded border text-sm font-medium transition-colors",
                 selected
-                    ? "border-vendle-blue bg-vendle-blue/10 shadow-lg shadow-vendle-blue/20 text-vendle-blue"
-                    : "border-vendle-gray/40 hover:border-vendle-blue/50 bg-card hover:bg-vendle-blue/5 text-foreground"
+                    ? "border-vendle-blue bg-vendle-blue/5 text-vendle-blue"
+                    : "border-gray-200 hover:border-gray-300 bg-white text-gray-700"
             )}
         >
             {label}
@@ -55,18 +55,15 @@ export function Step4Property({
     );
 
     return (
-        <div className="space-y-8">
+        <div className="space-y-4">
             {/* Property Questions */}
-            <div className="grid lg:grid-cols-2 xl:grid-cols-3 gap-6">
-                {/* Functional Utilities */}
-                <div className="p-6 rounded-xl bg-white border-2 border-vendle-gray/30">
-                    <Label className="text-lg font-semibold text-foreground mb-4 block flex items-center gap-2">
-                        <div className="p-2 rounded-lg bg-vendle-blue/10">
-                            <Zap className="w-5 h-5 text-vendle-blue" />
-                        </div>
-                        Is there functional electricity and water?
+            <div className="grid sm:grid-cols-3 gap-3">
+                <div className="p-3 rounded border border-gray-200 bg-white">
+                    <Label className="text-xs font-medium text-gray-600 mb-2 flex items-center gap-1.5">
+                        <Zap className="w-3.5 h-3.5" />
+                        Functional utilities?
                     </Label>
-                    <div className="flex gap-4">
+                    <div className="flex gap-2">
                         <QuestionButton
                             selected={questions.hasFunctionalUtilities === true}
                             onClick={() => onQuestionChange("hasFunctionalUtilities", true)}
@@ -80,15 +77,12 @@ export function Step4Property({
                     </div>
                 </div>
 
-                {/* Dumpster */}
-                <div className="p-6 rounded-xl bg-white border-2 border-vendle-gray/30">
-                    <Label className="text-lg font-semibold text-foreground mb-4 block flex items-center gap-2">
-                        <div className="p-2 rounded-lg bg-vendle-teal/10">
-                            <Trash2 className="w-5 h-5 text-vendle-teal" />
-                        </div>
-                        Is there a dumpster within the immediate area?
+                <div className="p-3 rounded border border-gray-200 bg-white">
+                    <Label className="text-xs font-medium text-gray-600 mb-2 flex items-center gap-1.5">
+                        <Trash2 className="w-3.5 h-3.5" />
+                        Dumpster available?
                     </Label>
-                    <div className="flex gap-4">
+                    <div className="flex gap-2">
                         <QuestionButton
                             selected={questions.hasDumpster === true}
                             onClick={() => onQuestionChange("hasDumpster", true)}
@@ -102,15 +96,12 @@ export function Step4Property({
                     </div>
                 </div>
 
-                {/* Occupancy */}
-                <div className="p-6 rounded-xl bg-white border-2 border-vendle-gray/30">
-                    <Label className="text-lg font-semibold text-foreground mb-4 block flex items-center gap-2">
-                        <div className="p-2 rounded-lg bg-vendle-sand/30">
-                            <Home className="w-5 h-5 text-vendle-navy" />
-                        </div>
-                        Is the property occupied?
+                <div className="p-3 rounded border border-gray-200 bg-white">
+                    <Label className="text-xs font-medium text-gray-600 mb-2 flex items-center gap-1.5">
+                        <Home className="w-3.5 h-3.5" />
+                        Property occupied?
                     </Label>
-                    <div className="flex gap-4">
+                    <div className="flex gap-2">
                         <QuestionButton
                             selected={questions.isOccupied === true}
                             onClick={() => onQuestionChange("isOccupied", true)}
@@ -126,16 +117,12 @@ export function Step4Property({
             </div>
 
             {/* Image Upload Section */}
-            <div className="p-8 rounded-2xl bg-white border-2 border-vendle-gray/30">
-                <div className="flex items-center gap-3 mb-2">
-                    <div className="p-2 rounded-lg bg-vendle-blue/10">
-                        <ImageIcon className="w-6 h-6 text-vendle-blue" />
-                    </div>
-                    <h3 className="text-2xl font-bold text-foreground">Property Images</h3>
+            <div className="p-4 rounded border border-gray-200 bg-white">
+                <div className="flex items-center gap-2 mb-3">
+                    <ImageIcon className="w-4 h-4 text-gray-500" />
+                    <span className="text-sm font-medium text-gray-900">Property Images</span>
+                    <span className="text-xs text-gray-400">(optional)</span>
                 </div>
-                <p className="text-muted-foreground mb-6">
-                    Upload photos of the property damage (optional)
-                </p>
 
                 <ImageUpload
                     images={images}

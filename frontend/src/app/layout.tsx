@@ -3,6 +3,7 @@ import "../styles/index.css";
 import { AuthProvider } from "@/contexts/AuthContext";
 import QueryProvider from "@/app/QueryProvider";
 import { Toaster } from "@/components/ui/sonner";
+import { PusherProvider } from "@/contexts/PusherContext";
 
 export const metadata: Metadata = {
   title: "Vendle",
@@ -29,7 +30,9 @@ export default function RootLayout({
         <QueryProvider>
           <AuthProvider>
             <main id ="root">
-              {children}
+              <PusherProvider>
+                {children}
+              </PusherProvider>
             </main>
             <Toaster />
           </AuthProvider>

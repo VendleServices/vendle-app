@@ -1,6 +1,4 @@
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { Trophy, Medal, Award } from "lucide-react";
+import { Trophy } from "lucide-react";
 import { Phase1BidsRankingProps } from "../types";
 import { cn } from "@/lib/utils";
 
@@ -8,84 +6,63 @@ export function Phase1BidsRanking({ phase1Bids }: Phase1BidsRankingProps) {
   // Sort bids by amount (ascending - lowest bid first)
   const sortedBids = [...phase1Bids].sort((a, b) => a.amount - b.amount);
 
-  const getRankIcon = (index: number) => {
-    switch (index) {
-      case 0:
-        return <Trophy className="w-5 h-5 text-yellow-500" />;
-      case 1:
-        return <Medal className="w-5 h-5 text-gray-400" />;
-      case 2:
-        return <Award className="w-5 h-5 text-orange-600" />;
-      default:
-        return null;
-    }
-  };
-
-  const getRankBadgeClass = (index: number) => {
-    switch (index) {
-      case 0:
-        return "bg-yellow-500 text-white";
-      case 1:
-        return "bg-gray-400 text-white";
-      case 2:
-        return "bg-orange-500 text-white";
-      default:
-        return "bg-muted text-muted-foreground";
-    }
-  };
-
   if (!sortedBids || sortedBids.length === 0) {
     return null;
   }
 
   return (
-    <Card className="border-border bg-card shadow-md">
-      <CardHeader className="border-b border-border pb-5">
-        <CardTitle className="text-lg font-semibold text-foreground flex items-center gap-2">
-          <Trophy className="w-5 h-5 text-vendle-blue" />
-          Phase 1 Bids Ranking
-        </CardTitle>
-        <p className="text-sm text-muted-foreground mt-1">
+    <div className="bg-white border border-gray-200 rounded">
+      <div className="px-4 py-3 border-b border-gray-100">
+        <div className="flex items-center gap-2">
+          <Trophy className="w-4 h-4 text-vendle-blue" />
+          <h2 className="text-sm font-medium text-gray-900">Phase 1 Bids Ranking</h2>
+        </div>
+        <p className="text-xs text-gray-500 mt-0.5">
           Current standing of all Phase 1 participants
         </p>
-      </CardHeader>
-      <CardContent className="pt-6">
-        <div className="space-y-3">
+      </div>
+
+      <div className="p-4">
+        <div className="space-y-2">
           {sortedBids.map((bid, index) => (
             <div
               key={index}
               className={cn(
-                "flex items-center gap-4 p-4 rounded-xl border-2 transition-all",
+                "flex items-center gap-3 p-3 rounded border transition-colors",
                 index < 3
-                  ? "border-vendle-blue/30 bg-vendle-blue/5"
-                  : "border-border bg-muted/30"
+                  ? "border-vendle-blue/20 bg-vendle-blue/5"
+                  : "border-gray-100 bg-gray-50"
               )}
             >
               {/* Rank Badge */}
               <div className="flex-shrink-0">
-                <Badge
+                <span
                   className={cn(
-                    "w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold",
-                    getRankBadgeClass(index)
+                    "w-6 h-6 rounded flex items-center justify-center text-[10px] font-medium",
+                    index === 0
+                      ? "bg-vendle-blue text-white"
+                      : index < 3
+                      ? "bg-gray-200 text-gray-700"
+                      : "bg-gray-100 text-gray-500"
                   )}
                 >
-                  {index < 3 ? getRankIcon(index) : `#${index + 1}`}
-                </Badge>
+                  #{index + 1}
+                </span>
               </div>
 
               {/* Email */}
               <div className="flex-1 min-w-0">
-                <p className="text-sm font-medium text-foreground truncate">
+                <p className="text-sm font-medium text-gray-900 truncate">
                   {bid.user.email}
                 </p>
-                <p className="text-xs text-muted-foreground">
+                <p className="text-[10px] text-gray-500">
                   {index === 0 ? "Lowest Bid" : `Rank ${index + 1}`}
                 </p>
               </div>
 
               {/* Amount */}
               <div className="text-right">
-                <p className="text-lg font-bold text-foreground">
+                <p className="text-sm font-semibold text-gray-900">
                   ${bid.amount.toLocaleString()}
                 </p>
               </div>
@@ -94,16 +71,16 @@ export function Phase1BidsRanking({ phase1Bids }: Phase1BidsRankingProps) {
         </div>
 
         {sortedBids.length > 0 && (
-          <div className="mt-6 pt-4 border-t border-border">
-            <div className="flex items-center justify-between text-sm">
-              <span className="text-muted-foreground">Total Participants</span>
-              <span className="font-semibold text-foreground">
+          <div className="mt-4 pt-3 border-t border-gray-100">
+            <div className="flex items-center justify-between text-xs">
+              <span className="text-gray-500">Total Participants</span>
+              <span className="font-medium text-gray-900">
                 {sortedBids.length}
               </span>
             </div>
           </div>
         )}
-      </CardContent>
-    </Card>
+      </div>
+    </div>
   );
 }

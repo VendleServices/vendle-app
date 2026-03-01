@@ -8,6 +8,7 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query"
 import SplashScreen from "@/components/SplashScreen";
 import { toast } from "sonner";
 import ContractorMailbox from "@/components/ContractorMailbox";
+import MessagingDrawer from "@/components/MessagingDrawer";
 import {
   getMockHomeownerProjects,
   type HomeownerProject,
@@ -53,6 +54,7 @@ export default function HomePage() {
   const [claimToLaunch, setClaimToLaunch] = useState<any | null>(null);
   const [ndaSignedCount, setNdaSignedCount] = useState(0);
   const [showMailbox, setShowMailbox] = useState(false);
+  const [showMessagesDrawer, setShowMessagesDrawer] = useState(false);
 
   // Chat state
   const [selectedJobForChat, setSelectedJobForChat] = useState<Job | null>(null);
@@ -437,7 +439,7 @@ export default function HomePage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 lg:pl-32 overflow-x-hidden">
+    <div className="min-h-screen bg-gray-50 overflow-x-hidden">
       {/* Job Detail Panel (Contractor) */}
       {selectedJob && (
         <JobDetailPanel
@@ -450,13 +452,14 @@ export default function HomePage() {
 
       {/* Main Content */}
       <div className={`transition-all duration-300 ${selectedJob ? 'pr-[50%]' : ''}`}>
-        <div className="container mx-auto px-4 py-8 max-w-full">
+        <div className="max-w-7xl mx-auto px-4 py-4">
           {/* Header */}
           <DashboardHeader
             user={user!}
             isContractor={isContractor}
             contractorInvitationCount={contractorInvitations?.filter((inv: any) => inv.status === 'PENDING').length || 0}
             onShowMailbox={() => setShowMailbox(true)}
+            onShowMessages={() => setShowMessagesDrawer(true)}
           />
 
           {/* Contractor Dashboard */}
@@ -565,6 +568,12 @@ export default function HomePage() {
       <ContractorMailbox
         isOpen={showMailbox}
         onClose={() => setShowMailbox(false)}
+      />
+
+      {/* Homeowner Messages Drawer */}
+      <MessagingDrawer
+        isOpen={showMessagesDrawer}
+        onClose={() => setShowMessagesDrawer(false)}
       />
     </div>
   )

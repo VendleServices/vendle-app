@@ -32,13 +32,13 @@
     --input: 0 0% 85%; /* Vendle Gray #D9D9D9 */
     --ring: 210 26% 39%; /* Vendle Blue #4A637D */
 
-    --radius: 0.75rem;
+    --radius: 0.375rem; /* 6px - tighter corners */
 
-    /* Enhanced shadow system */
-    --shadow-subtle: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
-    --shadow-medium: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
-    --shadow-strong: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
-    --shadow-inner-subtle: inset 0 2px 4px 0 rgb(0 0 0 / 0.05);
+    /* Minimal shadow system */
+    --shadow-subtle: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+    --shadow-medium: 0 1px 3px 0 rgb(0 0 0 / 0.08);
+    --shadow-strong: 0 2px 6px 0 rgb(0 0 0 / 0.1);
+    --shadow-inner-subtle: inset 0 1px 2px 0 rgb(0 0 0 / 0.04);
 
     /* Animation durations */
     --duration-fast: 150ms;
@@ -80,48 +80,48 @@
     @apply bg-vendle-blue/50;
   }
 
-  /* Typography scale */
+  /* Typography scale - tighter */
   h1,
   .h1 {
-    @apply text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight leading-tight;
+    @apply text-2xl md:text-3xl font-semibold tracking-tight leading-tight;
   }
 
   h2,
   .h2 {
-    @apply text-3xl md:text-4xl font-bold tracking-tight leading-tight;
+    @apply text-xl md:text-2xl font-semibold tracking-tight leading-tight;
   }
 
   h3,
   .h3 {
-    @apply text-2xl md:text-3xl font-semibold tracking-tight leading-tight;
+    @apply text-lg md:text-xl font-semibold tracking-tight leading-tight;
   }
 
   h4,
   .h4 {
-    @apply text-xl md:text-2xl font-semibold tracking-tight leading-tight;
+    @apply text-base md:text-lg font-semibold leading-snug;
   }
 
   h5,
   .h5 {
-    @apply text-lg md:text-xl font-semibold leading-snug;
+    @apply text-sm md:text-base font-semibold leading-snug;
   }
 
   h6,
   .h6 {
-    @apply text-base md:text-lg font-semibold leading-snug;
+    @apply text-sm font-semibold leading-snug;
   }
 
   p,
   .body {
-    @apply text-base leading-relaxed;
-  }
-
-  .small {
     @apply text-sm leading-relaxed;
   }
 
-  .tiny {
+  .small {
     @apply text-xs leading-relaxed;
+  }
+
+  .tiny {
+    @apply text-[10px] leading-relaxed;
   }
 
   /* Enhanced focus styles for accessibility */
@@ -152,74 +152,53 @@
     box-shadow: var(--shadow-subtle);
   }
 
-  /* Enhanced button variants */
+  /* Clean button variants */
   .btn-primary {
-    @apply bg-vendle-blue text-white hover:bg-vendle-blue/90 focus:bg-vendle-blue/90 active:bg-vendle-blue/95
-           rounded-lg px-6 py-3 font-medium
-           focus:outline-none focus:ring-2 focus:ring-vendle-blue/50 focus:ring-offset-2
-           disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-vendle-blue;
-    box-shadow: var(--shadow-subtle);
-    transition: all 0.2s ease-out;
-  }
-
-  .btn-primary:hover {
-    box-shadow: var(--shadow-medium);
-    transform: translateY(-1px);
-  }
-
-  .btn-primary:active {
-    box-shadow: var(--shadow-inner-subtle);
-    transform: translateY(0);
+    @apply bg-vendle-blue text-white hover:bg-vendle-blue/90
+           rounded px-3 py-1.5 text-sm font-medium
+           focus:outline-none focus:ring-2 focus:ring-vendle-blue/30 focus:ring-offset-1
+           disabled:opacity-50 disabled:cursor-not-allowed;
+    transition: background-color 0.15s ease;
   }
 
   .btn-secondary {
-    @apply bg-vendle-teal text-white hover:bg-vendle-teal/90 focus:bg-vendle-teal/90 active:bg-vendle-teal/95
-           rounded-lg px-6 py-3 font-medium
-           focus:outline-none focus:ring-2 focus:ring-vendle-teal/50 focus:ring-offset-2
-           disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-vendle-teal;
-    box-shadow: var(--shadow-subtle);
-    transition: all 0.2s ease-out;
-  }
-
-  .btn-secondary:hover {
-    box-shadow: var(--shadow-medium);
-    transform: translateY(-1px);
+    @apply bg-vendle-teal text-white hover:bg-vendle-teal/90
+           rounded px-3 py-1.5 text-sm font-medium
+           focus:outline-none focus:ring-2 focus:ring-vendle-teal/30 focus:ring-offset-1
+           disabled:opacity-50 disabled:cursor-not-allowed;
+    transition: background-color 0.15s ease;
   }
 
   .btn-outline {
-    @apply border border-vendle-blue text-vendle-blue hover:bg-vendle-blue/10 focus:bg-vendle-blue/10
-           rounded-lg px-6 py-3 font-medium
-           focus:outline-none focus:ring-2 focus:ring-vendle-blue/50 focus:ring-offset-2;
-    transition: all 0.2s ease-out;
+    @apply border border-gray-200 text-gray-700 hover:bg-gray-50 hover:border-gray-300
+           rounded px-3 py-1.5 text-sm font-medium
+           focus:outline-none focus:ring-2 focus:ring-gray-200 focus:ring-offset-1;
+    transition: all 0.15s ease;
   }
 
   .btn-ghost {
-    @apply text-vendle-blue hover:bg-vendle-blue/10 focus:bg-vendle-blue/10
-           rounded-lg px-6 py-3 font-medium
-           focus:outline-none focus:ring-2 focus:ring-vendle-blue/50 focus:ring-offset-2;
-    transition: all 0.2s ease-out;
+    @apply text-gray-600 hover:bg-gray-100 hover:text-gray-900
+           rounded px-3 py-1.5 text-sm font-medium
+           focus:outline-none;
+    transition: all 0.15s ease;
   }
 
-  /* Enhanced card styles */
+  /* Clean card styles - Mercor inspired */
   .card {
-    @apply bg-white rounded-2xl overflow-hidden border border-border/50;
-    box-shadow: var(--shadow-medium);
-    transition: all 0.2s ease-out;
+    @apply bg-white rounded overflow-hidden border border-gray-200;
+    transition: border-color 0.15s ease;
   }
 
   .card:hover {
-    box-shadow: var(--shadow-strong);
-    transform: translateY(-2px);
-    border-color: hsl(var(--primary) / 0.2);
+    @apply border-gray-300;
   }
 
   .card-interactive {
     @apply card cursor-pointer;
   }
 
-  .card-interactive:active {
-    transform: translateY(0);
-    box-shadow: var(--shadow-medium);
+  .card-interactive:hover {
+    @apply border-gray-300;
   }
 
   /* Enhanced input styles */
@@ -409,17 +388,17 @@
     @apply bg-vendle-navy;
   }
 
-  /* Interactive states */
+  /* Interactive states - subtle */
   .hover-lift {
-    @apply transition-transform duration-200 hover:-translate-y-1;
+    @apply transition-colors duration-150;
   }
 
   .hover-scale {
-    @apply transition-transform duration-200 hover:scale-105;
+    @apply transition-colors duration-150;
   }
 
   .hover-glow {
-    @apply transition-all duration-300 hover:shadow-lg hover:shadow-vendle-blue/25;
+    @apply transition-colors duration-150;
   }
 
   /* Layout utilities */

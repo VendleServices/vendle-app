@@ -39,9 +39,9 @@ export function ContractorView({
   };
 
   return (
-    <div className="grid gap-8 lg:grid-cols-[minmax(0,2fr)_minmax(0,1.25fr)]">
+    <div className="grid gap-6 lg:grid-cols-[minmax(0,2fr)_minmax(0,1.25fr)]">
       {/* LEFT: Project details and Phase 1 bids ranking */}
-      <div className="space-y-8">
+      <div className="space-y-6">
         <ProjectOverviewCard auction={auction} />
 
         {/* Phase 1 Bids Ranking - Only show in Phase 2 */}

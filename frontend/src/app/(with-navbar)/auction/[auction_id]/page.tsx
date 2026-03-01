@@ -2,7 +2,7 @@
 import React, { useState, useRef, useEffect } from "react";
 import { useParams, useRouter, useSearchParams } from "next/navigation";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { Loader2 } from "lucide-react";
+import { Loader2, MessageSquare } from "lucide-react";
 import { toast } from "sonner";
 
 import { Card } from "@/components/ui/card";
@@ -18,6 +18,7 @@ import { ContractorView } from "./contractor/ContractorView";
 import { HomeownerView } from "./homeowner/HomeownerView";
 import { Auction } from "./types";
 import { RAGChatbot } from "@/components/RAGChatbot";
+import MessagingDrawer from "@/components/MessagingDrawer";
 
 const initialBidDefaults = {
   amount: 0,
@@ -47,6 +48,7 @@ export default function AuctionDetailsPage() {
   const [selectedForPhase2, setSelectedForPhase2] = useState<Set<string>>(new Set());
   const [adjustingBid, setAdjustingBid] = useState(false);
   const [adjustedBidData, setAdjustedBidData] = useState(initialBidDefaults);
+  const [showMessaging, setShowMessaging] = useState(false);
 
   const isContractor = user?.user_metadata?.userType === "contractor";
 
@@ -65,6 +67,19 @@ export default function AuctionDetailsPage() {
     queryFn: () => fetchAuction(auction_id),
     enabled: !!auction_id,
   });
+
+  // Fetch claim details for homeowner info (for contractors to message)
+  const { data: claimDetails } = useQuery({
+    queryKey: ["getClaimForAuction", auction?.claimId],
+    queryFn: async () => {
+      const response: any = await apiService.get(`/api/claim/${auction?.claimId}`);
+      return response?.claim;
+    },
+    enabled: !!auction?.claimId && isContractor,
+  });
+
+  const homeownerId = claimDetails?.userId;
+  const homeownerEmail = claimDetails?.user?.email;
 
   // Handle payment success/cancel redirects from Stripe
   useEffect(() => {
@@ -369,10 +384,10 @@ export default function AuctionDetailsPage() {
   // Loading state
   if (loading) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-muted/30 lg:pl-32">
-        <div className="space-y-4 text-center">
-          <Loader2 className="mx-auto h-12 w-12 animate-spin text-[hsl(217,64%,23%)]" />
-          <p className="text-lg text-foreground">Loading auction details...</p>
+      <div className="flex min-h-screen items-center justify-center bg-white">
+        <div className="text-center">
+          <Loader2 className="mx-auto h-8 w-8 animate-spin text-gray-400" />
+          <p className="text-sm text-gray-500 mt-2">Loading auction...</p>
         </div>
       </div>
     );
@@ -381,23 +396,23 @@ export default function AuctionDetailsPage() {
   // Not found state
   if (!auction) {
     return (
-      <div className="flex min-h-screen flex-col items-center justify-center bg-muted/30 lg:pl-32">
-        <Card className="border-border bg-card p-6 sm:p-8 text-center shadow-md">
-          <p className="mb-4 text-xl font-semibold text-foreground">Auction not found.</p>
+      <div className="flex min-h-screen flex-col items-center justify-center bg-white">
+        <div className="text-center">
+          <p className="text-sm font-medium text-gray-900 mb-3">Auction not found</p>
           <Button
-            className="mt-2 bg-[hsl(217,64%,23%)] text-white hover:bg-[hsl(217,64%,18%)]"
             onClick={() => router.back()}
+            className="h-9 px-4 text-sm bg-vendle-blue text-white hover:bg-vendle-blue/90"
           >
             Go Back
           </Button>
-        </Card>
+        </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-muted/30 lg:pl-32">
-      <main className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-6 sm:py-10">
+    <div className="min-h-screen bg-gray-50/50">
+      <main className="max-w-5xl mx-auto px-4 py-6">
         {/* Auction Header */}
         <AuctionHeader
           auction={auction}
@@ -408,16 +423,28 @@ export default function AuctionDetailsPage() {
           onBack={() => router.back()}
         />
 
-        {/* View Claim Button */}
-        {claimId && (
-          <div className="mb-6">
-            <Button
-              onClick={() => router.push(`/claim/${claimId}`)}
-              variant="outline"
-              className="border-2 border-[#4A637D] text-[#4A637D] hover:bg-[#4A637D] hover:text-white font-semibold shadow-sm"
-            >
-              View Project Details
-            </Button>
+        {/* Action Buttons */}
+        {(claimId || (isContractor && homeownerId)) && (
+          <div className="mb-6 flex flex-wrap gap-2">
+            {claimId && (
+              <Button
+                onClick={() => router.push(`/claim/${claimId}`)}
+                variant="outline"
+                className="h-8 px-3 text-xs border-gray-200 hover:bg-gray-50"
+              >
+                View Project Details
+              </Button>
+            )}
+
+            {isContractor && homeownerId && (
+              <Button
+                onClick={() => setShowMessaging(true)}
+                className="h-8 px-3 text-xs bg-vendle-blue hover:bg-vendle-blue/90 text-white"
+              >
+                <MessageSquare className="h-3.5 w-3.5 mr-1.5" />
+                Message Homeowner
+              </Button>
+            )}
           </div>
         )}
 
@@ -478,6 +505,14 @@ export default function AuctionDetailsPage() {
 
       {/* RAG Chatbot - Only for Contractors */}
       {isContractor && <RAGChatbot claimId={claimId} />}
+
+      {/* Messaging Drawer */}
+      <MessagingDrawer
+        isOpen={showMessaging}
+        onClose={() => setShowMessaging(false)}
+        initialUserId={homeownerId}
+        initialUserName={homeownerEmail}
+      />
     </div>
   );
 }

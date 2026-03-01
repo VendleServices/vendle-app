@@ -1,60 +1,55 @@
-import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { DollarSign, Clock } from "lucide-react";
 import { ProjectOverviewCardProps } from "../types";
 
 export function ProjectOverviewCard({ auction }: ProjectOverviewCardProps) {
   return (
-    <Card className="shadow-lg border-2 border-vendle-gray/20 hover:shadow-xl transition-all duration-300 bg-white">
-      <CardHeader className="border-b-2 border-vendle-gray/10 pb-5 bg-vendle-blue/5">
-        <h2 className="text-2xl font-bold text-foreground">Project Overview</h2>
-      </CardHeader>
-      <CardContent className="space-y-8 pt-6">
-        <section className="space-y-3">
-          <h3 className="text-sm font-bold uppercase tracking-wider text-vendle-blue border-b-2 border-vendle-blue/20 pb-2">
+    <div className="bg-white border border-gray-200 rounded">
+      <div className="px-4 py-3 border-b border-gray-100">
+        <h2 className="text-sm font-medium text-gray-900">Project Overview</h2>
+      </div>
+
+      <div className="p-4 space-y-4">
+        {/* Description */}
+        <div>
+          <h3 className="text-[10px] font-medium text-gray-500 uppercase tracking-wide mb-2">
             Description
           </h3>
-          <p className="text-base leading-relaxed text-foreground">
-            {auction?.aiSummary || auction?.additionalNotes}
+          <p className="text-sm text-gray-900">
+            {auction?.aiSummary || auction?.additionalNotes || "No description available"}
           </p>
-        </section>
+        </div>
 
-        <section className="grid gap-4 md:grid-cols-2">
-          <div className="space-y-3 rounded-xl bg-vendle-blue/10 p-5 border-2 border-vendle-blue/20 shadow-sm hover:shadow-md transition-shadow">
-            <p className="text-xs font-bold uppercase tracking-wide text-vendle-blue">
-              Starting Bid
-            </p>
-            <p className="text-3xl font-bold text-foreground">
+        {/* Stats Grid */}
+        <div className="grid grid-cols-2 gap-3">
+          <div className="p-3 bg-vendle-blue/5 rounded border border-vendle-blue/10">
+            <p className="text-[10px] text-gray-500 uppercase tracking-wide mb-1">Starting Bid</p>
+            <p className="text-lg font-semibold text-gray-900">
               ${auction?.totalJobValue?.toLocaleString()}
             </p>
-            <p className="text-xs text-muted-foreground">
-              Minimum opening bid set by homeowner
-            </p>
+            <p className="text-[10px] text-gray-500 mt-0.5">Minimum opening bid</p>
           </div>
 
-          <div className="space-y-3 rounded-xl bg-[#4A637D]/10 p-5 border-2 border-[#4A637D]/20 shadow-sm hover:shadow-md transition-shadow">
-            <p className="text-xs font-bold uppercase tracking-wide text-[#4A637D]">
-              Auction Ends
-            </p>
-            <p className="text-lg font-bold text-foreground">
+          <div className="p-3 bg-gray-50 rounded border border-gray-100">
+            <p className="text-[10px] text-gray-500 uppercase tracking-wide mb-1">Auction Ends</p>
+            <p className="text-sm font-medium text-gray-900">
               {new Date(auction?.endDate).toLocaleString()}
             </p>
-            <p className="text-xs text-muted-foreground">
-              Bids after this time will not be accepted
-            </p>
+            <p className="text-[10px] text-gray-500 mt-0.5">No bids after this time</p>
           </div>
-        </section>
+        </div>
 
+        {/* Scope of Work */}
         {auction?.reconstructionType && (
-          <section className="space-y-3">
-            <h3 className="text-sm font-bold uppercase tracking-wider text-vendle-blue border-b-2 border-vendle-blue/20 pb-2">
+          <div>
+            <h3 className="text-[10px] font-medium text-gray-500 uppercase tracking-wide mb-2">
               Scope of Work
             </h3>
-            <div className="rounded-xl border-2 border-vendle-blue/20 bg-vendle-blue/5 p-5 shadow-sm">
-              <p className="text-sm text-foreground font-medium">{auction?.reconstructionType}</p>
+            <div className="p-3 bg-gray-50 rounded border border-gray-100">
+              <p className="text-sm text-gray-900">{auction?.reconstructionType}</p>
             </div>
-          </section>
+          </div>
         )}
-      </CardContent>
-    </Card>
+      </div>
+    </div>
   );
 }

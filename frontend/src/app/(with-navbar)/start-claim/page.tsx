@@ -7,7 +7,6 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
 import { useAuth } from "@/contexts/AuthContext";
-import { motion, AnimatePresence } from "framer-motion";
 import { AddressAutocomplete } from "@/components/AddressAutocomplete";
 import {
     CheckCircle2,
@@ -456,166 +455,118 @@ export default function StartClaimPage() {
         || !femaFormData.address || !femaFormData.city || !femaFormData.state || !femaFormData.zipCode;
 
     return (
-        <div className="min-h-screen bg-background flex items-center justify-center">
-            <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8 md:py-16 max-w-7xl">
-                <AnimatePresence mode="wait">
-                    {showInsuranceCompanies ? (
+        <div className="min-h-screen bg-white">
+            <div className="w-[55vw] min-w-[320px] mx-auto px-4 py-6">
+                {showInsuranceCompanies ? (
                         // Insurance Companies Page
-                        <motion.div
-                            key="insurance-companies"
-                            initial={{ opacity: 0, y: 20 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            exit={{ opacity: 0, y: -20 }}
-                            transition={{ duration: 0.5 }}
-                            className="max-w-6xl mx-auto"
-                        >
-                            <div className="text-center mb-12">
-                                <motion.h1
-                                    initial={{ opacity: 0, y: 10 }}
-                                    animate={{ opacity: 1, y: 0 }}
-                                    className="text-4xl md:text-5xl font-bold text-slate-900 mb-4"
-                                >
-                                    File Your Claim
-                                </motion.h1>
-                                <motion.p
-                                    initial={{ opacity: 0, y: 10 }}
-                                    animate={{ opacity: 1, y: 0 }}
-                                    transition={{ delay: 0.1 }}
-                                    className="text-lg text-slate-600 mb-8"
-                                >
-                                    Contact your insurance company to file a claim. If you have a broker or use another carrier, please call them to request to file a claim and come back.
-                                </motion.p>
-                            </div>
-
-                            <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
-                                {/* State Farm */}
-                                <motion.div
-                                    initial={{ opacity: 0, y: 20 }}
-                                    animate={{ opacity: 1, y: 0 }}
-                                    transition={{ delay: 0.2 }}
-                                    className="bg-white rounded-2xl p-8 shadow-sm border border-slate-200 hover:shadow-lg transition-shadow"
-                                >
-                                    <div className="flex items-center justify-between mb-4">
-                                        <div className="text-2xl font-bold text-red-600">State Farm</div>
-                                    </div>
-                                    <div className="text-sm text-slate-600 mb-4">Claims Number:</div>
-                                    <div className="text-xl font-semibold text-slate-900">1-800-SF-CLAIM</div>
-                                    <div className="text-sm text-slate-500 mt-1">(1-800-732-5246)</div>
-                                </motion.div>
-
-                                {/* Berkshire Hathaway */}
-                                <motion.div
-                                    initial={{ opacity: 0, y: 20 }}
-                                    animate={{ opacity: 1, y: 0 }}
-                                    transition={{ delay: 0.3 }}
-                                    className="bg-white rounded-2xl p-8 shadow-sm border border-slate-200 hover:shadow-lg transition-shadow"
-                                >
-                                    <div className="flex items-center justify-between mb-4">
-                                        <div className="text-2xl font-bold text-blue-600">Berkshire Hathaway</div>
-                                    </div>
-                                    <div className="text-sm text-slate-600 mb-4">Claims Number:</div>
-                                    <div className="text-xl font-semibold text-slate-900">1-800-435-7764</div>
-                                </motion.div>
-
-                                {/* Progressive */}
-                                <motion.div
-                                    initial={{ opacity: 0, y: 20 }}
-                                    animate={{ opacity: 1, y: 0 }}
-                                    transition={{ delay: 0.4 }}
-                                    className="bg-white rounded-2xl p-8 shadow-sm border border-slate-200 hover:shadow-lg transition-shadow"
-                                >
-                                    <div className="flex items-center justify-between mb-4">
-                                        <div className="text-2xl font-bold text-blue-700">Progressive</div>
-                                    </div>
-                                    <div className="text-sm text-slate-600 mb-4">Claims Number:</div>
-                                    <div className="text-xl font-semibold text-slate-900">1-800-274-4499</div>
-                                </motion.div>
-
-                                {/* Allstate */}
-                                <motion.div
-                                    initial={{ opacity: 0, y: 20 }}
-                                    animate={{ opacity: 1, y: 0 }}
-                                    transition={{ delay: 0.5 }}
-                                    className="bg-white rounded-2xl p-8 shadow-sm border border-slate-200 hover:shadow-lg transition-shadow"
-                                >
-                                    <div className="flex items-center justify-between mb-4">
-                                        <div className="text-2xl font-bold text-red-700">Allstate</div>
-                                    </div>
-                                    <div className="text-sm text-slate-600 mb-4">Claims Number:</div>
-                                    <div className="text-xl font-semibold text-slate-900">1-800-54-CLAIM</div>
-                                    <div className="text-sm text-slate-500 mt-1">(1-800-542-5246)</div>
-                                </motion.div>
-
-                                {/* Liberty Mutual */}
-                                <motion.div
-                                    initial={{ opacity: 0, y: 20 }}
-                                    animate={{ opacity: 1, y: 0 }}
-                                    transition={{ delay: 0.6 }}
-                                    className="bg-white rounded-2xl p-8 shadow-sm border border-slate-200 hover:shadow-lg transition-shadow"
-                                >
-                                    <div className="flex items-center justify-between mb-4">
-                                        <div className="text-2xl font-bold text-vendle-teal">Liberty Mutual</div>
-                                    </div>
-                                    <div className="text-sm text-slate-600 mb-4">Claims Number:</div>
-                                    <div className="text-xl font-semibold text-slate-900">1-800-225-2467</div>
-                                </motion.div>
-                            </div>
-
-                            <div className="text-center">
-                                <Button
+                        <div key="insurance-companies">
+                            <div className="mb-4">
+                                <button
                                     onClick={() => {
                                         setShowInsuranceCompanies(false);
                                         setShowContactForm(false);
                                         setSelectedType(null);
                                         setContactInfo({ firstName: '', lastName: '', email: '', phone: '' });
                                     }}
-                                    variant="outline"
-                                    className="px-8 py-6 border-slate-300"
+                                    className="flex items-center gap-1.5 text-xs text-gray-500 hover:text-gray-700 transition-colors"
                                 >
-                                    <ArrowLeft className="w-4 h-4 mr-2" />
-                                    Back to Start
-                                </Button>
-                            </div>
-                        </motion.div>
-                    ) : showContactForm ? (
-                        // Contact Form
-                        <motion.div
-                            key="contact-form"
-                            initial={{ opacity: 0, y: 20 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            exit={{ opacity: 0, y: -20 }}
-                            transition={{ duration: 0.5 }}
-                            className="max-w-3xl mx-auto"
-                        >
-                            <div className="text-center mb-8">
-                                <motion.h1
-                                    initial={{ opacity: 0, y: 10 }}
-                                    animate={{ opacity: 1, y: 0 }}
-                                    className="text-4xl md:text-5xl font-bold text-slate-900 mb-4"
-                                >
-                                    Let's get started
-                                </motion.h1>
-                                <motion.p
-                                    initial={{ opacity: 0, y: 10 }}
-                                    animate={{ opacity: 1, y: 0 }}
-                                    transition={{ delay: 0.1 }}
-                                    className="text-lg text-slate-600"
-                                >
-                                    Please provide your contact information
-                                </motion.p>
+                                    <ArrowLeft className="w-3.5 h-3.5" />
+                                    <span>Back</span>
+                                </button>
                             </div>
 
-                            <motion.div
-                                initial={{ opacity: 0, y: 20 }}
-                                animate={{ opacity: 1, y: 0 }}
-                                transition={{ delay: 0.2 }}
-                                className="bg-white rounded-2xl shadow-sm border border-slate-200 p-8 md:p-10"
-                            >
-                                <form onSubmit={handleContactSubmit} className="space-y-6">
-                                    <div className="grid md:grid-cols-2 gap-6">
+                            <div className="mb-4">
+                                <h1 className="text-lg font-semibold text-gray-900 mb-1">File Your Claim</h1>
+                                <p className="text-sm text-gray-500">
+                                    Contact your insurance company to file a claim. If you have a broker, call them first.
+                                </p>
+                            </div>
+
+                            <div className="space-y-2">
+                                {/* State Farm */}
+                                <div className="bg-white rounded border border-gray-200 p-3 hover:border-gray-300 transition-colors">
+                                    <div className="flex items-center justify-between">
                                         <div>
-                                            <Label className="text-sm font-medium text-slate-700 mb-2 block flex items-center gap-2">
-                                                <User className="w-4 h-4" />
+                                            <div className="text-sm font-medium text-red-600">State Farm</div>
+                                            <div className="text-sm text-gray-900">1-800-SF-CLAIM</div>
+                                            <div className="text-xs text-gray-500">(1-800-732-5246)</div>
+                                        </div>
+                                        <Phone className="w-4 h-4 text-gray-400" />
+                                    </div>
+                                </div>
+
+                                {/* Berkshire Hathaway */}
+                                <div className="bg-white rounded border border-gray-200 p-3 hover:border-gray-300 transition-colors">
+                                    <div className="flex items-center justify-between">
+                                        <div>
+                                            <div className="text-sm font-medium text-blue-600">Berkshire Hathaway</div>
+                                            <div className="text-sm text-gray-900">1-800-435-7764</div>
+                                        </div>
+                                        <Phone className="w-4 h-4 text-gray-400" />
+                                    </div>
+                                </div>
+
+                                {/* Progressive */}
+                                <div className="bg-white rounded border border-gray-200 p-3 hover:border-gray-300 transition-colors">
+                                    <div className="flex items-center justify-between">
+                                        <div>
+                                            <div className="text-sm font-medium text-blue-700">Progressive</div>
+                                            <div className="text-sm text-gray-900">1-800-274-4499</div>
+                                        </div>
+                                        <Phone className="w-4 h-4 text-gray-400" />
+                                    </div>
+                                </div>
+
+                                {/* Allstate */}
+                                <div className="bg-white rounded border border-gray-200 p-3 hover:border-gray-300 transition-colors">
+                                    <div className="flex items-center justify-between">
+                                        <div>
+                                            <div className="text-sm font-medium text-red-700">Allstate</div>
+                                            <div className="text-sm text-gray-900">1-800-54-CLAIM</div>
+                                            <div className="text-xs text-gray-500">(1-800-542-5246)</div>
+                                        </div>
+                                        <Phone className="w-4 h-4 text-gray-400" />
+                                    </div>
+                                </div>
+
+                                {/* Liberty Mutual */}
+                                <div className="bg-white rounded border border-gray-200 p-3 hover:border-gray-300 transition-colors">
+                                    <div className="flex items-center justify-between">
+                                        <div>
+                                            <div className="text-sm font-medium text-vendle-teal">Liberty Mutual</div>
+                                            <div className="text-sm text-gray-900">1-800-225-2467</div>
+                                        </div>
+                                        <Phone className="w-4 h-4 text-gray-400" />
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    ) : showContactForm ? (
+                        // Contact Form
+                        <div key="contact-form">
+                            <div className="mb-4">
+                                <button
+                                    onClick={() => {
+                                        setShowContactForm(false);
+                                        setContactInfo({ firstName: '', lastName: '', email: '', phone: '' });
+                                    }}
+                                    className="flex items-center gap-1.5 text-xs text-gray-500 hover:text-gray-700 transition-colors"
+                                >
+                                    <ArrowLeft className="w-3.5 h-3.5" />
+                                    <span>Back</span>
+                                </button>
+                            </div>
+
+                            <div className="mb-4">
+                                <h1 className="text-lg font-semibold text-gray-900 mb-1">Contact Information</h1>
+                                <p className="text-sm text-gray-500">Please provide your details to continue</p>
+                            </div>
+
+                            <div className="bg-white rounded border border-gray-200 p-4">
+                                <form onSubmit={handleContactSubmit} className="space-y-4">
+                                    <div className="grid grid-cols-2 gap-3">
+                                        <div>
+                                            <Label className="text-xs font-medium text-gray-600 mb-1.5 block">
                                                 First Name
                                             </Label>
                                             <Input
@@ -623,13 +574,12 @@ export default function StartClaimPage() {
                                                 value={contactInfo.firstName}
                                                 onChange={handleContactChange}
                                                 required
-                                                className="h-12 border-vendle-gray/40 focus:border-vendle-blue focus:ring-2 focus:ring-vendle-blue/20 bg-background"
+                                                className="h-9 text-sm rounded border-gray-200 focus:border-gray-300 focus:ring-1 focus:ring-gray-200"
                                                 placeholder="John"
                                             />
                                         </div>
                                         <div>
-                                            <Label className="text-sm font-medium text-slate-700 mb-2 block flex items-center gap-2">
-                                                <User className="w-4 h-4" />
+                                            <Label className="text-xs font-medium text-gray-600 mb-1.5 block">
                                                 Last Name
                                             </Label>
                                             <Input
@@ -637,15 +587,14 @@ export default function StartClaimPage() {
                                                 value={contactInfo.lastName}
                                                 onChange={handleContactChange}
                                                 required
-                                                className="h-12 border-vendle-gray/40 focus:border-vendle-blue focus:ring-2 focus:ring-vendle-blue/20 bg-background"
+                                                className="h-9 text-sm rounded border-gray-200 focus:border-gray-300 focus:ring-1 focus:ring-gray-200"
                                                 placeholder="Doe"
                                             />
                                         </div>
                                     </div>
 
                                     <div>
-                                        <Label className="text-sm font-medium text-slate-700 mb-2 block flex items-center gap-2">
-                                            <Mail className="w-4 h-4" />
+                                        <Label className="text-xs font-medium text-gray-600 mb-1.5 block">
                                             Email
                                         </Label>
                                         <Input
@@ -654,14 +603,13 @@ export default function StartClaimPage() {
                                             value={contactInfo.email}
                                             onChange={handleContactChange}
                                             required
-                                            className="h-12 border-slate-300 focus:border-vendle-blue focus:ring-vendle-blue/20"
+                                            className="h-9 text-sm rounded border-gray-200 focus:border-gray-300 focus:ring-1 focus:ring-gray-200"
                                             placeholder="john.doe@example.com"
                                         />
                                     </div>
 
                                     <div>
-                                        <Label className="text-sm font-medium text-slate-700 mb-2 block flex items-center gap-2">
-                                            <Phone className="w-4 h-4" />
+                                        <Label className="text-xs font-medium text-gray-600 mb-1.5 block">
                                             Phone Number
                                         </Label>
                                         <Input
@@ -670,143 +618,84 @@ export default function StartClaimPage() {
                                             value={contactInfo.phone}
                                             onChange={handleContactChange}
                                             required
-                                            className="h-12 border-slate-300 focus:border-vendle-blue focus:ring-vendle-blue/20"
+                                            className="h-9 text-sm rounded border-gray-200 focus:border-gray-300 focus:ring-1 focus:ring-gray-200"
                                             placeholder="(555) 123-4567"
                                         />
                                     </div>
 
-                                    <div className="flex justify-between pt-6 border-t border-slate-200">
-                                        <Button
-                                            type="button"
-                                            onClick={() => {
-                                                setShowContactForm(false);
-                                                setContactInfo({ firstName: '', lastName: '', email: '', phone: '' });
-                                            }}
-                                            variant="outline"
-                                            className="px-8 py-6 border-slate-300"
-                                        >
-                                            <ArrowLeft className="w-4 h-4 mr-2" />
-                                            Back
-                                        </Button>
+                                    <div className="flex justify-end pt-3 border-t border-gray-100">
                                         <Button
                                             type="submit"
                                             disabled={!contactInfo.firstName || !contactInfo.lastName || !contactInfo.email || !contactInfo.phone}
-                                            className="px-8 py-6 bg-vendle-blue text-white hover:shadow-lg transition-all disabled:opacity-50"
+                                            className="h-9 px-4 text-sm bg-vendle-blue text-white hover:bg-vendle-blue/90 disabled:opacity-50"
                                         >
                                             Continue
-                                            <ArrowRight className="w-4 h-4 ml-2" />
+                                            <ArrowRight className="w-3.5 h-3.5 ml-1.5" />
                                         </Button>
                                     </div>
                                 </form>
-                            </motion.div>
-                        </motion.div>
+                            </div>
+                        </div>
                     ) : !selectedType ? (
-                        // Modern Selection Screen
-                        <motion.div
-                            key="selection"
-                            initial={{ opacity: 0, y: 20 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            exit={{ opacity: 0, y: -20 }}
-                            transition={{ duration: 0.5 }}
-                            className="max-w-5xl mx-auto"
-                        >
-                            <div className="text-center mb-12">
-                                <motion.div
-                                    initial={{ scale: 0.9, opacity: 0 }}
-                                    animate={{ scale: 1, opacity: 1 }}
-                                    transition={{ delay: 0.1, duration: 0.5 }}
-                                    className="inline-flex items-center justify-center w-20 h-20 rounded-2xl bg-vendle-blue mb-6 shadow-lg"
-                                >
-                                    <Sparkles className="w-10 h-10 text-white" />
-                                </motion.div>
-                                <motion.h1
-                                    initial={{ opacity: 0, y: 10 }}
-                                    animate={{ opacity: 1, y: 0 }}
-                                    transition={{ delay: 0.2 }}
-                                    className="text-5xl md:text-6xl font-bold text-slate-900 mb-4 tracking-tight"
-                                >
-                                    Let's rebuild!
-                                </motion.h1>
-                                <motion.p
-                                    initial={{ opacity: 0, y: 10 }}
-                                    animate={{ opacity: 1, y: 0 }}
-                                    transition={{ delay: 0.3 }}
-                                    className="text-xl text-slate-600 mb-12"
-                                >
+                        // Selection Screen
+                        <div key="selection">
+                            <div className="text-center mb-6">
+                                <div className="inline-flex items-center justify-center w-12 h-12 rounded bg-vendle-blue mb-4">
+                                    <Sparkles className="w-6 h-6 text-white" />
+                                </div>
+                                <h1 className="text-2xl font-semibold text-gray-900 mb-1">
+                                    Let's rebuild
+                                </h1>
+                                <p className="text-sm text-gray-500">
                                     Have you filed a claim?
-                                </motion.p>
+                                </p>
                             </div>
 
-                            <div className="grid md:grid-cols-2 gap-8 max-w-4xl mx-auto">
-                                <motion.div
-                                    initial={{ opacity: 0, x: -20 }}
-                                    animate={{ opacity: 1, x: 0 }}
-                                    transition={{ delay: 0.4 }}
-                                    whileHover={{ y: -4 }}
-                                    whileTap={{ scale: 0.98 }}
+                            <div className="space-y-3">
+                                <button
+                                    onClick={() => handleSelection(true)}
+                                    className="w-full group p-4 rounded border border-gray-200 bg-white hover:border-gray-300 transition-colors text-left"
                                 >
-                                    <button
-                                        onClick={() => handleSelection(true)}
-                                        className="w-full group relative overflow-hidden bg-card rounded-2xl p-8 shadow-md hover:shadow-xl border-2 border-vendle-gray/30 hover:border-vendle-blue transition-all duration-300 text-left"
-                                    >
-                                        <div className="absolute inset-0 bg-vendle-blue/10 opacity-0 group-hover:opacity-100 transition-opacity" />
-                                        <div className="relative">
-                                            <div className="flex items-center justify-between mb-4">
-                                                <div className="w-14 h-14 rounded-xl bg-vendle-teal/20 flex items-center justify-center group-hover:bg-vendle-teal/30 transition-colors">
-                                                    <CheckCircle2 className="w-7 h-7 text-vendle-teal" />
-                                                </div>
-                                                <ChevronRight className="w-5 h-5 text-slate-400 group-hover:text-vendle-blue group-hover:translate-x-1 transition-all" />
-                                            </div>
-                                            <h3 className="text-2xl font-semibold text-foreground mb-2">Yes, I have, let's start recovering</h3>
-                                            <p className="text-muted-foreground">Start your insurance claim process</p>
+                                    <div className="flex items-center gap-3">
+                                        <div className="w-10 h-10 rounded bg-green-50 flex items-center justify-center flex-shrink-0">
+                                            <CheckCircle2 className="w-5 h-5 text-green-600" />
                                         </div>
-                                    </button>
-                                </motion.div>
+                                        <div className="flex-1 min-w-0">
+                                            <h3 className="text-sm font-medium text-gray-900">Yes, let's start recovering</h3>
+                                            <p className="text-xs text-gray-500">Start your insurance claim process</p>
+                                        </div>
+                                        <ChevronRight className="w-4 h-4 text-gray-400 group-hover:text-gray-600 transition-colors" />
+                                    </div>
+                                </button>
 
-                                <motion.div
-                                    initial={{ opacity: 0, x: 20 }}
-                                    animate={{ opacity: 1, x: 0 }}
-                                    transition={{ delay: 0.5 }}
-                                    whileHover={{ y: -4 }}
-                                    whileTap={{ scale: 0.98 }}
+                                <button
+                                    onClick={() => handleSelection(false)}
+                                    className="w-full group p-4 rounded border border-gray-200 bg-white hover:border-gray-300 transition-colors text-left"
                                 >
-                                    <button
-                                        onClick={() => handleSelection(false)}
-                                        className="w-full group relative overflow-hidden bg-white rounded-2xl p-8 shadow-sm hover:shadow-xl border-2 border-slate-200 hover:border-vendle-blue transition-all duration-300 text-left"
-                                    >
-                                        <div className="absolute inset-0 bg-vendle-blue/5 opacity-0 group-hover:opacity-100 transition-opacity" />
-                                        <div className="relative">
-                                            <div className="flex items-center justify-between mb-4">
-                                                <div className="w-14 h-14 rounded-xl bg-vendle-sand/30 flex items-center justify-center group-hover:bg-vendle-sand/40 transition-colors">
-                                                    <XCircle className="w-7 h-7 text-vendle-navy" />
-                                                </div>
-                                                <ChevronRight className="w-5 h-5 text-slate-400 group-hover:text-vendle-blue group-hover:translate-x-1 transition-all" />
-                                            </div>
-                                            <h3 className="text-2xl font-semibold text-slate-900 mb-2">Not yet, where do I start?</h3>
-                                            <p className="text-slate-600">Get assistance through FEMA programs</p>
+                                    <div className="flex items-center gap-3">
+                                        <div className="w-10 h-10 rounded bg-gray-100 flex items-center justify-center flex-shrink-0">
+                                            <XCircle className="w-5 h-5 text-gray-500" />
                                         </div>
-                                    </button>
-                                </motion.div>
+                                        <div className="flex-1 min-w-0">
+                                            <h3 className="text-sm font-medium text-gray-900">Not yet, where do I start?</h3>
+                                            <p className="text-xs text-gray-500">Get assistance through FEMA programs</p>
+                                        </div>
+                                        <ChevronRight className="w-4 h-4 text-gray-400 group-hover:text-gray-600 transition-colors" />
+                                    </div>
+                                </button>
                             </div>
-                        </motion.div>
+                        </div>
                     ) : selectedType === 'insurance' ? (
-                        // Modern Insurance Onboarding
-                        <motion.div
-                            key="insurance"
-                            initial={{ opacity: 0, y: 20 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            exit={{ opacity: 0, y: -20 }}
-                            transition={{ duration: 0.4 }}
-                            className="max-w-5xl mx-auto"
-                        >
+                        // Insurance Onboarding
+                        <div key="insurance">
                             {/* Header */}
-                            <div className="mb-8">
+                            <div className="mb-4">
                                 <button
                                     onClick={handleBackToSelection}
-                                    className="flex items-center gap-2 text-muted-foreground hover:text-vendle-blue transition-colors group"
+                                    className="flex items-center gap-1.5 text-xs text-gray-500 hover:text-gray-700 transition-colors"
                                 >
-                                    <ArrowLeft className="w-4 h-4 group-hover:-translate-x-1 transition-transform" />
-                                    <span className="font-medium">Back</span>
+                                    <ArrowLeft className="w-3.5 h-3.5" />
+                                    <span>Back</span>
                                 </button>
                             </div>
 
@@ -814,363 +703,297 @@ export default function StartClaimPage() {
                             <StepIndicator currentStep={currentStep} totalSteps={totalSteps} />
 
                             {/* Step Content */}
-                            <AnimatePresence mode="wait">
-                                {currentStep === 1 && (
-                                    <motion.div
-                                        key="step1"
-                                        initial={{ opacity: 0, x: 20 }}
-                                        animate={{ opacity: 1, x: 0 }}
-                                        exit={{ opacity: 0, x: -20 }}
-                                        transition={{ duration: 0.3 }}
-                                    >
-                                        <Step1Location
-                                            address={address}
-                                            onAddressChange={setAddress}
-                                        />
+                            {currentStep === 1 && (
+                                <div>
+                                    <Step1Location
+                                        address={address}
+                                        onAddressChange={setAddress}
+                                    />
 
-                                        <NavigationButtons
-                                            currentStep={currentStep}
-                                            totalSteps={totalSteps}
-                                            onBack={prevStep}
-                                            onNext={nextStep}
-                                            isValid={!!isCurrentStepValid()}
-                                        />
-                                    </motion.div>
-                                )}
+                                    <NavigationButtons
+                                        currentStep={currentStep}
+                                        totalSteps={totalSteps}
+                                        onBack={prevStep}
+                                        onNext={nextStep}
+                                        isValid={!!isCurrentStepValid()}
+                                    />
+                                </div>
+                            )}
 
-                                {currentStep === 2 && (
-                                    <motion.div
-                                        key="step2-restoration"
-                                        initial={{ opacity: 0, x: 20 }}
-                                        animate={{ opacity: 1, x: 0 }}
-                                        exit={{ opacity: 0, x: -20 }}
-                                        transition={{ duration: 0.3 }}
-                                    >
-                                        <Step2Restoration
-                                            formData={restorationFormData}
-                                            onFormChange={handleRestorationInputChange}
-                                            uploadedFile={uploadedInsuranceEstimatePdf}
-                                            onFileUpload={(file) => setUploadedInsuranceEstimatePdf(file)}
-                                            onFileRemove={() => setUploadedInsuranceEstimatePdf(null)}
-                                        />
+                            {currentStep === 2 && (
+                                <div>
+                                    <Step2Restoration
+                                        formData={restorationFormData}
+                                        onFormChange={handleRestorationInputChange}
+                                        uploadedFile={uploadedInsuranceEstimatePdf}
+                                        onFileUpload={(file) => setUploadedInsuranceEstimatePdf(file)}
+                                        onFileRemove={() => setUploadedInsuranceEstimatePdf(null)}
+                                    />
 
-                                        <NavigationButtons
-                                            currentStep={currentStep}
-                                            totalSteps={totalSteps}
-                                            onBack={prevStep}
-                                            onNext={nextStep}
-                                            isValid={!!isCurrentStepValid()}
-                                        />
-                                    </motion.div>
-                                )}
+                                    <NavigationButtons
+                                        currentStep={currentStep}
+                                        totalSteps={totalSteps}
+                                        onBack={prevStep}
+                                        onNext={nextStep}
+                                        isValid={!!isCurrentStepValid()}
+                                    />
+                                </div>
+                            )}
 
-                                {currentStep === 3 && (
-                                    <motion.div
-                                        key="step3-damage"
-                                        initial={{ opacity: 0, x: 20 }}
-                                        animate={{ opacity: 1, x: 0 }}
-                                        exit={{ opacity: 0, x: -20 }}
-                                        transition={{ duration: 0.3 }}
-                                    >
-                                        <Step3DamageTypes
-                                            damageTypes={damageTypes}
-                                            onToggleDamageType={toggleDamageType}
-                                        />
+                            {currentStep === 3 && (
+                                <div>
+                                    <Step3DamageTypes
+                                        damageTypes={damageTypes}
+                                        onToggleDamageType={toggleDamageType}
+                                    />
 
-                                        <NavigationButtons
-                                            currentStep={currentStep}
-                                            totalSteps={totalSteps}
-                                            onBack={prevStep}
-                                            onNext={nextStep}
-                                            isValid={!!isCurrentStepValid()}
-                                        />
-                                    </motion.div>
-                                )}
+                                    <NavigationButtons
+                                        currentStep={currentStep}
+                                        totalSteps={totalSteps}
+                                        onBack={prevStep}
+                                        onNext={nextStep}
+                                        isValid={!!isCurrentStepValid()}
+                                    />
+                                </div>
+                            )}
 
-                                {currentStep === 4 && (
-                                    <motion.div
-                                        key="step4-property"
-                                        initial={{ opacity: 0, x: 20 }}
-                                        animate={{ opacity: 1, x: 0 }}
-                                        exit={{ opacity: 0, x: -20 }}
-                                        transition={{ duration: 0.3 }}
-                                    >
-                                        <Step4Property
-                                            questions={propertyQuestions}
-                                            onQuestionChange={(field, value) =>
-                                                setPropertyQuestions({...propertyQuestions, [field]: value})
-                                            }
-                                            images={uploadedImages}
-                                            onImageUpload={(files) => {
-                                                const mapped = files.map(file => ({
-                                                    file,
-                                                    preview: URL.createObjectURL(file)
-                                                }));
-                                                setUploadedImages(prev => [...prev, ...mapped]);
-                                            }}
-                                            onImageRemove={(index) => {
-                                                setUploadedImages(prev => prev.filter((_, i) => i !== index));
-                                            }}
-                                        />
+                            {currentStep === 4 && (
+                                <div>
+                                    <Step4Property
+                                        questions={propertyQuestions}
+                                        onQuestionChange={(field, value) =>
+                                            setPropertyQuestions({...propertyQuestions, [field]: value})
+                                        }
+                                        images={uploadedImages}
+                                        onImageUpload={(files) => {
+                                            const mapped = files.map(file => ({
+                                                file,
+                                                preview: URL.createObjectURL(file)
+                                            }));
+                                            setUploadedImages(prev => [...prev, ...mapped]);
+                                        }}
+                                        onImageRemove={(index) => {
+                                            setUploadedImages(prev => prev.filter((_, i) => i !== index));
+                                        }}
+                                    />
 
-                                        <NavigationButtons
-                                            currentStep={currentStep}
-                                            totalSteps={totalSteps}
-                                            onBack={prevStep}
-                                            onNext={nextStep}
-                                            isValid={!!isCurrentStepValid()}
-                                        />
-                                    </motion.div>
-                                )}
+                                    <NavigationButtons
+                                        currentStep={currentStep}
+                                        totalSteps={totalSteps}
+                                        onBack={prevStep}
+                                        onNext={nextStep}
+                                        isValid={!!isCurrentStepValid()}
+                                    />
+                                </div>
+                            )}
 
-                                {currentStep === 5 && (
-                                    <motion.div
-                                        key="step5-timeline"
-                                        initial={{ opacity: 0, x: 20 }}
-                                        animate={{ opacity: 1, x: 0 }}
-                                        exit={{ opacity: 0, x: -20 }}
-                                        transition={{ duration: 0.3 }}
-                                    >
-                                        <Step5Timeline
-                                            timeline={timeline}
-                                            onTimelineChange={(field, value) =>
-                                                setTimeline({...timeline, [field]: value})
-                                            }
-                                            propertyAddress={address.street}
-                                        />
+                            {currentStep === 5 && (
+                                <div>
+                                    <Step5Timeline
+                                        timeline={timeline}
+                                        onTimelineChange={(field, value) =>
+                                            setTimeline({...timeline, [field]: value})
+                                        }
+                                        propertyAddress={address.street}
+                                    />
 
-                                        <NavigationButtons
-                                            currentStep={currentStep}
-                                            totalSteps={totalSteps}
-                                            onBack={prevStep}
-                                            onNext={nextStep}
-                                            isValid={!!isCurrentStepValid()}
-                                        />
-                                    </motion.div>
-                                )}
+                                    <NavigationButtons
+                                        currentStep={currentStep}
+                                        totalSteps={totalSteps}
+                                        onBack={prevStep}
+                                        onNext={nextStep}
+                                        isValid={!!isCurrentStepValid()}
+                                    />
+                                </div>
+                            )}
 
-                                {currentStep === 6 && (
-                                    <motion.div
-                                        key="step6-project"
-                                        initial={{ opacity: 0, x: 20 }}
-                                        animate={{ opacity: 1, x: 0 }}
-                                        exit={{ opacity: 0, x: -20 }}
-                                        transition={{ duration: 0.3 }}
-                                    >
-                                        <Step6ProjectType
-                                            selectedType={projectType}
-                                            onTypeChange={setProjectType}
-                                        />
+                            {currentStep === 6 && (
+                                <div>
+                                    <Step6ProjectType
+                                        selectedType={projectType}
+                                        onTypeChange={setProjectType}
+                                    />
 
-                                        <NavigationButtons
-                                            currentStep={currentStep}
-                                            totalSteps={totalSteps}
-                                            onBack={prevStep}
-                                            onNext={nextStep}
-                                            isValid={!!isCurrentStepValid()}
-                                        />
-                                    </motion.div>
-                                )}
+                                    <NavigationButtons
+                                        currentStep={currentStep}
+                                        totalSteps={totalSteps}
+                                        onBack={prevStep}
+                                        onNext={nextStep}
+                                        isValid={!!isCurrentStepValid()}
+                                    />
+                                </div>
+                            )}
 
-                                {currentStep === 7 && (
-                                    <motion.div
-                                        key="step7-design"
-                                        initial={{ opacity: 0, x: 20 }}
-                                        animate={{ opacity: 1, x: 0 }}
-                                        exit={{ opacity: 0, x: -20 }}
-                                        transition={{ duration: 0.3 }}
-                                    >
-                                        <Step7DesignPlan
-                                            selectedPlan={designPlan}
-                                            onPlanChange={setDesignPlan}
-                                        />
+                            {currentStep === 7 && (
+                                <div>
+                                    <Step7DesignPlan
+                                        selectedPlan={designPlan}
+                                        onPlanChange={setDesignPlan}
+                                    />
 
-                                        <NavigationButtons
-                                            currentStep={currentStep}
-                                            totalSteps={totalSteps}
-                                            onBack={prevStep}
-                                            onNext={nextStep}
-                                            isValid={!!isCurrentStepValid()}
-                                        />
-                                    </motion.div>
-                                )}
+                                    <NavigationButtons
+                                        currentStep={currentStep}
+                                        totalSteps={totalSteps}
+                                        onBack={prevStep}
+                                        onNext={nextStep}
+                                        isValid={!!isCurrentStepValid()}
+                                    />
+                                </div>
+                            )}
 
-                                {currentStep === 8 && (
-                                    <motion.div
-                                        key="step8-claim"
-                                        initial={{ opacity: 0, x: 20 }}
-                                        animate={{ opacity: 1, x: 0 }}
-                                        exit={{ opacity: 0, x: -20 }}
-                                        transition={{ duration: 0.3 }}
-                                    >
-                                        <Step8ClaimAssistance
-                                            needsAdjuster={needsAdjuster}
-                                            onAdjusterChange={setNeedsAdjuster}
-                                        />
+                            {currentStep === 8 && (
+                                <div>
+                                    <Step8ClaimAssistance
+                                        needsAdjuster={needsAdjuster}
+                                        onAdjusterChange={setNeedsAdjuster}
+                                    />
 
-                                        <NavigationButtons
-                                            currentStep={currentStep}
-                                            totalSteps={totalSteps}
-                                            onBack={prevStep}
-                                            onNext={completeOnboarding}
-                                            isValid={!!isCurrentStepValid()}
-                                            isSubmitting={submitClaimMutation.isPending}
-                                        />
-                                    </motion.div>
-                                )}
-                            </AnimatePresence>
-                        </motion.div>
+                                    <NavigationButtons
+                                        currentStep={currentStep}
+                                        totalSteps={totalSteps}
+                                        onBack={prevStep}
+                                        onNext={completeOnboarding}
+                                        isValid={!!isCurrentStepValid()}
+                                        isSubmitting={submitClaimMutation.isPending}
+                                    />
+                                </div>
+                            )}
+                        </div>
                     ) : selectedType === 'fema' ? (
-                        // Modern FEMA Form
-                        <motion.div
-                            key="fema"
-                            initial={{ opacity: 0, y: 20 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            exit={{ opacity: 0, y: -20 }}
-                            transition={{ duration: 0.4 }}
-                            className="max-w-4xl mx-auto"
-                        >
-                            <button
-                                onClick={handleBackToSelection}
-                                className="flex items-center gap-2 text-[#4A637D] hover:text-[#2C3E50] transition-colors group mb-6"
-                            >
-                                <ArrowLeft className="w-5 h-5 group-hover:-translate-x-1 transition-transform" />
-                                <span className="font-semibold">Back to Selection</span>
-                            </button>
+                        // FEMA Form
+                        <div key="fema">
+                            <div className="mb-4">
+                                <button
+                                    onClick={handleBackToSelection}
+                                    className="flex items-center gap-1.5 text-xs text-gray-500 hover:text-gray-700 transition-colors"
+                                >
+                                    <ArrowLeft className="w-3.5 h-3.5" />
+                                    <span>Back</span>
+                                </button>
+                            </div>
 
-                            <motion.div
-                                initial={{ opacity: 0, y: 20 }}
-                                animate={{ opacity: 1, y: 0 }}
-                                className="bg-white rounded-2xl shadow-xl border-2 border-[#D9D9D9]/30 overflow-hidden"
-                            >
-                                {/* Header with gradient accent */}
-                                <div className="h-2 bg-[#4A637D]" />
+                            <div className="mb-4">
+                                <h1 className="text-lg font-semibold text-gray-900 mb-1">FEMA Assistance</h1>
+                                <p className="text-sm text-gray-500">Apply for federal disaster assistance</p>
+                            </div>
 
-                                <div className="p-6 sm:p-8 lg:p-10">
-                                    <div className="mb-8">
-                                        <h1 className="text-2xl sm:text-3xl font-bold text-[#2C3E50] mb-2">FEMA Assistance Application</h1>
-                                        <p className="text-[#2C3E50]/70">Complete the form below to apply for federal disaster assistance</p>
-                                    </div>
+                            <div className="bg-white rounded border border-gray-200 p-4">
+                                <form onSubmit={handleFemaSubmit} className="space-y-4">
+                                    {/* Personal Information Section */}
+                                    <div className="space-y-3">
+                                        <h3 className="text-xs font-medium text-gray-500 uppercase tracking-wide">
+                                            Personal Information
+                                        </h3>
 
-                                    <form onSubmit={handleFemaSubmit} className="space-y-8">
-                                        {/* Personal Information Section */}
-                                        <div className="space-y-6">
-                                            <h3 className="text-lg font-bold text-[#2C3E50] flex items-center gap-2 pb-3 border-b-2 border-[#D9D9D9]">
-                                                <User className="w-5 h-5 text-[#4A637D]" />
-                                                Personal Information
-                                            </h3>
-
-                                            <div className="grid sm:grid-cols-2 gap-6">
-                                                <div>
-                                                    <Label className="text-sm font-semibold text-[#2C3E50] mb-2 block">
-                                                        First Name
-                                                    </Label>
-                                                    <Input
-                                                        name="firstName"
-                                                        value={femaFormData.firstName}
-                                                        onChange={handleFemaChange}
-                                                        required
-                                                        className="h-12 border-2 border-[#D9D9D9] focus:border-[#4A637D] focus:ring-2 focus:ring-[#4A637D]/20 rounded-xl transition-all"
-                                                        placeholder="John"
-                                                    />
-                                                </div>
-                                                <div>
-                                                    <Label className="text-sm font-semibold text-[#2C3E50] mb-2 block">
-                                                        Last Name
-                                                    </Label>
-                                                    <Input
-                                                        name="lastName"
-                                                        value={femaFormData.lastName}
-                                                        onChange={handleFemaChange}
-                                                        required
-                                                        className="h-12 border-2 border-[#D9D9D9] focus:border-[#4A637D] focus:ring-2 focus:ring-[#4A637D]/20 rounded-xl transition-all"
-                                                        placeholder="Doe"
-                                                    />
-                                                </div>
-                                            </div>
-                                        </div>
-
-                                        {/* Contact Information Section */}
-                                        <div className="space-y-6">
-                                            <h3 className="text-lg font-bold text-[#2C3E50] flex items-center gap-2 pb-3 border-b-2 border-[#D9D9D9]">
-                                                <Mail className="w-5 h-5 text-[#4A637D]" />
-                                                Contact Information
-                                            </h3>
-
-                                            <div className="grid sm:grid-cols-2 gap-6">
-                                                <div>
-                                                    <Label className="text-sm font-semibold text-[#2C3E50] mb-2 block">
-                                                        Email Address
-                                                    </Label>
-                                                    <Input
-                                                        name="email"
-                                                        type="email"
-                                                        value={femaFormData.email}
-                                                        onChange={handleFemaChange}
-                                                        required
-                                                        className="h-12 border-2 border-[#D9D9D9] focus:border-[#4A637D] focus:ring-2 focus:ring-[#4A637D]/20 rounded-xl transition-all"
-                                                        placeholder="john.doe@email.com"
-                                                    />
-                                                </div>
-                                                <div>
-                                                    <Label className="text-sm font-semibold text-[#2C3E50] mb-2 block">
-                                                        Phone Number
-                                                    </Label>
-                                                    <Input
-                                                        name="phone"
-                                                        type="tel"
-                                                        value={femaFormData.phone}
-                                                        onChange={handleFemaChange}
-                                                        required
-                                                        className="h-12 border-2 border-[#D9D9D9] focus:border-[#4A637D] focus:ring-2 focus:ring-[#4A637D]/20 rounded-xl transition-all"
-                                                        placeholder="(555) 123-4567"
-                                                    />
-                                                </div>
-                                            </div>
-                                        </div>
-
-                                        {/* Property Address Section */}
-                                        <div className="space-y-6">
-                                            <h3 className="text-lg font-bold text-[#2C3E50] flex items-center gap-2 pb-3 border-b-2 border-[#D9D9D9]">
-                                                <MapPin className="w-5 h-5 text-[#4A637D]" />
-                                                Property Address
-                                            </h3>
-
+                                        <div className="grid grid-cols-2 gap-3">
                                             <div>
-                                                <Label className="text-sm font-semibold text-[#2C3E50] mb-2 block">
-                                                    Street Address
+                                                <Label className="text-xs font-medium text-gray-600 mb-1.5 block">
+                                                    First Name
                                                 </Label>
                                                 <Input
-                                                    name="address"
-                                                    value={femaFormData.address}
+                                                    name="firstName"
+                                                    value={femaFormData.firstName}
                                                     onChange={handleFemaChange}
                                                     required
-                                                    className="h-12 border-2 border-[#D9D9D9] focus:border-[#4A637D] focus:ring-2 focus:ring-[#4A637D]/20 rounded-xl transition-all"
-                                                    placeholder="123 Main Street"
+                                                    className="h-9 text-sm rounded border-gray-200 focus:border-gray-300 focus:ring-1 focus:ring-gray-200"
+                                                    placeholder="John"
                                                 />
                                             </div>
+                                            <div>
+                                                <Label className="text-xs font-medium text-gray-600 mb-1.5 block">
+                                                    Last Name
+                                                </Label>
+                                                <Input
+                                                    name="lastName"
+                                                    value={femaFormData.lastName}
+                                                    onChange={handleFemaChange}
+                                                    required
+                                                    className="h-9 text-sm rounded border-gray-200 focus:border-gray-300 focus:ring-1 focus:ring-gray-200"
+                                                    placeholder="Doe"
+                                                />
+                                            </div>
+                                        </div>
+                                    </div>
 
-                                            <div className="grid sm:grid-cols-3 gap-6">
-                                                <div>
-                                                    <Label className="text-sm font-semibold text-[#2C3E50] mb-2 block">City</Label>
-                                                    <Input
-                                                        name="city"
-                                                        value={femaFormData.city}
-                                                        onChange={handleFemaChange}
-                                                        required
-                                                        className="h-12 border-2 border-[#D9D9D9] focus:border-[#4A637D] focus:ring-2 focus:ring-[#4A637D]/20 rounded-xl transition-all"
-                                                        placeholder="San Francisco"
-                                                    />
-                                                </div>
-                                                <div>
-                                                    <Label className="text-sm font-semibold text-[#2C3E50] mb-2 block">State</Label>
-                                                    <select
-                                                        name="state"
-                                                        value={femaFormData.state}
-                                                        onChange={handleFemaChange}
-                                                        required
-                                                        className="w-full h-12 px-4 border-2 border-[#D9D9D9] rounded-xl focus:border-[#4A637D] focus:ring-2 focus:ring-[#4A637D]/20 transition-all bg-white"
-                                                    >
+                                    {/* Contact Information Section */}
+                                    <div className="space-y-3 pt-3 border-t border-gray-100">
+                                        <h3 className="text-xs font-medium text-gray-500 uppercase tracking-wide">
+                                            Contact Information
+                                        </h3>
+
+                                        <div className="grid grid-cols-2 gap-3">
+                                            <div>
+                                                <Label className="text-xs font-medium text-gray-600 mb-1.5 block">
+                                                    Email Address
+                                                </Label>
+                                                <Input
+                                                    name="email"
+                                                    type="email"
+                                                    value={femaFormData.email}
+                                                    onChange={handleFemaChange}
+                                                    required
+                                                    className="h-9 text-sm rounded border-gray-200 focus:border-gray-300 focus:ring-1 focus:ring-gray-200"
+                                                    placeholder="john.doe@email.com"
+                                                />
+                                            </div>
+                                            <div>
+                                                <Label className="text-xs font-medium text-gray-600 mb-1.5 block">
+                                                    Phone Number
+                                                </Label>
+                                                <Input
+                                                    name="phone"
+                                                    type="tel"
+                                                    value={femaFormData.phone}
+                                                    onChange={handleFemaChange}
+                                                    required
+                                                    className="h-9 text-sm rounded border-gray-200 focus:border-gray-300 focus:ring-1 focus:ring-gray-200"
+                                                    placeholder="(555) 123-4567"
+                                                />
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    {/* Property Address Section */}
+                                    <div className="space-y-3 pt-3 border-t border-gray-100">
+                                        <h3 className="text-xs font-medium text-gray-500 uppercase tracking-wide">
+                                            Property Address
+                                        </h3>
+
+                                        <div>
+                                            <Label className="text-xs font-medium text-gray-600 mb-1.5 block">
+                                                Street Address
+                                            </Label>
+                                            <Input
+                                                name="address"
+                                                value={femaFormData.address}
+                                                onChange={handleFemaChange}
+                                                required
+                                                className="h-9 text-sm rounded border-gray-200 focus:border-gray-300 focus:ring-1 focus:ring-gray-200"
+                                                placeholder="123 Main Street"
+                                            />
+                                        </div>
+
+                                        <div className="grid grid-cols-3 gap-3">
+                                            <div>
+                                                <Label className="text-xs font-medium text-gray-600 mb-1.5 block">City</Label>
+                                                <Input
+                                                    name="city"
+                                                    value={femaFormData.city}
+                                                    onChange={handleFemaChange}
+                                                    required
+                                                    className="h-9 text-sm rounded border-gray-200 focus:border-gray-300 focus:ring-1 focus:ring-gray-200"
+                                                    placeholder="San Francisco"
+                                                />
+                                            </div>
+                                            <div>
+                                                <Label className="text-xs font-medium text-gray-600 mb-1.5 block">State</Label>
+                                                <select
+                                                    name="state"
+                                                    value={femaFormData.state}
+                                                    onChange={handleFemaChange}
+                                                    required
+                                                    className="w-full h-9 px-3 text-sm border border-gray-200 rounded focus:border-gray-300 focus:ring-1 focus:ring-gray-200 bg-white"
+                                                >
                                                 <option value="">Select State</option>
                                                 <option value="AL">Alabama</option>
                                                 <option value="AK">Alaska</option>
@@ -1222,99 +1045,86 @@ export default function StartClaimPage() {
                                                 <option value="WV">West Virginia</option>
                                                 <option value="WI">Wisconsin</option>
                                                 <option value="WY">Wyoming</option>
-                                                    </select>
-                                                </div>
-                                                <div>
-                                                    <Label className="text-sm font-semibold text-[#2C3E50] mb-2 block">ZIP Code</Label>
-                                                    <Input
-                                                        name="zipCode"
-                                                        value={femaFormData.zipCode}
-                                                        onChange={handleFemaChange}
-                                                        required
-                                                        className="h-12 border-2 border-[#D9D9D9] focus:border-[#4A637D] focus:ring-2 focus:ring-[#4A637D]/20 rounded-xl transition-all"
-                                                        placeholder="94102"
-                                                    />
-                                                </div>
+                                                </select>
                                             </div>
-                                        </div>
-
-                                        {/* Property Damage Section */}
-                                        <div className="space-y-6">
-                                            <h3 className="text-lg font-bold text-[#2C3E50] flex items-center gap-2 pb-3 border-b-2 border-[#D9D9D9]">
-                                                <Building2 className="w-5 h-5 text-[#4A637D]" />
-                                                Property Damage Details
-                                            </h3>
-
                                             <div>
-                                                <Label className="text-sm font-semibold text-[#2C3E50] mb-2 block">
-                                                    Describe the damage to your property
-                                                </Label>
+                                                <Label className="text-xs font-medium text-gray-600 mb-1.5 block">ZIP Code</Label>
                                                 <Input
-                                                    name="propertyDamage"
-                                                    value={femaFormData.propertyDamage}
+                                                    name="zipCode"
+                                                    value={femaFormData.zipCode}
                                                     onChange={handleFemaChange}
                                                     required
-                                                    className="h-12 border-2 border-[#D9D9D9] focus:border-[#4A637D] focus:ring-2 focus:ring-[#4A637D]/20 rounded-xl transition-all"
-                                                    placeholder="Brief description of damage"
+                                                    className="h-9 text-sm rounded border-gray-200 focus:border-gray-300 focus:ring-1 focus:ring-gray-200"
+                                                    placeholder="94102"
                                                 />
                                             </div>
                                         </div>
+                                    </div>
 
-                                        {/* Eligibility Requirements */}
-                                        <div className="space-y-6">
-                                            <h3 className="text-lg font-bold text-[#2C3E50] flex items-center gap-2 pb-3 border-b-2 border-[#D9D9D9]">
-                                                <CheckCircle2 className="w-5 h-5 text-[#4A637D]" />
-                                                Eligibility Requirements
-                                            </h3>
+                                    {/* Property Damage Section */}
+                                    <div className="space-y-3 pt-3 border-t border-gray-100">
+                                        <h3 className="text-xs font-medium text-gray-500 uppercase tracking-wide">
+                                            Property Damage
+                                        </h3>
 
-                                            <div className="space-y-4">
-                                                {[
-                                                    { name: 'isPrimaryResidence', label: 'This is my primary residence', icon: Home },
-                                                    { name: 'hasInsurance', label: 'I have property insurance', icon: Shield },
-                                                    { name: 'isUsCitizen', label: 'I am a U.S. citizen or qualified alien', icon: User }
-                                                ].map(({ name, label, icon: Icon }) => (
-                                                    <div key={name} className="flex items-center gap-3 p-4 rounded-xl border-2 border-[#D9D9D9] hover:border-[#4A637D]/50 transition-colors">
-                                                        <Checkbox
-                                                            id={name}
-                                                            checked={femaFormData[name as keyof typeof femaFormData] as boolean}
-                                                            onCheckedChange={(checked) =>
-                                                                setFemaFormData(prev => ({ ...prev, [name]: checked as boolean }))
-                                                            }
-                                                            className="border-2 border-[#D9D9D9] data-[state=checked]:bg-[#4A637D] data-[state=checked]:border-[#4A637D] h-5 w-5"
-                                                        />
-                                                        <Label htmlFor={name} className="text-sm font-medium text-[#2C3E50] flex items-center gap-2 cursor-pointer flex-1">
-                                                            <Icon className="w-4 h-4 text-[#4A637D]" />
-                                                            {label}
-                                                        </Label>
-                                                    </div>
-                                                ))}
-                                            </div>
+                                        <div>
+                                            <Label className="text-xs font-medium text-gray-600 mb-1.5 block">
+                                                Describe the damage
+                                            </Label>
+                                            <Input
+                                                name="propertyDamage"
+                                                value={femaFormData.propertyDamage}
+                                                onChange={handleFemaChange}
+                                                required
+                                                className="h-9 text-sm rounded border-gray-200 focus:border-gray-300 focus:ring-1 focus:ring-gray-200"
+                                                placeholder="Brief description of damage"
+                                            />
                                         </div>
+                                    </div>
 
-                                        {/* Submit Buttons */}
-                                        <div className="flex flex-col sm:flex-row justify-end gap-4 pt-6">
-                                            <Button
-                                                type="button"
-                                                onClick={handleBackToSelection}
-                                                variant="outline"
-                                                className="px-8 py-3 border-2 border-[#D9D9D9] hover:border-[#4A637D] hover:bg-[#4A637D]/5 transition-all font-semibold"
-                                            >
-                                                Cancel
-                                            </Button>
-                                            <Button
-                                                type="submit"
-                                                disabled={disableFemaSubmit || femaMutation.isPending}
-                                                className="px-8 py-3 bg-[#4A637D] hover:bg-[#4A637D]/90 text-white font-bold shadow-lg hover:shadow-xl transition-all disabled:opacity-50"
-                                            >
-                                                {femaMutation.isPending ? "Submitting..." : "Submit Application"}
-                                            </Button>
+                                    {/* Eligibility Requirements */}
+                                    <div className="space-y-3 pt-3 border-t border-gray-100">
+                                        <h3 className="text-xs font-medium text-gray-500 uppercase tracking-wide">
+                                            Eligibility
+                                        </h3>
+
+                                        <div className="space-y-2">
+                                            {[
+                                                { name: 'isPrimaryResidence', label: 'This is my primary residence' },
+                                                { name: 'hasInsurance', label: 'I have property insurance' },
+                                                { name: 'isUsCitizen', label: 'I am a U.S. citizen or qualified alien' }
+                                            ].map(({ name, label }) => (
+                                                <div key={name} className="flex items-center gap-2 p-2 rounded border border-gray-200 hover:border-gray-300 transition-colors">
+                                                    <Checkbox
+                                                        id={name}
+                                                        checked={femaFormData[name as keyof typeof femaFormData] as boolean}
+                                                        onCheckedChange={(checked) =>
+                                                            setFemaFormData(prev => ({ ...prev, [name]: checked as boolean }))
+                                                        }
+                                                        className="border-gray-300 data-[state=checked]:bg-vendle-blue data-[state=checked]:border-vendle-blue h-4 w-4"
+                                                    />
+                                                    <Label htmlFor={name} className="text-sm text-gray-700 cursor-pointer flex-1">
+                                                        {label}
+                                                    </Label>
+                                                </div>
+                                            ))}
                                         </div>
-                                    </form>
-                                </div>
-                            </motion.div>
-                        </motion.div>
-                    ) : null}
-                </AnimatePresence>
+                                    </div>
+
+                                    {/* Submit Button */}
+                                    <div className="flex justify-end pt-3 border-t border-gray-100">
+                                        <Button
+                                            type="submit"
+                                            disabled={disableFemaSubmit || femaMutation.isPending}
+                                            className="h-9 px-4 text-sm bg-vendle-blue text-white hover:bg-vendle-blue/90 disabled:opacity-50"
+                                        >
+                                            {femaMutation.isPending ? "Submitting..." : "Submit Application"}
+                                        </Button>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                ) : null}
             </div>
         </div>
     );

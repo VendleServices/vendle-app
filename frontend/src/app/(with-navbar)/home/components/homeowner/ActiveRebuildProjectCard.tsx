@@ -1,7 +1,5 @@
-import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { MapPin, CheckCircle, Calendar, Clock, Activity } from "lucide-react";
+import { MapPin, CheckCircle, Calendar, Clock, Wrench, ArrowRight, Building2 } from "lucide-react";
 import { HomeownerProject } from "../types";
 
 interface ActiveRebuildProjectCardProps {
@@ -15,109 +13,116 @@ export function ActiveRebuildProjectCard({
   onViewDetails,
   onManageProject
 }: ActiveRebuildProjectCardProps) {
+  const getStatusStyles = () => {
+    if (project.status === 'active') return { bg: 'bg-emerald-50', text: 'text-emerald-700', border: 'border-emerald-200' };
+    if (project.status === 'completed') return { bg: 'bg-vendle-blue/10', text: 'text-vendle-blue', border: 'border-vendle-blue/20' };
+    return { bg: 'bg-amber-50', text: 'text-amber-700', border: 'border-amber-200' };
+  };
+
+  const getStatusLabel = () => {
+    if (project.status === 'active') return 'Active';
+    if (project.status === 'completed') return 'Completed';
+    return 'Pending';
+  };
+
+  const status = getStatusStyles();
+
   return (
-    <Card className="hover:shadow-lg transition-shadow">
-      <CardHeader>
-        <div className="flex items-start justify-between">
-          <div className="flex-1">
-            <CardTitle className="text-lg mb-1">{project.title}</CardTitle>
-            <div className="flex items-center gap-2 text-sm text-gray-600 mt-1">
-              <MapPin className="h-4 w-4" />
-              <span>{project.address}, {project.city}, {project.state}</span>
-            </div>
-          </div>
-          <Badge className={`${
-            project.status === 'active'
-              ? 'bg-vendle-teal/10 text-vendle-teal border-vendle-teal/20'
-              : project.status === 'completed'
-                ? 'bg-blue-100 text-blue-800 border-blue-200'
-                : 'bg-yellow-100 text-yellow-800 border-yellow-200'
-          }`}>
-            {project.status === 'active' ? 'Active' : project.status === 'completed' ? 'Completed' : 'Pending'}
-          </Badge>
+    <div className="bg-white border border-gray-200 rounded hover:border-gray-300 transition-colors">
+      {/* Header */}
+      <div className="p-4 border-b border-gray-100">
+        <div className="flex items-start justify-between gap-3 mb-2">
+          <h3 className="text-sm font-medium text-gray-900 line-clamp-1">
+            {project.title}
+          </h3>
+          <span className={`flex-shrink-0 flex items-center gap-1 px-2 py-0.5 rounded ${status.bg} ${status.text} ${status.border} text-[10px] font-medium border`}>
+            <Wrench className="h-3 w-3" />
+            {getStatusLabel()}
+          </span>
         </div>
-      </CardHeader>
-      <CardContent>
-        <div className="space-y-4">
-          {/* Project Info */}
-          <div className="space-y-2">
-            <div className="flex items-center justify-between text-sm">
-              <span className="text-gray-600">Project Type:</span>
-              <span className="font-medium">{project.projectType}</span>
-            </div>
-            <div className="flex items-center justify-between text-sm">
-              <span className="text-gray-600">Contract Value:</span>
-              <span className="font-semibold text-vendle-blue">${project.contractValue.toLocaleString()}</span>
-            </div>
-            <div className="flex items-center justify-between text-sm">
-              <span className="text-gray-600">Contractor:</span>
-              <span className="font-medium">{project.contractorName}</span>
-            </div>
-            {project.contractorCompany && (
-              <div className="flex items-center justify-between text-sm">
-                <span className="text-gray-600">Company:</span>
-                <span className="font-medium text-xs">{project.contractorCompany}</span>
-              </div>
-            )}
-          </div>
+        <div className="flex items-center gap-1.5 text-xs text-gray-500">
+          <MapPin className="h-3 w-3 text-gray-400" />
+          <span className="line-clamp-1">{project.address}, {project.city}, {project.state}</span>
+        </div>
+      </div>
 
-          {/* Progress Bar */}
-          <div className="space-y-2">
-            <div className="flex items-center justify-between text-sm">
-              <span className="text-gray-600">Progress</span>
-              <span className="font-medium">{project.progress}%</span>
-            </div>
-            <div className="w-full bg-gray-200 rounded-full h-2.5">
-              <div
-                className="bg-vendle-blue h-2.5 rounded-full transition-all"
-                style={{ width: `${project.progress}%` }}
-              ></div>
-            </div>
-          </div>
+      {/* Content */}
+      <div className="p-4 space-y-3">
+        {/* Contract Value */}
+        <div className="p-3 bg-vendle-blue/5 rounded border border-vendle-blue/10">
+          <p className="text-[10px] font-medium text-gray-500 uppercase tracking-wide mb-1">Contract Value</p>
+          <p className="text-lg font-semibold text-gray-900">${project.contractValue.toLocaleString()}</p>
+        </div>
 
-          {/* Milestones */}
-          <div className="flex items-center justify-between text-sm pt-2 border-t">
-            <div className="flex items-center gap-2">
-              <CheckCircle className="h-4 w-4 text-vendle-teal" />
-              <span className="text-gray-600">Milestones:</span>
+        {/* Contractor Info */}
+        <div className="p-2 bg-gray-50 rounded border border-gray-100">
+          <div className="flex items-center justify-between text-xs">
+            <div className="flex items-center gap-1.5 text-gray-500">
+              <Building2 className="h-3 w-3" />
+              <span>Contractor</span>
             </div>
-            <span className="font-medium">
-              {project.milestonesCompleted} / {project.totalMilestones} completed
+            <span className="font-medium text-gray-900 truncate max-w-[150px]">
+              {project.contractorCompany || project.contractorName}
             </span>
           </div>
+        </div>
 
-          {/* Dates */}
-          <div className="space-y-1 text-xs text-gray-500 pt-2 border-t">
-            <div className="flex items-center gap-2">
-              <Calendar className="h-3 w-3" />
-              <span>Started: {new Date(project.startDate).toLocaleDateString()}</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <Clock className="h-3 w-3" />
-              <span>Expected Completion: {new Date(project.expectedCompletion).toLocaleDateString()}</span>
-            </div>
+        {/* Progress */}
+        <div className="p-3 bg-gray-50 rounded border border-gray-100">
+          <div className="flex items-center justify-between text-xs mb-1.5">
+            <span className="text-gray-500">Progress</span>
+            <span className="font-medium text-gray-900">{project.progress}%</span>
           </div>
-
-          {/* Actions */}
-          <div className="flex gap-2 pt-2">
-            <Button
-              variant="outline"
-              className="flex-1"
-              onClick={onViewDetails}
-            >
-              View Details
-            </Button>
-            <Button
-              variant="default"
-              className="flex-1 bg-vendle-blue hover:bg-vendle-blue/90"
-              onClick={onManageProject}
-            >
-              <Activity className="h-4 w-4 mr-2" />
-              Manage
-            </Button>
+          <div className="w-full bg-gray-200 rounded-full h-1.5">
+            <div
+              className="bg-vendle-teal h-1.5 rounded-full transition-all"
+              style={{ width: `${project.progress}%` }}
+            />
+          </div>
+          <div className="flex items-center justify-between mt-2 text-[10px] text-gray-500">
+            <div className="flex items-center gap-1">
+              <CheckCircle className="h-3 w-3 text-vendle-teal" />
+              <span>Milestones: {project.milestonesCompleted}/{project.totalMilestones}</span>
+            </div>
           </div>
         </div>
-      </CardContent>
-    </Card>
+
+        {/* Dates */}
+        <div className="grid grid-cols-2 gap-2">
+          <div className="p-2 bg-gray-50 rounded border border-gray-100">
+            <p className="text-[10px] text-gray-500 mb-0.5">Started</p>
+            <p className="text-xs font-medium text-gray-900">
+              {new Date(project.startDate).toLocaleDateString()}
+            </p>
+          </div>
+          <div className="p-2 bg-gray-50 rounded border border-gray-100">
+            <p className="text-[10px] text-gray-500 mb-0.5">Due</p>
+            <p className="text-xs font-medium text-gray-900">
+              {new Date(project.expectedCompletion).toLocaleDateString()}
+            </p>
+          </div>
+        </div>
+
+        {/* Actions */}
+        <div className="grid grid-cols-2 gap-2">
+          <Button
+            variant="outline"
+            size="sm"
+            className="h-8 text-xs border-gray-200 hover:bg-gray-50"
+            onClick={onViewDetails}
+          >
+            View Details
+          </Button>
+          <Button
+            size="sm"
+            className="h-8 text-xs bg-vendle-blue hover:bg-vendle-blue/90"
+            onClick={onManageProject}
+          >
+            Manage
+            <ArrowRight className="h-3 w-3 ml-1" />
+          </Button>
+        </div>
+      </div>
+    </div>
   );
 }

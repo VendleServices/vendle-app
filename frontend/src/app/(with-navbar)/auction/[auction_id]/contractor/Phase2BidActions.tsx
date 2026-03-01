@@ -1,8 +1,7 @@
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Check, Calculator, Trash2, Info, DollarSign } from "lucide-react";
+import { Check, Pencil, X, DollarSign } from "lucide-react";
 import { Phase2BidActionsProps } from "../types";
 
 export function Phase2BidActions({
@@ -20,92 +19,88 @@ export function Phase2BidActions({
   disableWithdrawBid
 }: Phase2BidActionsProps) {
   return (
-    <>
-      {/* Header with gradient */}
-      <div className="rounded-t-2xl bg-[#4A637D] p-6 text-white">
-        <div className="flex items-center justify-between mb-2">
-          <h2 className="text-2xl font-bold">Your Phase 1 Bid</h2>
-          <Badge className="bg-white/20 text-white border-white/30">
-            <Check className="w-3 h-3 mr-1" />
+    <div className="bg-white border border-gray-200 rounded">
+      {/* Header */}
+      <div className="px-4 py-3 border-b border-gray-100">
+        <div className="flex items-center justify-between">
+          <h2 className="text-sm font-medium text-gray-900">Your Phase 1 Bid</h2>
+          <span className="flex items-center gap-1 px-2 py-1 rounded bg-vendle-teal/10 text-[10px] font-medium text-vendle-teal">
+            <Check className="w-3 h-3" />
             Selected
-          </Badge>
+          </span>
         </div>
-        <p className="text-white/90 text-sm">
-          Review and confirm your bid, or make adjustments
+        <p className="text-xs text-gray-500 mt-1">
+          {adjustingBid ? "Adjust your bid amounts below" : "Review and confirm your bid, or make adjustments"}
         </p>
       </div>
 
-      {/* Phase 2 content */}
-      <div className="bg-white rounded-b-2xl border-2 border-t-0 border-vendle-gray/20 p-6 space-y-6 shadow-xl">
+      {/* Content */}
+      <div className="p-4 space-y-4">
         {!adjustingBid ? (
           <>
             {/* Current bid display */}
-            <div className="p-6 rounded-xl bg-[#4A637D]/10 border-2 border-[#4A637D]/20">
-              <div className="space-y-4">
-                <div>
-                  <p className="text-sm font-medium text-muted-foreground mb-2">
-                    Your Phase 1 Bid Amount
-                  </p>
-                  <p className="text-4xl font-bold text-foreground">
-                    ${contractorPhase1Bid?.amount?.toLocaleString()}
+            <div className="p-3 bg-vendle-blue/5 rounded border border-vendle-blue/10">
+              <p className="text-[10px] font-medium text-gray-500 uppercase tracking-wide mb-1">
+                Your Bid Amount
+              </p>
+              <p className="text-2xl font-semibold text-gray-900">
+                ${contractorPhase1Bid?.amount?.toLocaleString()}
+              </p>
+            </div>
+
+            {/* Cost breakdown */}
+            <div>
+              <p className="text-[10px] font-medium text-gray-500 uppercase tracking-wide mb-2">
+                Cost Breakdown
+              </p>
+              <div className="grid grid-cols-2 gap-2 text-sm">
+                <div className="p-2 bg-gray-50 rounded border border-gray-100">
+                  <p className="text-[10px] text-gray-500">Materials</p>
+                  <p className="font-medium text-gray-900">
+                    ${contractorPhase1Bid?.budgetTotal.toLocaleString()}
                   </p>
                 </div>
-
-                {/* Cost breakdown */}
-                <div className="pt-4 border-t border-[#D9D9D9] space-y-2">
-                  <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-3">
-                    Cost Breakdown
+                <div className="p-2 bg-gray-50 rounded border border-gray-100">
+                  <p className="text-[10px] text-gray-500">Labor</p>
+                  <p className="font-medium text-gray-900">
+                    ${contractorPhase1Bid?.laborCosts.toLocaleString()}
                   </p>
-                  <div className="grid grid-cols-2 gap-3 text-sm">
-                    <div>
-                      <p className="text-muted-foreground">Materials</p>
-                      <p className="font-semibold text-foreground">
-                        ${contractorPhase1Bid?.budgetTotal.toLocaleString()}
-                      </p>
-                    </div>
-                    <div>
-                      <p className="text-muted-foreground">Labor</p>
-                      <p className="font-semibold text-foreground">
-                        ${contractorPhase1Bid?.laborCosts.toLocaleString()}
-                      </p>
-                    </div>
-                    <div>
-                      <p className="text-muted-foreground">Subcontractors</p>
-                      <p className="font-semibold text-foreground">
-                        ${contractorPhase1Bid?.subContractorExpenses.toLocaleString()}
-                      </p>
-                    </div>
-                    <div>
-                      <p className="text-muted-foreground">Overhead</p>
-                      <p className="font-semibold text-foreground">
-                        ${contractorPhase1Bid?.overhead.toLocaleString()}
-                      </p>
-                    </div>
-                    <div>
-                      <p className="text-muted-foreground">Profit</p>
-                      <p className="font-semibold text-foreground">
-                        ${contractorPhase1Bid?.profit.toLocaleString()}
-                      </p>
-                    </div>
-                    <div>
-                      <p className="text-muted-foreground">Allowance</p>
-                      <p className="font-semibold text-foreground">
-                        ${contractorPhase1Bid?.allowance.toLocaleString()}
-                      </p>
-                    </div>
-                  </div>
+                </div>
+                <div className="p-2 bg-gray-50 rounded border border-gray-100">
+                  <p className="text-[10px] text-gray-500">Subcontractors</p>
+                  <p className="font-medium text-gray-900">
+                    ${contractorPhase1Bid?.subContractorExpenses.toLocaleString()}
+                  </p>
+                </div>
+                <div className="p-2 bg-gray-50 rounded border border-gray-100">
+                  <p className="text-[10px] text-gray-500">Overhead</p>
+                  <p className="font-medium text-gray-900">
+                    ${contractorPhase1Bid?.overhead.toLocaleString()}
+                  </p>
+                </div>
+                <div className="p-2 bg-gray-50 rounded border border-gray-100">
+                  <p className="text-[10px] text-gray-500">Profit</p>
+                  <p className="font-medium text-gray-900">
+                    ${contractorPhase1Bid?.profit.toLocaleString()}
+                  </p>
+                </div>
+                <div className="p-2 bg-gray-50 rounded border border-gray-100">
+                  <p className="text-[10px] text-gray-500">Allowance</p>
+                  <p className="font-medium text-gray-900">
+                    ${contractorPhase1Bid?.allowance.toLocaleString()}
+                  </p>
                 </div>
               </div>
             </div>
 
             {/* Action buttons */}
-            <div className="space-y-3">
+            <div className="space-y-2 pt-2">
               <Button
                 disabled={disableConfirmBid}
                 onClick={onConfirmBid}
-                className="w-full h-12 bg-[#4A637D] hover:bg-[#4A637D]/90 text-white font-bold shadow-lg hover:shadow-xl"
+                className="w-full h-9 bg-vendle-blue hover:bg-vendle-blue/90 text-white text-sm font-medium"
               >
-                <Check className="w-5 h-5 mr-2" />
+                <Check className="w-4 h-4 mr-1.5" />
                 Confirm Phase 1 Bid
               </Button>
 
@@ -113,9 +108,9 @@ export function Phase2BidActions({
                 disabled={disableAdjustBid}
                 onClick={onAdjustBid}
                 variant="outline"
-                className="w-full h-12 border-2 border-vendle-blue text-vendle-blue hover:bg-vendle-blue hover:text-white font-bold"
+                className="w-full h-9 border-gray-200 text-gray-700 hover:bg-gray-50 text-sm font-medium"
               >
-                <Calculator className="w-5 h-5 mr-2" />
+                <Pencil className="w-4 h-4 mr-1.5" />
                 Adjust Bid
               </Button>
 
@@ -123,30 +118,23 @@ export function Phase2BidActions({
                 disabled={disableWithdrawBid}
                 onClick={onWithdraw}
                 variant="outline"
-                className="w-full h-12 border-2 border-red-500 text-red-600 hover:bg-red-50 font-bold"
+                className="w-full h-9 border-red-200 text-red-600 hover:bg-red-50 text-sm font-medium"
               >
-                <Trash2 className="w-5 h-5 mr-2" />
+                <X className="w-4 h-4 mr-1.5" />
                 Withdraw from Auction
               </Button>
             </div>
           </>
         ) : (
           // Adjust bid form
-          <div className="space-y-6">
-            <div className="p-4 rounded-xl bg-[#4A637D]/10 border-2 border-[#4A637D]/20">
-              <p className="text-sm font-semibold text-[#2C3E50] flex items-center gap-2">
-                <Info className="w-4 h-4" />
-                Adjust your bid amounts below
-              </p>
-            </div>
-
+          <div className="space-y-4">
             {/* Adjusted total bid */}
-            <div className="p-6 rounded-xl bg-vendle-blue/5 border-2 border-vendle-blue/20">
-              <Label className="text-base font-bold text-foreground mb-3 block">
+            <div className="p-3 bg-vendle-blue/5 rounded border border-vendle-blue/10">
+              <Label className="text-[10px] font-medium text-gray-500 uppercase tracking-wide mb-2 block">
                 New Total Bid Amount
               </Label>
               <div className="relative">
-                <span className="absolute left-4 top-1/2 -translate-y-1/2 text-3xl font-bold text-vendle-blue">
+                <span className="absolute left-3 top-1/2 -translate-y-1/2 text-lg font-semibold text-vendle-blue">
                   $
                 </span>
                 <Input
@@ -155,17 +143,17 @@ export function Phase2BidActions({
                   onChange={(e) =>
                     setAdjustedBidData({ ...adjustedBidData, amount: Number(e.target.value) })
                   }
-                  className="h-16 pl-12 text-3xl font-bold border-2 border-vendle-blue/30"
+                  className="h-12 pl-8 text-lg font-semibold border-gray-200 rounded"
                 />
               </div>
             </div>
 
             {/* Adjusted cost breakdown */}
-            <div className="grid grid-cols-2 gap-3">
-              <div className="space-y-2">
-                <Label className="text-xs font-medium text-muted-foreground">Materials</Label>
+            <div className="grid grid-cols-2 gap-2">
+              <div className="space-y-1">
+                <Label className="text-[10px] font-medium text-gray-500">Materials</Label>
                 <div className="relative">
-                  <DollarSign className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-muted-foreground" />
+                  <DollarSign className="absolute left-2.5 top-1/2 -translate-y-1/2 w-3 h-3 text-gray-400" />
                   <Input
                     type="number"
                     value={adjustedBidData.budgetTotal}
@@ -175,14 +163,14 @@ export function Phase2BidActions({
                         budgetTotal: Number(e.target.value),
                       })
                     }
-                    className="h-11 pl-9"
+                    className="h-9 pl-7 text-sm rounded border-gray-200"
                   />
                 </div>
               </div>
-              <div className="space-y-2">
-                <Label className="text-xs font-medium text-muted-foreground">Labor</Label>
+              <div className="space-y-1">
+                <Label className="text-[10px] font-medium text-gray-500">Labor</Label>
                 <div className="relative">
-                  <DollarSign className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-muted-foreground" />
+                  <DollarSign className="absolute left-2.5 top-1/2 -translate-y-1/2 w-3 h-3 text-gray-400" />
                   <Input
                     type="number"
                     value={adjustedBidData.laborCosts}
@@ -192,14 +180,14 @@ export function Phase2BidActions({
                         laborCosts: Number(e.target.value),
                       })
                     }
-                    className="h-11 pl-9"
+                    className="h-9 pl-7 text-sm rounded border-gray-200"
                   />
                 </div>
               </div>
-              <div className="space-y-2">
-                <Label className="text-xs font-medium text-muted-foreground">Subcontractors</Label>
+              <div className="space-y-1">
+                <Label className="text-[10px] font-medium text-gray-500">Subcontractors</Label>
                 <div className="relative">
-                  <DollarSign className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-muted-foreground" />
+                  <DollarSign className="absolute left-2.5 top-1/2 -translate-y-1/2 w-3 h-3 text-gray-400" />
                   <Input
                     type="number"
                     value={adjustedBidData.subContractorExpenses}
@@ -209,14 +197,14 @@ export function Phase2BidActions({
                         subContractorExpenses: Number(e.target.value),
                       })
                     }
-                    className="h-11 pl-9"
+                    className="h-9 pl-7 text-sm rounded border-gray-200"
                   />
                 </div>
               </div>
-              <div className="space-y-2">
-                <Label className="text-xs font-medium text-muted-foreground">Overhead</Label>
+              <div className="space-y-1">
+                <Label className="text-[10px] font-medium text-gray-500">Overhead</Label>
                 <div className="relative">
-                  <DollarSign className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-muted-foreground" />
+                  <DollarSign className="absolute left-2.5 top-1/2 -translate-y-1/2 w-3 h-3 text-gray-400" />
                   <Input
                     type="number"
                     value={adjustedBidData.overhead}
@@ -226,14 +214,14 @@ export function Phase2BidActions({
                         overhead: Number(e.target.value),
                       })
                     }
-                    className="h-11 pl-9"
+                    className="h-9 pl-7 text-sm rounded border-gray-200"
                   />
                 </div>
               </div>
-              <div className="space-y-2">
-                <Label className="text-xs font-medium text-muted-foreground">Profit</Label>
+              <div className="space-y-1">
+                <Label className="text-[10px] font-medium text-gray-500">Profit</Label>
                 <div className="relative">
-                  <DollarSign className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-muted-foreground" />
+                  <DollarSign className="absolute left-2.5 top-1/2 -translate-y-1/2 w-3 h-3 text-gray-400" />
                   <Input
                     type="number"
                     value={adjustedBidData.profit}
@@ -243,14 +231,14 @@ export function Phase2BidActions({
                         profit: Number(e.target.value),
                       })
                     }
-                    className="h-11 pl-9"
+                    className="h-9 pl-7 text-sm rounded border-gray-200"
                   />
                 </div>
               </div>
-              <div className="space-y-2">
-                <Label className="text-xs font-medium text-muted-foreground">Allowance</Label>
+              <div className="space-y-1">
+                <Label className="text-[10px] font-medium text-gray-500">Allowance</Label>
                 <div className="relative">
-                  <DollarSign className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-muted-foreground" />
+                  <DollarSign className="absolute left-2.5 top-1/2 -translate-y-1/2 w-3 h-3 text-gray-400" />
                   <Input
                     type="number"
                     value={adjustedBidData.allowance}
@@ -260,28 +248,32 @@ export function Phase2BidActions({
                         allowance: Number(e.target.value),
                       })
                     }
-                    className="h-11 pl-9"
+                    className="h-9 pl-7 text-sm rounded border-gray-200"
                   />
                 </div>
               </div>
             </div>
 
             {/* Action buttons */}
-            <div className="flex gap-3">
+            <div className="flex gap-2 pt-2">
               <Button
                 onClick={onSubmitAdjustedBid}
-                className="flex-1 h-12 bg-vendle-blue hover:shadow-xl text-white font-bold"
+                className="flex-1 h-9 bg-vendle-blue hover:bg-vendle-blue/90 text-white text-sm font-medium"
               >
-                <Check className="w-5 h-5 mr-2" />
+                <Check className="w-4 h-4 mr-1.5" />
                 Submit Adjusted Bid
               </Button>
-              <Button onClick={onCancelAdjust} variant="outline" className="h-12 border-2">
+              <Button
+                onClick={onCancelAdjust}
+                variant="outline"
+                className="h-9 border-gray-200 text-sm"
+              >
                 Cancel
               </Button>
             </div>
           </div>
         )}
       </div>
-    </>
+    </div>
   );
 }

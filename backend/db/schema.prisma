@@ -28,6 +28,9 @@ model User {
   projects            Project[]
   document_embeddings document_embeddings[]
   chats               Chat[]
+  messages            Message[]
+  rooms               Room[]
+  roomReadStatuses    RoomReadStatus[]
 }
 
 model Fema {
@@ -172,29 +175,29 @@ model ClaimInvitation {
 }
 
 model Project {
-  status       ProjectStatus @default(DRAFT)
-  createdAt    DateTime      @default(now())
-  updatedAt    DateTime      @default(now()) @updatedAt
-  id           String        @id @default(uuid()) @db.Uuid
-  contractorId String        @db.Uuid
-  claimId      String        @unique @db.Uuid
-  claim        Claim         @relation("ClaimProject", fields: [claimId], references: [id])
-  contractor   User          @relation(fields: [contractorId], references: [id])
+  status       ProjectStatus      @default(DRAFT)
+  createdAt    DateTime           @default(now())
+  updatedAt    DateTime           @default(now()) @updatedAt
+  id           String             @id @default(uuid()) @db.Uuid
+  contractorId String             @db.Uuid
+  claimId      String             @unique @db.Uuid
+  claim        Claim              @relation("ClaimProject", fields: [claimId], references: [id])
+  contractor   User               @relation(fields: [contractorId], references: [id])
   milestones   PaymentMilestone[]
 }
 
 model PaymentMilestone {
-  id              String              @id @default(uuid()) @db.Uuid
-  projectId       String              @db.Uuid
+  id              String                 @id @default(uuid()) @db.Uuid
+  projectId       String                 @db.Uuid
   stage           MilestoneStage
   percentage      Float
   amount          Float
   status          PaymentMilestoneStatus @default(PENDING)
-  stripeSessionId String?             @unique
+  stripeSessionId String?                @unique
   paidAt          DateTime?
-  createdAt       DateTime            @default(now())
+  createdAt       DateTime               @default(now())
 
-  project         Project             @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  project Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
 
   @@unique([projectId, stage])
   @@index([projectId])
@@ -298,6 +301,39 @@ model Payment {
 
   @@index([bidId])
   @@index([claimId])
+}
+
+model Room {
+  id               String           @id @default(cuid())
+  createdAt        DateTime         @default(now())
+  updatedAt        DateTime         @updatedAt
+  messages         Message[]
+  users            User[]
+  roomReadStatuses RoomReadStatus[]
+}
+
+model Message {
+  id        String   @id @default(cuid())
+  content   String   @db.Text
+  createdAt DateTime @default(now())
+  roomId    String
+  room      Room     @relation(fields: [roomId], references: [id], onDelete: Cascade)
+  userId    String   @db.Uuid
+  sender    User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([roomId])
+  @@index([userId])
+}
+
+model RoomReadStatus {
+  id         String   @id @default(cuid())
+  userId     String   @db.Uuid
+  roomId     String
+  lastReadAt DateTime @default(now())
+  user       User     @relation(fields: [userId], references: [id])
+  room       Room     @relation(fields: [roomId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, roomId])
 }
 
 enum PaymentStatus {

@@ -7,9 +7,11 @@ import { motion, AnimatePresence } from 'framer-motion';
 import LoginModal from "@/components/LoginModal";
 import { useAuth } from "@/contexts/AuthContext";
 import vendleLogo from "../assets/vendle_logo.jpeg";
-import vendleAltLogo from "../assets/Vendle-logo-alt.png";
-import { Home, Search, User, LayoutDashboard, LogOut, LogIn, DollarSign, FileText, Menu, X } from "lucide-react";
+import { Search, User, LayoutDashboard, LogOut, LogIn, Menu, X, MessageSquare, Mail } from "lucide-react";
 import { usePathname, useRouter } from "next/navigation";
+import { useUnreadCount } from "@/hooks/useMessaging";
+import MessagingDrawer from "@/components/MessagingDrawer";
+import ContractorMailbox from "@/components/ContractorMailbox";
 
 interface NavbarProps {
   onProtectedAction?: () => void;
@@ -20,7 +22,10 @@ const Navbar = ({ onProtectedAction }: NavbarProps = {}) => {
   const pathname = usePathname();
   const [showLoginModal, setShowLoginModal] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [showMessagesDrawer, setShowMessagesDrawer] = useState(false);
+  const [showMailbox, setShowMailbox] = useState(false);
   const router = useRouter();
+  const { data: unreadCount = 0 } = useUnreadCount();
 
   const isContractor = user?.user_metadata?.userType === 'contractor';
   const isHomeowner = user?.user_metadata?.userType === 'homeowner' || (!isContractor && isLoggedIn);
@@ -39,7 +44,6 @@ const Navbar = ({ onProtectedAction }: NavbarProps = {}) => {
 
   const handleLogout = async () => {
     const { error } = await logout();
-
     if (!error) {
       router.push("/reviews");
     }
@@ -49,51 +53,127 @@ const Navbar = ({ onProtectedAction }: NavbarProps = {}) => {
     setShowLoginModal(true);
   };
 
-  const isStartClaimActive = pathname === '/start-claim';
+  const isActive = (path: string) => pathname === path;
+
+  const navLinkClasses = (path: string) =>
+    `px-3 py-1.5 text-sm font-medium rounded-md transition-colors ${
+      isActive(path)
+        ? 'text-gray-900 bg-gray-100'
+        : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'
+    }`;
 
   return (
     <>
-      <style dangerouslySetInnerHTML={{__html: `
-        .vendle-logo-wrapper {
-          background: transparent !important;
-        }
-        .vendle-logo-wrapper img {
-          background: transparent !important;
-        }
-        .vendle-logo-outline {
-          filter: grayscale(100%) brightness(0) invert(1);
-          opacity: 0.7;
-          transition: filter 0.2s ease, opacity 0.2s ease;
-        }
-        .group:hover .vendle-logo-outline,
-        .group:active .vendle-logo-outline {
-          filter: none !important;
-          opacity: 1 !important;
-        }
-        /* Ensure the image container doesn't have background */
-        .vendle-logo-wrapper::before {
-          content: '';
-          display: none;
-        }
-        /* Vendle It button logo hover expand effect */
-        .vendle-it-logo {
-          transition: transform 0.2s ease;
-        }
-        .group:hover .vendle-it-logo {
-          transform: scale(1.2);
-        }
-      `}} />
+      {/* Desktop Top Navbar */}
+      <nav className="hidden lg:block fixed top-0 left-0 right-0 h-14 bg-white border-b border-gray-200 z-50">
+        <div className="max-w-7xl mx-auto h-full px-4 flex items-center justify-between">
+          {/* Left: Logo */}
+          <Link href={isContractor ? "/explore" : "/home"} className="flex items-center gap-2">
+            <Image src={vendleLogo} alt="Vendle" width={32} height={32} className="h-8 w-8 rounded" />
+            <span className="font-semibold text-gray-900">Vendle</span>
+          </Link>
+
+          {/* Center: Navigation */}
+          <div className="flex items-center gap-1">
+            {isContractor && (
+              <Link href="/explore" className={navLinkClasses('/explore')}>
+                <span className="flex items-center gap-1.5">
+                  <Search className="h-4 w-4" />
+                  Explore
+                </span>
+              </Link>
+            )}
+            {isHomeowner && (
+              <Link
+                href="/start-claim"
+                onClick={(e) => handleProtectedClick(e, '/start-claim')}
+                className={navLinkClasses('/start-claim')}
+              >
+                Start Claim
+              </Link>
+            )}
+            <Link
+              href="/home"
+              onClick={(e) => handleProtectedClick(e, '/home')}
+              className={navLinkClasses('/home')}
+            >
+              <span className="flex items-center gap-1.5">
+                <LayoutDashboard className="h-4 w-4" />
+                Home
+              </span>
+            </Link>
+            <Link
+              href="/profile"
+              onClick={(e) => handleProtectedClick(e, '/profile')}
+              className={navLinkClasses('/profile')}
+            >
+              <span className="flex items-center gap-1.5">
+                <User className="h-4 w-4" />
+                Profile
+              </span>
+            </Link>
+          </div>
+
+          {/* Right: Actions */}
+          <div className="flex items-center gap-2">
+            {isLoggedIn && (
+              <>
+                {/* Messages/Mailbox Button */}
+                <button
+                  onClick={() => isContractor ? setShowMailbox(true) : setShowMessagesDrawer(true)}
+                  className="p-2 text-gray-600 hover:text-gray-900 hover:bg-gray-50 rounded-md relative"
+                >
+                  {isContractor ? (
+                    <Mail className="h-5 w-5" />
+                  ) : (
+                    <MessageSquare className="h-5 w-5" />
+                  )}
+                  {unreadCount > 0 && (
+                    <span className="absolute -top-0.5 -right-0.5 h-4 w-4 bg-vendle-blue text-white text-[10px] font-medium rounded-full flex items-center justify-center">
+                      {unreadCount > 9 ? '9+' : unreadCount}
+                    </span>
+                  )}
+                </button>
+
+                {/* User Type Badge */}
+                <span className="px-2 py-1 text-xs font-medium text-gray-500 bg-gray-100 rounded">
+                  {isContractor ? 'Contractor' : 'Homeowner'}
+                </span>
+
+                {/* Logout */}
+                <button
+                  onClick={handleLogout}
+                  className="px-3 py-1.5 text-sm font-medium text-gray-600 hover:text-gray-900 hover:bg-gray-50 rounded-md flex items-center gap-1.5"
+                >
+                  <LogOut className="h-4 w-4" />
+                  Logout
+                </button>
+              </>
+            )}
+
+            {!isLoggedIn && !loading && (
+              <button
+                onClick={handleSignIn}
+                className="px-3 py-1.5 text-sm font-medium bg-vendle-blue text-white hover:bg-vendle-blue/90 rounded-md flex items-center gap-1.5"
+              >
+                <LogIn className="h-4 w-4" />
+                Sign In
+              </button>
+            )}
+          </div>
+        </div>
+      </nav>
 
       {/* Mobile Hamburger Button */}
       <button
         onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-        className="fixed top-4 left-4 z-[60] lg:hidden w-12 h-12 bg-white rounded-xl shadow-lg flex items-center justify-center hover:shadow-xl transition-all duration-200 border border-gray-200"
+        className="fixed top-3 left-3 z-[60] lg:hidden w-10 h-10 bg-white rounded-lg shadow-sm flex items-center justify-center border border-gray-200"
         aria-label="Toggle menu"
       >
         {mobileMenuOpen ? (
-          <X className="w-6 h-6 text-gray-700" />
+          <X className="w-5 h-5 text-gray-700" />
         ) : (
-          <Menu className="w-6 h-6 text-gray-700" />
+          <Menu className="w-5 h-5 text-gray-700" />
         )}
       </button>
 
@@ -105,7 +185,7 @@ const Navbar = ({ onProtectedAction }: NavbarProps = {}) => {
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             transition={{ duration: 0.2 }}
-            className="fixed inset-0 bg-black/50 backdrop-blur-sm z-40 lg:hidden"
+            className="fixed inset-0 bg-black/40 z-40 lg:hidden"
             onClick={() => setMobileMenuOpen(false)}
           />
         )}
@@ -118,96 +198,102 @@ const Navbar = ({ onProtectedAction }: NavbarProps = {}) => {
             initial={{ x: '-100%' }}
             animate={{ x: 0 }}
             exit={{ x: '-100%' }}
-            transition={{ duration: 0.3, ease: 'easeOut' }}
-            className="fixed left-0 top-0 h-screen w-64 bg-white border-r border-gray-200 flex flex-col py-6 z-50 lg:hidden shadow-2xl"
+            transition={{ duration: 0.25, ease: 'easeOut' }}
+            className="fixed left-0 top-0 h-screen w-64 bg-white border-r border-gray-200 flex flex-col py-4 z-50 lg:hidden"
           >
             {/* Mobile Logo */}
-            <div className="px-6 mb-8">
-              <Link href={isContractor ? "/explore" : "/home"} className="inline-block">
-                <Image src={vendleLogo} alt="Vendle Logo" width={56} height={56} className="h-14 w-14 rounded-lg" />
+            <div className="px-4 mb-6 flex items-center gap-2">
+              <Link href={isContractor ? "/explore" : "/home"} className="flex items-center gap-2">
+                <Image src={vendleLogo} alt="Vendle" width={32} height={32} className="h-8 w-8 rounded" />
+                <span className="font-semibold text-gray-900">Vendle</span>
               </Link>
             </div>
 
             {/* Mobile Navigation Items */}
-            <div className="flex-1 flex flex-col px-4 space-y-2">
-              {/* Explore - Only show for contractors */}
+            <div className="flex-1 flex flex-col px-3 space-y-1">
               {isContractor && (
                 <Link
                   href="/explore"
-                  className={`flex items-center gap-3 px-4 py-3 rounded-lg transition-all duration-200 ${
-                    pathname === '/explore' ? 'bg-vendle-blue/10 text-vendle-blue' : 'hover:bg-gray-50 text-gray-700'
+                  className={`flex items-center gap-2 px-3 py-2 rounded-md text-sm font-medium transition-colors ${
+                    isActive('/explore') ? 'bg-gray-100 text-gray-900' : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
                   }`}
                 >
-                  <Search className={`w-5 h-5 ${pathname === '/explore' ? 'text-vendle-blue' : 'text-gray-600'}`} strokeWidth={2} />
-                  <span className="text-sm font-medium">Explore</span>
+                  <Search className="w-4 h-4" />
+                  Explore
                 </Link>
               )}
 
-              {/* Vendle It - Only show for homeowners */}
               {isHomeowner && (
                 <Link
                   href="/start-claim"
                   onClick={(e) => handleProtectedClick(e, '/start-claim')}
-                  className={`flex items-center gap-3 px-4 py-3 rounded-lg transition-all duration-200 ${
-                    pathname === '/start-claim' ? 'bg-vendle-blue/10 text-vendle-blue' : 'hover:bg-gray-50 text-gray-700'
+                  className={`flex items-center gap-2 px-3 py-2 rounded-md text-sm font-medium transition-colors ${
+                    isActive('/start-claim') ? 'bg-gray-100 text-gray-900' : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
                   }`}
                 >
-                  <div className="w-5 h-5 relative">
-                    <Image
-                      src={vendleAltLogo}
-                      alt="Vendle Logo"
-                      width={20}
-                      height={20}
-                      className="w-5 h-5 object-contain"
-                      style={{ backgroundColor: 'transparent' }}
-                    />
-                  </div>
-                  <span className="text-sm font-medium">Vendle It</span>
+                  Start Claim
                 </Link>
               )}
 
-              {/* Home */}
               <Link
                 href="/home"
                 onClick={(e) => handleProtectedClick(e, '/home')}
-                className={`flex items-center gap-3 px-4 py-3 rounded-lg transition-all duration-200 ${
-                  pathname === '/home' ? 'bg-vendle-blue/10 text-vendle-blue' : 'hover:bg-gray-50 text-gray-700'
+                className={`flex items-center gap-2 px-3 py-2 rounded-md text-sm font-medium transition-colors ${
+                  isActive('/home') ? 'bg-gray-100 text-gray-900' : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
                 }`}
               >
-                <LayoutDashboard className={`w-5 h-5 ${pathname === '/home' ? 'text-vendle-blue' : 'text-gray-600'}`} strokeWidth={2} />
-                <span className="text-sm font-medium">Home</span>
+                <LayoutDashboard className="w-4 h-4" />
+                Home
               </Link>
 
-              {/* Profile */}
               <Link
                 href="/profile"
                 onClick={(e) => handleProtectedClick(e, '/profile')}
-                className={`flex items-center gap-3 px-4 py-3 rounded-lg transition-all duration-200 ${
-                  pathname === '/profile' ? 'bg-vendle-blue/10 text-vendle-blue' : 'hover:bg-gray-50 text-gray-700'
+                className={`flex items-center gap-2 px-3 py-2 rounded-md text-sm font-medium transition-colors ${
+                  isActive('/profile') ? 'bg-gray-100 text-gray-900' : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
                 }`}
               >
-                <User className={`w-5 h-5 ${pathname === '/profile' ? 'text-vendle-blue' : 'text-gray-600'}`} strokeWidth={2} />
-                <span className="text-sm font-medium">Profile</span>
+                <User className="w-4 h-4" />
+                Profile
               </Link>
+
+              {/* Messages/Mailbox for mobile */}
+              {isLoggedIn && (
+                <button
+                  onClick={() => {
+                    setMobileMenuOpen(false);
+                    isContractor ? setShowMailbox(true) : setShowMessagesDrawer(true);
+                  }}
+                  className="flex items-center gap-2 px-3 py-2 rounded-md text-sm font-medium text-gray-600 hover:bg-gray-50 hover:text-gray-900 transition-colors"
+                >
+                  {isContractor ? <Mail className="w-4 h-4" /> : <MessageSquare className="w-4 h-4" />}
+                  {isContractor ? 'Mailbox' : 'Messages'}
+                  {unreadCount > 0 && (
+                    <span className="ml-auto h-5 w-5 bg-vendle-blue text-white text-xs font-medium rounded-full flex items-center justify-center">
+                      {unreadCount > 9 ? '9+' : unreadCount}
+                    </span>
+                  )}
+                </button>
+              )}
             </div>
 
             {/* Mobile Bottom Section */}
-            <div className="px-4">
+            <div className="px-3 pt-3 border-t border-gray-100">
               {isLoggedIn ? (
                 <button
                   onClick={handleLogout}
-                  className="w-full px-4 py-3 flex items-center gap-3 rounded-lg bg-red-50 hover:bg-red-100 transition-all duration-200"
+                  className="w-full px-3 py-2 flex items-center gap-2 rounded-md text-sm font-medium text-red-600 hover:bg-red-50 transition-colors"
                 >
-                  <LogOut className="w-5 h-5 text-red-600" strokeWidth={2} />
-                  <span className="text-sm font-medium text-red-600">Logout</span>
+                  <LogOut className="w-4 h-4" />
+                  Logout
                 </button>
               ) : (
                 <button
                   onClick={handleSignIn}
-                  className="w-full px-4 py-3 flex items-center gap-3 rounded-lg bg-vendle-teal text-white hover:bg-vendle-teal/90 transition-all duration-200"
+                  className="w-full px-3 py-2 flex items-center gap-2 rounded-md text-sm font-medium bg-vendle-blue text-white hover:bg-vendle-blue/90 transition-colors"
                 >
-                  <LogIn className="w-5 h-5 text-white" strokeWidth={2} />
-                  <span className="text-sm font-medium text-white">Sign In</span>
+                  <LogIn className="w-4 h-4" />
+                  Sign In
                 </button>
               )}
             </div>
@@ -215,112 +301,23 @@ const Navbar = ({ onProtectedAction }: NavbarProps = {}) => {
         )}
       </AnimatePresence>
 
-      {/* Desktop Sidebar */}
-      <nav className="hidden lg:flex fixed left-0 top-0 h-screen w-32 bg-white border-r border-gray-200 flex-col items-center py-8 z-50">
-      {/* Logo */}
-      <Link href={isContractor ? "/explore" : "/home"} className="mb-12">
-        <Image src={vendleLogo} alt="Vendle Logo" width={56} height={56} className="h-14 w-14 rounded-lg" />
-      </Link>
-
-      {/* Navigation Items - Centered vertically */}
-      <div className="flex-1 flex flex-col items-center justify-center space-y-8">
-        {/* Explore - Only show for contractors */}
-        {isContractor && (
-          <Link
-            href="/explore"
-            className={`flex flex-col items-center gap-2 p-3 rounded-xl transition-all duration-200 ${
-              pathname === '/explore' ? 'bg-vendle-blue/10 scale-105' : 'hover:bg-gray-50 hover:scale-105'
-            }`}
-          >
-            <Search className={`w-7 h-7 flex-shrink-0 block ${pathname === '/explore' ? 'text-vendle-blue' : 'text-gray-600'}`} strokeWidth={2} />
-            <span className={`text-xs font-medium ${pathname === '/explore' ? 'text-vendle-blue' : 'text-gray-600'}`}>
-              Explore
-            </span>
-          </Link>
-        )}
-
-        {/* Vendle It - Only show for homeowners */}
-        {isHomeowner && (
-          <Link
-            href="/start-claim"
-            onClick={(e) => handleProtectedClick(e, '/start-claim')}
-            className={`group flex flex-col items-center gap-2 p-3 rounded-xl transition-all duration-200 ${
-              pathname === '/start-claim' ? 'bg-vendle-blue/10 scale-105' : 'hover:bg-gray-50 hover:scale-105'
-            }`}
-          >
-            <div className="relative w-14 h-14 flex-shrink-0">
-              <Image
-                src={vendleAltLogo}
-                alt="Vendle Logo"
-                width={56}
-                height={56}
-                className="w-14 h-14 rounded transition-all duration-200 object-contain vendle-it-logo"
-                style={{ backgroundColor: 'transparent' }}
-              />
-            </div>
-            <span className={`text-xs font-medium ${pathname === '/start-claim' ? 'text-vendle-blue' : 'text-gray-600'}`}>
-              Vendle It
-            </span>
-          </Link>
-        )}
-
-        {/* Home */}
-        <Link
-          href="/home"
-          onClick={(e) => handleProtectedClick(e, '/home')}
-          className={`flex flex-col items-center gap-2 p-3 rounded-xl transition-all duration-200 ${
-            pathname === '/home' ? 'bg-vendle-blue/10 scale-105' : 'hover:bg-gray-50 hover:scale-105'
-          }`}
-        >
-          <LayoutDashboard className={`w-7 h-7 flex-shrink-0 block ${pathname === '/home' ? 'text-vendle-blue' : 'text-gray-600'}`} strokeWidth={2} />
-          <span className={`text-xs font-medium ${pathname === '/home' ? 'text-vendle-blue' : 'text-gray-600'}`}>
-            Home
-          </span>
-        </Link>
-
-        {/* Profile */}
-        <Link
-          href="/profile"
-          onClick={(e) => handleProtectedClick(e, '/profile')}
-          className={`flex flex-col items-center gap-2 p-3 rounded-xl transition-all duration-200 ${
-            pathname === '/profile' ? 'bg-vendle-blue/10 scale-105' : 'hover:bg-gray-50 hover:scale-105'
-          }`}
-        >
-          <User className={`w-7 h-7 flex-shrink-0 block ${pathname === '/profile' ? 'text-vendle-blue' : 'text-gray-600'}`} strokeWidth={2} />
-          <span className={`text-xs font-medium ${pathname === '/profile' ? 'text-vendle-blue' : 'text-gray-600'}`}>
-            Profile
-          </span>
-        </Link>
-      </div>
-
-      {/* Bottom Section */}
-      <div className="flex flex-col items-center space-y-4 w-full px-3">
-        {/* Sign In / Logout Button */}
-        {isLoggedIn ? (
-          <button
-            onClick={handleLogout}
-            className="w-full p-3 flex flex-col items-center gap-1 rounded-xl bg-red-50 hover:bg-red-100 transition-all duration-200 hover:scale-105 group"
-          >
-            <LogOut className="w-5 h-5 text-red-600 group-hover:text-red-700 block" strokeWidth={2} />
-            <span className="text-xs font-medium text-red-600 group-hover:text-red-700">Logout</span>
-          </button>
-        ) : (
-          <button
-            onClick={handleSignIn}
-            className="w-full p-3 flex flex-col items-center gap-1 rounded-xl bg-vendle-teal text-white hover:bg-vendle-teal/90 transition-all duration-200 hover:scale-105 group"
-          >
-            <LogIn className="w-5 h-5 text-white group-hover:text-white/90 block" strokeWidth={2} />
-            <span className="text-xs font-medium text-white group-hover:text-white/90">Sign In</span>
-          </button>
-        )}
-      </div>
-
       {/* Login Modal */}
       <LoginModal
         isOpen={showLoginModal}
         onClose={() => setShowLoginModal(false)}
       />
-    </nav>
+
+      {/* Messages Drawer (Homeowner) */}
+      <MessagingDrawer
+        isOpen={showMessagesDrawer}
+        onClose={() => setShowMessagesDrawer(false)}
+      />
+
+      {/* Contractor Mailbox */}
+      <ContractorMailbox
+        isOpen={showMailbox}
+        onClose={() => setShowMailbox(false)}
+      />
     </>
   );
 };
