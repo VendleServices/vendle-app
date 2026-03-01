@@ -53,7 +53,7 @@ export function PendingNDACard({ nda }: PendingNDACardProps) {
         {/* Action button */}
         <Link href={`/claim/${nda.id}`}>
           <Button
-            className="w-full h-8 text-xs bg-vendle-blue hover:bg-vendle-blue/90"
+            className="w-full h-8 text-xs bg-vendle-blue hover:bg-vendle-blue/90 mt-3"
           >
             View Details
             <ArrowRight className="h-3 w-3 ml-1.5" />
