@@ -1,6 +1,4 @@
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import { Mail } from "lucide-react";
 import { User } from "../types";
 
 interface DashboardHeaderProps {
@@ -8,56 +6,32 @@ interface DashboardHeaderProps {
   isContractor: boolean;
   contractorInvitationCount?: number;
   onShowMailbox?: () => void;
+  onShowMessages?: () => void;
 }
 
 export function DashboardHeader({
   user,
   isContractor,
-  contractorInvitationCount = 0,
-  onShowMailbox
 }: DashboardHeaderProps) {
   return (
-    <div className="mb-8">
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-3">
-          <h1 className="text-3xl font-bold text-gray-900">
-            Welcome back, {user?.email || 'User'}!
-          </h1>
-          {user?.user_metadata?.userType && (
-            <Badge
-              variant={user?.user_metadata?.userType === 'contractor' ? 'default' : 'secondary'}
-              className={
-                user?.user_metadata?.userType === 'contractor'
-                  ? 'bg-vendle-blue/90 text-white hover:bg-blue-800'
-                  : 'bg-gray-700 text-white hover:bg-gray-800'
-              }
-            >
-              {user?.user_metadata?.userType === 'contractor' ? 'Contractor' : 'Homeowner'}
-            </Badge>
-          )}
-        </div>
-        {/* Mailbox Button - Only for Contractors */}
-        {isContractor && onShowMailbox && (
-          <Button
-            variant="outline"
-            size="lg"
-            onClick={onShowMailbox}
-            className="relative"
+    <div className="mb-4">
+      <div className="flex items-center gap-2">
+        <h1 className="text-xl font-semibold text-gray-900">
+          Dashboard
+        </h1>
+        {user?.user_metadata?.userType && (
+          <Badge
+            variant="secondary"
+            className="text-xs font-medium bg-gray-100 text-gray-600 hover:bg-gray-100"
           >
-            <Mail className="h-5 w-5 mr-2" />
-            Mailbox
-            {contractorInvitationCount > 0 && (
-              <Badge className="ml-2 bg-red-500 text-white h-5 w-5 rounded-full p-0 flex items-center justify-center text-xs">
-                {contractorInvitationCount}
-              </Badge>
-            )}
-          </Button>
+            {user?.user_metadata?.userType === 'contractor' ? 'Contractor' : 'Homeowner'}
+          </Badge>
         )}
       </div>
-      <p className="text-gray-600 mt-2">
+      <p className="text-sm text-gray-500 mt-1">
         {isContractor
-          ? "Here's what's happening with your projects and opportunities"
-          : "Manage your projects and track their progress"}
+          ? "Manage your projects and explore opportunities"
+          : "Track your claims and project progress"}
       </p>
     </div>
   );

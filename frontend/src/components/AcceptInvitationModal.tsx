@@ -137,6 +137,7 @@ export default function AcceptInvitationModal({
             });
             queryClient.invalidateQueries({ queryKey: ['getContractorInvitations'] });
             queryClient.invalidateQueries({ queryKey: ['getContractorClaims'] });
+            queryClient.invalidateQueries({ queryKey: ['realClaims'] }); // Refresh explore page
             onSuccess();
         },
         onError: (error: any) => {

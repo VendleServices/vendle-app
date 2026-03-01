@@ -21,7 +21,7 @@ const worker = new Worker('ai-claim-processing-queue', async job => {
 
         const response = await openai.responses.create({
             model: "gpt-5",
-            input: `Summarize the following information into a short paragraph of 120 words or less: ${aiClaimSummary}`,
+            input: `Summarize the following information into a short paragraph of 120 words or less: ${aiClaimSummary}. It should be understandable by a human, and be clear and coherent. Make it a paragraph that flows naturally and professionally and can be understood by someone who is not an expert in the space.`,
         });
 
         aiClaimSummary = response?.output_text;

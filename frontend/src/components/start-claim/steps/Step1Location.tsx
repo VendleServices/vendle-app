@@ -2,9 +2,15 @@
 
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { AddressAutocomplete } from "@/components/AddressAutocomplete";
-import { MapPin } from "lucide-react";
-import { Card, CardContent } from "@/components/ui/card";
+import { US_STATES } from "@/lib/formatting";
 
 interface Step1LocationProps {
   address: {
@@ -25,70 +31,70 @@ export function Step1Location({ address, onAddressChange }: Step1LocationProps) 
   };
 
   return (
-    <Card className="border-2 border-vendle-gray/30 shadow-md rounded-2xl">
-      <CardContent className="p-8 lg:p-10">
-        <div className="space-y-6">
-          {/* Street Address */}
+    <div className="bg-white border border-gray-200 rounded p-4">
+      <div className="space-y-4">
+        {/* Street Address */}
+        <AddressAutocomplete
+          className="h-9 text-sm rounded border-gray-200 focus:border-gray-300 focus:ring-1 focus:ring-gray-200 bg-white"
+          value={address.street}
+          onChange={(newAddress) => {
+            onAddressChange({
+              ...address,
+              street: newAddress.street
+            });
+          }}
+          placeholder="123 Main Street"
+        />
+
+        {/* City, State, Zip in grid */}
+        <div className="grid grid-cols-3 gap-3">
           <div>
-            <AddressAutocomplete
-              className="h-14 rounded-xl border-2 border-vendle-gray/30 focus:border-vendle-blue focus:ring-4 focus:ring-vendle-blue/20 text-base bg-white"
-              value={address.street}
-              onChange={(newAddress) => {
-                // Merge the street value from autocomplete with existing address data
-                onAddressChange({
-                  ...address,
-                  street: newAddress.street
-                });
-              }}
-              placeholder="123 Main Street"
+            <Label className="text-xs font-medium text-gray-600 mb-1.5 block">
+              City
+            </Label>
+            <Input
+              className="h-9 text-sm rounded border-gray-200 focus:border-gray-300 focus:ring-1 focus:ring-gray-200"
+              value={address.city}
+              onChange={(e) => handleChange('city', e.target.value)}
+              placeholder="San Francisco"
             />
           </div>
 
-          {/* City, State, Zip in grid */}
-          <div className="grid md:grid-cols-3 gap-6">
-            {/* City */}
-            <div>
-              <Label className="text-sm font-semibold text-foreground mb-2.5">
-                City
-              </Label>
-              <Input
-                className="h-14 rounded-xl border-2 border-vendle-gray/30 focus:border-vendle-blue focus:ring-4 focus:ring-vendle-blue/20 text-base"
-                value={address.city}
-                onChange={(e) => handleChange('city', e.target.value)}
-                placeholder="San Francisco"
-              />
-            </div>
+          <div>
+            <Label className="text-xs font-medium text-gray-600 mb-1.5 block">
+              State
+            </Label>
+            <Select
+              value={address.state}
+              onValueChange={(value) => handleChange('state', value)}
+            >
+              <SelectTrigger className="h-9 text-sm rounded border-gray-200 focus:border-gray-300 focus:ring-1 focus:ring-gray-200">
+                <SelectValue placeholder="Select" />
+              </SelectTrigger>
+              <SelectContent className="max-h-[200px]">
+                {US_STATES.map((state) => (
+                  <SelectItem key={state.value} value={state.value} className="text-sm">
+                    {state.value} - {state.label}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
 
-            {/* State */}
-            <div>
-              <Label className="text-sm font-semibold text-foreground mb-2.5">
-                State
-              </Label>
-              <Input
-                className="h-14 rounded-xl border-2 border-vendle-gray/30 focus:border-vendle-blue focus:ring-4 focus:ring-vendle-blue/20 text-base"
-                value={address.state}
-                onChange={(e) => handleChange('state', e.target.value)}
-                placeholder="CA"
-                maxLength={2}
-              />
-            </div>
-
-            {/* ZIP Code */}
-            <div>
-              <Label className="text-sm font-semibold text-foreground mb-2.5">
-                ZIP Code
-              </Label>
-              <Input
-                className="h-14 rounded-xl border-2 border-vendle-gray/30 focus:border-vendle-blue focus:ring-4 focus:ring-vendle-blue/20 text-base"
-                value={address.zip}
-                onChange={(e) => handleChange('zip', e.target.value)}
-                placeholder="94102"
-                maxLength={5}
-              />
-            </div>
+          <div>
+            <Label className="text-xs font-medium text-gray-600 mb-1.5 block">
+              ZIP Code
+            </Label>
+            <Input
+              className="h-9 text-sm rounded border-gray-200 focus:border-gray-300 focus:ring-1 focus:ring-gray-200"
+              value={address.zip}
+              onChange={(e) => handleChange('zip', e.target.value)}
+              placeholder="94102"
+              maxLength={5}
+            />
           </div>
         </div>
-      </CardContent>
-    </Card>
+      </div>
+    </div>
   );
 }

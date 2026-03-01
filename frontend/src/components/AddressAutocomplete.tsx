@@ -2,7 +2,6 @@
 
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { MapPin } from "lucide-react";
 
 interface AddressAutocompleteProps {
     value: string;
@@ -25,8 +24,6 @@ export function AddressAutocomplete({
     label = "Street Address"
 }: AddressAutocompleteProps) {
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        // Only update street, preserve other fields by passing empty strings
-        // The parent component will merge this with existing address state
         onChange({
             street: e.target.value,
             city: '',
@@ -37,8 +34,7 @@ export function AddressAutocomplete({
 
     return (
         <div>
-            <Label className="text-sm font-medium text-slate-700 mb-2 block flex items-center gap-2">
-                <MapPin className="w-4 h-4" />
+            <Label className="text-xs font-medium text-gray-600 mb-1.5 block">
                 {label}
             </Label>
             <Input
@@ -50,4 +46,3 @@ export function AddressAutocomplete({
         </div>
     );
 }
-

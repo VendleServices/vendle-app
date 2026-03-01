@@ -1,91 +1,77 @@
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
 import { Users, DollarSign, Clock } from "lucide-react";
 import { AuctionDetailsCardProps } from "../types";
 
 export function AuctionDetailsCard({ auction }: AuctionDetailsCardProps) {
   return (
-    <Card className="shadow-lg border-2 border-vendle-gray/20 hover:shadow-xl transition-all duration-300 bg-white">
-      <CardHeader className="border-b-2 border-vendle-gray/10 pb-6 bg-vendle-blue/5">
-        <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
-          <div className="space-y-3">
-            <CardTitle className="text-3xl font-bold text-foreground tracking-tight">
-              {auction?.title}
-            </CardTitle>
-            <div className="flex flex-wrap items-center gap-2">
-              <Badge
-                variant="outline"
-                className="flex items-center gap-1 rounded-full border-border bg-background px-3 py-1 text-xs font-medium text-muted-foreground"
-              >
-                <Users className="h-3.5 w-3.5" />
-                {auction?.bids?.length} bids
-              </Badge>
-              <Badge
-                variant="outline"
-                className="flex items-center gap-1 rounded-full border-border bg-background px-3 py-1 text-xs font-medium text-muted-foreground"
-              >
-                <DollarSign className="h-3.5 w-3.5" />
-                Current ${auction?.bids?.[0]?.amount}
-              </Badge>
-              <Badge className="rounded-full bg-[#4A637D]/10 px-3 py-1 text-xs font-semibold text-[#4A637D] border border-[#4A637D]/30">
-                {auction?.status}
-              </Badge>
-            </div>
+    <div className="bg-white border border-gray-200 rounded">
+      <div className="px-4 py-3 border-b border-gray-100">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+          <h2 className="text-base font-semibold text-gray-900">
+            {auction?.title}
+          </h2>
+          <div className="flex items-center gap-2">
+            <span className="flex items-center gap-1 px-2 py-1 rounded bg-gray-50 border border-gray-100 text-xs text-gray-600">
+              <Users className="h-3 w-3" />
+              {auction?.bids?.length} bids
+            </span>
+            <span className="flex items-center gap-1 px-2 py-1 rounded bg-vendle-blue/5 border border-vendle-blue/10 text-xs text-vendle-blue">
+              <DollarSign className="h-3 w-3" />
+              ${auction?.bids?.[0]?.amount}
+            </span>
+            <span className="px-2 py-1 rounded bg-gray-100 text-xs font-medium text-gray-700 capitalize">
+              {auction?.status}
+            </span>
           </div>
         </div>
-      </CardHeader>
-      <CardContent className="p-8">
-        <div className="grid gap-8 md:grid-cols-2">
-          <div className="space-y-5">
-            <h3 className="border-b-2 border-vendle-blue/20 pb-3 text-sm font-bold uppercase tracking-wider text-vendle-blue">
+      </div>
+
+      <div className="p-4">
+        <div className="grid gap-4 md:grid-cols-2">
+          {/* Project Description */}
+          <div>
+            <h3 className="text-[10px] font-medium text-gray-500 uppercase tracking-wide mb-2">
               Project Description
             </h3>
-            <div className="space-y-4 rounded-xl bg-vendle-blue/5 p-5 border border-vendle-gray/20 shadow-sm">
-              <div className="space-y-1">
-                <p className="text-xs font-semibold text-muted-foreground">
-                  Description
-                </p>
-                <p className="text-sm leading-relaxed text-foreground">
+            <div className="p-3 bg-gray-50 rounded border border-gray-100 space-y-3">
+              <div>
+                <p className="text-[10px] text-gray-500 uppercase tracking-wide mb-0.5">Description</p>
+                <p className="text-sm text-gray-900">
                   {auction?.aiSummary || auction?.additionalNotes || "N/A"}
                 </p>
               </div>
-              <div className="space-y-1">
-                <p className="text-xs font-semibold text-muted-foreground">
-                  Project Type
-                </p>
-                <p className="text-sm text-foreground">
+              <div>
+                <p className="text-[10px] text-gray-500 uppercase tracking-wide mb-0.5">Project Type</p>
+                <p className="text-sm text-gray-900">
                   {auction?.reconstructionType || "N/A"}
                 </p>
               </div>
             </div>
           </div>
-          <div className="space-y-5">
-            <h3 className="border-b-2 border-vendle-blue/20 pb-3 text-sm font-bold uppercase tracking-wider text-vendle-blue">
+
+          {/* Auction Details */}
+          <div>
+            <h3 className="text-[10px] font-medium text-gray-500 uppercase tracking-wide mb-2">
               Auction Details
             </h3>
-            <div className="space-y-4">
-              <div className="flex items-center rounded-xl border-2 border-vendle-blue/20 bg-vendle-blue/5 p-5 shadow-sm hover:shadow-md transition-shadow">
-                <div className="mr-4 flex h-12 w-12 items-center justify-center rounded-xl bg-vendle-blue/20 shadow-sm">
-                  <DollarSign className="h-6 w-6 text-vendle-blue" />
+            <div className="space-y-2">
+              <div className="flex items-center gap-3 p-3 bg-vendle-blue/5 rounded border border-vendle-blue/10">
+                <div className="w-9 h-9 rounded bg-vendle-blue/10 flex items-center justify-center">
+                  <DollarSign className="h-4 w-4 text-vendle-blue" />
                 </div>
                 <div>
-                  <p className="text-xs font-semibold text-muted-foreground">
-                    Starting Bid
-                  </p>
-                  <p className="text-xl font-semibold text-foreground">
+                  <p className="text-[10px] text-gray-500 uppercase tracking-wide">Starting Bid</p>
+                  <p className="text-sm font-semibold text-gray-900">
                     ${auction?.totalJobValue?.toLocaleString()}
                   </p>
                 </div>
               </div>
-              <div className="flex items-center rounded-xl border-2 border-[#4A637D]/20 bg-[#4A637D]/5 p-5 shadow-sm hover:shadow-md transition-shadow">
-                <div className="mr-4 flex h-12 w-12 items-center justify-center rounded-xl bg-[#4A637D]/20 shadow-sm">
-                  <Clock className="h-6 w-6 text-[#4A637D]" />
+              <div className="flex items-center gap-3 p-3 bg-gray-50 rounded border border-gray-100">
+                <div className="w-9 h-9 rounded bg-gray-200 flex items-center justify-center">
+                  <Clock className="h-4 w-4 text-gray-600" />
                 </div>
                 <div>
-                  <p className="text-xs font-semibold text-muted-foreground">
-                    Auction Ends
-                  </p>
-                  <p className="text-base font-semibold text-foreground">
+                  <p className="text-[10px] text-gray-500 uppercase tracking-wide">Auction Ends</p>
+                  <p className="text-sm font-medium text-gray-900">
                     {new Date(auction?.endDate).toLocaleString()}
                   </p>
                 </div>
@@ -93,7 +79,7 @@ export function AuctionDetailsCard({ auction }: AuctionDetailsCardProps) {
             </div>
           </div>
         </div>
-      </CardContent>
-    </Card>
+      </div>
+    </div>
   );
 }

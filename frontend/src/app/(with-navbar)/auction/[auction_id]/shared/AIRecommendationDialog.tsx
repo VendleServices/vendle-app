@@ -1,4 +1,3 @@
-import { motion } from "framer-motion";
 import {
   Dialog,
   DialogContent,
@@ -17,85 +16,70 @@ export function AIRecommendationDialog({
 }: AIRecommendationDialogProps) {
   return (
     <Dialog open={open} onOpenChange={onClose}>
-      <DialogContent className="max-w-3xl max-h-[80vh] overflow-hidden p-0 gap-0 border-2 border-vendle-blue/20 shadow-2xl">
-        {/* Header with gradient */}
-        <div className="relative overflow-hidden bg-vendle-blue p-6 text-white">
-          {/* Background pattern */}
-          <div
-            className="absolute inset-0 opacity-10"
-            style={{
-              backgroundImage: `url("data:image/svg+xml,%3Csvg width='20' height='20' viewBox='0 0 20 20' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='%23ffffff' fill-opacity='1'%3E%3Ccircle cx='3' cy='3' r='3'/%3E%3Ccircle cx='13' cy='13' r='3'/%3E%3C/g%3E%3C/svg%3E")`,
-            }}
-          />
-
-          <div className="relative flex items-center gap-4">
-            <div className="w-14 h-14 rounded-xl bg-white/20 backdrop-blur-sm flex items-center justify-center">
-              <Sparkles className="w-7 h-7 text-white animate-pulse" />
+      <DialogContent className="max-w-2xl max-h-[80vh] overflow-hidden p-0 gap-0 border border-gray-200">
+        {/* Header */}
+        <div className="px-4 py-3 border-b border-gray-100">
+          <div className="flex items-center gap-3">
+            <div className="w-8 h-8 rounded bg-vendle-blue/10 flex items-center justify-center">
+              <Sparkles className="w-4 h-4 text-vendle-blue" />
             </div>
             <div>
-              <DialogTitle className="text-2xl font-bold text-white mb-1">
-                Vendle AI Recommendation
+              <DialogTitle className="text-sm font-medium text-gray-900">
+                AI Recommendation
               </DialogTitle>
-              <p className="text-white/90 text-sm">
-                Analyzing bids to find the best match for your project
+              <p className="text-xs text-gray-500">
+                Analysis based on {bidCount || 0} contractor bids
               </p>
             </div>
           </div>
         </div>
 
         {/* Content */}
-        <div className="p-6">
+        <div className="p-4 overflow-y-auto max-h-[60vh]">
           {isLoading ? (
             /* Loading state */
-            <div className="flex flex-col items-center justify-center py-12">
-              <motion.div
-                animate={{ rotate: 360 }}
-                transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
-                className="w-16 h-16 rounded-full border-4 border-vendle-gray/20 border-t-vendle-blue mb-6"
-              />
+            <div className="flex flex-col items-center justify-center py-8">
+              <Loader2 className="w-8 h-8 animate-spin text-vendle-blue mb-4" />
 
-              <div className="space-y-3 text-center">
-                <h3 className="text-lg font-semibold text-foreground">
+              <div className="space-y-2 text-center">
+                <p className="text-sm font-medium text-gray-900">
                   Analyzing contractor bids...
-                </h3>
-                <div className="space-y-2 text-sm text-muted-foreground">
-                  <p className="flex items-center justify-center gap-2">
-                    <Check className="w-4 h-4 text-vendle-teal" />
+                </p>
+                <div className="space-y-1.5 text-xs text-gray-500">
+                  <p className="flex items-center justify-center gap-1.5">
+                    <Check className="w-3 h-3 text-vendle-teal" />
                     Comparing pricing structures
                   </p>
-                  <p className="flex items-center justify-center gap-2">
-                    <Check className="w-4 h-4 text-vendle-teal" />
+                  <p className="flex items-center justify-center gap-1.5">
+                    <Check className="w-3 h-3 text-vendle-teal" />
                     Evaluating contractor experience
                   </p>
-                  <p className="flex items-center justify-center gap-2">
-                    <Loader2 className="w-4 h-4 animate-spin text-vendle-blue" />
-                    Generating personalized recommendation
+                  <p className="flex items-center justify-center gap-1.5">
+                    <Loader2 className="w-3 h-3 animate-spin text-vendle-blue" />
+                    Generating recommendation
                   </p>
                 </div>
               </div>
             </div>
           ) : (
             /* Recommendation content */
-            <div className="space-y-6">
-              <div className="prose prose-sm max-w-none">
-                <div className="text-foreground leading-relaxed p-6 rounded-xl bg-muted/30 border border-vendle-gray/30">
-                  {recommendation}
-                </div>
-              </div>
+            <div className="text-sm text-gray-700 leading-relaxed p-4 rounded bg-gray-50 border border-gray-100 whitespace-pre-wrap">
+              {recommendation}
             </div>
           )}
         </div>
 
         {/* Footer */}
-        <div className="p-6 border-t border-vendle-gray/20 bg-muted/20 flex items-center justify-between">
-          <p className="text-xs text-muted-foreground flex items-center gap-1">
+        <div className="px-4 py-3 border-t border-gray-100 bg-gray-50/50 flex items-center justify-between">
+          <p className="text-[10px] text-gray-500 flex items-center gap-1">
             <Info className="w-3 h-3" />
-            AI recommendation based on {bidCount || 0} bids
+            AI-generated recommendation
           </p>
           <Button
             onClick={onClose}
             variant="outline"
-            className="border-2 border-vendle-gray/30 hover:border-vendle-blue hover:bg-vendle-blue/5"
+            size="sm"
+            className="h-8 px-3 text-xs border-gray-200"
           >
             Close
           </Button>

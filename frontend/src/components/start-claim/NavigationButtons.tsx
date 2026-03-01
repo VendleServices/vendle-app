@@ -1,8 +1,7 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import { ArrowLeft, ArrowRight } from "lucide-react";
+import { ArrowLeft, ArrowRight, Loader2 } from "lucide-react";
 
 interface NavigationButtonsProps {
   currentStep: number;
@@ -24,46 +23,39 @@ export function NavigationButtons({
   const isLastStep = currentStep === totalSteps;
 
   return (
-    <div className="flex items-center justify-between gap-6 mt-10 lg:mt-12 pt-8 border-t-2 border-vendle-gray/20">
-      {/* Back button */}
-      {currentStep > 1 && (
+    <div className="flex items-center justify-between mt-6 pt-4 border-t border-gray-100">
+      {currentStep > 1 ? (
         <Button
           variant="outline"
-          size="lg"
+          size="sm"
           onClick={onBack}
           disabled={isSubmitting}
-          className="group border-2 h-12 lg:h-14 px-6 lg:px-8 hover:border-vendle-blue hover:bg-vendle-blue/5"
+          className="h-9 px-4 text-sm rounded border-gray-200 hover:bg-gray-50"
         >
-          <ArrowLeft className="w-5 h-5 mr-2 group-hover:-translate-x-1 transition-transform" />
-          <span className="font-semibold">Back</span>
+          <ArrowLeft className="w-4 h-4 mr-1.5" />
+          Back
         </Button>
+      ) : (
+        <div />
       )}
 
-      {/* Spacer if no back button */}
-      {currentStep === 1 && <div />}
-
-      {/* Progress badge (center, desktop only) */}
-      <div className="hidden md:flex items-center gap-2 mx-4">
-        <Badge variant="outline" className="px-4 py-2 text-sm border-vendle-blue/30 bg-white">
-          Step {currentStep} of {totalSteps}
-        </Badge>
-      </div>
-
-      {/* Continue button */}
       <Button
-        size="lg"
+        size="sm"
         onClick={onNext}
         disabled={!isValid || isSubmitting}
-        className="ml-auto group relative overflow-hidden bg-vendle-blue hover:bg-vendle-blue/90 h-12 lg:h-14 px-6 lg:px-8 shadow-lg hover:shadow-2xl hover:shadow-vendle-blue/30 disabled:opacity-50 disabled:cursor-not-allowed"
+        className="h-9 px-4 text-sm rounded bg-vendle-blue hover:bg-vendle-blue/90 disabled:opacity-50"
       >
-        <span className="relative z-10 font-semibold">
-          {isSubmitting
-            ? 'Submitting...'
-            : isLastStep
-            ? 'Submit Claim'
-            : 'Continue'}
-        </span>
-        <ArrowRight className="w-5 h-5 ml-2 group-hover:translate-x-1 transition-transform relative z-10" />
+        {isSubmitting ? (
+          <>
+            <Loader2 className="w-4 h-4 mr-1.5 animate-spin" />
+            Submitting...
+          </>
+        ) : (
+          <>
+            {isLastStep ? 'Submit' : 'Continue'}
+            <ArrowRight className="w-4 h-4 ml-1.5" />
+          </>
+        )}
       </Button>
     </div>
   );

@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { Bell, Mail, CheckCircle, Clock, XCircle } from 'lucide-react';
+import { Bell, Mail, CheckCircle, Clock, XCircle, MessageSquare } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import {
@@ -22,6 +22,8 @@ import InvitationDetailsModal from './InvitationDetailsModal';
 import AcceptInvitationModal from './AcceptInvitationModal';
 import ContractSigningModal from './ContractSigningModal';
 import DeclineInvitationModal from './DeclineInvitationModal';
+import MessagingDrawer from './MessagingDrawer';
+import { useRooms, Room } from '@/hooks/useMessaging';
 
 interface ClaimInvitation {
     id: string;
@@ -57,13 +59,20 @@ export default function ContractorMailbox({ isOpen, onClose }: ContractorMailbox
     const { user } = useAuth();
     const apiService = useApiService();
     const queryClient = useQueryClient();
-    const [activeTab, setActiveTab] = useState<'notifications' | 'invites'>('invites');
+    const [activeTab, setActiveTab] = useState<'messages' | 'invites' | 'notifications'>('invites');
     const [selectedInvitation, setSelectedInvitation] = useState<ClaimInvitation | null>(null);
     const [showInvitationDetails, setShowInvitationDetails] = useState(false);
     const [showAcceptModal, setShowAcceptModal] = useState(false);
     const [showNDAModal, setShowNDAModal] = useState(false);
     const [showDeclineModal, setShowDeclineModal] = useState(false);
     const [invitationToDecline, setInvitationToDecline] = useState<ClaimInvitation | null>(null);
+    const [showMessaging, setShowMessaging] = useState(false);
+    const [selectedRoomForChat, setSelectedRoomForChat] = useState<Room | null>(null);
+
+    // Fetch rooms/conversations
+    const { data: roomsData, isLoading: roomsLoading } = useRooms();
+    const rooms = roomsData?.rooms || [];
+    const totalUnread = roomsData?.totalUnread || 0;
 
     // Check if contractor has signed NDA
     const { data: contractorData } = useQuery({
@@ -132,6 +141,7 @@ export default function ContractorMailbox({ isOpen, onClose }: ContractorMailbox
                 description: 'You have declined this invitation.',
             });
             queryClient.invalidateQueries({ queryKey: ['getContractorInvitations'] });
+            queryClient.invalidateQueries({ queryKey: ['realClaims'] }); // Refresh explore page
         },
         onError: (error: any) => {
             toast.error('Error Declining Invitation', {
@@ -166,13 +176,13 @@ export default function ContractorMailbox({ isOpen, onClose }: ContractorMailbox
                         <DialogTitle className="text-2xl font-bold">Mailbox</DialogTitle>
                     </DialogHeader>
 
-                    <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as 'notifications' | 'invites')} className="w-full">
+                    <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as 'messages' | 'invites' | 'notifications')} className="w-full">
                         <TabsList className="w-full rounded-none border-b">
-                            <TabsTrigger value="notifications" className="flex-1">
-                                <Bell className="h-4 w-4 mr-2" />
-                                Notifications
-                                {invitationCount > 0 && (
-                                    <Badge className="ml-2 bg-blue-500">{invitationCount}</Badge>
+                            <TabsTrigger value="messages" className="flex-1">
+                                <MessageSquare className="h-4 w-4 mr-2" />
+                                Messages
+                                {totalUnread > 0 && (
+                                    <Badge className="ml-2 bg-vendle-blue">{totalUnread}</Badge>
                                 )}
                             </TabsTrigger>
                             <TabsTrigger value="invites" className="flex-1">
@@ -182,7 +192,70 @@ export default function ContractorMailbox({ isOpen, onClose }: ContractorMailbox
                                     <Badge className="ml-2 bg-blue-500">{invitationCount}</Badge>
                                 )}
                             </TabsTrigger>
+                            <TabsTrigger value="notifications" className="flex-1">
+                                <Bell className="h-4 w-4 mr-2" />
+                                Alerts
+                            </TabsTrigger>
                         </TabsList>
+
+                        <TabsContent value="messages" className="m-0">
+                            <ScrollArea className="h-[60vh]">
+                                <div className="p-6 space-y-4">
+                                    {roomsLoading ? (
+                                        <div className="flex items-center justify-center py-12">
+                                            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-vendle-blue"></div>
+                                        </div>
+                                    ) : rooms.length === 0 ? (
+                                        <div className="flex flex-col items-center justify-center py-12 text-center">
+                                            <MessageSquare className="h-16 w-16 text-gray-400 mb-4" />
+                                            <h3 className="text-lg font-semibold text-gray-900 mb-2">
+                                                No Conversations
+                                            </h3>
+                                            <p className="text-sm text-gray-600 max-w-md">
+                                                Start a conversation by accepting an invitation and messaging the homeowner.
+                                            </p>
+                                        </div>
+                                    ) : (
+                                        rooms.map((room) => (
+                                            <Card key={room.id} className="hover:shadow-md transition-shadow cursor-pointer" onClick={() => {
+                                                setSelectedRoomForChat(room);
+                                                setShowMessaging(true);
+                                            }}>
+                                                <CardContent className="p-4">
+                                                    <div className="flex items-center gap-4">
+                                                        <div className="w-12 h-12 rounded-full bg-vendle-blue/10 flex items-center justify-center flex-shrink-0">
+                                                            <User className="h-6 w-6 text-vendle-blue" />
+                                                        </div>
+                                                        <div className="flex-1 min-w-0">
+                                                            <div className="flex items-center justify-between mb-1">
+                                                                <p className="font-semibold text-gray-900 truncate">
+                                                                    {room.otherUser?.companyName || room.otherUser?.email || 'Unknown User'}
+                                                                </p>
+                                                                {room.lastMessage && (
+                                                                    <span className="text-xs text-gray-400 flex-shrink-0 ml-2">
+                                                                        {new Date(room.lastMessage.createdAt).toLocaleDateString()}
+                                                                    </span>
+                                                                )}
+                                                            </div>
+                                                            <div className="flex items-center justify-between">
+                                                                <p className="text-sm text-gray-500 truncate">
+                                                                    {room.lastMessage?.content || 'No messages yet'}
+                                                                </p>
+                                                                {room.unreadCount > 0 && (
+                                                                    <Badge className="bg-vendle-blue text-white ml-2 flex-shrink-0">
+                                                                        {room.unreadCount}
+                                                                    </Badge>
+                                                                )}
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </CardContent>
+                                            </Card>
+                                        ))
+                                    )}
+                                </div>
+                            </ScrollArea>
+                        </TabsContent>
 
                         <TabsContent value="notifications" className="m-0">
                             <div className="p-6">
@@ -355,6 +428,18 @@ export default function ContractorMailbox({ isOpen, onClose }: ContractorMailbox
                     isLoading={declineInvitationMutation.isPending}
                 />
             )}
+
+            {/* Messaging Drawer */}
+            <MessagingDrawer
+                isOpen={showMessaging}
+                onClose={() => {
+                    setShowMessaging(false);
+                    setSelectedRoomForChat(null);
+                    queryClient.invalidateQueries({ queryKey: ['rooms'] });
+                }}
+                initialUserId={selectedRoomForChat?.otherUser?.id}
+                initialUserName={selectedRoomForChat?.otherUser?.companyName || selectedRoomForChat?.otherUser?.email}
+            />
         </>
     );
 }

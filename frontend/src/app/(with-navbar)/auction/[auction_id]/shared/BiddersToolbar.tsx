@@ -1,6 +1,5 @@
-import { Users, Gavel, Sparkles, Star, ArrowDown, SortDesc } from "lucide-react";
+import { Users, Gavel, Sparkles, ArrowDown, SortDesc } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
 import {
   Select,
   SelectTrigger,
@@ -20,43 +19,39 @@ export function BiddersToolbar({
   isCreatingPhase2
 }: BiddersToolbarProps) {
   return (
-    <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-      <div className="flex items-center gap-3">
-        <Users className="w-6 h-6 text-vendle-blue" />
+    <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+      <div className="flex items-center gap-2">
+        <div className="w-8 h-8 rounded bg-vendle-blue/10 flex items-center justify-center">
+          <Users className="w-4 h-4 text-vendle-blue" />
+        </div>
         <div>
-          <h2 className="text-2xl font-bold text-foreground">Current Bidders</h2>
-          <p className="text-sm text-muted-foreground">
-            {bidCount || 0} contractors competing for your project
+          <h2 className="text-sm font-medium text-gray-900">Current Bidders</h2>
+          <p className="text-xs text-gray-500">
+            {bidCount || 0} contractors competing
             {isPhase1 && selectedCount > 0 && (
-              <span className="ml-2 text-vendle-blue font-semibold">
-                • {selectedCount} selected for Phase 2
+              <span className="ml-1.5 text-vendle-blue font-medium">
+                · {selectedCount} selected
               </span>
             )}
           </p>
         </div>
       </div>
 
-      <div className="flex items-center gap-3 flex-wrap">
+      <div className="flex items-center gap-2 flex-wrap">
         {/* Sort dropdown */}
         <Select defaultValue="lowest_bid">
-          <SelectTrigger className="w-[220px] h-11 border-2 border-vendle-gray/30 hover:border-vendle-blue/50 bg-white shadow-sm">
-            <div className="flex items-center gap-2">
-              <SortDesc className="w-4 h-4 text-vendle-blue" />
+          <SelectTrigger className="w-[130px] h-8 text-xs border-gray-200 bg-white">
+            <div className="flex items-center gap-1.5">
+              <SortDesc className="w-3 h-3 text-gray-400" />
               <SelectValue placeholder="Sort by..." />
             </div>
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="lowest_bid">
-              <div className="flex items-center gap-2">
-                <ArrowDown className="w-4 h-4 text-vendle-teal" />
-                <span>Lowest Bid First</span>
-              </div>
+            <SelectItem value="lowest_bid" className="text-xs">
+              Lowest Bid
             </SelectItem>
-            <SelectItem value="highest_rating">
-              <div className="flex items-center gap-2">
-                <Star className="w-4 h-4 text-[#E0C9A6]" />
-                <span>Highest Rating</span>
-              </div>
+            <SelectItem value="highest_rating" className="text-xs">
+              Highest Rating
             </SelectItem>
           </SelectContent>
         </Select>
@@ -64,11 +59,12 @@ export function BiddersToolbar({
         {/* AI Recommendation button */}
         <Button
           onClick={onAskAI}
-          disabled={isAskingAI}
-          className="bg-vendle-blue shadow-lg hover:shadow-xl"
+          disabled={isAskingAI || !bidCount || bidCount === 0}
+          size="sm"
+          className="h-8 px-3 text-xs bg-vendle-blue hover:bg-vendle-blue/90"
         >
-          <Sparkles className="w-4 h-4 mr-2" />
-          {isAskingAI ? "Analyzing..." : "Ask Vendle AI"}
+          <Sparkles className="w-3 h-3 mr-1.5" />
+          {isAskingAI ? "Analyzing..." : "Ask AI"}
         </Button>
 
         {/* Create Phase 2 Auction button - Homeowners only, Phase 1 only */}
@@ -76,14 +72,15 @@ export function BiddersToolbar({
           <Button
             onClick={onCreatePhase2}
             disabled={selectedCount === 0 || isCreatingPhase2}
-            className="bg-[#5A9E8B] hover:bg-[#5A9E8B]/90 text-white shadow-lg hover:shadow-xl font-bold disabled:opacity-50 disabled:cursor-not-allowed"
+            size="sm"
+            className="h-8 px-3 text-xs bg-vendle-teal hover:bg-vendle-teal/90 text-white disabled:opacity-50"
           >
-            <Gavel className="w-4 h-4 mr-2" />
-            Create Phase 2 Auction
+            <Gavel className="w-3 h-3 mr-1.5" />
+            Create Phase 2
             {selectedCount > 0 && (
-              <Badge className="ml-2 bg-white/20 text-white border-white/30">
+              <span className="ml-1.5 px-1.5 py-0.5 rounded bg-white/20 text-[10px]">
                 {selectedCount}
-              </Badge>
+              </span>
             )}
           </Button>
         )}

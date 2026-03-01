@@ -1,6 +1,6 @@
 "use client";
 
-import { FileText, DollarSign, Wrench } from "lucide-react";
+import { FileText, DollarSign, Wrench, ChevronDown } from "lucide-react";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -43,22 +43,17 @@ export function Step2Restoration({
     onFileRemove
 }: Step2RestorationProps) {
     return (
-        <div className="space-y-6">
-            <Accordion type="single" collapsible defaultValue="estimate" className="space-y-4">
+        <div className="space-y-3">
+            <Accordion type="single" collapsible defaultValue="estimate" className="space-y-2">
                 {/* Section 1: Insurance Estimate Upload */}
-                <AccordionItem value="estimate" className="border-2 border-vendle-gray/30 rounded-2xl overflow-hidden">
-                    <AccordionTrigger className="px-6 lg:px-8 py-6 hover:bg-vendle-blue/5 [&[data-state=open]]:bg-vendle-blue/5">
-                        <div className="flex items-center gap-4">
-                            <div className="w-12 h-12 rounded-xl bg-vendle-blue/10 flex items-center justify-center">
-                                <FileText className="w-6 h-6 text-vendle-blue" />
-                            </div>
-                            <div className="text-left">
-                                <h3 className="text-lg lg:text-xl font-bold text-foreground">Insurance Estimate</h3>
-                                <p className="text-sm text-muted-foreground">Upload your PDF estimate</p>
-                            </div>
+                <AccordionItem value="estimate" className="border border-gray-200 rounded overflow-hidden">
+                    <AccordionTrigger className="px-4 py-3 hover:bg-gray-50 [&[data-state=open]]:bg-gray-50">
+                        <div className="flex items-center gap-3">
+                            <FileText className="w-4 h-4 text-gray-500" />
+                            <span className="text-sm font-medium text-gray-900">Insurance Estimate</span>
                         </div>
                     </AccordionTrigger>
-                    <AccordionContent className="px-6 lg:px-8 pt-6 pb-8">
+                    <AccordionContent className="px-4 py-4 border-t border-gray-100">
                         <FileUpload
                             file={uploadedFile}
                             onUpload={onFileUpload}
@@ -70,80 +65,75 @@ export function Step2Restoration({
                 </AccordionItem>
 
                 {/* Section 2: Financial Breakdown */}
-                <AccordionItem value="financial" className="border-2 border-vendle-gray/30 rounded-2xl overflow-hidden">
-                    <AccordionTrigger className="px-6 lg:px-8 py-6 hover:bg-vendle-blue/5 [&[data-state=open]]:bg-vendle-blue/5">
-                        <div className="flex items-center gap-4">
-                            <div className="w-12 h-12 rounded-xl bg-vendle-teal/10 flex items-center justify-center">
-                                <DollarSign className="w-6 h-6 text-vendle-teal" />
-                            </div>
-                            <div className="text-left">
-                                <h3 className="text-lg lg:text-xl font-bold text-foreground">Financial Breakdown</h3>
-                                <p className="text-sm text-muted-foreground">Cost details and funding information</p>
-                            </div>
+                <AccordionItem value="financial" className="border border-gray-200 rounded overflow-hidden">
+                    <AccordionTrigger className="px-4 py-3 hover:bg-gray-50 [&[data-state=open]]:bg-gray-50">
+                        <div className="flex items-center gap-3">
+                            <DollarSign className="w-4 h-4 text-gray-500" />
+                            <span className="text-sm font-medium text-gray-900">Financial Breakdown</span>
                         </div>
                     </AccordionTrigger>
-                    <AccordionContent className="px-6 lg:px-8 pt-6 pb-8">
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                    <AccordionContent className="px-4 py-4 border-t border-gray-100">
+                        <div className="grid grid-cols-2 gap-4">
                             {/* Left column: Radio selections */}
-                            <div className="space-y-6">
-                                <div className="space-y-3">
-                                    <Label className="text-sm font-semibold text-foreground">Cost Basis</Label>
+                            <div className="space-y-4">
+                                <div className="space-y-2">
+                                    <Label className="text-xs font-medium text-gray-600">Cost Basis</Label>
                                     <RadioGroup
                                         value={formData.costBasis}
                                         onValueChange={(v) => onFormChange("costBasis", v)}
-                                        className="space-y-3"
+                                        className="space-y-1"
                                     >
-                                        <div className="flex items-center gap-3 p-3 rounded-lg hover:bg-muted/50 transition-colors">
-                                            <RadioGroupItem id="rcv" value="RCV" />
-                                            <Label htmlFor="rcv" className="font-normal cursor-pointer flex-1">
+                                        <div className="flex items-center gap-2 p-2 rounded hover:bg-gray-50">
+                                            <RadioGroupItem id="rcv" value="RCV" className="h-3.5 w-3.5" />
+                                            <Label htmlFor="rcv" className="text-sm font-normal cursor-pointer">
                                                 Replacement Cost Value (RCV)
                                             </Label>
                                         </div>
-                                        <div className="flex items-center gap-3 p-3 rounded-lg hover:bg-muted/50 transition-colors">
-                                            <RadioGroupItem id="acv" value="ACV" />
-                                            <Label htmlFor="acv" className="font-normal cursor-pointer flex-1">
+                                        <div className="flex items-center gap-2 p-2 rounded hover:bg-gray-50">
+                                            <RadioGroupItem id="acv" value="ACV" className="h-3.5 w-3.5" />
+                                            <Label htmlFor="acv" className="text-sm font-normal cursor-pointer">
                                                 Actual Cash Value (ACV)
                                             </Label>
                                         </div>
                                     </RadioGroup>
                                 </div>
 
-                                <div className="space-y-3">
-                                    <Label className="text-sm font-semibold text-foreground">Deductible</Label>
+                                <div className="space-y-2">
+                                    <Label className="text-xs font-medium text-gray-600">Deductible</Label>
                                     <RadioGroup
                                         value={formData.hasDeductibleFunds.toString()}
                                         onValueChange={(v) => onFormChange("hasDeductibleFunds", v === "true")}
-                                        className="space-y-3"
+                                        className="space-y-1"
                                     >
-                                        <div className="flex items-center gap-3 p-3 rounded-lg hover:bg-muted/50 transition-colors">
-                                            <RadioGroupItem id="fund-yes" value="true" />
-                                            <Label htmlFor="fund-yes" className="font-normal cursor-pointer flex-1">
+                                        <div className="flex items-center gap-2 p-2 rounded hover:bg-gray-50">
+                                            <RadioGroupItem id="fund-yes" value="true" className="h-3.5 w-3.5" />
+                                            <Label htmlFor="fund-yes" className="text-sm font-normal cursor-pointer">
                                                 I have deductible funds
                                             </Label>
                                         </div>
-                                        <div className="flex items-center gap-3 p-3 rounded-lg hover:bg-muted/50 transition-colors">
-                                            <RadioGroupItem id="fund-no" value="false" />
-                                            <Label htmlFor="fund-no" className="font-normal cursor-pointer flex-1">
+                                        <div className="flex items-center gap-2 p-2 rounded hover:bg-gray-50">
+                                            <RadioGroupItem id="fund-no" value="false" className="h-3.5 w-3.5" />
+                                            <Label htmlFor="fund-no" className="text-sm font-normal cursor-pointer">
                                                 Need additional funding
                                             </Label>
                                         </div>
                                     </RadioGroup>
 
                                     {!formData.hasDeductibleFunds && (
-                                        <div className="ml-6 mt-3 pl-4 border-l-2 border-vendle-blue/30 space-y-2">
-                                            <Label className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
+                                        <div className="ml-4 mt-2 pl-3 border-l border-gray-200 space-y-1">
+                                            <Label className="text-[10px] font-medium text-gray-500 uppercase">
                                                 Funding Source
                                             </Label>
                                             <RadioGroup
                                                 value={formData.fundingSource}
                                                 onValueChange={(v) => onFormChange("fundingSource", v)}
-                                                className="space-y-2"
+                                                className="space-y-1"
                                             >
                                                 {["FEMA", "Insurance", "SBA"].map((src) => (
                                                     <div key={src} className="flex items-center gap-2">
-                                                        <RadioGroupItem id={`funding-${src}`} value={src} />
-                                                        <Label htmlFor={`funding-${src}`} className="font-normal cursor-pointer text-sm">
-                                                            {src} Assistance
+                                                        <RadioGroupItem id={`funding-${src}`} value={src} className="h-3 w-3" />
+                                                        <Label htmlFor={`funding-${src}`} className="text-xs font-normal cursor-pointer">
+                                                            {src}
                                                         </Label>
                                                     </div>
                                                 ))}
@@ -154,23 +144,23 @@ export function Step2Restoration({
                             </div>
 
                             {/* Right column: Input fields */}
-                            <div className="space-y-4">
+                            <div className="space-y-3">
                                 {[
-                                    { key: "materials", label: "Materials Cost" },
+                                    { key: "materials", label: "Materials" },
                                     { key: "overheadAndProfit", label: "Overhead & Profit" },
                                     { key: "salesTaxes", label: "Sales Taxes" },
                                     { key: "depreciation", label: "Depreciation" },
                                 ].map(({ key, label }) => (
-                                    <div key={key} className="space-y-2">
-                                        <Label className="text-sm font-medium text-foreground">{label}</Label>
+                                    <div key={key}>
+                                        <Label className="text-xs font-medium text-gray-600 mb-1 block">{label}</Label>
                                         <div className="relative">
-                                            <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground">$</span>
+                                            <span className="absolute left-2.5 top-1/2 -translate-y-1/2 text-xs text-gray-400">$</span>
                                             <Input
                                                 type="number"
                                                 placeholder="0.00"
                                                 value={(formData as any)[key]}
                                                 onChange={(e) => onFormChange(key as any, e.target.value)}
-                                                className="h-12 pl-7 border-2 border-vendle-gray/30 focus:border-vendle-blue focus:ring-4 focus:ring-vendle-blue/20 rounded-xl"
+                                                className="h-8 pl-6 text-sm rounded border-gray-200 focus:border-gray-300 focus:ring-1 focus:ring-gray-200"
                                             />
                                         </div>
                                     </div>
@@ -181,66 +171,57 @@ export function Step2Restoration({
                 </AccordionItem>
 
                 {/* Section 3: Job Posting Details */}
-                <AccordionItem value="posting" className="border-2 border-vendle-gray/30 rounded-2xl overflow-hidden">
-                    <AccordionTrigger className="px-6 lg:px-8 py-6 hover:bg-vendle-blue/5 [&[data-state=open]]:bg-vendle-blue/5">
-                        <div className="flex items-center gap-4">
-                            <div className="w-12 h-12 rounded-xl bg-vendle-sand/20 flex items-center justify-center">
-                                <Wrench className="w-6 h-6 text-vendle-navy" />
-                            </div>
-                            <div className="text-left">
-                                <h3 className="text-lg lg:text-xl font-bold text-foreground">Job Posting Details</h3>
-                                <p className="text-sm text-muted-foreground">Project information for contractors</p>
-                            </div>
+                <AccordionItem value="posting" className="border border-gray-200 rounded overflow-hidden">
+                    <AccordionTrigger className="px-4 py-3 hover:bg-gray-50 [&[data-state=open]]:bg-gray-50">
+                        <div className="flex items-center gap-3">
+                            <Wrench className="w-4 h-4 text-gray-500" />
+                            <span className="text-sm font-medium text-gray-900">Job Posting Details</span>
                         </div>
                     </AccordionTrigger>
-                    <AccordionContent className="px-6 lg:px-8 pt-6 pb-8">
-                        <div className="space-y-6">
-                            {/* Title - full width */}
-                            <div className="space-y-2">
-                                <Label className="text-sm font-semibold text-foreground">Job Title</Label>
+                    <AccordionContent className="px-4 py-4 border-t border-gray-100">
+                        <div className="space-y-4">
+                            <div>
+                                <Label className="text-xs font-medium text-gray-600 mb-1.5 block">Job Title</Label>
                                 <Input
                                     placeholder="Give your job a descriptive title..."
                                     value={formData.title}
                                     onChange={(e) => onFormChange("title", e.target.value)}
-                                    className="h-12 border-2 border-vendle-gray/30 focus:border-vendle-blue focus:ring-4 focus:ring-vendle-blue/20 rounded-xl"
+                                    className="h-9 text-sm rounded border-gray-200 focus:border-gray-300 focus:ring-1 focus:ring-gray-200"
                                 />
                             </div>
 
-                            {/* Two column grid */}
-                            <div className="grid md:grid-cols-2 gap-6">
-                                <div className="space-y-2">
-                                    <Label className="text-sm font-semibold text-foreground">Total Job Value</Label>
+                            <div className="grid grid-cols-2 gap-3">
+                                <div>
+                                    <Label className="text-xs font-medium text-gray-600 mb-1.5 block">Total Job Value</Label>
                                     <div className="relative">
-                                        <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground">$</span>
+                                        <span className="absolute left-2.5 top-1/2 -translate-y-1/2 text-xs text-gray-400">$</span>
                                         <Input
                                             type="number"
                                             placeholder="0.00"
                                             value={formData.totalJobValue}
                                             onChange={(e) => onFormChange("totalJobValue", e.target.value)}
-                                            className="h-12 pl-7 border-2 border-vendle-gray/30 focus:border-vendle-blue focus:ring-4 focus:ring-vendle-blue/20 rounded-xl"
+                                            className="h-9 pl-6 text-sm rounded border-gray-200 focus:border-gray-300 focus:ring-1 focus:ring-gray-200"
                                         />
                                     </div>
                                 </div>
-
-                                <div className="space-y-2">
-                                    <Label className="text-sm font-semibold text-foreground">Reconstruction Type</Label>
+                                <div>
+                                    <Label className="text-xs font-medium text-gray-600 mb-1.5 block">Reconstruction Type</Label>
                                     <Input
                                         placeholder="e.g., Fire damage restoration"
                                         value={formData.reconstructionType}
                                         onChange={(e) => onFormChange("reconstructionType", e.target.value)}
-                                        className="h-12 border-2 border-vendle-gray/30 focus:border-vendle-blue focus:ring-4 focus:ring-vendle-blue/20 rounded-xl"
+                                        className="h-9 text-sm rounded border-gray-200 focus:border-gray-300 focus:ring-1 focus:ring-gray-200"
                                     />
                                 </div>
                             </div>
 
-                            {/* Additional Notes - full width */}
-                            <div className="space-y-2">
-                                <Label className="text-sm font-semibold text-foreground">Additional Notes</Label>
+                            <div>
+                                <Label className="text-xs font-medium text-gray-600 mb-1.5 block">Additional Notes</Label>
                                 <Textarea
                                     placeholder="Add any relevant details about the project..."
                                     value={formData.additionalNotes}
                                     onChange={(e) => onFormChange("additionalNotes", e.target.value)}
-                                    className="min-h-[120px] border-2 border-vendle-gray/30 focus:border-vendle-blue focus:ring-4 focus:ring-vendle-blue/20 rounded-xl resize-none"
+                                    className="min-h-[80px] text-sm rounded border-gray-200 focus:border-gray-300 focus:ring-1 focus:ring-gray-200 resize-none"
                                 />
                             </div>
                         </div>

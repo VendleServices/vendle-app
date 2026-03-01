@@ -2,7 +2,6 @@
 
 import { UserCheck, X, Check } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { motion } from "framer-motion";
 import { Badge } from "@/components/ui/badge";
 
 interface Step8ClaimAssistanceProps {
@@ -10,117 +9,72 @@ interface Step8ClaimAssistanceProps {
     onAdjusterChange: (needs: boolean) => void;
 }
 
-export function Step8ClaimAssistance({
-    needsAdjuster,
-    onAdjusterChange
-}: Step8ClaimAssistanceProps) {
+export function Step8ClaimAssistance({ needsAdjuster, onAdjusterChange }: Step8ClaimAssistanceProps) {
     return (
-        <div className="grid md:grid-cols-2 gap-6">
-            {/* Yes - Premium option */}
-            <motion.button
+        <div className="grid sm:grid-cols-2 gap-3">
+            {/* Yes */}
+            <button
                 type="button"
-                whileHover={{ y: -4 }}
-                whileTap={{ scale: 0.98 }}
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.1 }}
-                className={cn(
-                    "relative p-8 rounded-2xl border-2 transition-all",
-                    needsAdjuster === true
-                        ? "bg-vendle-blue/10 border-vendle-blue shadow-xl"
-                        : "bg-white border-vendle-gray/30 hover:border-vendle-blue/50 shadow-md hover:shadow-lg"
-                )}
                 onClick={() => onAdjusterChange(true)}
-            >
-                {/* "Recommended" badge */}
-                <div className="absolute -top-3 left-1/2 -translate-x-1/2">
-                    <Badge className="bg-vendle-blue text-white px-4 py-1 shadow-lg">
-                        <UserCheck className="w-3 h-3 mr-1" />
-                        Recommended
-                    </Badge>
-                </div>
-
-                {/* Icon and content */}
-                <div className="flex flex-col items-center text-center pt-2">
-                    <div className={cn(
-                        "w-20 h-20 rounded-2xl flex items-center justify-center mb-4 shadow-lg transition-all",
-                        needsAdjuster === true
-                            ? "bg-vendle-blue"
-                            : "bg-vendle-gray/20"
-                    )}>
-                        <UserCheck className={cn(
-                            "w-10 h-10",
-                            needsAdjuster === true ? "text-white" : "text-vendle-blue/70"
-                        )} />
-                    </div>
-
-                    <h3 className="text-xl font-bold text-foreground mb-2 flex items-center gap-2">
-                        Yes, I need help
-                        {needsAdjuster === true && (
-                            <motion.div
-                                initial={{ scale: 0 }}
-                                animate={{ scale: 1 }}
-                                className="w-6 h-6 rounded-full bg-vendle-teal flex items-center justify-center"
-                            >
-                                <Check className="w-4 h-4 text-white" />
-                            </motion.div>
-                        )}
-                    </h3>
-
-                    <p className="text-sm text-muted-foreground leading-relaxed">
-                        Get assistance from a professional adjuster to maximize your claim and negotiate with your insurance company
-                    </p>
-                </div>
-            </motion.button>
-
-            {/* No - Standard option */}
-            <motion.button
-                type="button"
-                whileHover={{ y: -4 }}
-                whileTap={{ scale: 0.98 }}
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.2 }}
                 className={cn(
-                    "relative p-8 rounded-2xl border-2 transition-all",
-                    needsAdjuster === false
-                        ? "bg-vendle-blue/10 border-vendle-blue shadow-xl"
-                        : "bg-white border-vendle-gray/30 hover:border-vendle-blue/50 shadow-md hover:shadow-lg"
+                    "relative p-4 rounded border text-left transition-colors",
+                    needsAdjuster === true
+                        ? "border-vendle-blue bg-vendle-blue/5"
+                        : "border-gray-200 bg-white hover:border-gray-300"
                 )}
-                onClick={() => onAdjusterChange(false)}
             >
-                {/* Icon and content */}
-                <div className="flex flex-col items-center text-center">
+                <Badge className="absolute -top-2 left-3 bg-vendle-blue text-white text-[10px] px-1.5 py-0.5">
+                    Recommended
+                </Badge>
+
+                <div className="flex items-start gap-3 pt-1">
                     <div className={cn(
-                        "w-20 h-20 rounded-2xl flex items-center justify-center mb-4 shadow-lg transition-all",
-                        needsAdjuster === false
-                            ? "bg-vendle-blue"
-                            : "bg-vendle-gray/20"
+                        "w-10 h-10 rounded flex items-center justify-center flex-shrink-0",
+                        needsAdjuster === true ? "bg-vendle-blue text-white" : "bg-gray-100 text-gray-500"
                     )}>
-                        <X className={cn(
-                            "w-10 h-10",
-                            needsAdjuster === false ? "text-white" : "text-vendle-blue/70"
-                        )} />
+                        <UserCheck className="w-5 h-5" />
                     </div>
-
-                    <h3 className="text-xl font-bold text-foreground mb-2 flex items-center gap-2">
-                        No, I'll handle it myself
-                        {needsAdjuster === false && (
-                            <motion.div
-                                initial={{ scale: 0 }}
-                                animate={{ scale: 1 }}
-                                className="w-6 h-6 rounded-full bg-vendle-teal flex items-center justify-center"
-                            >
-                                <Check className="w-4 h-4 text-white" />
-                            </motion.div>
-                        )}
-                    </h3>
-
-                    <p className="text-sm text-muted-foreground leading-relaxed">
-                        I'm satisfied with my current insurance estimate and want to proceed without adjuster assistance
-                    </p>
+                    <div className="flex-1">
+                        <h3 className="text-sm font-medium text-gray-900 flex items-center gap-1.5">
+                            Yes, I need help
+                            {needsAdjuster === true && <Check className="w-3.5 h-3.5 text-vendle-blue" />}
+                        </h3>
+                        <p className="text-xs text-gray-500 mt-1">
+                            Get professional adjuster assistance to maximize your claim
+                        </p>
+                    </div>
                 </div>
-            </motion.button>
+            </button>
+
+            {/* No */}
+            <button
+                type="button"
+                onClick={() => onAdjusterChange(false)}
+                className={cn(
+                    "relative p-4 rounded border text-left transition-colors",
+                    needsAdjuster === false
+                        ? "border-vendle-blue bg-vendle-blue/5"
+                        : "border-gray-200 bg-white hover:border-gray-300"
+                )}
+            >
+                <div className="flex items-start gap-3">
+                    <div className={cn(
+                        "w-10 h-10 rounded flex items-center justify-center flex-shrink-0",
+                        needsAdjuster === false ? "bg-vendle-blue text-white" : "bg-gray-100 text-gray-500"
+                    )}>
+                        <X className="w-5 h-5" />
+                    </div>
+                    <div className="flex-1">
+                        <h3 className="text-sm font-medium text-gray-900 flex items-center gap-1.5">
+                            No, I'll handle it
+                            {needsAdjuster === false && <Check className="w-3.5 h-3.5 text-vendle-blue" />}
+                        </h3>
+                        <p className="text-xs text-gray-500 mt-1">
+                            I'm satisfied with my current insurance estimate
+                        </p>
+                    </div>
+                </div>
+            </button>
         </div>
     );
 }
