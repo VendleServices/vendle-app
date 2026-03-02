@@ -185,12 +185,12 @@
 
   /* Clean card styles - Mercor inspired */
   .card {
-    @apply bg-white rounded overflow-hidden border border-gray-200;
+    @apply bg-white rounded overflow-hidden border border-gray-300;
     transition: border-color 0.15s ease;
   }
 
   .card:hover {
-    @apply border-gray-300;
+    @apply border-vendle-navy;
   }
 
   .card-interactive {
@@ -198,19 +198,18 @@
   }
 
   .card-interactive:hover {
-    @apply border-gray-300;
+    @apply border-vendle-navy;
   }
 
   /* Enhanced input styles */
   .input-field {
-    @apply w-full px-4 py-3 rounded-lg border border-vendle-gray/30 
-           focus:border-vendle-blue focus:ring-2 focus:ring-vendle-blue/20 
-           outline-none transition-all duration-200
+    @apply w-full px-4 py-3 rounded-lg border border-vendle-gray/30
+           focus:border-gray-400 outline-none transition-colors duration-200
            placeholder:text-vendle-gray/60;
   }
 
   .input-field:invalid {
-    @apply border-red-300 focus:border-red-500 focus:ring-red-500/20;
+    @apply border-red-300 focus:border-red-400;
   }
 
   /* Navigation components */

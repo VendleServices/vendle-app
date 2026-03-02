@@ -574,7 +574,7 @@ export default function StartClaimPage() {
                                                 value={contactInfo.firstName}
                                                 onChange={handleContactChange}
                                                 required
-                                                className="h-9 text-sm rounded border-gray-200 focus:border-gray-300 focus:ring-1 focus:ring-gray-200"
+                                                className="h-9 text-sm rounded border-gray-200 focus:border-gray-400 focus:outline-none"
                                                 placeholder="John"
                                             />
                                         </div>
@@ -587,7 +587,7 @@ export default function StartClaimPage() {
                                                 value={contactInfo.lastName}
                                                 onChange={handleContactChange}
                                                 required
-                                                className="h-9 text-sm rounded border-gray-200 focus:border-gray-300 focus:ring-1 focus:ring-gray-200"
+                                                className="h-9 text-sm rounded border-gray-200 focus:border-gray-400 focus:outline-none"
                                                 placeholder="Doe"
                                             />
                                         </div>
@@ -603,7 +603,7 @@ export default function StartClaimPage() {
                                             value={contactInfo.email}
                                             onChange={handleContactChange}
                                             required
-                                            className="h-9 text-sm rounded border-gray-200 focus:border-gray-300 focus:ring-1 focus:ring-gray-200"
+                                            className="h-9 text-sm rounded border-gray-200 focus:border-gray-400 focus:outline-none"
                                             placeholder="john.doe@example.com"
                                         />
                                     </div>
@@ -618,7 +618,7 @@ export default function StartClaimPage() {
                                             value={contactInfo.phone}
                                             onChange={handleContactChange}
                                             required
-                                            className="h-9 text-sm rounded border-gray-200 focus:border-gray-300 focus:ring-1 focus:ring-gray-200"
+                                            className="h-9 text-sm rounded border-gray-200 focus:border-gray-400 focus:outline-none"
                                             placeholder="(555) 123-4567"
                                         />
                                     </div>
@@ -704,7 +704,7 @@ export default function StartClaimPage() {
 
                             {/* Step Content */}
                             {currentStep === 1 && (
-                                <div>
+                                <div className="bg-white border border-gray-200 rounded p-4">
                                     <Step1Location
                                         address={address}
                                         onAddressChange={setAddress}
@@ -721,7 +721,7 @@ export default function StartClaimPage() {
                             )}
 
                             {currentStep === 2 && (
-                                <div>
+                                <div className="bg-white border border-gray-200 rounded p-4">
                                     <Step2Restoration
                                         formData={restorationFormData}
                                         onFormChange={handleRestorationInputChange}
@@ -741,7 +741,7 @@ export default function StartClaimPage() {
                             )}
 
                             {currentStep === 3 && (
-                                <div>
+                                <div className="bg-white border border-gray-200 rounded p-4">
                                     <Step3DamageTypes
                                         damageTypes={damageTypes}
                                         onToggleDamageType={toggleDamageType}
@@ -758,7 +758,7 @@ export default function StartClaimPage() {
                             )}
 
                             {currentStep === 4 && (
-                                <div>
+                                <div className="bg-white border border-gray-200 rounded p-4">
                                     <Step4Property
                                         questions={propertyQuestions}
                                         onQuestionChange={(field, value) =>
@@ -788,7 +788,7 @@ export default function StartClaimPage() {
                             )}
 
                             {currentStep === 5 && (
-                                <div>
+                                <div className="bg-white border border-gray-200 rounded p-4">
                                     <Step5Timeline
                                         timeline={timeline}
                                         onTimelineChange={(field, value) =>
@@ -808,7 +808,7 @@ export default function StartClaimPage() {
                             )}
 
                             {currentStep === 6 && (
-                                <div>
+                                <div className="bg-white border border-gray-200 rounded p-4">
                                     <Step6ProjectType
                                         selectedType={projectType}
                                         onTypeChange={setProjectType}
@@ -825,7 +825,7 @@ export default function StartClaimPage() {
                             )}
 
                             {currentStep === 7 && (
-                                <div>
+                                <div className="bg-white border border-gray-200 rounded p-4">
                                     <Step7DesignPlan
                                         selectedPlan={designPlan}
                                         onPlanChange={setDesignPlan}
@@ -842,7 +842,7 @@ export default function StartClaimPage() {
                             )}
 
                             {currentStep === 8 && (
-                                <div>
+                                <div className="bg-white border border-gray-200 rounded p-4">
                                     <Step8ClaimAssistance
                                         needsAdjuster={needsAdjuster}
                                         onAdjusterChange={setNeedsAdjuster}
@@ -895,7 +895,7 @@ export default function StartClaimPage() {
                                                     value={femaFormData.firstName}
                                                     onChange={handleFemaChange}
                                                     required
-                                                    className="h-9 text-sm rounded border-gray-200 focus:border-gray-300 focus:ring-1 focus:ring-gray-200"
+                                                    className="h-9 text-sm rounded border-gray-200 focus:border-gray-400 focus:outline-none"
                                                     placeholder="John"
                                                 />
                                             </div>
@@ -908,7 +908,7 @@ export default function StartClaimPage() {
                                                     value={femaFormData.lastName}
                                                     onChange={handleFemaChange}
                                                     required
-                                                    className="h-9 text-sm rounded border-gray-200 focus:border-gray-300 focus:ring-1 focus:ring-gray-200"
+                                                    className="h-9 text-sm rounded border-gray-200 focus:border-gray-400 focus:outline-none"
                                                     placeholder="Doe"
                                                 />
                                             </div>
@@ -932,7 +932,7 @@ export default function StartClaimPage() {
                                                     value={femaFormData.email}
                                                     onChange={handleFemaChange}
                                                     required
-                                                    className="h-9 text-sm rounded border-gray-200 focus:border-gray-300 focus:ring-1 focus:ring-gray-200"
+                                                    className="h-9 text-sm rounded border-gray-200 focus:border-gray-400 focus:outline-none"
                                                     placeholder="john.doe@email.com"
                                                 />
                                             </div>
@@ -946,7 +946,7 @@ export default function StartClaimPage() {
                                                     value={femaFormData.phone}
                                                     onChange={handleFemaChange}
                                                     required
-                                                    className="h-9 text-sm rounded border-gray-200 focus:border-gray-300 focus:ring-1 focus:ring-gray-200"
+                                                    className="h-9 text-sm rounded border-gray-200 focus:border-gray-400 focus:outline-none"
                                                     placeholder="(555) 123-4567"
                                                 />
                                             </div>
@@ -968,7 +968,7 @@ export default function StartClaimPage() {
                                                 value={femaFormData.address}
                                                 onChange={handleFemaChange}
                                                 required
-                                                className="h-9 text-sm rounded border-gray-200 focus:border-gray-300 focus:ring-1 focus:ring-gray-200"
+                                                className="h-9 text-sm rounded border-gray-200 focus:border-gray-400 focus:outline-none"
                                                 placeholder="123 Main Street"
                                             />
                                         </div>
@@ -981,7 +981,7 @@ export default function StartClaimPage() {
                                                     value={femaFormData.city}
                                                     onChange={handleFemaChange}
                                                     required
-                                                    className="h-9 text-sm rounded border-gray-200 focus:border-gray-300 focus:ring-1 focus:ring-gray-200"
+                                                    className="h-9 text-sm rounded border-gray-200 focus:border-gray-400 focus:outline-none"
                                                     placeholder="San Francisco"
                                                 />
                                             </div>
@@ -992,7 +992,7 @@ export default function StartClaimPage() {
                                                     value={femaFormData.state}
                                                     onChange={handleFemaChange}
                                                     required
-                                                    className="w-full h-9 px-3 text-sm border border-gray-200 rounded focus:border-gray-300 focus:ring-1 focus:ring-gray-200 bg-white"
+                                                    className="w-full h-9 px-3 text-sm border border-gray-200 rounded focus:border-gray-400 focus:outline-none bg-white"
                                                 >
                                                 <option value="">Select State</option>
                                                 <option value="AL">Alabama</option>
@@ -1054,7 +1054,7 @@ export default function StartClaimPage() {
                                                     value={femaFormData.zipCode}
                                                     onChange={handleFemaChange}
                                                     required
-                                                    className="h-9 text-sm rounded border-gray-200 focus:border-gray-300 focus:ring-1 focus:ring-gray-200"
+                                                    className="h-9 text-sm rounded border-gray-200 focus:border-gray-400 focus:outline-none"
                                                     placeholder="94102"
                                                 />
                                             </div>
@@ -1076,7 +1076,7 @@ export default function StartClaimPage() {
                                                 value={femaFormData.propertyDamage}
                                                 onChange={handleFemaChange}
                                                 required
-                                                className="h-9 text-sm rounded border-gray-200 focus:border-gray-300 focus:ring-1 focus:ring-gray-200"
+                                                className="h-9 text-sm rounded border-gray-200 focus:border-gray-400 focus:outline-none"
                                                 placeholder="Brief description of damage"
                                             />
                                         </div>

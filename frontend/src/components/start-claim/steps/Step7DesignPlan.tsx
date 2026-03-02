@@ -58,8 +58,8 @@ export function Step7DesignPlan({ selectedPlan, onPlanChange }: Step7DesignPlanP
                             </div>
                         </div>
                     </button>
-                );
-            })}
+            );
+        })}
         </div>
     );
 }

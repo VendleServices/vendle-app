@@ -58,8 +58,8 @@ export function Step6ProjectType({ selectedType, onTypeChange }: Step6ProjectTyp
                             </div>
                         </div>
                     </button>
-                );
-            })}
+            );
+        })}
         </div>
     );
 }

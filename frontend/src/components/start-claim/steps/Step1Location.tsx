@@ -31,11 +31,10 @@ export function Step1Location({ address, onAddressChange }: Step1LocationProps) 
   };
 
   return (
-    <div className="bg-white border border-gray-200 rounded p-4">
-      <div className="space-y-4">
+    <div className="space-y-4">
         {/* Street Address */}
         <AddressAutocomplete
-          className="h-9 text-sm rounded border-gray-200 focus:border-gray-300 focus:ring-1 focus:ring-gray-200 bg-white"
+          className="h-9 text-sm rounded border-gray-200 focus:border-gray-400 focus:outline-none bg-white"
           value={address.street}
           onChange={(newAddress) => {
             onAddressChange({
@@ -53,7 +52,7 @@ export function Step1Location({ address, onAddressChange }: Step1LocationProps) 
               City
             </Label>
             <Input
-              className="h-9 text-sm rounded border-gray-200 focus:border-gray-300 focus:ring-1 focus:ring-gray-200"
+              className="h-9 text-sm rounded border-gray-200 focus:border-gray-400 focus:outline-none"
               value={address.city}
               onChange={(e) => handleChange('city', e.target.value)}
               placeholder="San Francisco"
@@ -68,7 +67,7 @@ export function Step1Location({ address, onAddressChange }: Step1LocationProps) 
               value={address.state}
               onValueChange={(value) => handleChange('state', value)}
             >
-              <SelectTrigger className="h-9 text-sm rounded border-gray-200 focus:border-gray-300 focus:ring-1 focus:ring-gray-200">
+              <SelectTrigger className="h-9 text-sm rounded border-gray-200 focus:border-gray-400 focus:outline-none">
                 <SelectValue placeholder="Select" />
               </SelectTrigger>
               <SelectContent className="max-h-[200px]">
@@ -86,14 +85,13 @@ export function Step1Location({ address, onAddressChange }: Step1LocationProps) 
               ZIP Code
             </Label>
             <Input
-              className="h-9 text-sm rounded border-gray-200 focus:border-gray-300 focus:ring-1 focus:ring-gray-200"
+              className="h-9 text-sm rounded border-gray-200 focus:border-gray-400 focus:outline-none"
               value={address.zip}
               onChange={(e) => handleChange('zip', e.target.value)}
               placeholder="94102"
               maxLength={5}
             />
           </div>
-        </div>
       </div>
     </div>
   );

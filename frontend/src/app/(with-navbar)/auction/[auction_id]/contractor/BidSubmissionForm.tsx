@@ -54,7 +54,7 @@ export function BidSubmissionForm({
               name="amount"
               value={bidData.amount}
               onChange={onBidDataChange}
-              className="h-12 pl-8 text-lg font-semibold border-gray-200 focus:border-vendle-blue focus:ring-1 focus:ring-vendle-blue/20 bg-white rounded"
+              className="h-12 pl-8 text-lg font-semibold border-gray-200 focus:border-gray-400 focus:outline-none bg-white rounded transition-colors"
               placeholder="0"
               required
             />
