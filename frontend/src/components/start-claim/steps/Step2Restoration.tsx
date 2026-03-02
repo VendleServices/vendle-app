@@ -160,7 +160,7 @@ export function Step2Restoration({
                                                 placeholder="0.00"
                                                 value={(formData as any)[key]}
                                                 onChange={(e) => onFormChange(key as any, e.target.value)}
-                                                className="h-8 pl-6 text-sm rounded border-gray-200 focus:border-gray-300 focus:ring-1 focus:ring-gray-200"
+                                                className="h-8 pl-6 text-sm rounded border-gray-200 focus:border-gray-400 focus:outline-none"
                                             />
                                         </div>
                                     </div>
@@ -186,7 +186,7 @@ export function Step2Restoration({
                                     placeholder="Give your job a descriptive title..."
                                     value={formData.title}
                                     onChange={(e) => onFormChange("title", e.target.value)}
-                                    className="h-9 text-sm rounded border-gray-200 focus:border-gray-300 focus:ring-1 focus:ring-gray-200"
+                                    className="h-9 text-sm rounded border-gray-200 focus:border-gray-400 focus:outline-none"
                                 />
                             </div>
 
@@ -200,7 +200,7 @@ export function Step2Restoration({
                                             placeholder="0.00"
                                             value={formData.totalJobValue}
                                             onChange={(e) => onFormChange("totalJobValue", e.target.value)}
-                                            className="h-9 pl-6 text-sm rounded border-gray-200 focus:border-gray-300 focus:ring-1 focus:ring-gray-200"
+                                            className="h-9 pl-6 text-sm rounded border-gray-200 focus:border-gray-400 focus:outline-none"
                                         />
                                     </div>
                                 </div>
@@ -210,7 +210,7 @@ export function Step2Restoration({
                                         placeholder="e.g., Fire damage restoration"
                                         value={formData.reconstructionType}
                                         onChange={(e) => onFormChange("reconstructionType", e.target.value)}
-                                        className="h-9 text-sm rounded border-gray-200 focus:border-gray-300 focus:ring-1 focus:ring-gray-200"
+                                        className="h-9 text-sm rounded border-gray-200 focus:border-gray-400 focus:outline-none"
                                     />
                                 </div>
                             </div>
@@ -221,7 +221,7 @@ export function Step2Restoration({
                                     placeholder="Add any relevant details about the project..."
                                     value={formData.additionalNotes}
                                     onChange={(e) => onFormChange("additionalNotes", e.target.value)}
-                                    className="min-h-[80px] text-sm rounded border-gray-200 focus:border-gray-300 focus:ring-1 focus:ring-gray-200 resize-none"
+                                    className="min-h-[80px] text-sm rounded border-gray-200 focus:border-gray-400 focus:outline-none resize-none"
                                 />
                             </div>
                         </div>

@@ -136,7 +136,7 @@ const AuthForm = ({ type }: Props) => {
                                             id="companyName"
                                             type="text"
                                             name="companyName"
-                                            className="w-full pl-10 pr-4 py-3 border-2 border-[#D9D9D9] rounded-lg focus:ring-2 focus:ring-[#4A637D]/20 focus:border-[#4A637D] transition-all bg-white hover:border-[#4A637D]/50"
+                                            className="w-full pl-10 pr-4 py-3 border-2 border-[#D9D9D9] rounded-lg focus:outline-none focus:border-gray-400 transition-all bg-white hover:border-[#4A637D]/50"
                                             placeholder="Enter Company Name"
                                             disabled={isPending}
                                         />
@@ -156,7 +156,7 @@ const AuthForm = ({ type }: Props) => {
                                             id="companyWebsite"
                                             type="text"
                                             name="companyWebsite"
-                                            className="w-full pl-10 pr-4 py-3 border-2 border-[#D9D9D9] rounded-lg focus:ring-2 focus:ring-[#4A637D]/20 focus:border-[#4A637D] transition-all bg-white hover:border-[#4A637D]/50"
+                                            className="w-full pl-10 pr-4 py-3 border-2 border-[#D9D9D9] rounded-lg focus:outline-none focus:border-gray-400 transition-all bg-white hover:border-[#4A637D]/50"
                                             placeholder="Enter Company Website"
                                             disabled={isPending}
                                         />
@@ -176,7 +176,7 @@ const AuthForm = ({ type }: Props) => {
                                             id="phoneNumber"
                                             type="tel"
                                             name="phoneNumber"
-                                            className="w-full pl-10 pr-4 py-3 border-2 border-[#D9D9D9] rounded-lg focus:ring-2 focus:ring-[#4A637D]/20 focus:border-[#4A637D] transition-all bg-white hover:border-[#4A637D]/50"
+                                            className="w-full pl-10 pr-4 py-3 border-2 border-[#D9D9D9] rounded-lg focus:outline-none focus:border-gray-400 transition-all bg-white hover:border-[#4A637D]/50"
                                             placeholder="Enter Phone Number"
                                             disabled={isPending}
                                         />
@@ -195,7 +195,7 @@ const AuthForm = ({ type }: Props) => {
                                         id="email"
                                         type="email"
                                         name="email"
-                                        className="w-full pl-10 pr-4 py-3 border-2 border-[#D9D9D9] rounded-lg focus:ring-2 focus:ring-[#4A637D]/20 focus:border-[#4A637D] transition-all bg-white hover:border-[#4A637D]/50"
+                                        className="w-full pl-10 pr-4 py-3 border-2 border-[#D9D9D9] rounded-lg focus:outline-none focus:border-gray-400 transition-all bg-white hover:border-[#4A637D]/50"
                                         placeholder="Enter your email"
                                         disabled={isPending}
                                     />
@@ -214,7 +214,7 @@ const AuthForm = ({ type }: Props) => {
                                         id="password"
                                         type={showPassword ? "text" : "password"}
                                         name="password"
-                                        className="w-full pl-10 pr-10 py-3 border-2 border-[#D9D9D9] rounded-lg focus:ring-2 focus:ring-[#4A637D]/20 focus:border-[#4A637D] transition-all bg-white hover:border-[#4A637D]/50"
+                                        className="w-full pl-10 pr-10 py-3 border-2 border-[#D9D9D9] rounded-lg focus:outline-none focus:border-gray-400 transition-all bg-white hover:border-[#4A637D]/50"
                                         placeholder="Enter your password"
                                         disabled={isPending}
                                     />
@@ -241,7 +241,7 @@ const AuthForm = ({ type }: Props) => {
                                             id="confirmPassword"
                                             type={showPassword ? "text" : "password"}
                                             name="confirmPassword"
-                                            className="w-full pl-10 pr-4 py-3 border-2 border-[#D9D9D9] rounded-lg focus:ring-2 focus:ring-[#4A637D]/20 focus:border-[#4A637D] transition-all bg-white hover:border-[#4A637D]/50"
+                                            className="w-full pl-10 pr-4 py-3 border-2 border-[#D9D9D9] rounded-lg focus:outline-none focus:border-gray-400 transition-all bg-white hover:border-[#4A637D]/50"
                                             placeholder="Confirm your password"
                                             disabled={isPending}
                                         />
